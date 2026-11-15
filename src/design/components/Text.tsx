@@ -7,7 +7,7 @@ export interface TProps extends TextProps {
   variant?: TypeVariant;
   color?: 'text' | 'text2' | 'text3' | 'win' | 'loss' | 'warn' | 'info' | 'onPrimary' | string;
   align?: TextStyle['textAlign'];
-  weight?: 'light' | 'regular' | 'medium' | 'semibold';
+  weight?: 'light' | 'regular' | 'medium' | 'semibold' | 'display' | 'displaySemi';
   tabular?: boolean;
 }
 
@@ -16,6 +16,8 @@ const WEIGHT: Record<NonNullable<TProps['weight']>, string> = {
   regular: 'Geist_400Regular',
   medium: 'Geist_500Medium',
   semibold: 'Geist_600SemiBold',
+  display: 'Unbounded_800ExtraBold',
+  displaySemi: 'Unbounded_600SemiBold',
 };
 
 export function T({ variant = 'body', color = 'text', align, weight, tabular, style, ...rest }: TProps) {

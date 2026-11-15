@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import Svg, { Circle, Defs, G, LinearGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 const C = 512;
@@ -9,7 +9,8 @@ const ARC = (() => {
 })();
 
 /** The Cashino chip (same drawing as brand/logo-symbol.svg). `id` keeps gradient ids unique per instance. */
-export function ChipLogo({ size = 64, id = 'logo', mono }: { size?: number; id?: string; mono?: string }) {
+export function ChipLogo({ size = 64, id: base = 'logo', mono }: { size?: number; id?: string; mono?: string }) {
+  const id = `${base}${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   const fill = mono ?? `url(#${id}p)`;
   return (
     <Svg width={size} height={size} viewBox="172 172 680 680">

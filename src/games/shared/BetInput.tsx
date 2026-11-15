@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, TextInput, View } from 'react-native';
-import { Icon, PressableScale, T } from '@/design/components';
+import { AccentContext, Icon, PressableScale, T } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { haptic } from '@/services/haptics';
@@ -65,9 +66,13 @@ export function BetInput({ value, onChange, balance, disabled, tint, label, min 
 
 function Step({ icon, label, onPress, disabled }: { icon: 'plus' | 'minus'; label: string; onPress: () => void; disabled?: boolean }) {
   const { c } = useTheme();
+  const accent = useContext(AccentContext);
   return (
-    <PressableScale onPress={onPress} feedback="none" scaleTo={0.92} accessibilityLabel={label} style={[styles.step, { backgroundColor: c.surface3, opacity: disabled ? 0.4 : 1 }]}>
-      <Icon name={icon} size={22} color={c.text} strokeWidth={2.2} />
+    <PressableScale onPress={onPress} feedback="none" scaleTo={0.88} accessibilityLabel={label} style={[styles.step, { backgroundColor: c.surface3, opacity: disabled ? 0.4 : 1, overflow: 'hidden' }]}>
+      {icon === 'plus' ? <LinearGradient colors={accent as unknown as [string, string, ...string[]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} /> : null}
+      <View>
+        <Icon name={icon} size={22} color={icon === 'plus' ? '#fff' : c.text} strokeWidth={2.4} />
+      </View>
     </PressableScale>
   );
 }

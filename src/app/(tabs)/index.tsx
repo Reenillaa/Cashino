@@ -2,9 +2,9 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AnimatedNumber, Avatar, Button, ChipLogo, Icon, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
+import { AnimatedNumber, Aurora, Avatar, Button, ChipLogo, GameGlyph, Icon, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
-import { SCREEN_PAD, gameArt, onPastel, radius } from '@/design/tokens';
+import { SCREEN_PAD, brand, onPastel, radius } from '@/design/tokens';
 import { useT } from '@/i18n';
 import { useWallet } from '@/state/wallet';
 import { levelBonus, useProgress } from '@/state/progress';
@@ -67,11 +67,12 @@ export default function Home() {
 
   return (
     <Screen>
+      <Aurora colors={[brand.violet, brand.pink, brand.money]} height={460} alpha={0.38} />
       {/* Header: wordmark + settings + avatar */}
       <View style={[styles.header, { paddingHorizontal: SCREEN_PAD }]}>
         <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <ChipLogo size={30} id="home" />
-          <T variant="headline" weight="semibold" style={{ fontSize: 22, letterSpacing: -0.6 }} accessibilityRole="header">cashino</T>
+          <T weight="display" style={{ fontSize: 21, lineHeight: 26, letterSpacing: -0.8, color: '#fff' }} accessibilityRole="header">cashino</T>
         </View>
         <PressableScale onPress={() => router.push('/settings')} accessibilityLabel={t('settings.title')} style={[styles.round, { backgroundColor: c.surface2 }]}>
           <Icon name="settings" size={20} color={c.text} />
@@ -83,7 +84,7 @@ export default function Home() {
 
       {/* Balance hero */}
       <View style={{ paddingHorizontal: SCREEN_PAD, marginTop: 28 }}>
-        <AnimatedNumber value={balance} variant="hero" weight="semibold" color="win" style={{ letterSpacing: -2.4 }} accessibilityLabel={`${formatCoins(balance)} ${t('home.chips')}`} />
+        <AnimatedNumber value={balance} variant="hero" weight="display" color="win" style={{ letterSpacing: -2.4, textShadowColor: 'rgba(59,227,154,0.45)', textShadowRadius: 24 }} accessibilityLabel={`${formatCoins(balance)} ${t('home.chips')}`} />
         <PressableScale onPress={() => router.push('/(tabs)/profile')} scaleTo={0.98} feedback="select" style={styles.levelRow} accessibilityLabel={`${t('common.level')} ${lvl.level}`}>
           <T variant="body" color="text2">{t('home.chips')}</T>
           <T variant="body" color="text3">·</T>
@@ -159,7 +160,7 @@ export default function Home() {
               const got = tried.includes(g.id);
               return (
                 <PressableScale key={g.id} onPress={() => open(g.id)} scaleTo={0.9} feedback="select" accessibilityLabel={`${t(`games.names.${g.id}`)}${got ? ' ✓' : ''}`} style={[styles.stamp, { width: stampW, backgroundColor: got ? c.surface3 : c.surface2 }]}>
-                  <Text style={{ fontSize: 24, opacity: got ? 1 : 0.28 }} accessible={false}>{gameArt[g.id].emoji}</Text>
+                  <View style={{ opacity: got ? 1 : 0.25 }}><GameGlyph game={g.id} size={stampW - 6} /></View>
                   {got ? <View style={[styles.check, { backgroundColor: c.win }]} /> : null}
                 </PressableScale>
               );

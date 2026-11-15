@@ -1,11 +1,16 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
+import { Shine } from './Effects';
 import { PressableScale } from './Pressable';
 import { T } from './Text';
 import { Icon, type IconName } from './Icon';
 import { useTheme, alpha } from '../theme';
-import { radius } from '../tokens';
+import { brand, radius } from '../tokens';
+
+/** Colours of the big action buttons below. Games provide their own gradient; the app uses the brand one. */
+export const AccentContext = React.createContext<readonly string[]>(brand.grad);
 
 export type ButtonKind = 'primary' | 'secondary' | 'ghost' | 'tinted' | 'danger';
 
@@ -44,10 +49,13 @@ export function Button(props: ButtonProps) {
 
 function ButtonBody({ title, onPress, kind = 'primary', size = 'lg', icon, tint, disabled, loading, full, style, accessibilityHint, subtitle }: ButtonProps) {
   const { c } = useTheme();
+  const accent = React.useContext(AccentContext);
   const h = size === 'lg' ? 60 : size === 'md' ? 48 : 38;
+  // Big primary buttons are the "action": vivid gradient (the game's colours inside a game), glint and display type.
+  const hero = kind === 'primary' && size !== 'sm';
   const bg =
     kind === 'primary' ? c.primary : kind === 'secondary' ? c.surface2 : kind === 'tinted' ? alpha(tint ?? c.info, 0.16) : kind === 'danger' ? alpha(c.loss, 0.14) : 'transparent';
-  const fg = kind === 'primary' ? c.onPrimary : kind === 'tinted' ? tint ?? c.info : kind === 'danger' ? c.loss : c.text;
+  const fg = hero ? '#FFFFFF' : kind === 'primary' ? c.onPrimary : kind === 'tinted' ? tint ?? c.info : kind === 'danger' ? c.loss : c.text;
   return (
     <PressableScale
       onPress={onPress}
@@ -58,18 +66,26 @@ function ButtonBody({ title, onPress, kind = 'primary', size = 'lg', icon, tint,
       accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}
       style={[
         styles.base,
-        { height: subtitle ? h + 10 : h, backgroundColor: bg, borderRadius: radius.pill, paddingHorizontal: size === 'sm' ? 16 : 24 },
+        { height: subtitle ? h + 10 : h, backgroundColor: hero ? accent[0] : bg, borderRadius: radius.pill, paddingHorizontal: size === 'sm' ? 16 : 24 },
+        hero && !disabled && { shadowColor: accent[accent.length - 1], shadowOpacity: 0.55, shadowRadius: 18, shadowOffset: { width: 0, height: 8 } },
         full && { alignSelf: 'stretch' },
         style,
       ]}
     >
+      {hero ? (
+        <>
+          <LinearGradient pointerEvents="none" colors={accent as unknown as [string, string, ...string[]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+          <LinearGradient pointerEvents="none" colors={['rgba(255,255,255,0.28)', 'rgba(255,255,255,0)']} end={{ x: 0, y: 0.6 }} style={StyleSheet.absoluteFill} />
+          {!disabled && !loading ? <Shine every={4800} delay={1200} opacity={0.38} /> : null}
+        </>
+      ) : null}
       {loading ? (
         <ActivityIndicator color={fg} />
       ) : (
         <View style={styles.row}>
           {icon && <Icon name={icon} size={size === 'sm' ? 16 : 20} color={fg} />}
           <View style={{ alignItems: 'center' }}>
-            <T variant={size === 'sm' ? 'footnote' : 'body'} weight="semibold" style={{ color: fg, fontSize: size === 'lg' ? 17 : undefined }} numberOfLines={1}>
+            <T variant={size === 'sm' ? 'footnote' : 'body'} weight={hero ? 'displaySemi' : 'semibold'} style={{ color: fg, fontSize: hero ? (size === 'lg' ? 16 : 14) : size === 'lg' ? 17 : undefined, letterSpacing: hero ? 0.2 : undefined }} numberOfLines={1}>
               {title}
             </T>
             {subtitle ? (

@@ -225,13 +225,15 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
                 </View>
               </ControlRow>
               </MoreOptions>
-              <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
             </>
           )}
           {flying ? (
             <Button spot="crash:end" title={t('common.cashout')} subtitle={`${formatCoins(payoutFor(roundBet, Math.floor(mult * 100) / 100))} ${t('common.coins')}`} onPress={cashout} />
           ) : (
-            <Button spot="crash:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+              <View style={{ flex: 1.15 }}><BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} /></View>
+              <Button spot="crash:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ flex: 1 }} />
+            </View>
           )}
         </View>
       }

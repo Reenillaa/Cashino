@@ -167,8 +167,10 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
             </View>
           </View>
           </MoreOptions>
-          <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
-          <Button spot="plinko:drop" title={t('play.drop')} onPress={drop} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+            <View style={{ flex: 1.15 }}><BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} /></View>
+            <Button spot="plinko:drop" title={t('play.drop')} onPress={drop} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ flex: 1 }} />
+          </View>
         </View>
       }
     />

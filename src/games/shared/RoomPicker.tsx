@@ -7,9 +7,9 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import type { GameId } from '@/engine/games/types.ts';
 import { canEnterRoom, ROOMS, type Room } from '@/engine/meta/rooms.ts';
-import { Button, PressableScale, T, formatCoins } from '@/design/components';
+import { Button, PressableScale, Shine, T, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
-import { motion, onPastel, radius, roomArt } from '@/design/tokens';
+import { motion, radius, roomArt } from '@/design/tokens';
 import { useT } from '@/i18n';
 import { haptic } from '@/services/haptics';
 import { sfx } from '@/services/audio';
@@ -51,26 +51,28 @@ function RoomCard({
         style={styles.card}
       >
         <LinearGradient colors={art.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+        <View style={styles.disc} />
+        <Shine delay={400 + index * 300} every={4600} />
         <View style={[styles.cardTop, !open && { opacity: 0.55 }]}>
           <Text style={{ fontSize: 52, lineHeight: 60 }} accessible={false}>{open ? art.emoji : '🔒'}</Text>
-          <View style={[styles.pill, { backgroundColor: onPastel.chip }]}>
-            <T variant="footnote" weight="semibold" style={{ color: onPastel.text }}>{t(`rooms.tier.${room.id}`)}</T>
+          <View style={[styles.pill, { backgroundColor: 'rgba(0,0,0,0.22)' }]}>
+            <T variant="footnote" weight="semibold" style={{ color: '#FFFFFF' }}>{t(`rooms.tier.${room.id}`)}</T>
           </View>
         </View>
         <View style={{ flex: 1 }} />
         <View style={!open && { opacity: 0.55 }}>
-          <T variant="title" weight="semibold" style={{ color: onPastel.text, fontSize: 30 }}>{t(`rooms.${room.id}`)}</T>
-          <T variant="footnote" style={{ color: onPastel.text2, marginTop: 10 }}>{t('rooms.limits')}</T>
+          <T variant="title" weight="display" style={{ color: '#FFFFFF', fontSize: 28 }}>{t(`rooms.${room.id}`)}</T>
+          <T variant="footnote" style={{ color: 'rgba(255,255,255,0.82)', marginTop: 10 }}>{t('rooms.limits')}</T>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-            <T variant="display" tabular adjustsFontSizeToFit numberOfLines={1} style={{ color: onPastel.text, flexShrink: 1 }}>
+            <T variant="display" tabular adjustsFontSizeToFit numberOfLines={1} style={{ color: '#FFFFFF', flexShrink: 1 }}>
               {formatCoins(room.min)}–{formatCoins(room.max)}
             </T>
-            <T variant="callout" style={{ color: onPastel.text2 }}>{coins}</T>
+            <T variant="callout" style={{ color: 'rgba(255,255,255,0.82)' }}>{coins}</T>
           </View>
         </View>
         <View style={{ marginTop: 12, gap: 2 }}>
-          {extra ? <T variant="footnote" weight="medium" style={{ color: onPastel.text }}>{extra}</T> : null}
-          <T variant="footnote" weight={open ? 'regular' : 'semibold'} style={{ color: open ? onPastel.text2 : onPastel.text }}>
+          {extra ? <T variant="footnote" weight="medium" style={{ color: '#FFFFFF' }}>{extra}</T> : null}
+          <T variant="footnote" weight={open ? 'regular' : 'semibold'} style={{ color: open ? 'rgba(255,255,255,0.82)' : '#FFFFFF' }}>
             {open ? (room.practice ? t('rooms.free') : t('rooms.counts')) : t('rooms.locked', { amount: formatCoins(room.min) })}
           </T>
         </View>
@@ -192,6 +194,7 @@ const styles = StyleSheet.create({
   card: { height: 360, borderRadius: radius.xl, padding: 22, overflow: 'hidden' },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
   pill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
+  disc: { position: 'absolute', right: -90, top: -90, width: 260, height: 260, borderRadius: 130, backgroundColor: 'rgba(255,255,255,0.1)' },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 14, marginTop: 14 },
   dot: { width: 6, height: 6, borderRadius: 3 },
 });

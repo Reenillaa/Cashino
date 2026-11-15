@@ -65,6 +65,15 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - **Ganchos sanos**: racha de días 🔥, «te faltan X XP para el nivel N y su regalo», colección de los 14 juegos y celebración con confeti al subir de nivel. Se ha corregido que **el regalo por subir de nivel (25 × nivel) nunca se pagaba**.
 - **Lo que no se ha hecho a propósito**: casi-aciertos simulados, pérdidas disfrazadas de premio, cuentas atrás de presión o celebrar las rachas de pérdidas. Son trucos de enganche de casino y van contra el encargo original (economía sin mecánicas compulsivas), y más pensando en personas mayores.
 
+## Cambios de la ronda 5 (más espectáculo, menos botones)
+- **Intro de ruleta**: la rueda entra girando, la bola corre en sentido contrario, cae en una casilla arriba y la cámara se mete en la bola para pasar a la app (~2,6 s, se salta tocando).
+- **Logo al cambiar de pestaña**: la ficha aparece girando en el centro y se disuelve.
+- **Color y personalidad**: paleta de marca violeta → rosa → ámbar; cada juego con su **degradado vivo** y **logo ilustrado propio** (14 dibujos originales en SVG); fondos **aurora** animados en inicio, pantallas y juegos; tipografía de display **Unbounded** para marca, saldo, títulos y botones.
+- **Botones con carácter**: el botón de acción usa el degradado del juego, brillo que lo cruza y sombra de color; el «+» de la apuesta también.
+- **Menos botones, más juego**: apuesta y botón de jugar en **una sola fila** en los 10 juegos con apuesta.
+- **Tarjetas de juego** con el logo flotando, discos de luz y destello; **barra de pestañas** flotante con burbuja de degradado que se desliza.
+- **Ganar se nota**: explosión de fichas de colores y cartel con los colores del juego.
+
 ## Decisiones técnicas registradas
 - Motor puro compartido app ↔ Edge Functions (`npm run sync:engine`).
 - Sin Skia en v1 (SVG + Reanimated bastan y funcionan en web/CI).

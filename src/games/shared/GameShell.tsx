@@ -5,9 +5,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { GameId } from '@/engine/games/types.ts';
 import Animated, { Easing, FadeIn, FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
-import { AnimatedNumber, Icon, IconButton, PressableScale, Sheet, T, formatCoins } from '@/design/components';
+import { AccentContext, AnimatedNumber, Aurora, GameGlyph, Icon, IconButton, PressableScale, Sheet, T, formatCoins } from '@/design/components';
 import { useTheme, alpha } from '@/design/theme';
-import { gameArt, motion, roomArt } from '@/design/tokens';
+import { gameArt, gameVivid, motion, roomArt } from '@/design/tokens';
 import { tr, useT } from '@/i18n';
 import { META } from '@/games/catalog';
 import { RULES } from '@/games/rules';
@@ -57,6 +57,7 @@ export function GameShell({
   const insets = useSafeAreaInsets();
   const meta = META[game];
   const art = gameArt[game];
+  const vivid = gameVivid[game];
   const [sheet, setSheet] = useState<null | 'rules' | 'fair'>(null);
   const tutorialActive = useTutorialRuntime((s) => s.game === game);
   const room = useRoom(game);
@@ -80,14 +81,15 @@ export function GameShell({
     useTutorialRuntime.getState().start(game);
   };
   return (
+    <AccentContext.Provider value={vivid}>
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <LinearGradient pointerEvents="none" colors={[alpha(art.colors[1], 0.13), alpha(art.colors[0], 0.04), alpha(art.colors[0], 0)]} locations={[0, 0.55, 1]} style={[StyleSheet.absoluteFill, { height: 420 }]} />
+      <Aurora colors={[vivid[0], vivid[1], art.colors[0]]} height={560} alpha={0.42} />
       {/* Header: back · game + balance · rules */}
       <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
         <IconButton icon="chevronLeft" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} label={t('common.back')} />
         <View style={{ flex: 1, alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text style={{ fontSize: 18 }} accessible={false}>{art.emoji}</Text>
+            <GameGlyph game={game} size={26} />
             <T variant="callout" weight="semibold">{t(`games.names.${game}`)}</T>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
@@ -140,7 +142,9 @@ export function GameShell({
           {/* Controls: a solid panel docked to the bottom edge */}
           {controls ? (
             <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(motion.slow).delay(70).easing(Easing.bezier(...motion.easeEnter))}>
-              <View style={[styles.panel, { backgroundColor: c.surface1, paddingBottom: Math.max(insets.bottom, 12) + 4 }]}>
+              <View style={[styles.panel, { backgroundColor: 'rgba(16,14,24,0.92)', paddingBottom: Math.max(insets.bottom, 12) + 4 }]}>
+                <LinearGradient pointerEvents="none" colors={[alpha(vivid[0], 0.9), alpha(vivid[1], 0.9)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.panelEdge} />
+                <LinearGradient pointerEvents="none" colors={[alpha(vivid[0], 0.14), 'rgba(0,0,0,0)']} end={{ x: 0, y: 0.5 }} style={StyleSheet.absoluteFill} />
                 {controls}
               </View>
             </Animated.View>
@@ -207,6 +211,7 @@ export function GameShell({
         <FairnessPanel online={mode === 'online'} locked={!!locked} />
       </Sheet>
     </KeyboardAvoidingView>
+    </AccentContext.Provider>
   );
 }
 
@@ -222,7 +227,8 @@ export function ControlRow({ children }: { children: React.ReactNode }) {
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 12 },
   roomChip: { height: 36, borderRadius: 18, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 7 },
-  panel: { borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: 16, paddingTop: 14 },
+  panel: { borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: 16, paddingTop: 14, overflow: 'hidden' },
+  panelEdge: { position: 'absolute', top: 0, left: 30, right: 30, height: 2, borderRadius: 1 },
   oddsRow: { flexDirection: 'row', paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, gap: 12 },
   linkBtn: { flex: 1, height: 48, borderRadius: 24, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center' },
   guide: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 22 },

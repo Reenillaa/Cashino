@@ -19,3 +19,5 @@ export * from './Empty';
 export * from './Icon';
 export * from './GameGlyph';
 export * from './Logo';
+export * from './GameLogo';
+export * from './Effects';

@@ -121,8 +121,10 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
             <Stat label={t('play.potential')} value={formatCoins(payoutFor(bet, mult) - bet)} />
           </StatRow>
           </MoreOptions>
-          <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} disabled={rolling} tint={tint} />
-          <Button spot="dice:roll" title={t('play.roll')} onPress={play} loading={rolling} disabled={!valid || (bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+            <View style={{ flex: 1.15 }}><BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} disabled={rolling} tint={tint} /></View>
+            <Button spot="dice:roll" title={t('play.roll')} onPress={play} loading={rolling} disabled={!valid || (bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ flex: 1 }} />
+          </View>
         </View>
       }
     />

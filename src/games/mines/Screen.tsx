@@ -187,7 +187,6 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
                   {[1, 3, 5, 10, 15, 20, 24].map((n) => <Chip key={n} label={`${n}`} selected={mines === n} tint={tint} onPress={() => setMines(n)} />)}
                 </ControlRow>
               </MoreOptions>
-              <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
             </>
           )}
           {active ? (
@@ -202,7 +201,10 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
               />
             </View>
           ) : (
-            <Button spot="mines:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+              <View style={{ flex: 1.15 }}><BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} /></View>
+              <Button spot="mines:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ flex: 1 }} />
+            </View>
           )}
         </View>
       }

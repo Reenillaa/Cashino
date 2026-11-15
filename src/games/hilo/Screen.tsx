@@ -112,8 +112,10 @@ export default function HiloScreen({ forceTutorial }: { forceTutorial?: boolean 
             </>
           ) : (
             <>
-              <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
-              <Button spot="hilo:start" title={t('play.placeBet')} onPress={() => run('start', { bet })} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
+              <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                <View style={{ flex: 1.15 }}><BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} /></View>
+                <Button spot="hilo:start" title={t('play.placeBet')} onPress={() => run('start', { bet })} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ flex: 1 }} />
+              </View>
             </>
           )}
         </View>

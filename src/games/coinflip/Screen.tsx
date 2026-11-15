@@ -152,8 +152,10 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
           </StatRow>}
           {!active ? (
             <>
-              <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
-              <Button spot="coin:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
+              <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                <View style={{ flex: 1.15 }}><BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} /></View>
+                <Button spot="coin:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ flex: 1 }} />
+              </View>
             </>
           ) : (
             <>

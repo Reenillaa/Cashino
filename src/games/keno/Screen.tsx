@@ -142,8 +142,10 @@ export default function KenoScreen({ forceTutorial }: { forceTutorial?: boolean 
               <T variant="footnote" color="text3" tabular>{picks.length}/{KENO_MAX_PICKS}</T>
             </View>
           </View>
-          <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} disabled={busy} tint={tint} />
-          <Button spot="keno:draw" title={t('play.draw')} onPress={draw} loading={busy} disabled={picks.length === 0 || (bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+            <View style={{ flex: 1.15 }}><BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} disabled={busy} tint={tint} /></View>
+            <Button spot="keno:draw" title={t('play.draw')} onPress={draw} loading={busy} disabled={picks.length === 0 || (bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ flex: 1 }} />
+          </View>
         </View>
       }
     />

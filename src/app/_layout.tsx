@@ -7,6 +7,8 @@ import { useFonts } from 'expo-font';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Geist_300Light } from '@expo-google-fonts/geist/300Light';
+import { Unbounded_600SemiBold } from '@expo-google-fonts/unbounded/600SemiBold';
+import { Unbounded_800ExtraBold } from '@expo-google-fonts/unbounded/800ExtraBold';
 import { Geist_400Regular } from '@expo-google-fonts/geist/400Regular';
 import { Geist_500Medium } from '@expo-google-fonts/geist/500Medium';
 import { Geist_600SemiBold } from '@expo-google-fonts/geist/600SemiBold';
@@ -23,7 +25,7 @@ import { useBreakReminder } from '@/features/wellbeing/useBreakReminder';
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function RootLayout() {
-  const [loaded] = useFonts({ Geist_300Light, Geist_400Regular, Geist_500Medium, Geist_600SemiBold, GeistMono_500Medium });
+  const [loaded] = useFonts({ Geist_300Light, Geist_400Regular, Geist_500Medium, Geist_600SemiBold, GeistMono_500Medium, Unbounded_600SemiBold, Unbounded_800ExtraBold });
   const language = useSettings((s) => s.language);
   const music = useSettings((s) => s.music);
   const musicVolume = useSettings((s) => s.musicVolume);

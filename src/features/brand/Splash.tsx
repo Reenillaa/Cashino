@@ -1,49 +1,104 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
-import Animated, { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
-import { ChipLogo, T } from '@/design/components';
+import { Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import Svg, { Circle, Defs, LinearGradient as SvgLinear, Path, Rect, Stop } from 'react-native-svg';
+import { RED_NUMBERS, WHEEL_ORDER } from '@/engine/games/roulette.ts';
+import Animated, { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withSequence, withTiming } from 'react-native-reanimated';
+import { Aurora, ChipLogo, T } from '@/design/components';
 import { useTheme } from '@/design/theme';
-import { motion } from '@/design/tokens';
+import { brand, motion } from '@/design/tokens';
 
 const EASE_ENTER = Easing.bezier(...motion.easeEnter);
 const EASE = Easing.bezier(...motion.ease);
 
+const SEG = 360 / 37;
+/** Roulette wheel drawn for the intro (European order, gold rim, chip-logo hub). */
+function IntroWheel({ size }: { size: number }) {
+  const r = size / 2;
+  const wedge = (i: number) => {
+    const a0 = ((i * SEG - SEG / 2 - 90) * Math.PI) / 180, a1 = ((i * SEG + SEG / 2 - 90) * Math.PI) / 180;
+    const ro = r * 0.9, ri = r * 0.6;
+    const p = (a: number, rr: number) => `${r + rr * Math.cos(a)},${r + rr * Math.sin(a)}`;
+    return `M${p(a0, ro)} A${ro},${ro} 0 0 1 ${p(a1, ro)} L${p(a1, ri)} A${ri},${ri} 0 0 0 ${p(a0, ri)} Z`;
+  };
+  return (
+    <Svg width={size} height={size}>
+      <Defs>
+        <SvgLinear id="rim" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#FFE58A" />
+          <Stop offset="0.5" stopColor="#E0A21C" />
+          <Stop offset="1" stopColor="#8A5300" />
+        </SvgLinear>
+      </Defs>
+      <Circle cx={r} cy={r} r={r} fill="url(#rim)" />
+      <Circle cx={r} cy={r} r={r * 0.93} fill="#2A140A" />
+      {WHEEL_ORDER.map((n, i) => (
+        <Path key={n} d={wedge(i)} fill={n === 0 ? '#16C47F' : RED_NUMBERS.has(n) ? '#E8304F' : '#17111F'} stroke="rgba(255,215,120,0.55)" strokeWidth={0.8} />
+      ))}
+      <Circle cx={r} cy={r} r={r * 0.6} fill="#1A0F08" />
+      <Circle cx={r} cy={r} r={r * 0.52} fill="url(#rim)" opacity={0.9} />
+      {[0, 45, 90, 135].map((a) => (
+        <Rect key={a} x={r - r * 0.04} y={r - r * 0.46} width={r * 0.08} height={r * 0.92} rx={r * 0.04} fill="#8A5300" transform={`rotate(${a} ${r} ${r})`} />
+      ))}
+      <Circle cx={r} cy={r} r={r * 0.14} fill="#FFE58A" />
+    </Svg>
+  );
+}
+
 /**
- * Launch animation: the chip rolls in (turns a third of a lap while it settles), the wordmark rises
- * under it, then everything fades into the app. ~1.5 s, tap to skip, skipped with reduced motion.
+ * Launch animation: a roulette wheel spins in, the ball races round the rim the other way and drops
+ * into a pocket at the top, then the camera dives into the ball and the app appears through it.
+ * ~2.6 s, tap to skip, skipped with reduced motion.
  */
 export function Splash() {
   const { reduceMotion } = useTheme();
+  const { width, height } = useWindowDimensions();
   const [done, setDone] = useState(reduceMotion);
-  const chip = useSharedValue(0);
+  const spin = useSharedValue(0);
+  const ball = useSharedValue(0);
+  const zoom = useSharedValue(0);
   const word = useSharedValue(0);
-  const out = useSharedValue(0);
-  const close = (fast = false) =>
-    out.set(withTiming(1, { duration: fast ? 160 : 380, easing: EASE }, (f) => {
-      if (f) runOnJS(setDone)(true);
+  const size = Math.min(width * 0.72, 300);
+  const R = size * 0.375; // ball track (inside the pockets)
+  const finish = () => setDone(true);
+  const close = () =>
+    zoom.set(withTiming(1, { duration: 260, easing: EASE }, (f) => {
+      if (f) runOnJS(finish)();
     }));
   useEffect(() => {
     if (reduceMotion) return;
-    chip.set(withTiming(1, { duration: 820, easing: EASE_ENTER }));
-    word.set(withDelay(360, withTiming(1, { duration: 520, easing: EASE_ENTER })));
-    out.set(withDelay(1200, withTiming(1, { duration: 380, easing: EASE }, (f) => {
-      if (f) runOnJS(setDone)(true);
+    spin.set(withTiming(1, { duration: 1900, easing: Easing.out(Easing.cubic) }));
+    ball.set(withTiming(1, { duration: 1650, easing: Easing.out(Easing.quad) }));
+    word.set(withSequence(withDelay(250, withTiming(1, { duration: 500, easing: EASE_ENTER })), withDelay(900, withTiming(0, { duration: 300 }))));
+    zoom.set(withDelay(1850, withTiming(1, { duration: 820, easing: Easing.in(Easing.cubic) }, (f) => {
+      if (f) runOnJS(finish)();
     })));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const wrap = useAnimatedStyle(() => ({ opacity: 1 - out.value }));
-  const logo = useAnimatedStyle(() => ({
-    opacity: chip.value,
-    transform: [{ rotate: `${interpolate(chip.value, [0, 1], [-120, 0])}deg` }, { scale: interpolate(chip.value, [0, 1], [0.55, 1]) + 0.06 * out.value }],
-  }));
-  const text = useAnimatedStyle(() => ({ opacity: word.value, transform: [{ translateY: (1 - word.value) * 12 }] }));
+  // The wheel turns +2.2 laps; the ball runs −3 laps and ends at the top (−90°).
+  const wheel = useAnimatedStyle(() => ({ opacity: Math.min(1, spin.value * 6), transform: [{ rotate: `${spin.value * 800}deg` }, { scale: 0.7 + 0.3 * Math.min(1, spin.value * 3) }] }));
+  const ballStyle = useAnimatedStyle(() => {
+    const a = (-90 - (1 - ball.value) * 1080) * (Math.PI / 180);
+    const rr = R + (1 - ball.value) * size * 0.07; // spirals inwards as it slows
+    return { opacity: Math.min(1, ball.value * 8), transform: [{ translateX: rr * Math.cos(a) }, { translateY: rr * Math.sin(a) }] };
+  });
+  // Camera dive: bring the ball to the centre while scaling everything up, then fade into the app.
+  const stage = useAnimatedStyle(() => {
+    const s = 1 + 26 * zoom.value * zoom.value;
+    return { transform: [{ translateY: R * s * Math.min(1, zoom.value * 2.2) }, { scale: s }] };
+  });
+  const wrap = useAnimatedStyle(() => ({ opacity: zoom.value < 0.7 ? 1 : 1 - (zoom.value - 0.7) / 0.3 }));
+  const text = useAnimatedStyle(() => ({ opacity: word.value, transform: [{ translateY: (1 - word.value) * 14 }] }));
   if (done) return null;
   return (
     <Animated.View style={[StyleSheet.absoluteFill, styles.wrap, wrap]}>
-      <Pressable style={styles.center} onPress={() => close(true)} accessibilityLabel="Cashino">
-        <Animated.View style={logo}>
-          <ChipLogo size={116} id="splash" />
+      <Aurora colors={[brand.violet, brand.pink, brand.amber]} height={height} alpha={0.5} />
+      <Pressable style={styles.center} onPress={close} accessibilityLabel="Cashino">
+        <Animated.View style={[{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }, stage]}>
+          <Animated.View style={[StyleSheet.absoluteFill, wheel]}>
+            <IntroWheel size={size} />
+          </Animated.View>
+          <Animated.View style={[styles.ball, { width: size * 0.07, height: size * 0.07, borderRadius: size * 0.035 }, ballStyle]} />
         </Animated.View>
-        <Animated.View style={text}>
+        <Animated.View style={[{ position: 'absolute', bottom: height * 0.16 }, text]}>
           <T style={styles.word}>cashino</T>
         </Animated.View>
       </Pressable>
@@ -80,9 +135,37 @@ export function LogoCurtain() {
   );
 }
 
+/** Tab switch flourish: the chip pops in the middle with a quick spin and dissolves (~0.55 s, no blocking). */
+export function TabFlash() {
+  const { reduceMotion } = useTheme();
+  const [done, setDone] = useState(reduceMotion);
+  const p = useSharedValue(0);
+  useEffect(() => {
+    if (reduceMotion) return;
+    p.set(withTiming(1, { duration: 560, easing: Easing.out(Easing.cubic) }, (f) => {
+      if (f) runOnJS(setDone)(true);
+    }));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const dim = useAnimatedStyle(() => ({ opacity: interpolate(p.value, [0, 0.2, 1], [0, 0.45, 0]) }));
+  const chip = useAnimatedStyle(() => ({
+    opacity: interpolate(p.value, [0, 0.15, 0.7, 1], [0, 1, 1, 0]),
+    transform: [{ rotate: `${interpolate(p.value, [0, 1], [-90, 270])}deg` }, { scale: interpolate(p.value, [0, 0.35, 1], [0.4, 1.05, 1.5]) }],
+  }));
+  if (done) return null;
+  return (
+    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center', zIndex: 40 }]}>
+      <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: '#000' }, dim]} />
+      <Animated.View style={chip}>
+        <ChipLogo size={64} id="tabflash" />
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
   wrap: { backgroundColor: '#000', zIndex: 1000 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18 },
-  word: { color: '#fff', fontFamily: 'Geist_600SemiBold', fontSize: 36, lineHeight: 42, letterSpacing: -1.2 },
+  word: { color: '#fff', fontFamily: 'Unbounded_800ExtraBold', fontSize: 34, lineHeight: 42, letterSpacing: -1.2 },
+  ball: { position: 'absolute', backgroundColor: '#FFFFFF', shadowColor: '#fff', shadowOpacity: 0.8, shadowRadius: 8 },
   curtain: { backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', zIndex: 50 },
 });

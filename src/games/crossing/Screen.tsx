@@ -196,7 +196,6 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
                   options={[{ value: 'easy', label: t('play.easy') }, { value: 'medium', label: t('play.medium') }, { value: 'hard', label: t('play.hard') }, { value: 'extreme', label: t('play.extreme') }]}
                 />
               </MoreOptions>
-              <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
             </>
           )}
           {active ? (
@@ -205,7 +204,10 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
               <Button spot="crossing:end" title={t('common.cashout')} subtitle={lane ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} ${t('common.coins')}` : undefined} onPress={cashout} disabled={lane === 0 || moving} style={{ flex: 1.4 }} />
             </View>
           ) : (
-            <Button spot="crossing:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
+            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+              <View style={{ flex: 1.15 }}><BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} /></View>
+              <Button spot="crossing:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ flex: 1 }} />
+            </View>
           )}
         </View>
       }

@@ -4,7 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../theme';
-import { SCREEN_PAD, motion } from '../tokens';
+import { SCREEN_PAD, brand, motion } from '../tokens';
+import { Aurora } from './Effects';
 import { T } from './Text';
 import { Icon, type IconName } from './Icon';
 import { PressableScale } from './Pressable';
@@ -80,6 +81,7 @@ export function Screen({
       keyboardShouldPersistTaps="handled"
       {...rest}
     >
+      {header ? <Aurora colors={[brand.violet, brand.pink, brand.amber]} height={340} alpha={0.26} /> : null}
       {header}
       {children}
     </Animated.ScrollView>
@@ -120,7 +122,7 @@ export function Section({ title, action, children, style }: { title?: string; ac
     <View style={[{ marginTop: 32 }, style]}>
       {(title || action) && (
         <View style={[styles.titleRow, { paddingHorizontal: SCREEN_PAD, marginBottom: 14 }]}>
-          <T variant="headline" weight="medium" style={{ flex: 1, fontSize: 19 }} accessibilityRole="header">
+          <T weight="displaySemi" style={{ flex: 1, fontSize: 17, lineHeight: 22, letterSpacing: -0.3 }} accessibilityRole="header">
             {title}
           </T>
           {action}

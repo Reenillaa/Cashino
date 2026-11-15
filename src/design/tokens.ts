@@ -136,10 +136,38 @@ export const gameArt: Record<GameId, { emoji: string; colors: [string, string] }
 
 /** Room cards: a "place" per stake level (Offsuit names its tables after places too). */
 export const roomArt: Record<'practice' | 'r1' | 'r2' | 'r3', { emoji: string; colors: [string, string] }> = {
-  practice: { emoji: '🏠', colors: ['#EEF1F6', '#D3DAE6'] },
-  r1: { emoji: '☕️', colors: ['#C8F5DF', '#A6DCEF'] },
-  r2: { emoji: '🎩', colors: ['#D8C8FF', '#FBD3E9'] },
-  r3: { emoji: '💎', colors: ['#FFE6A7', '#FFC2A8'] },
+  practice: { emoji: '🏠', colors: ['#5C6B8A', '#2E3550'] },
+  r1: { emoji: '☕️', colors: ['#12C08A', '#0B6E6E'] },
+  r2: { emoji: '🎩', colors: ['#7B5CFF', '#D9217F'] },
+  r3: { emoji: '💎', colors: ['#FFB938', '#C2410C'] },
+};
+
+/** Cashino brand: violet → pink → amber, plus money green. */
+export const brand = {
+  grad: ['#7B5CFF', '#FF4FA3', '#FFB547'] as [string, string, string],
+  violet: '#7B5CFF',
+  pink: '#FF4FA3',
+  amber: '#FFB547',
+  money: '#3BE39A',
+  night: '#0B0716',
+} as const;
+
+/** Vivid gradient per game: cards, primary buttons and the in-game aurora. White text on top. */
+export const gameVivid: Record<GameId, [string, string]> = {
+  poker: ['#6A5CFF', '#C04BFF'],
+  blackjack: ['#12C08A', '#0B6E6E'],
+  crash: ['#3D7BFF', '#8A4DFF'],
+  dice: ['#FF9F1C', '#FF4F6E'],
+  mines: ['#00C2A8', '#1F7BFF'],
+  plinko: ['#E040FB', '#FF4F9A'],
+  crossing: ['#F7B500', '#3DBE5C'],
+  roulette: ['#FF3B5C', '#9B1239'],
+  limbo: ['#21C8FD', '#2F55FF'],
+  coinflip: ['#FFB938', '#F2672E'],
+  baccarat: ['#B8862B', '#5E2E8C'],
+  hilo: ['#5B6CFF', '#00A8E8'],
+  keno: ['#00C6E0', '#7A5CFF'],
+  sicbo: ['#FF6A3D', '#D9217F'],
 };
 
 /** Ink used on pastel art. */
@@ -157,12 +185,15 @@ export const font = {
   bold: 'Geist_600SemiBold',
   mono: 'GeistMono_500Medium',
   monoMedium: 'GeistMono_500Medium',
+  /** Display face with personality: brand, big numbers, game names, primary buttons. */
+  display: 'Unbounded_800ExtraBold',
+  displaySemi: 'Unbounded_600SemiBold',
 } as const;
 
 export const type = {
-  hero: { fontFamily: font.light, fontSize: 64, lineHeight: 70, letterSpacing: -2 },
+  hero: { fontFamily: font.display, fontSize: 56, lineHeight: 64, letterSpacing: -2 },
   display: { fontFamily: font.light, fontSize: 40, lineHeight: 46, letterSpacing: -1 },
-  title: { fontFamily: font.medium, fontSize: 30, lineHeight: 36, letterSpacing: -0.6 },
+  title: { fontFamily: font.displaySemi, fontSize: 26, lineHeight: 34, letterSpacing: -0.8 },
   headline: { fontFamily: font.semibold, fontSize: 20, lineHeight: 26, letterSpacing: -0.2 },
   body: { fontFamily: font.regular, fontSize: 16, lineHeight: 22, letterSpacing: -0.1 },
   callout: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, letterSpacing: -0.1 },
