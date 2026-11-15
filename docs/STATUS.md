@@ -84,6 +84,19 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - **Blackjack** y **Bacará** sobre un tapete con borde dorado y fichas apostadas; **Póker** con mesa ovalada, entrada simplificada (un botón y ajustes plegados) y acciones con color e icono propios (retirarse / pasar-igualar / subir); la subida se elige con la rueda de fichas.
 - **Minas** con casillas en relieve y **Keno** con números en forma de bola.
 
+## Cambios de la ronda 7 (los 6 juegos que faltaban, fluidez y recibimiento de casino)
+- **Fluidez**: las animaciones de fondo y los brillos se pausan cuando su pantalla no se ve; en el inicio solo se mueven las tarjetas grandes; el fondo aurora usa 2 luces animadas en vez de 4.
+- **Sin raya negra**: el fondo de colores ya no lleva ningún degradado a negro ni recorte de caja.
+- **Recibimiento de casino** en el inicio: cartel «BIENVENIDO A CASHINO» con marco dorado y bombillas que se encienden en cadena, con tu saldo dentro.
+- **Ruleta** rehecha, sin bajar: rueda dorada donde **tocas un número para apostarle** (la ficha aparece en la casilla), apuestas grandes de color (Rojo, 0, Negro, Par, Impar, 1–18, 19–36 y docenas), número ganador grande en el centro, Repetir/Deshacer/Borrar como iconos y la ficha con la rueda de fichas. Se adapta a pantallas pequeñas.
+- **Plinko**: puedes soltar bolas seguidas (se ponen en cola), animación de una sola pieza por bola (mucho más ligera), clavos que brillan, bolas rosas con reflejo y cubetas de colores que botan al recibir la bola.
+- **Cara o cruz**: moneda detallada (canto estriado, borde en relieve, anillo de puntos, corona y cara / cruz con laurel, nombre grabado), con grosor, lanzamiento alto con giro, rebote al caer y sombra en el suelo.
+- **Mayor o menor**: carta grande que sale del mazo y se voltea, brillo verde/rojo según aciertes y probabilidades ▲ ▼ a la vista.
+- **Cruza la calle**: asfalto, acera con bordillo, salto de verdad del pollito (se encoge y se estira) y coches circulando por los carriles de delante.
+- **Sic Bo**: tres dados que ruedan sobre un tapete, apuestas principales grandes (Pequeño / Grande, Par, Impar, Cualquier trío) y el resto en «Más apuestas».
+- **Limbo**: eliges el objetivo arrastrando directamente sobre el velocímetro.
+- **Bacará y Sic Bo** apuestan también con la rueda de fichas.
+
 ## Decisiones técnicas registradas
 - Motor puro compartido app ↔ Edge Functions (`npm run sync:engine`).
 - Sin Skia en v1 (SVG + Reanimated bastan y funcionan en web/CI).

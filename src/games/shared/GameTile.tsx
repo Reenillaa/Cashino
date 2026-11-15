@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { Easing, FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, FadeInDown, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useIsFocused } from 'expo-router';
 import type { GameId } from '@/engine/games/types.ts';
 import { GameLogo, PressableScale, Shine, T } from '@/design/components';
 import { useTheme } from '@/design/theme';
@@ -21,10 +22,16 @@ export function GameTile({
   const { reduceMotion } = useTheme();
   const name = t(`games.names.${id}`);
   const blurb = t(`games.blurbs.${id}`);
+  const focused = useIsFocused();
   const float = useSharedValue(0);
+  // Only the big featured cards keep moving (performance: the grid stays still, the press still reacts).
   useEffect(() => {
-    if (!reduceMotion) float.set(withRepeat(withTiming(1, { duration: 2400 + (index % 4) * 300, easing: Easing.inOut(Easing.sin) }), -1, true));
-  }, [reduceMotion, index, float]);
+    if (reduceMotion || !big || !focused) {
+      cancelAnimation(float);
+      return;
+    }
+    float.set(withRepeat(withTiming(1, { duration: 2400 + (index % 4) * 300, easing: Easing.inOut(Easing.sin) }), -1, true));
+  }, [reduceMotion, index, float, big, focused]);
   const logo = useAnimatedStyle(() => ({ transform: [{ translateY: -4 * float.value }, { rotate: `${(float.value - 0.5) * 6}deg` }] }));
   const logoSize = big ? 92 : 70;
   return (
@@ -35,7 +42,7 @@ export function GameTile({
           {/* depth: two soft light discs */}
           <View style={[styles.disc, { width: logoSize * 2.2, height: logoSize * 2.2, borderRadius: logoSize * 1.1, right: -logoSize * 0.7, top: -logoSize * 0.8 }]} />
           <View style={[styles.disc, { width: logoSize * 1.2, height: logoSize * 1.2, borderRadius: logoSize * 0.6, left: -logoSize * 0.4, bottom: -logoSize * 0.5, opacity: 0.6 }]} />
-          <Shine delay={600 + index * 380} every={5200} />
+          {big ? <Shine delay={600 + index * 900} every={6500} /> : null}
           <View style={styles.top}>
             <Animated.View style={logo}>
               <GameLogo game={id} size={logoSize} />

@@ -10,8 +10,9 @@ import { tutorialEvent } from '@/features/tutorial/tutorial';
 import { GameShell } from '../shared/GameShell';
 import { HistoryStrip } from '../shared/HistoryStrip';
 import { ResultBanner } from '../shared/ResultBanner';
-import { ChipRack, ChipToken, chipFor } from '../shared/ChipRack';
-import { useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
+import { ChipToken, chipFor } from '../shared/ChipRack';
+import { BetInput } from '../shared/BetInput';
+import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
@@ -23,8 +24,7 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
   const { t } = useT();
   const { reduceMotion } = useTheme();
   const s = useGameSession('baccarat');
-  const [chipPick, setChip] = useState<number | null>(null);
-  const chip = chipPick !== null && s.room.chips.includes(chipPick) ? chipPick : s.room.chips[1];
+  const [chip, setChip] = useBet('baccarat', s.room);
   const [bets, setBets] = useState<Partial<Record<BaccaratBetKind, number>>>({});
   const [coup, setCoup] = useState<BView | null>(null);
   const [shown, setShown] = useState({ p: 0, b: 0 });
@@ -113,12 +113,14 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
       }
       controls={
         <View>
-          <ChipRack value={chip} onChange={setChip} balance={s.balance} values={s.room.chips} />
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, marginBottom: 10 }}>
-            <T variant="footnote" color="text3" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular color={total && total < s.room.min ? 'warn' : 'text'}>{formatCoins(total)}</T> / {formatCoins(s.room.min)}–{formatCoins(s.room.max)}</T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+            <T variant="footnote" color="text2" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular color={total && total < s.room.min ? 'warn' : 'text'}>{formatCoins(total)}</T></T>
             <Button title={t('common.clear')} kind="ghost" size="sm" onPress={() => setBets({})} disabled={!total || busy} />
           </View>
-          <Button spot="bac:deal" title={t('play.deal')} onPress={deal} loading={busy} disabled={!total || total > s.balance || total < s.room.min} />
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+            <View style={{ flex: 1.15 }}><BetInput value={chip} onChange={setChip} balance={s.balance} min={s.room.min} max={s.room.max} label={t('play.chipValue')} /></View>
+            <Button spot="bac:deal" title={t('play.deal')} onPress={deal} loading={busy} disabled={!total || total > s.balance || total < s.room.min} style={{ flex: 1 }} />
+          </View>
         </View>
       }
     />

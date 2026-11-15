@@ -1,8 +1,8 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useIsFocused, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AnimatedNumber, Aurora, Avatar, Button, ChipLogo, GameGlyph, Icon, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
+import { AnimatedNumber, Aurora, Avatar, Button, ChipLogo, GameGlyph, Icon, Marquee, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD, brand, onPastel, radius } from '@/design/tokens';
 import { useT } from '@/i18n';
@@ -30,6 +30,7 @@ export default function Home() {
   const { c } = useTheme();
   const router = useRouter();
   const { width } = useWindowDimensions();
+  const focused = useIsFocused();
   const signedIn = useSession((s) => !!s.userId);
   const profile = useSession((s) => s.profile);
   const serverBalance = useSession((s) => s.balance);
@@ -67,7 +68,7 @@ export default function Home() {
 
   return (
     <Screen>
-      <Aurora colors={[brand.violet, brand.pink, brand.money]} height={460} alpha={0.38} />
+      <Aurora colors={[brand.violet, brand.pink, brand.money]} height={460} alpha={0.38} active={focused} />
       {/* Header: wordmark + settings + avatar */}
       <View style={[styles.header, { paddingHorizontal: SCREEN_PAD }]}>
         <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -83,14 +84,19 @@ export default function Home() {
       </View>
 
       {/* Balance hero */}
-      <View style={{ paddingHorizontal: SCREEN_PAD, marginTop: 28 }}>
-        <AnimatedNumber value={balance} variant="hero" weight="display" color="win" style={{ letterSpacing: -2.4, textShadowColor: 'rgba(59,227,154,0.45)', textShadowRadius: 24 }} accessibilityLabel={`${formatCoins(balance)} ${t('home.chips')}`} />
-        <PressableScale onPress={() => router.push('/(tabs)/profile')} scaleTo={0.98} feedback="select" style={styles.levelRow} accessibilityLabel={`${t('common.level')} ${lvl.level}`}>
-          <T variant="body" color="text2">{t('home.chips')}</T>
-          <T variant="body" color="text3">·</T>
-          <T variant="body" color="text2">{t('common.level')} {lvl.level}</T>
-          <ProgressBar value={lvl.needed ? lvl.into / lvl.needed : 1} height={4} tint={c.win} style={{ width: 64, marginLeft: 4 }} />
-        </PressableScale>
+      <View style={{ paddingHorizontal: SCREEN_PAD, marginTop: 22 }}>
+        <Marquee>
+          <T weight="displaySemi" align="center" style={{ color: '#FFD873', fontSize: 11, letterSpacing: 3 }}>{t('home.welcome')}</T>
+          <T weight="display" align="center" style={{ color: '#FFE58A', fontSize: 30, lineHeight: 36, letterSpacing: 1, textShadowColor: 'rgba(255,185,56,0.8)', textShadowRadius: 16 }}>CASHINO</T>
+          <View style={styles.signRule} />
+          <AnimatedNumber value={balance} variant="hero" weight="display" color="win" align="center" style={{ fontSize: 48, lineHeight: 56, letterSpacing: -1.6, textShadowColor: 'rgba(59,227,154,0.55)', textShadowRadius: 22 }} accessibilityLabel={`${formatCoins(balance)} ${t('home.chips')}`} />
+          <PressableScale onPress={() => router.push('/(tabs)/profile')} scaleTo={0.98} feedback="select" style={[styles.levelRow, { alignSelf: 'center' }]} accessibilityLabel={`${t('common.level')} ${lvl.level}`}>
+            <T variant="body" style={{ color: 'rgba(255,255,255,0.8)' }}>{t('home.chips')}</T>
+            <T variant="body" style={{ color: 'rgba(255,255,255,0.5)' }}>·</T>
+            <T variant="body" style={{ color: 'rgba(255,255,255,0.8)' }}>{t('common.level')} {lvl.level}</T>
+            <ProgressBar value={lvl.needed ? lvl.into / lvl.needed : 1} height={4} tint={c.win} style={{ width: 56, marginLeft: 4 }} />
+          </PressableScale>
+        </Marquee>
         <View style={styles.hookRow}>
           {runStreak > 0 && (
             <View style={[styles.pill, { backgroundColor: c.surface1 }]}>
@@ -207,6 +213,7 @@ const styles = StyleSheet.create({
   gift: { gap: 14, padding: 18, borderRadius: radius.xl, overflow: 'hidden' },
   giftBtn: { height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  signRule: { height: 1, marginVertical: 10, marginHorizontal: 30, backgroundColor: 'rgba(255,214,120,0.35)' },
   hookRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, flexWrap: 'wrap' },
   pill: { paddingHorizontal: 12, height: 30, borderRadius: 15, justifyContent: 'center' },
   album: { borderRadius: radius.lg, padding: 16 },

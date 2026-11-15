@@ -24,6 +24,7 @@ const en: Dictionary = {
     seasonTier: 'Pass tier {{tier}}', continueLearning: 'Keep learning',
     chips: 'chips', lobby: 'Play', allGames: 'All games', top: 'Most played', gift: "Today's gift",
     giftDay: 'Day {{day}} of 7 · come back tomorrow for more', learn: 'Learn to play', learnBody: 'Short lessons, no tricks or promises',
+    welcome: 'WELCOME TO',
     tapToPlay: 'Tap a game to start',
     streak: '🔥 {{n}} days in a row', nextLevel: '{{xp}} XP to level {{level}} and its {{bonus}}-chip gift',
     album: 'Your collection', albumBody: 'You have tried {{n}} of 14 games. Tap a new one to try it.', albumDone: 'Collection complete! You have tried all 14 games.',
@@ -46,6 +47,9 @@ const en: Dictionary = {
   },
   play: {
     change: 'Change', hideOptions: 'Done',
+    dragTarget: '👆 Drag the white dot to pick your target',
+    tapNumber: 'Tap a number on the wheel or a bet below', noMoreBets: 'No more bets…', repeat: 'Repeat', chipValue: 'Chip',
+    moreBets: 'More bets',
     tip: 'Tip', showTip: 'What would an expert do?', hideTip: 'Hide tip',
     bjTableNote: 'Blackjack pays 3 to 2 · dealer stands on soft 17',
     amount: 'Amount', placeBet: 'Bet', playPractice: 'Play practice', again: 'Again', youWon: 'You won', youLost: 'Not this time',

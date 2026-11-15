@@ -27,12 +27,13 @@ export function SuitIcon({ suit, size, color }: { suit: Suit; size: number; colo
   );
 }
 
-export type CardSize = 'xs' | 'sm' | 'md' | 'lg';
+export type CardSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 const DIM: Record<CardSize, { w: number; h: number; rank: number; suit: number; r: number }> = {
   xs: { w: 34, h: 48, rank: 16, suit: 13, r: 6 },
   sm: { w: 46, h: 64, rank: 21, suit: 16, r: 8 },
   md: { w: 60, h: 84, rank: 28, suit: 22, r: 10 },
   lg: { w: 84, h: 118, rank: 40, suit: 30, r: 13 },
+  xl: { w: 136, h: 190, rank: 62, suit: 48, r: 18 },
 };
 
 function Face({ card, size, dim }: { card: Card; size: CardSize; dim: (typeof DIM)['md'] }) {

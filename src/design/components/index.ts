@@ -21,3 +21,4 @@ export * from './GameGlyph';
 export * from './Logo';
 export * from './GameLogo';
 export * from './Effects';
+export * from './Marquee';

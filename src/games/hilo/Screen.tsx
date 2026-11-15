@@ -34,6 +34,7 @@ export default function HiloScreen({ forceTutorial }: { forceTutorial?: boolean 
   const history = useGameHistory('hilo');
   const active = view?.status === 'active';
   const current: Card | null = view ? parseCard(view.current) : null;
+  const lastStep = view?.steps[view.steps.length - 1];
   const correct = view?.steps.filter((x) => x.guess !== 'skip' && x.correct).length ?? 0;
   const run = async (op: string, params: Record<string, unknown> = {}) => {
     try {
@@ -75,7 +76,28 @@ export default function HiloScreen({ forceTutorial }: { forceTutorial?: boolean 
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage}>
-          <PlayingCard key={view ? `${view.steps.length}-${view.current}` : 'none'} card={current} faceDown={!current} size="lg" />
+          <View style={styles.table}>
+            {/* the deck the next card comes from */}
+            <View style={styles.deck}>
+              {[0, 1, 2].map((k) => (
+                <View key={k} style={{ position: 'absolute', left: k * 3, top: -k * 3 }}>
+                  <PlayingCard card={null} faceDown size="lg" />
+                </View>
+              ))}
+            </View>
+            <View style={[styles.glowRing, { shadowColor: lastStep && lastStep.guess !== 'skip' ? (lastStep.correct ? '#3BE39A' : '#FF5C7A') : '#AEB6FF' }]}>
+              <PlayingCard key={view ? `${view.steps.length}-${view.current}` : 'none'} card={current} faceDown={!current} size="xl" dealFrom={{ x: -110, y: -10 }} />
+            </View>
+          </View>
+          {active && current ? (
+            <View style={styles.oddsRow}>
+              {guesses.map((g) => (
+                <View key={g} style={styles.oddsPill}>
+                  <T weight="displaySemi" style={{ color: '#fff', fontSize: 12 }}>{g.startsWith('higher') ? '▲' : g.startsWith('lower') ? '▼' : '='} {(guessProbability(current, g) * 100).toFixed(0)} %</T>
+                </View>
+              ))}
+            </View>
+          ) : null}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingHorizontal: 20 }} style={{ flexGrow: 0, marginTop: 24 }}>
             {(view?.steps ?? []).map((st, i) => (
               <View key={i} style={{ alignItems: 'center', gap: 4 }}>
@@ -125,5 +147,10 @@ export default function HiloScreen({ forceTutorial }: { forceTutorial?: boolean 
 }
 
 const styles = StyleSheet.create({
+  table: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 26 },
+  deck: { width: 92, height: 124 },
+  glowRing: { borderRadius: 20, shadowOpacity: 0.7, shadowRadius: 24, shadowOffset: { width: 0, height: 0 } },
+  oddsRow: { flexDirection: 'row', gap: 10, marginTop: 18 },
+  oddsPill: { paddingHorizontal: 14, height: 32, borderRadius: 16, justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.1)' },
   stage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

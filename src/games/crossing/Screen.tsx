@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View, type ScrollViewInstance } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Ellipse, Path, Rect } from 'react-native-svg';
 import { Button, Segmented, T, formatCoins, formatMult } from '@/design/components';
 import { useTheme, alpha } from '@/design/theme';
@@ -94,7 +95,10 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
       setMoving(true);
       const r = await s.op('advance');
       const v = r.view as unknown as CView;
-      if (!reduceMotion) hop.set(withSequence(withTiming(-16, { duration: 120, easing: Easing.out(Easing.quad) }), withTiming(0, { duration: 140, easing: Easing.in(Easing.quad) })));
+      if (!reduceMotion) {
+        // a proper jump: crouch, leap with a stretch, land with a squash
+        hop.set(withSequence(withTiming(6, { duration: 70 }), withTiming(-46, { duration: 170, easing: Easing.out(Easing.quad) }), withTiming(0, { duration: 170, easing: Easing.in(Easing.quad) }), withTiming(4, { duration: 60 }), withTiming(0, { duration: 80 })));
+      }
       sfx('step');
       haptic.light();
       setView(v);
@@ -129,7 +133,7 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
       onError(e);
     }
   };
-  const chickStyle = useAnimatedStyle(() => ({ transform: [{ translateY: hop.value }] }));
+  const chickStyle = useAnimatedStyle(() => ({ transform: [{ translateY: hop.value }, { scaleY: 1 - hop.value / 160 }, { scaleX: 1 + hop.value / 260 }] }));
   const carStyle = useAnimatedStyle(() => ({ transform: [{ translateY: carY.value }] }));
   const lost = view?.status === 'lost';
   return (
@@ -143,9 +147,10 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
       stage={
         <View style={{ flex: 1, justifyContent: 'center' }}>
           <ScrollView ref={scroll} horizontal showsHorizontalScrollIndicator={false} scrollEnabled={!active} contentContainerStyle={{ paddingRight: 40 }}>
-            <View style={[styles.road, { backgroundColor: c.surface1 }]}>
+            <View style={styles.road}>
+              <LinearGradient colors={['#3A3A48', '#24242E']} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={StyleSheet.absoluteFill} />
               {/* Sidewalk */}
-              <View style={[styles.lane, { width: LANE_W, backgroundColor: c.surface2 }]}>
+              <View style={[styles.lane, styles.sidewalk, { width: LANE_W }]}>
                 {lane === 0 && (
                   <Animated.View style={chickStyle}>
                     <Chick size={52} />
@@ -156,7 +161,9 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
                 const passed = n < lane || (n === lane && !lost);
                 const here = n === lane;
                 return (
-                  <View key={n} style={[styles.lane, { width: LANE_W, borderLeftColor: alpha(c.text3, 0.35) }]} accessibilityLabel={`${t('play.lane', { n })} · ${formatMult(crossingMultiplier(diff, n))}`}>
+                  <View key={n} style={[styles.lane, { width: LANE_W, borderLeftColor: 'rgba(255,255,255,0.55)', backgroundColor: passed ? 'rgba(59,227,154,0.12)' : 'transparent' }]} accessibilityLabel={`${t('play.lane', { n })} · ${formatMult(crossingMultiplier(diff, n))}`}>
+                    {/* traffic in the next lanes ahead (just scenery: the outcome is already decided) */}
+                    {active && n > lane && n <= lane + 3 && !moving ? <Traffic seed={n} /> : null}
                     <View style={[styles.mult, { backgroundColor: passed ? alpha(tint, 0.25) : c.surface2, borderColor: n === lane + 1 && active ? tint : 'transparent' }]}>
                       <T style={{ fontFamily: 'Geist_600SemiBold', fontSize: 11, color: passed ? tint : c.text2 }} numberOfLines={1} adjustsFontSizeToFit>{formatMult(crossingMultiplier(diff, n))}</T>
                     </View>
@@ -216,9 +223,26 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
 }
 
 const styles = StyleSheet.create({
-  road: { flexDirection: 'row', height: 260, borderRadius: 24, overflow: 'hidden', marginLeft: 16 },
+  road: { flexDirection: 'row', height: 280, borderRadius: 26, overflow: 'hidden', marginLeft: 12, borderWidth: 3, borderColor: 'rgba(255,255,255,0.12)' },
+  sidewalk: { backgroundColor: '#5E5A6E', borderRightWidth: 6, borderRightColor: '#F7B500' },
   lane: { alignItems: 'center', justifyContent: 'center', borderLeftWidth: 2, borderStyle: 'dashed', overflow: 'hidden' },
   mult: { position: 'absolute', top: 14, paddingHorizontal: 8, height: 26, minWidth: 58, borderRadius: 13, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5 },
   chickSpot: { marginTop: 20 },
   car: { position: 'absolute', top: 0 },
 });
+
+const CAR_COLORS = ['#FF4F6E', '#21C8FD', '#FFB938', '#7B5CFF', '#12C08A'];
+/** Cars driving down a lane on a loop, each lane with its own pace and colour. */
+function Traffic({ seed }: { seed: number }) {
+  const y = useSharedValue(-90);
+  React.useEffect(() => {
+    y.set(withRepeat(withSequence(withTiming(-90, { duration: 0 }), withTiming(330, { duration: 1300 + (seed % 3) * 450, easing: Easing.linear }), withTiming(330, { duration: 200 + (seed % 4) * 260 })), -1));
+    return () => cancelAnimation(y);
+  }, [seed, y]);
+  const style = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }));
+  return (
+    <Animated.View pointerEvents="none" style={[{ position: 'absolute', top: 0 }, style]}>
+      <Car color={CAR_COLORS[seed % CAR_COLORS.length]} />
+    </Animated.View>
+  );
+}

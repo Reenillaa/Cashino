@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Rect } from 'react-native-svg';
 import { Button, PressableScale, T, formatCoins } from '@/design/components';
 import { useTheme, alpha } from '@/design/theme';
@@ -11,12 +10,16 @@ import { tutorialEvent } from '@/features/tutorial/tutorial';
 import { GameShell } from '../shared/GameShell';
 import { HistoryStrip } from '../shared/HistoryStrip';
 import { ResultBanner } from '../shared/ResultBanner';
-import { ChipRack, ChipToken, chipFor } from '../shared/ChipRack';
-import { useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
+import { ChipToken, chipFor } from '../shared/ChipRack';
+import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
+import { LinearGradient } from 'expo-linear-gradient';
+import { TumbleDie } from '../shared/Die';
+import { Felt } from '../shared/Felt';
+import { BetInput } from '../shared/BetInput';
 
 const tint = META.sicbo.tint;
 const PIPS: Record<number, [number, number][]> = {
@@ -33,28 +36,13 @@ export function Die({ value, size = 56, color = '#F6F7F9', pip = '#111317' }: { 
   );
 }
 
-function RollingDie({ value, rolling, delay }: { value: number; rolling: boolean; delay: number }) {
-  const rot = useSharedValue(0);
-  const [flicker, setFlicker] = useState(value);
-  React.useEffect(() => {
-    if (!rolling) {
-      rot.set(withTiming(0, { duration: 200 }));
-      return;
-    }
-    rot.set(withRepeat(withSequence(withTiming(18, { duration: 70 }), withTiming(-18, { duration: 70 })), -1, true));
-    const id = setInterval(() => setFlicker(1 + Math.floor(Math.random() * 6)), 90 + delay);
-    return () => clearInterval(id);
-  }, [rolling, delay, rot]);
-  const st = useAnimatedStyle(() => ({ transform: [{ rotate: `${rot.value}deg` }] }));
-  return <Animated.View style={st}><Die value={rolling ? flicker : value} size={64} /></Animated.View>;
-}
 
 export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean }) {
   const { t } = useT();
   const { reduceMotion } = useTheme();
   const s = useGameSession('sicbo');
-  const [chipPick, setChip] = useState<number | null>(null);
-  const chip = chipPick !== null && s.room.chips.includes(chipPick) ? chipPick : s.room.chips[1];
+  const [chip, setChip] = useBet('sicbo', s.room);
+  const [more, setMore] = useState(false);
   const [bets, setBets] = useState<Record<string, { bet: SicBoBet; amount: number }>>({});
   const [dice, setDice] = useState<[number, number, number]>([1, 3, 5]);
   const [rolling, setRolling] = useState(false);
@@ -95,7 +83,7 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
     }
   };
 
-  const cell = (bet: SicBoBet, opts: { label?: string; sub?: string; flex?: number; children?: React.ReactNode } = {}) => {
+  const cell = (bet: SicBoBet, opts: { label?: string; sub?: string; flex?: number; children?: React.ReactNode; big?: boolean } = {}) => {
     const k = sicBoKey(bet);
     return <SicBoCell key={k} k={k} {...opts} placed={bets[k]?.amount} win={winKeys.includes(k)} onPress={() => place(bet)} />;
   };
@@ -109,19 +97,29 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
       history={<HistoryStrip items={history} />}
       stage={
         <View style={{ flex: 1 }}>
-          <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16, gap: 6 }} showsVerticalScrollIndicator={false}>
-            <View style={styles.dice}>
-              {dice.map((d, i) => <RollingDie key={i} value={d} rolling={rolling} delay={i * 13} />)}
-            </View>
-            <TutorialTarget id="sicbo:place">
+          <ScrollView contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 16, gap: 8 }} showsVerticalScrollIndicator={false}>
+            {/* Three real dice shaken in a bowl */}
+            <Felt shape="oval" colors={['#B8325C', '#4A0C26']} style={{ height: 150, marginTop: 4 }}>
+              <View style={styles.dice}>
+                {dice.map((d, i) => <TumbleDie key={i} face={d} rolling={rolling} size={62} delay={i * 60} glow="#FF6A3D" />)}
+              </View>
+            </Felt>
+            <T variant="footnote" color="text2" align="center">{rolling ? '…' : `${dice[0]} + ${dice[1]} + ${dice[2]} = ${dice[0] + dice[1] + dice[2]}`}</T>
+            <TutorialTarget id="sicbo:place" style={{ gap: 8 }}>
             <View style={styles.row}>
-              {cell({ kind: 'small' }, { label: t('play.small'), sub: '4–10 · 1:1' })}
+              {cell({ kind: 'small' }, { label: t('play.small'), sub: '4–10 · 1:1', big: true })}
+              {cell({ kind: 'big' }, { label: t('play.big'), sub: '11–17 · 1:1', big: true })}
+            </View>
+            <View style={styles.row}>
               {cell({ kind: 'odd' }, { label: t('play.odd'), sub: '1:1' })}
               {cell({ kind: 'anyTriple' }, { label: t('play.anyTriple'), sub: `${SICBO_PAYS.anyTriple}:1` })}
               {cell({ kind: 'even' }, { label: t('play.even'), sub: '1:1' })}
-              {cell({ kind: 'big' }, { label: t('play.big'), sub: '11–17 · 1:1' })}
             </View>
             </TutorialTarget>
+            <PressableScale onPress={() => setMore((m) => !m)} feedback="select" style={styles.moreBtn} accessibilityLabel={t('play.moreBets')}>
+              <T variant="callout" weight="semibold" style={{ color: '#fff' }}>{more ? '−' : '+'} {t('play.moreBets')}</T>
+            </PressableScale>
+            {more ? (<>
             <T variant="caption" color="text3" style={{ marginTop: 6 }}>{t('play.total')}</T>
             <View style={[styles.row, { flexWrap: 'wrap' }]}>
               {Object.keys(TOTAL_PAYS).map((k) => cell({ kind: 'total', total: Number(k) }, { label: k, sub: `${TOTAL_PAYS[Number(k)]}:1`, flex: 0 }))}
@@ -136,30 +134,33 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
             <View style={[styles.row, { flexWrap: 'wrap' }]}>
               {[1, 2, 3, 4, 5].flatMap((a) => [2, 3, 4, 5, 6].filter((b) => b > a).map((b) => cell({ kind: 'combo', faces: [a, b] }, { label: `${a}·${b}`, flex: 0 })))}
             </View>
+            </>) : null}
           </ScrollView>
           <ResultBanner result={result} />
         </View>
       }
       controls={
         <View>
-          <ChipRack value={chip} onChange={setChip} balance={s.balance} values={s.room.chips} />
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, marginBottom: 10 }}>
-            <T variant="footnote" color="text3" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular color={total && total < s.room.min ? 'warn' : 'text'}>{formatCoins(total)}</T> / {formatCoins(s.room.min)}–{formatCoins(s.room.max)}</T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+            <T variant="footnote" color="text2" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular color={total && total < s.room.min ? 'warn' : 'text'}>{formatCoins(total)}</T></T>
             <Button title={t('common.clear')} kind="ghost" size="sm" onPress={() => setBets({})} disabled={!total || rolling} />
           </View>
-          <Button spot="sicbo:roll" title={t('play.roll')} onPress={roll} loading={rolling} disabled={!total || total > s.balance || total < s.room.min} />
+          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+            <View style={{ flex: 1.15 }}><BetInput value={chip} onChange={setChip} balance={s.balance} min={s.room.min} max={s.room.max} label={t('play.chipValue')} /></View>
+            <Button spot="sicbo:roll" title={t('play.roll')} onPress={roll} loading={rolling} disabled={!total || total > s.balance || total < s.room.min} style={{ flex: 1 }} />
+          </View>
         </View>
       }
     />
   );
 }
 
-function SicBoCell({ k, label, sub, flex = 1, children, placed, win, onPress }: { k: string; label?: string; sub?: string; flex?: number; children?: React.ReactNode; placed?: number; win: boolean; onPress: () => void }) {
-  const { c } = useTheme();
+function SicBoCell({ k, label, sub, flex = 1, children, placed, win, big, onPress }: { k: string; label?: string; sub?: string; flex?: number; children?: React.ReactNode; placed?: number; win: boolean; big?: boolean; onPress: () => void }) {
   return (
-    <PressableScale onPress={onPress} feedback="none" scaleTo={0.94} accessibilityLabel={`${label ?? k} ${sub ?? ''}${placed ? `, ${placed}` : ''}`} style={[styles.cell, { flex, backgroundColor: win ? alpha(tint, 0.35) : c.surface2, borderColor: win ? tint : c.hairline }]}>
+    <PressableScale onPress={onPress} feedback="none" scaleTo={0.94} accessibilityLabel={`${label ?? k} ${sub ?? ''}${placed ? `, ${placed}` : ''}`} style={[styles.cell, { flex, minHeight: big ? 62 : 46, backgroundColor: win ? alpha(tint, 0.45) : 'rgba(255,255,255,0.08)', borderColor: win ? '#FFE58A' : 'rgba(255,229,138,0.3)' }]}>
+      {big ? <LinearGradient colors={['rgba(255,106,61,0.55)', 'rgba(217,33,127,0.45)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} /> : null}
       {children}
-      {label ? <T variant="footnote" weight="semibold">{label}</T> : null}
+      {label ? <T weight={big ? 'displaySemi' : 'semibold'} style={{ color: '#fff', fontSize: big ? 16 : 13 }}>{label}</T> : null}
       {sub ? <T variant="caption" color="text3" style={{ fontSize: 9, letterSpacing: 0.2 }}>{sub}</T> : null}
       {placed ? <View style={styles.placed}><ChipToken value={chipFor(placed)} size={18} /></View> : null}
     </PressableScale>
@@ -167,8 +168,9 @@ function SicBoCell({ k, label, sub, flex = 1, children, placed, win, onPress }: 
 }
 
 const styles = StyleSheet.create({
-  dice: { flexDirection: 'row', justifyContent: 'center', gap: 18, paddingVertical: 18 },
+  dice: { flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 16, paddingTop: 14 },
+  moreBtn: { height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.08)' },
   row: { flexDirection: 'row', gap: 6 },
-  cell: { minWidth: 46, minHeight: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 4 },
+  cell: { minWidth: 46, minHeight: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 1, paddingHorizontal: 4, paddingVertical: 4, overflow: 'hidden' },
   placed: { position: 'absolute', right: -4, top: -6 },
 });

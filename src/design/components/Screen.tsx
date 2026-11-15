@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, View, type ScrollViewProps, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useIsFocused, useRouter } from 'expo-router';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../theme';
 import { SCREEN_PAD, brand, motion } from '../tokens';
@@ -48,6 +48,7 @@ export function Screen({
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const entrance = useFocusEntrance();
+  const focused = useIsFocused();
   const header = (title || back || right) && (
     <View style={{ paddingTop: insets.top + (back ? 6 : 12), paddingHorizontal: SCREEN_PAD, paddingBottom: 12 }}>
       {back && <BackButton />}
@@ -81,7 +82,7 @@ export function Screen({
       keyboardShouldPersistTaps="handled"
       {...rest}
     >
-      {header ? <Aurora colors={[brand.violet, brand.pink, brand.amber]} height={340} alpha={0.26} /> : null}
+      {header ? <Aurora colors={[brand.violet, brand.pink, brand.amber]} height={340} alpha={0.26} active={focused} /> : null}
       {header}
       {children}
     </Animated.ScrollView>

@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 import { Button, Segmented, Slider, T, formatMult } from '@/design/components';
-import { useTheme, alpha } from '@/design/theme';
+import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { plinkoTable, binProbability, type PlinkoRisk } from '@/engine/games/plinko.ts';
 import { useGameSession } from '@/features/play/session';
@@ -20,10 +20,10 @@ import { MoreOptions } from '../shared/MoreOptions';
 const tint = META.plinko.tint;
 const ROW_MS = 120;
 
-function binColor(m: number, maxM: number, c: string) {
-  if (m < 1) return alpha(c, 0.16);
+function binColor(m: number, maxM: number) {
+  if (m < 1) return '#5B3FA8';
   const k = Math.min(1, Math.log(m) / Math.log(Math.max(2, maxM)));
-  return alpha(c, 0.3 + 0.6 * k);
+  return k < 0.35 ? '#B83FD9' : k < 0.7 ? '#FF4F9A' : '#FFB938';
 }
 
 interface BallSpec {
@@ -32,49 +32,68 @@ interface BallSpec {
   bin: number;
 }
 
+let lastPeg = 0;
+const pegSound = () => {
+  const now = Date.now();
+  if (now - lastPeg > 70) {
+    lastPeg = now;
+    sfx('peg', 0.3);
+  }
+};
+
 function Ball({ spec, geo, onLand, reduceMotion }: { spec: BallSpec; geo: { cx: number; dx: number; top: number; dy: number; r: number }; onLand: (b: BallSpec) => void; reduceMotion: boolean }) {
-  const x = useSharedValue(geo.cx);
-  const y = useSharedValue(geo.top - geo.dy);
-  useEffect(() => {
-    const n = spec.path.length;
-    if (reduceMotion) {
-      x.set(geo.cx + (spec.bin - n / 2) * geo.dx);
-      y.set(geo.top + n * geo.dy);
-      const id = setTimeout(() => onLand(spec), 50);
-      return () => clearTimeout(id);
-    }
+  // Pre-compute where the ball is after each row; a single 0→n timeline moves it (one animation per ball).
+  const pts = React.useMemo(() => {
+    const xs = [geo.cx], ys = [geo.top - geo.dy];
     let rights = 0;
-    const xs: number[] = [];
-    const ys: number[] = [];
+    xs.push(geo.cx); ys.push(geo.top);
     spec.path.forEach((right, r) => {
       rights += right ? 1 : 0;
       xs.push(geo.cx + (rights - (r + 1) / 2) * geo.dx);
       ys.push(geo.top + (r + 1) * geo.dy);
     });
-    x.set(withSequence(withTiming(geo.cx, { duration: ROW_MS }), ...xs.map((v) => withTiming(v, { duration: ROW_MS, easing: Easing.inOut(Easing.quad) }))));
-    y.set(
-      withSequence(
-        withTiming(geo.top, { duration: ROW_MS, easing: Easing.in(Easing.quad) }),
-        ...ys.map((v, i) =>
-          i === ys.length - 1
-            ? withTiming(v, { duration: ROW_MS, easing: Easing.in(Easing.quad) }, (done) => {
-                if (done) runOnJS(onLand)(spec);
-              })
-            : withTiming(v, { duration: ROW_MS, easing: Easing.bezier(0.3, -0.4, 0.7, 1) }),
-        ),
-      ),
-    );
-    const timers = Array.from({ length: n }, (_, i) => setTimeout(() => sfx('peg', 0.35), ROW_MS * (i + 1)));
-    return () => timers.forEach(clearTimeout);
-    // The ball's path is fixed for its whole life: animate once on mount.
+    return { xs, ys };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const style = useAnimatedStyle(() => ({ transform: [{ translateX: x.value - geo.r }, { translateY: y.value - geo.r }] }));
-  return <Animated.View pointerEvents="none" style={[styles.ball, { width: geo.r * 2, height: geo.r * 2, borderRadius: geo.r, backgroundColor: '#FFFFFF' }, style]} />;
+  const p = useSharedValue(0);
+  useEffect(() => {
+    const n = pts.xs.length - 1;
+    if (reduceMotion) {
+      p.set(n);
+      const id = setTimeout(() => onLand(spec), 50);
+      return () => clearTimeout(id);
+    }
+    p.set(withTiming(n, { duration: ROW_MS * n, easing: Easing.linear }, (done) => {
+      if (done) runOnJS(onLand)(spec);
+    }));
+    const iv = setInterval(pegSound, ROW_MS);
+    const stop = setTimeout(() => clearInterval(iv), ROW_MS * (n - 1));
+    return () => {
+      clearInterval(iv);
+      clearTimeout(stop);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const { xs, ys } = pts;
+  const dy = geo.dy;
+  const style = useAnimatedStyle(() => {
+    const n = xs.length - 1;
+    const seg = Math.min(n - 1, Math.floor(p.value));
+    const f = Math.min(1, p.value - seg);
+    const e = f * f * (3 - 2 * f);
+    const x = xs[seg] + (xs[seg + 1] - xs[seg]) * e;
+    // little hop over each peg
+    const y = ys[seg] + (ys[seg + 1] - ys[seg]) * f - Math.sin(f * Math.PI) * dy * 0.28;
+    return { transform: [{ translateX: x - geo.r }, { translateY: y - geo.r }] };
+  });
+  return (
+    <Animated.View pointerEvents="none" style={[styles.ball, { width: geo.r * 2, height: geo.r * 2, borderRadius: geo.r }, style]}>
+      <View style={{ position: 'absolute', left: geo.r * 0.35, top: geo.r * 0.3, width: geo.r * 0.7, height: geo.r * 0.6, borderRadius: geo.r, backgroundColor: 'rgba(255,255,255,0.85)' }} />
+    </Animated.View>
+  );
 }
 
 export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolean }) {
   const { t } = useT();
-  const { c, reduceMotion } = useTheme();
+  const { reduceMotion } = useTheme();
   const s = useGameSession('plinko');
   const [bet, setBet] = useBet('plinko', s.room);
   const [rows, setRows] = useState(12);
@@ -101,17 +120,34 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
     setTimeout(() => setLit((l) => (l === b.bin ? null : l)), 400);
   }, []);
 
+  // Every tap queues a ball; the queue is drained one round at a time, so fast taps never fail.
+  const queue = useRef(0);
+  const running = useRef(false);
+  const [queued, setQueued] = useState(0);
   const drop = async () => {
+    queue.current += 1;
+    setQueued(queue.current);
+    if (running.current) return;
+    running.current = true;
     try {
-      const r = await s.op('play', { bet, rows, risk });
-      const v = r.view as { path: boolean[]; bin: number };
-      setBalls((list) => [...list, { id: ++seq.current, path: v.path, bin: v.bin }]);
-      tutorialEvent('plinko', 'plinko:drop');
+      while (queue.current > 0) {
+        const r = await s.op('play', { bet, rows, risk });
+        const v = r.view as { path: boolean[]; bin: number };
+        setBalls((list) => [...list, { id: ++seq.current, path: v.path, bin: v.bin }]);
+        tutorialEvent('plinko', 'plinko:drop');
+        queue.current -= 1;
+        setQueued(queue.current);
+        if (queue.current > 0) await new Promise((res) => setTimeout(res, 140));
+      }
     } catch (e) {
+      queue.current = 0;
+      setQueued(0);
       onError(e);
+    } finally {
+      running.current = false;
     }
   };
-  const inFlight = balls.length > 0;
+  const inFlight = balls.length > 0 || queued > 0;
   return (
     <GameShell
       game="plinko"
@@ -127,7 +163,10 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
               <Svg width={box.w} height={geo.top + (rows + 1) * dy} style={StyleSheet.absoluteFill}>
                 {Array.from({ length: rows }, (_, r) =>
                   Array.from({ length: r + 3 }, (_, j) => (
-                    <Circle key={`${r}-${j}`} cx={geo.cx + (j - (r + 2) / 2) * dx} cy={geo.top + r * dy + dy * 0.5} r={Math.max(2, dx * 0.08)} fill={c.text3} opacity={0.75} />
+                    <React.Fragment key={`${r}-${j}`}>
+                      <Circle cx={geo.cx + (j - (r + 2) / 2) * dx} cy={geo.top + r * dy + dy * 0.5} r={Math.max(4, dx * 0.2)} fill="#FF7AC6" opacity={0.18} />
+                      <Circle cx={geo.cx + (j - (r + 2) / 2) * dx} cy={geo.top + r * dy + dy * 0.5} r={Math.max(2.2, dx * 0.09)} fill="#FFFFFF" />
+                    </React.Fragment>
                   )),
                 )}
               </Svg>
@@ -137,9 +176,9 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
                   <View
                     key={i}
                     accessibilityLabel={`${formatMult(m)} · ${(binProbability(rows, i) * 100).toFixed(2)} %`}
-                    style={[styles.bin, { width: dx - 3, height: binH, backgroundColor: binColor(m, maxM, tint), transform: [{ translateY: lit === i ? 4 : 0 }], borderColor: lit === i ? c.text : 'transparent' }]}
+                    style={[styles.bin, { width: dx - 3, height: binH, backgroundColor: binColor(m, maxM), transform: [{ translateY: lit === i ? 5 : 0 }, { scale: lit === i ? 1.12 : 1 }], borderColor: lit === i ? '#FFFFFF' : 'rgba(255,255,255,0.25)', shadowColor: binColor(m, maxM), shadowOpacity: lit === i ? 0.9 : 0.35, shadowRadius: lit === i ? 12 : 4 }]}
                   >
-                    <T style={{ fontFamily: 'Geist_600SemiBold', fontSize: dx > 26 ? 10 : 8, color: c.text }} numberOfLines={1} adjustsFontSizeToFit>
+                    <T style={{ fontFamily: 'Unbounded_600SemiBold', fontSize: dx > 26 ? 9 : 7.5, color: '#fff' }} numberOfLines={1} adjustsFontSizeToFit>
                       {m >= 100 ? Math.round(m) : m}
                     </T>
                   </View>
@@ -169,7 +208,7 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
           </MoreOptions>
           <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
             <View style={{ flex: 1.15 }}><BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} /></View>
-            <Button spot="plinko:drop" title={t('play.drop')} onPress={drop} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ flex: 1 }} />
+            <Button spot="plinko:drop" title={queued > 0 ? `${t('play.drop')} · ${queued}` : t('play.drop')} onPress={drop} disabled={(bet * (queued + 1) > s.balance || bet < s.room.min || bet > s.room.max)} style={{ flex: 1 }} />
           </View>
         </View>
       }
@@ -178,7 +217,7 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
 }
 
 const styles = StyleSheet.create({
-  ball: { position: 'absolute', left: 0, top: 0, shadowColor: '#fff', shadowOpacity: 0.6, shadowRadius: 6 },
+  ball: { position: 'absolute', left: 0, top: 0, backgroundColor: '#FF4F9A', borderWidth: 1.5, borderColor: '#FFD0E6', shadowColor: '#FF4F9A', shadowOpacity: 0.9, shadowRadius: 8 },
   bins: { position: 'absolute', flexDirection: 'row', justifyContent: 'space-between' },
-  bin: { borderRadius: 6, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+  bin: { borderRadius: 8, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
 });

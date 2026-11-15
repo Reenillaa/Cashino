@@ -22,6 +22,7 @@ const es = {
     seasonTier: 'Nivel de pase {{tier}}', continueLearning: 'Sigue aprendiendo',
     chips: 'fichas', lobby: 'Juega', allGames: 'Todos los juegos', top: 'Los más jugados', gift: 'Tu regalo de hoy',
     giftDay: 'Día {{day}} de 7 · vuelve mañana y será mayor', learn: 'Aprende a jugar', learnBody: 'Lecciones cortas, sin trucos ni promesas',
+    welcome: 'BIENVENIDO A',
     tapToPlay: 'Toca un juego para empezar',
     streak: '🔥 {{n}} días seguidos', nextLevel: 'Te faltan {{xp}} XP para el nivel {{level}} y su regalo de {{bonus}} fichas',
     album: 'Tu colección', albumBody: 'Has probado {{n}} de 14 juegos. Toca uno nuevo para estrenarlo.', albumDone: '¡Colección completa! Has probado los 14 juegos.',
@@ -44,6 +45,9 @@ const es = {
   },
   play: {
     change: 'Cambiar', hideOptions: 'Listo',
+    dragTarget: '👆 Arrastra el punto blanco para elegir tu objetivo',
+    tapNumber: 'Toca un número de la rueda o una apuesta de abajo', noMoreBets: 'No va más…', repeat: 'Repetir', chipValue: 'Ficha',
+    moreBets: 'Más apuestas',
     tip: 'Consejo', showTip: '¿Qué haría un experto?', hideTip: 'Ocultar consejo',
     bjTableNote: 'El blackjack paga 3 a 2 · la banca se planta con 17',
     amount: 'Importe', placeBet: 'Apostar', playPractice: 'Jugar práctica', again: 'Otra vez', youWon: 'Has ganado', youLost: 'Esta vez no',

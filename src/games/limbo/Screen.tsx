@@ -70,7 +70,7 @@ export default function LimboScreen({ forceTutorial }: { forceTutorial?: boolean
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage}>
-          <Gauge value={shown} target={target} spinning={busy && won === null && shown === 1}>
+          <Gauge value={shown} target={target} spinning={busy && won === null && shown === 1} onTarget={busy ? undefined : (v) => applyTarget(v)} hint={busy ? undefined : t('play.dragTarget')}>
             <AnimatedNumber
               value={shown}
               duration={reduceMotion ? 0 : 600}

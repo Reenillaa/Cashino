@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useIsFocused, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { GameId } from '@/engine/games/types.ts';
@@ -54,6 +54,7 @@ export function GameShell({
   const { t, lang } = useT();
   const { c, reduceMotion } = useTheme();
   const router = useRouter();
+  const focused = useIsFocused();
   const insets = useSafeAreaInsets();
   const meta = META[game];
   const vivid = gameVivid[game];
@@ -82,7 +83,7 @@ export function GameShell({
   return (
     <AccentContext.Provider value={vivid}>
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Aurora colors={[vivid[0], vivid[1], vivid[0]]} alpha={0.34} />
+      <Aurora colors={[vivid[0], vivid[1], vivid[0]]} alpha={0.34} active={focused} />
       {/* Header: back · game + balance · rules */}
       <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
         <IconButton icon="chevronLeft" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} label={t('common.back')} />
@@ -143,7 +144,6 @@ export function GameShell({
             <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(motion.slow).delay(70).easing(Easing.bezier(...motion.easeEnter))}>
               <View style={[styles.panel, { backgroundColor: 'rgba(16,14,24,0.92)', paddingBottom: Math.max(insets.bottom, 12) + 4 }]}>
                 <LinearGradient pointerEvents="none" colors={[alpha(vivid[0], 0.9), alpha(vivid[1], 0.9)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.panelEdge} />
-                <LinearGradient pointerEvents="none" colors={[alpha(vivid[0], 0.14), 'rgba(0,0,0,0)']} end={{ x: 0, y: 0.5 }} style={StyleSheet.absoluteFill} />
                 {controls}
               </View>
             </Animated.View>
