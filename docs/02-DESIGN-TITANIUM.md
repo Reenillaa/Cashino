@@ -1,4 +1,14 @@
-# 02 · Dirección artística — TITANIUM
+# 02 · Dirección artística
+
+> **Ronda 3 — Cashino, estilo Offsuit (vigente).** Lo que manda ahora:
+> - Lienzo **negro puro** (`#000`), superficies grafito **sin bordes** (`#121214`, `#1C1C1F`, `#2A2A2F`), texto blanco y grises.
+> - **Tarjetas pastel con emoji grande** por juego (`gameArt` en `tokens.ts`) y por sala (`roomArt`); texto oscuro sobre pastel.
+> - El **número es el protagonista** (saldo 64 pt ligero); etiquetas pequeñas en minúscula, nada de mayúsculas gritonas.
+> - Botones en **píldora**; botón principal blanco. Control de apuesta − / + grande.
+> - Movimiento (skill Taste): ease-out `(.2,.8,.2,1)`, entradas `(.22,1,.36,1)`, sin rebote; cada pantalla entra con fundido + 12 px al ganar el foco.
+> - Lo que sigue debajo es la dirección “Titanium” de las rondas 1–2, que se conserva como historial (paleta y principios de accesibilidad siguen siendo válidos).
+
+# Historial · Dirección “Titanium” (rondas 1–2)
 
 > Guía de diseño viva. La fuente de verdad en código es `src/design/tokens.ts`; este documento explica el *porqué*.
 > Herramientas: las skills **REA** y **Taste** solicitadas **no están disponibles** en este entorno (búsqueda de skills sin resultados). La dirección se ha construido con investigación propia (doc 01), Apple HIG y revisión visual iterativa renderizando propuestas con Playwright.

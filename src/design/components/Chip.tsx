@@ -13,7 +13,7 @@ export function Chip({ label, selected, onPress, icon, tint: rawTint }: { label:
     <View
       style={[
         styles.chip,
-        { backgroundColor: selected ? (tint ? alpha(tint, 0.18) : c.surface3) : c.surface1, borderColor: selected ? tint ?? c.hairlineStrong : c.hairline },
+        { backgroundColor: selected ? (tint ? alpha(tint, 0.18) : c.surface3) : c.surface2 },
       ]}
     >
       {icon && <Icon name={icon} size={14} color={selected ? tint ?? c.text : c.text3} />}
@@ -39,5 +39,5 @@ export function Tag({ label, tint }: { label: string; tint?: string }) {
 }
 
 const styles = StyleSheet.create({
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, height: 32, borderRadius: radius.pill, borderWidth: StyleSheet.hairlineWidth },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 14, height: 34, borderRadius: radius.pill },
 });

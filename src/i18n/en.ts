@@ -4,12 +4,12 @@ const en: Dictionary = {
   common: {
     play: 'Play', back: 'Back', close: 'Close', cancel: 'Cancel', confirm: 'Confirm', save: 'Save', done: 'Done',
     next: 'Next', skip: 'Skip', retry: 'Retry', loading: 'Loading…', error: 'Something went wrong', offline: 'Offline',
-    online: 'Online', practice: 'Practice', coins: 'Ti', bet: 'Bet', payout: 'Payout', profit: 'Profit', multiplier: 'Multiplier',
+    online: 'Online', practice: 'Practice', coins: 'chips', bet: 'Bet', payout: 'Payout', profit: 'Profit', multiplier: 'Multiplier',
     chance: 'Chance', history: 'History', rules: 'Rules', tutorial: 'Tutorial', academy: 'Academy', stats: 'Stats',
     settings: 'Settings', verify: 'Verify', seeAll: 'See all', cashout: 'Cash out', start: 'Start', clear: 'Clear', half: '½', double: '2×',
     max: 'Max', min: 'Min', win: 'You win', lose: 'You lose', push: 'Push', you: 'You', bot: 'BOT', level: 'Level', xp: 'XP',
     signInToUse: 'Sign in to use this feature', signIn: 'Sign in', comingFromServer: 'Server result',
-    insufficient: 'Not enough balance', practiceBanner: 'Practice mode · chips have no value', copy: 'Copy', copied: 'Copied',
+    insufficient: 'Not enough balance', practiceBanner: 'Free practice · your chips are safe', copy: 'Copy', copied: 'Copied',
     rounds: 'Rounds', wins: 'Wins', on: 'On', off: 'Off', new: 'New', soon: 'Soon', of: 'of', share: 'Share', edit: 'Edit',
     reset: 'Reset', search: 'Search', empty: 'Nothing here yet', minutes: 'min', seconds: 's', today: 'Today',
     noMoneyDisclaimer: 'Virtual currency with no monetary value. It cannot be bought, sold, transferred or redeemed.',
@@ -20,8 +20,11 @@ const en: Dictionary = {
     balance: 'Balance', featured: 'Featured', quick: 'Quick access', challenges: "Today's challenges", weekly: 'Weekly challenges',
     daily: 'Daily gift', claim: 'Claim', claimed: 'Claimed', nextIn: 'Next gift in {{time}}', streakDay: 'Streak day {{day}}',
     activity: 'Recent activity', noActivity: 'Play your first round and it will show up here.', refill: 'Refill balance',
-    refillBody: 'You are running low. Refill for free up to {{amount}} Ti ({{left}} left today).', season: 'Season {{n}}',
+    refillBody: 'You are running low. Refill for free up to {{amount}} chips ({{left}} left today).', season: 'Season {{n}}',
     seasonTier: 'Pass tier {{tier}}', continueLearning: 'Keep learning',
+    chips: 'chips', lobby: 'Play', allGames: 'All games', top: 'Most played', gift: "Today's gift",
+    giftDay: 'Day {{day}} of 7 · come back tomorrow for more', learn: 'Learn to play', learnBody: 'Short lessons, no tricks or promises',
+    tapToPlay: 'Tap a game to start',
   },
   games: {
     title: 'Games', all: 'All', cards: 'Cards', originals: 'Originals', table: 'Table', solo: 'Solo', online: 'Online',
@@ -39,6 +42,7 @@ const en: Dictionary = {
     },
   },
   play: {
+    bjTableNote: 'Blackjack pays 3 to 2 · dealer stands on soft 17',
     amount: 'Amount', placeBet: 'Bet', playPractice: 'Play practice', again: 'Again', youWon: 'You won', youLost: 'Not this time',
     pushResult: 'Push', autoCashout: 'Auto cash out', target: 'Target', winChance: 'Win chance', rollOver: 'Roll over',
     rollUnder: 'Roll under', roll: 'Roll', mines: 'Mines', gems: 'Gems', pick: 'Pick a tile', random: 'Random',
@@ -57,10 +61,10 @@ const en: Dictionary = {
     red: 'Red', black: 'Black', selectChip: 'Chip', tapToBet: 'Tap the table to bet', totalBet: 'Total bet', lastResults: 'Last results',
   },
   rooms: {
-    title: 'Choose a room', subtitle: 'Each room sets the minimum and maximum bet.', practice: 'Practice', r1: 'Starter', r2: 'Mid', r3: 'High',
-    tier: { practice: 'Free', r1: 'Tier 1', r2: 'Tier 2', r3: 'Tier 3' }, limits: 'Min – max bet', enter: 'Enter {{name}}',
-    locked: 'You need {{amount}} Ti', free: 'Chips with no value · unranked', counts: 'Real Ti · XP and missions', change: 'Change room',
-    blinds: 'Blinds {{sb}}/{{bb}}', buyIn: 'Buy-in {{min}}–{{max}} Ti', chips: 'Chips {{chips}}', maxReached: 'Room maximum: {{max}} Ti', minRequired: 'Room minimum: {{min}} Ti',
+    title: 'Where do you play?', subtitle: 'Swipe to see the rooms. Each one has its own minimum and maximum bet.', practice: 'Practice', r1: 'The Bar', r2: 'The Club', r3: 'VIP Room',
+    tier: { practice: 'Free', r1: 'Easy', r2: 'Lively', r3: 'High stakes' }, limits: 'Bets from', enter: 'Play in {{name}}',
+    locked: 'You need {{amount}} chips', free: 'Free · your chips are safe', counts: 'With your chips · earns XP', change: 'Change room',
+    blinds: 'Blinds {{sb}}/{{bb}}', buyIn: 'Buy-in {{min}}–{{max}} chips', chips: 'Chips {{chips}}', maxReached: 'Room maximum: {{max}} chips', minRequired: 'Room minimum: {{min}} chips',
   },
   poker: {
     lobby: 'Poker', vsBots: 'Against bots', online: 'Online tables', private: 'Private table', tournament: 'Sit & Go', cash: 'Cash table',
@@ -87,7 +91,7 @@ const en: Dictionary = {
     signedOutBody: 'You can keep playing offline without signing up. Create an account to play with friends, private rooms, teams and tournaments.',
     createTeam: 'Create team', teamName: 'Team name', roomCode: 'Room code', noChat: 'No chat: quick reactions only.',
     block: 'Block', mute: 'Mute', report: 'Report', pending: 'Pending', online: 'Online', freeEntry: 'Free entry',
-    registered: 'Registered', register: 'Register', startsIn: 'Starts in {{time}}', prizesNote: 'Prizes are cosmetic and Ti with no monetary value.',
+    registered: 'Registered', register: 'Register', startsIn: 'Starts in {{time}}', prizesNote: 'Prizes are cosmetic and chips with no monetary value.',
   },
   profile: {
     title: 'Profile', achievements: 'Achievements', stats: 'Statistics', history: 'History', favorites: 'Favorites', progress: 'Progress',
@@ -114,7 +118,7 @@ const en: Dictionary = {
     title: 'Your account', subtitle: 'Only needed for online features.', email: 'Email', password: 'Password', username: 'Username',
     signIn: 'Sign in', signUp: 'Create account', haveAccount: 'Already have an account?', noAccount: "Don't have an account?", magicLink: 'Send magic link',
     checkEmail: 'Check your email to confirm.', notConfigured: 'The online server is not configured in this build.',
-    migrateTitle: 'Bring your guest progress', migrateBody: '{{amount}} Ti (max {{cap}}), achievements, tutorials and lessons will be transferred. This can only happen once.',
+    migrateTitle: 'Bring your guest progress', migrateBody: '{{amount}} chips (max {{cap}}), achievements, tutorials and lessons will be transferred. This can only happen once.',
     migrate: 'Transfer', invalid: 'Check your details', weakPassword: 'At least 8 characters',
   },
   academy: {
@@ -139,7 +143,7 @@ const en: Dictionary = {
   missions: {
     playRounds: 'Play {{n}} rounds', playGame: 'Play {{n}} rounds of {{game}}', winRounds: 'Win {{n}} rounds', lesson: 'Complete {{n}} lesson(s)',
     quiz: 'Pass {{n}} quiz(zes)', multiplier: 'Hit {{n}} results of 2× or more', pokerHands: 'Play {{n}} poker hands', variety: 'Play {{n}} different games',
-    reward: '+{{coins}} Ti · +{{xp}} XP', done: 'Completed', claim: 'Claim',
+    reward: '+{{coins}} chips · +{{xp}} XP', done: 'Completed', claim: 'Claim',
   },
 };
 export default en;

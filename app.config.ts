@@ -1,18 +1,18 @@
 import type { ExpoConfig } from 'expo/config';
 
-// Provisional identity — the product name is not final. Change NAME / BUNDLE_ID here and in src/config/brand.ts.
-const NAME = 'Titanium';
-const BUNDLE_ID = process.env.APP_BUNDLE_ID ?? 'app.titanium.provisional';
+// Product identity. Change NAME / BUNDLE_ID here and in src/config/brand.ts.
+const NAME = 'Cashino';
+const BUNDLE_ID = process.env.APP_BUNDLE_ID ?? 'app.cashino.game';
 
 const config: ExpoConfig = {
   name: NAME,
-  slug: 'titanium-app',
+  slug: 'cashino',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
-  scheme: 'titanium',
+  scheme: 'cashino',
   userInterfaceStyle: 'automatic',
-  backgroundColor: '#08090B',
+  backgroundColor: '#000000',
   ios: {
     bundleIdentifier: BUNDLE_ID,
     supportsTablet: false,
@@ -22,16 +22,17 @@ const config: ExpoConfig = {
   },
   android: {
     package: BUNDLE_ID.replace(/-/g, '_'),
-    adaptiveIcon: { backgroundColor: '#08090B', foregroundImage: './assets/images/android-icon-foreground.png', monochromeImage: './assets/images/android-icon-monochrome.png' },
+    adaptiveIcon: { backgroundColor: '#000000', foregroundImage: './assets/images/android-icon-foreground.png', monochromeImage: './assets/images/android-icon-monochrome.png' },
   },
   web: { output: 'single', favicon: './assets/images/favicon.png', bundler: 'metro' },
   plugins: [
-    'expo-router',
+    // One web bundle: no per-route chunks, so opening a game never flashes an empty screen while a chunk downloads.
+    ['expo-router', { asyncRoutes: false }],
     'expo-font',
     'expo-sqlite',
     ['expo-audio', { microphonePermission: false }],
-    ['expo-notifications', { color: '#08090B' }],
-    ['expo-splash-screen', { backgroundColor: '#08090B', image: './assets/images/splash-icon.png', imageWidth: 120, dark: { backgroundColor: '#08090B', image: './assets/images/splash-icon.png' } }],
+    ['expo-notifications', { color: '#000000' }],
+    ['expo-splash-screen', { backgroundColor: '#000000', image: './assets/images/splash-icon.png', imageWidth: 120, dark: { backgroundColor: '#000000', image: './assets/images/splash-icon.png' } }],
   ],
   // EXPO_BASE_URL=/Cashino when publishing to GitHub Pages (served from https://<user>.github.io/<repo>/).
   experiments: { typedRoutes: false, reactCompiler: true, ...(process.env.EXPO_BASE_URL ? { baseUrl: process.env.EXPO_BASE_URL } : {}) },

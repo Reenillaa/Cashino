@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import { Glass } from './Glass';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Icon, type IconName } from './Icon';
 import { T } from './Text';
 import { PressableScale } from './Pressable';
@@ -16,63 +15,58 @@ export interface TabItem {
   badge?: number;
 }
 
-/** Floating glass tab bar (control layer). */
+const EASE = Easing.bezier(...motion.ease);
+
+/**
+ * Offsuit-style bottom bar: flat black, big icons with labels, nothing floating.
+ * The active item brightens and its icon settles from slightly smaller (no bounce).
+ */
 export function GlassTabBar({ items, active, onSelect }: { items: TabItem[]; active: string; onSelect: (key: string) => void }) {
-  const { c, reduceMotion } = useTheme();
+  const { c } = useTheme();
   const insets = useSafeAreaInsets();
-  const [w, setW] = React.useState(0);
-  const idx = Math.max(0, items.findIndex((i) => i.key === active));
-  const seg = w / items.length;
-  const pill = useAnimatedStyle(() => ({
-    transform: [{ translateX: reduceMotion ? idx * seg : withSpring(idx * seg, motion.smooth) }],
-    width: seg,
-  }));
   return (
-    <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.max(insets.bottom, 10) }]}>
-      <Glass radius={30} intensity={50} style={styles.bar} onLayout={(e) => setW(e.nativeEvent.layout.width - 12)}>
-        <View style={styles.row} accessibilityRole="tablist">
-          {w > 0 && (
-            <Animated.View pointerEvents="none" style={[styles.pillWrap, pill]}>
-              <View style={[styles.pill, { backgroundColor: c.surface3, borderColor: c.hairlineStrong }]} />
-            </Animated.View>
-          )}
-          {items.map((it) => {
-            const focused = it.key === active;
-            return (
-              <PressableScale
-                key={it.key}
-                onPress={() => onSelect(it.key)}
-                feedback="select"
-                scaleTo={0.92}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: focused }}
-                accessibilityLabel={it.label}
-                style={styles.item}
-              >
-                <Icon name={it.icon} size={22} color={focused ? c.text : c.text3} strokeWidth={focused ? 2 : 1.75} />
-                <T variant="caption" style={{ fontSize: 10, letterSpacing: 0.2, textTransform: 'none', marginTop: 2, color: focused ? c.text : c.text3 }}>
-                  {it.label}
-                </T>
-                {it.badge ? (
-                  <View style={[styles.badge, { backgroundColor: c.loss }]}>
-                    <T variant="caption" style={{ fontSize: 9, color: '#fff', letterSpacing: 0 }}>{it.badge > 9 ? '9+' : it.badge}</T>
-                  </View>
-                ) : null}
-              </PressableScale>
-            );
-          })}
-        </View>
-      </Glass>
+    <View style={[styles.bar, { backgroundColor: c.bg, borderTopColor: c.hairline, paddingBottom: Math.max(insets.bottom, 8) }]} accessibilityRole="tablist">
+      {items.map((it) => (
+        <TabButton key={it.key} item={it} focused={it.key === active} onPress={() => onSelect(it.key)} />
+      ))}
     </View>
   );
 }
 
+function TabButton({ item, focused, onPress }: { item: TabItem; focused: boolean; onPress: () => void }) {
+  const { c, reduceMotion } = useTheme();
+  const p = useSharedValue(focused ? 1 : 0);
+  useEffect(() => {
+    p.set(reduceMotion ? (focused ? 1 : 0) : withTiming(focused ? 1 : 0, { duration: motion.slide, easing: EASE }));
+  }, [focused, reduceMotion, p]);
+  const icon = useAnimatedStyle(() => ({ transform: [{ scale: 0.92 + 0.08 * p.value }], opacity: 0.55 + 0.45 * p.value }));
+  return (
+    <PressableScale
+      onPress={onPress}
+      feedback="select"
+      scaleTo={0.94}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: focused }}
+      accessibilityLabel={item.label}
+      style={styles.item}
+    >
+      <Animated.View style={icon}>
+        <Icon name={item.icon} size={26} color={focused ? c.text : c.text2} strokeWidth={focused ? 2 : 1.7} />
+      </Animated.View>
+      <T variant="caption" weight={focused ? 'semibold' : 'medium'} style={{ fontSize: 12, marginTop: 3, color: focused ? c.text : c.text3 }}>
+        {item.label}
+      </T>
+      {item.badge ? (
+        <View style={[styles.badge, { backgroundColor: c.loss }]}>
+          <T variant="caption" style={{ fontSize: 10, color: '#fff' }}>{item.badge > 9 ? '9+' : item.badge}</T>
+        </View>
+      ) : null}
+    </PressableScale>
+  );
+}
+
 const styles = StyleSheet.create({
-  wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16 },
-  bar: { height: 64 },
-  row: { flex: 1, flexDirection: 'row', paddingHorizontal: 6 },
-  item: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  pillWrap: { position: 'absolute', top: 6, bottom: 6, left: 6, paddingHorizontal: 4 },
-  pill: { flex: 1, borderRadius: 24, borderWidth: StyleSheet.hairlineWidth },
-  badge: { position: 'absolute', top: 8, right: '28%', minWidth: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 },
+  bar: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', paddingTop: 8, borderTopWidth: StyleSheet.hairlineWidth },
+  item: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 54 },
+  badge: { position: 'absolute', top: 2, right: '26%', minWidth: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
 });

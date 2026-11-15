@@ -16,14 +16,14 @@ export function Segmented<V extends string>({ options, value, onChange, style, s
     transform: [{ translateX: reduceMotion ? idx * segW : withSpring(idx * segW, motion.snappy) }],
     width: segW,
   }));
-  const h = size === 'sm' ? 32 : 38;
+  const h = size === 'sm' ? 34 : 42;
   return (
     <View
       onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)}
       accessibilityRole="tablist"
       style={[{ height: h, borderRadius: radius.sm, backgroundColor: c.surface2, padding: 2, flexDirection: 'row' }, disabled && { opacity: 0.5 }, style]}
     >
-      {w > 0 && <Animated.View style={[styles.thumb, { height: h - 4, backgroundColor: c.surface3, borderColor: c.hairlineStrong }, thumb]} />}
+      {w > 0 && <Animated.View style={[styles.thumb, { height: h - 4, backgroundColor: c.surface3 }, thumb]} />}
       {options.map((o) => (
         <PressableScale
           key={o.value}
@@ -46,5 +46,5 @@ export function Segmented<V extends string>({ options, value, onChange, style, s
 }
 
 const styles = StyleSheet.create({
-  thumb: { position: 'absolute', top: 2, left: 2, borderRadius: radius.sm - 2, borderWidth: StyleSheet.hairlineWidth },
+  thumb: { position: 'absolute', top: 2, left: 2, borderRadius: radius.sm - 2 },
 });

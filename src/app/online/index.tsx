@@ -114,7 +114,7 @@ export default function OnlineLobby() {
                   key={tb.id}
                   icon={tb.kind === 'sng' ? 'medal' : 'users'}
                   title={`${tb.name} · ${tb.config.smallBlind}/${tb.config.bigBlind}`}
-                  subtitle={`${seated}/${tb.config.maxSeats} · ${t('poker.buyIn')} ${tb.kind === 'sng' ? tb.config.buyIn : `${tb.config.minBuyIn ?? tb.config.buyIn}–${tb.config.maxBuyIn ?? tb.config.buyIn}`} Ti`}
+                  subtitle={`${seated}/${tb.config.maxSeats} · ${t('poker.buyIn')} ${tb.kind === 'sng' ? tb.config.buyIn : `${tb.config.minBuyIn ?? tb.config.buyIn}–${tb.config.maxBuyIn ?? tb.config.buyIn}`} ${t('common.coins')}`}
                   right={tb.status === 'running' ? <Tag label="LIVE" tint={c.win} /> : undefined}
                   onPress={() => join({ tableId: tb.id })}
                 />

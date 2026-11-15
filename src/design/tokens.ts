@@ -44,76 +44,109 @@ export interface ColorScheme {
   cardRed: string;
 }
 
+/** Offsuit-like dark: pure black canvas, borderless graphite surfaces, white type, colour only for meaning. */
 export const dark: ColorScheme = {
-  bg: palette.obsidian,
-  bgElevated: palette.basalt,
-  surface1: palette.graphite1,
-  surface2: palette.graphite2,
-  surface3: palette.graphite3,
-  text: palette.ivory,
-  text2: palette.silver,
-  text3: palette.titanium,
-  hairline: 'rgba(255,255,255,0.08)',
-  hairlineStrong: 'rgba(255,255,255,0.16)',
-  primary: palette.ivory,
-  onPrimary: palette.obsidian,
-  win: '#6FD3A0',
-  loss: '#F0716B',
-  warn: '#E9B65C',
+  bg: '#000000',
+  bgElevated: '#111113',
+  surface1: '#121214',
+  surface2: '#1C1C1F',
+  surface3: '#2A2A2F',
+  text: '#FFFFFF',
+  text2: '#A7A7AE',
+  text3: '#6C6C74',
+  hairline: 'rgba(255,255,255,0.07)',
+  hairlineStrong: 'rgba(255,255,255,0.12)',
+  primary: '#FFFFFF',
+  onPrimary: '#000000',
+  win: '#4ADE9B',
+  loss: '#FF7A7A',
+  warn: '#F5C26B',
   info: '#8FB8F0',
-  overlay: 'rgba(0,0,0,0.55)',
-  glassTint: 'rgba(22,24,28,0.62)',
-  sheenTop: 'rgba(255,255,255,0.10)',
-  cardFace: '#F6F7F9',
-  cardInk: '#111317',
-  cardRed: '#D8434A',
+  overlay: 'rgba(0,0,0,0.6)',
+  glassTint: 'rgba(18,18,20,0.82)',
+  sheenTop: 'rgba(255,255,255,0)',
+  cardFace: '#FFFFFF',
+  cardInk: '#0B0B0F',
+  cardRed: '#E5484D',
 };
 
 export const light: ColorScheme = {
-  bg: palette.porcelain,
-  bgElevated: palette.white,
-  surface1: palette.white,
-  surface2: palette.mist,
-  surface3: palette.fog,
-  text: palette.ink,
-  text2: palette.slate,
-  text3: palette.pewter,
-  hairline: 'rgba(0,0,0,0.08)',
-  hairlineStrong: 'rgba(0,0,0,0.16)',
-  primary: palette.ink,
-  onPrimary: palette.ivory,
-  win: '#1E8E5A',
-  loss: '#C8372F',
+  bg: '#F5F5F7',
+  bgElevated: '#FFFFFF',
+  surface1: '#FFFFFF',
+  surface2: '#EDEDF0',
+  surface3: '#E2E2E7',
+  text: '#0B0B0F',
+  text2: '#55555C',
+  text3: '#8A8A92',
+  hairline: 'rgba(0,0,0,0.07)',
+  hairlineStrong: 'rgba(0,0,0,0.12)',
+  primary: '#0B0B0F',
+  onPrimary: '#FFFFFF',
+  win: '#14995B',
+  loss: '#D23F3F',
   warn: '#A86F12',
   info: '#2F6FC9',
   overlay: 'rgba(10,12,16,0.35)',
-  glassTint: 'rgba(250,251,252,0.72)',
-  sheenTop: 'rgba(255,255,255,0.7)',
+  glassTint: 'rgba(255,255,255,0.86)',
+  sheenTop: 'rgba(255,255,255,0)',
   cardFace: '#FFFFFF',
-  cardInk: '#111317',
-  cardRed: '#C8323A',
+  cardInk: '#0B0B0F',
+  cardRed: '#D7373F',
 };
 
-/** Anodized titanium accent for each game (used only inside the game). */
+/** In-game accent for each game: the saturated tone of its pastel card. */
 export const gameTint: Record<GameId, string> = {
-  poker: '#D9DCE1',
-  blackjack: '#D8B56A',
-  crash: '#5B8CFF',
-  dice: '#3FC1B0',
-  mines: '#63C98A',
-  plinko: '#9B7BFF',
-  crossing: '#D08F55',
-  roulette: '#E2668F',
-  limbo: '#7FC8F8',
-  coinflip: '#E6C98A',
-  baccarat: '#C27E62',
-  hilo: '#8A93FF',
-  keno: '#4FD1E0',
-  sicbo: '#C77DDB',
+  poker: '#C7B9FF',
+  blackjack: '#8EE3C0',
+  crash: '#9DBBFF',
+  dice: '#FFD38A',
+  mines: '#7FE3C4',
+  plinko: '#E2B8FF',
+  crossing: '#F3E37A',
+  roulette: '#FF9F94',
+  limbo: '#8FDDF7',
+  coinflip: '#F7D67E',
+  baccarat: '#F0B8A0',
+  hilo: '#AEB6FF',
+  keno: '#86E6EE',
+  sicbo: '#FFA9C0',
 };
+
+/**
+ * Card art (Offsuit-style): a soft pastel gradient with a big emoji. Text on these is always dark.
+ * Emoji render as the platform's colour emoji (Apple's on iPhone).
+ */
+export const gameArt: Record<GameId, { emoji: string; colors: [string, string] }> = {
+  poker: { emoji: '🃏', colors: ['#FBD3E9', '#C7B9FF'] },
+  blackjack: { emoji: '♦️', colors: ['#C8F5DF', '#A6DCEF'] },
+  crash: { emoji: '🚀', colors: ['#BFD7FF', '#D8C8FF'] },
+  dice: { emoji: '🎲', colors: ['#FFE6A7', '#FFC9A9'] },
+  mines: { emoji: '💎', colors: ['#C9F2E7', '#B8D8FF'] },
+  plinko: { emoji: '🪩', colors: ['#E7C9FF', '#FFC6E1'] },
+  crossing: { emoji: '🐔', colors: ['#FFF1A8', '#C6F2B0'] },
+  roulette: { emoji: '🎡', colors: ['#FFC8C2', '#FFD9A8'] },
+  limbo: { emoji: '📈', colors: ['#C6F0FF', '#C8FFE6'] },
+  coinflip: { emoji: '🪙', colors: ['#FFE9B0', '#F6D3A0'] },
+  baccarat: { emoji: '👑', colors: ['#F2D5C4', '#E6C3F0'] },
+  hilo: { emoji: '🎴', colors: ['#D3D8FF', '#C6E9FF'] },
+  keno: { emoji: '🎱', colors: ['#C2F3F6', '#D6E6FF'] },
+  sicbo: { emoji: '🏮', colors: ['#FFCFD9', '#E4CCFF'] },
+};
+
+/** Room cards: a "place" per stake level (Offsuit names its tables after places too). */
+export const roomArt: Record<'practice' | 'r1' | 'r2' | 'r3', { emoji: string; colors: [string, string] }> = {
+  practice: { emoji: '🏠', colors: ['#EEF1F6', '#D3DAE6'] },
+  r1: { emoji: '☕️', colors: ['#C8F5DF', '#A6DCEF'] },
+  r2: { emoji: '🎩', colors: ['#D8C8FF', '#FBD3E9'] },
+  r3: { emoji: '💎', colors: ['#FFE6A7', '#FFC2A8'] },
+};
+
+/** Ink used on pastel art. */
+export const onPastel = { text: '#0B0B0F', text2: 'rgba(11,11,15,0.58)', chip: 'rgba(11,11,15,0.08)' } as const;
 
 export const space = { xxs: 4, xs: 8, sm: 12, md: 16, lg: 20, xl: 24, xxl: 32, xxxl: 40, huge: 56 } as const;
-export const radius = { xs: 8, sm: 12, md: 16, lg: 22, xl: 28, pill: 999 } as const;
+export const radius = { xs: 8, sm: 14, md: 18, lg: 22, xl: 28, pill: 999 } as const;
 export const SCREEN_PAD = 20;
 
 export const font = {
@@ -127,14 +160,15 @@ export const font = {
 } as const;
 
 export const type = {
-  hero: { fontFamily: font.light, fontSize: 56, lineHeight: 60, letterSpacing: -1.6 },
+  hero: { fontFamily: font.light, fontSize: 64, lineHeight: 70, letterSpacing: -2 },
   display: { fontFamily: font.light, fontSize: 40, lineHeight: 46, letterSpacing: -1 },
-  title: { fontFamily: font.medium, fontSize: 28, lineHeight: 34, letterSpacing: -0.5 },
+  title: { fontFamily: font.medium, fontSize: 30, lineHeight: 36, letterSpacing: -0.6 },
   headline: { fontFamily: font.semibold, fontSize: 20, lineHeight: 26, letterSpacing: -0.2 },
   body: { fontFamily: font.regular, fontSize: 16, lineHeight: 22, letterSpacing: -0.1 },
   callout: { fontFamily: font.medium, fontSize: 15, lineHeight: 20, letterSpacing: -0.1 },
   footnote: { fontFamily: font.regular, fontSize: 13, lineHeight: 18, letterSpacing: 0 },
-  caption: { fontFamily: font.medium, fontSize: 11, lineHeight: 14, letterSpacing: 0.6, textTransform: 'uppercase' as const },
+  /** Small label above values (sentence case, Offsuit-style; no shouting caps). */
+  caption: { fontFamily: font.regular, fontSize: 12, lineHeight: 16, letterSpacing: 0 },
   mono: { fontFamily: font.mono, fontSize: 15, lineHeight: 20, letterSpacing: 0 },
 } as const;
 export type TypeVariant = keyof typeof type;

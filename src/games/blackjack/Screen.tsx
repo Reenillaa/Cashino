@@ -95,7 +95,7 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
                   {view.holeHidden && <View style={{ marginLeft: -26 }}><PlayingCard card={null} faceDown size="md" delay={120} /></View>}
                 </>
               ) : (
-                <T variant="footnote" color="text3">BLACKJACK PAYS 3:2 · DEALER STANDS ON SOFT 17</T>
+                <T variant="footnote" color="text3" align="center">{t('play.bjTableNote')}</T>
               )}
             </View>
           </View>

@@ -102,7 +102,7 @@ export default function HiloScreen({ forceTutorial }: { forceTutorial?: boolean 
               </View>
               <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
                 <Button title={t('play.skipCard')} kind="ghost" size="md" onPress={() => run('skip')} disabled={busy} style={{ flex: 1 }} />
-                <Button title={t('common.cashout')} subtitle={correct ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} Ti` : undefined} onPress={() => run('cashout')} disabled={!correct || busy} style={{ flex: 1.4 }} />
+                <Button title={t('common.cashout')} subtitle={correct ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} ${t('common.coins')}` : undefined} onPress={() => run('cashout')} disabled={!correct || busy} style={{ flex: 1.4 }} />
               </View>
             </>
           ) : (

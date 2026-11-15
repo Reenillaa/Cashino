@@ -55,7 +55,7 @@ export default function PokerScreen({ forceTutorial }: { forceTutorial?: boolean
                 <T variant="headline" align="center">
                   {game.finished.place === 1 ? t('poker.tournamentWon') : game.finished.place > 0 ? t('poker.place', { n: game.finished.place }) : t('poker.eliminated')}
                 </T>
-                {game.finished.prize > 0 && <T variant="title" color="win" tabular>+{formatCoins(game.finished.prize)} Ti</T>}
+                {game.finished.prize > 0 && <T variant="title" color="win" tabular>+{formatCoins(game.finished.prize)} {t('common.coins')}</T>}
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   {game.setup?.format === 'cash' && <Button title={t('poker.rebuy')} size="md" onPress={game.rebuy} />}
                   <Button title={t('poker.leave')} kind="secondary" size="md" onPress={game.leave} />
@@ -76,7 +76,7 @@ export default function PokerScreen({ forceTutorial }: { forceTutorial?: boolean
             <T variant="caption" color="text3">{t('poker.buyIn')}</T>
             <Surface level={2} style={{ gap: 6 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                <T variant="title" tabular>{formatCoins(format === 'sng' ? room.min : buyIn)} <T variant="callout" color="text3">Ti</T></T>
+                <T variant="title" tabular>{formatCoins(format === 'sng' ? room.min : buyIn)} <T variant="callout" color="text3">{t('common.coins')}</T></T>
                 <T variant="footnote" color="text3">{t('poker.blinds', { sb: room.poker.sb, bb: room.poker.bb })}</T>
               </View>
               {format === 'cash' ? (

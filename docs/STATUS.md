@@ -43,6 +43,17 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - Skill **RE** (`github.com/morluto/re`): el repositorio devuelve 404 / no accesible, no se pudo usar.
 - Publicación como **PWA en GitHub Pages** (`.github/workflows/pages.yml`).
 
+## Cambios de la ronda 3 (Cashino, estilo Offsuit)
+- **Nombre: Cashino** (app, PWA, icono nuevo de ficha pastel, `app.cashino.game`). La moneda pasa de “Ti” a **fichas**.
+- **Rediseño visual** siguiendo las capturas oficiales de Offsuit (doc 01): negro puro, superficies sin bordes, tarjetas pastel con emoji grande, saldo como número protagonista, avatares emoji, botones en píldora. Se quitan los “recuadritos” (chips de acciones, cajas de estadísticas, bordes).
+- **Inicio = vestíbulo**: se elimina la pestaña Juegos (4 pestañas: Inicio, Ranking, Social, Perfil). Un toque en un juego → elegir sala → jugar.
+- **Pensado para cualquier persona**: nombres en castellano (Dados, Minas, Cohete, Cara o cruz…), frases cortas, apuesta con botones − / + grandes y accesos a Mín/Máx.
+- **Salas con personalidad**: 🏠 Práctica, ☕️ El Bar, 🎩 El Club y 💎 Sala VIP, como tarjetas pastel en el carrusel.
+- **Tutorial → salas**: al terminar o saltar el tutorial se muestra el selector de salas (antes entraba directo en la sala Inicial).
+- **Animaciones**: entrada suave de cada pantalla al ganar el foco (cambio de pestaña, volver de un juego), tarjetas con entrada escalonada, resultado que sube y se desvanece sin rebote, iconos de la barra que se asientan.
+- **Sonidos nuevos** (`scripts/generate-sounds.mjs` v2): síntesis modal y ruido filtrado con reverb ligera — fichas de arcilla, cartas sobre tapete, marimba para ganar, monedas al retirar, dados de madera; nada de pitidos.
+- Skill **REA** (`github.com/morluto/rea`): leída. Es una herramienta MCP de ingeniería inversa de binarios (Ghidra/IDA/Hopper), no una guía de diseño. No se ha usado: aplicarla a Offsuit exigiría descifrar su app de la App Store (DRM) y copiar software propietario, cosas que su propio aviso legal excluye. El estilo se ha tomado de las capturas públicas.
+
 ## Decisiones técnicas registradas
 - Motor puro compartido app ↔ Edge Functions (`npm run sync:engine`).
 - Sin Skia en v1 (SVG + Reanimated bastan y funcionan en web/CI).
@@ -52,16 +63,15 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - Usuarios con cuenta juegan contra bots en práctica local; las monedas en juego online van por mesas del servidor.
 
 ## Limitaciones conocidas
-- Nombre de la app y de la moneda provisionales (`src/config/brand.ts`, `app.config.ts`).
 - Push remotas no configuradas (requiere clave APNs); hay notificaciones locales opcionales e in-app.
 - Sign in with Apple no activado (requiere cuenta Apple Developer); email + contraseña y enlace mágico sí.
 - En ruleta, la UI permite plenos y apuestas exteriores; caballos/calles/cuadros/seisenas están en el motor y el servidor pero no en el tapete móvil.
 - Saldo casual inflacionario (sin sumideros cosméticos aún).
-- Las skills REA y Taste no estaban disponibles en el entorno.
+- REA no aplica a diseño (es ingeniería inversa); Taste sí se aplica a movimiento.
+- Los emojis se ven con el estilo del sistema (Apple en iPhone, Google/Noto en Android/Chrome).
+- En la versión web del iPhone no hay vibración (Safari no lo permite).
 
 ## Próximos pasos
-1. Crear repo en GitHub y subir (necesito tu OK y el nombre del repo).
-2. Crear proyecto Supabase, `db push`, desplegar funciones y probar online con dos dispositivos.
+1. Crear proyecto Supabase, `db push`, desplegar funciones y probar online con dos dispositivos.
 3. Build EAS de desarrollo en tu iPhone; perfilar animaciones y revisar VoiceOver.
-4. Elegir nombre definitivo, icono final (propuestas en `brand/`) y bundle id.
-5. Tienda cosmética con Ti, apuestas interiores completas en ruleta, Sign in with Apple, push.
+4. Tienda cosmética con fichas, apuestas interiores completas en ruleta, Sign in with Apple, push.

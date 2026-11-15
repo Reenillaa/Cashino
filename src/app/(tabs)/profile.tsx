@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AVATAR_COUNT, Avatar, Button, Chip, GameGlyph, Icon, IconButton, ListGroup, ListRow, PressableScale, ProgressBar, Screen, Section, Segmented, Sheet, Surface, T, formatCoins, formatMult } from '@/design/components';
+import { AVATAR_COUNT, Avatar, Button, Chip, GameGlyph, Icon, IconButton, ListGroup, ListRow, PressableScale, ProgressBar, Screen, Segmented, Sheet, Surface, T, formatCoins, formatMult } from '@/design/components';
 import { useTheme, alpha } from '@/design/theme';
 import { SCREEN_PAD, radius } from '@/design/tokens';
 import { useT } from '@/i18n';
@@ -26,7 +26,6 @@ export default function Profile() {
   const stats = useProgress((s) => s.stats);
   const history = useProgress((s) => s.history);
   const unlocked = useProgress((s) => s.achievements);
-  const favorites = useProgress((s) => s.favorites);
   const lessons = useLearning((s) => Object.keys(s.lessons).length);
   const tutorials = useLearning((s) => Object.values(s.tutorials).filter(Boolean).length);
   const [tab, setTab] = useState<Tab>('stats');
@@ -54,26 +53,16 @@ export default function Profile() {
           </View>
           <ProgressBar value={lvl.needed ? lvl.into / lvl.needed : 1} style={{ marginTop: 6 }} />
         </View>
-        <View style={{ flexDirection: 'row', gap: 8, alignSelf: 'stretch', marginTop: 8 }}>
-          {[[t('profile.roundsPlayed'), formatCoins(all.rounds)], [t('profile.lessons'), `${lessons}`], [t('profile.tutorials'), `${tutorials}/14`], [t('profile.achievements'), `${Object.keys(unlocked).length}/${ACHIEVEMENTS.length}`]].map(([k, v]) => (
-            <Surface key={k} level={1} padded={false} style={{ flex: 1, padding: 10, alignItems: 'center' }}>
-              <T variant="headline" tabular>{v}</T>
-              <T variant="caption" color="text3" style={{ fontSize: 9, letterSpacing: 0.2, textAlign: 'center' }} numberOfLines={1} adjustsFontSizeToFit>{k}</T>
-            </Surface>
+        <View style={{ flexDirection: 'row', alignSelf: 'stretch', marginTop: 12, paddingVertical: 14, borderRadius: 22, backgroundColor: c.surface1 }}>
+          {[[t('profile.roundsPlayed'), formatCoins(all.rounds)], [t('profile.lessons'), `${lessons}`], [t('profile.tutorials'), `${tutorials}/14`], [t('profile.achievements'), `${Object.keys(unlocked).length}/${ACHIEVEMENTS.length}`]].map(([k, v], i) => (
+            <View key={k} style={[{ flex: 1, alignItems: 'center', paddingHorizontal: 4 }, i > 0 && { borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: c.hairline }]}>
+              <T variant="headline" weight="medium" tabular>{v}</T>
+              <T variant="footnote" color="text3" style={{ fontSize: 11, textAlign: 'center' }} numberOfLines={2}>{k}</T>
+            </View>
           ))}
         </View>
         {!signedIn && onlineConfigured && <Button title={t('profile.createAccount')} subtitle={t('profile.accountBenefits')} onPress={() => router.push('/auth')} full style={{ marginTop: 8 }} />}
       </View>
-      <Section title={t('profile.favorites')}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingHorizontal: SCREEN_PAD }}>
-          {favorites.map((g) => (
-            <PressableScale key={g} onPress={() => router.push(`/game/${g}`)} style={[styles.fav, { backgroundColor: c.surface1, borderColor: c.hairline }]} accessibilityLabel={t(`games.names.${g}`)}>
-              <GameGlyph game={g} size={24} color={META[g].tint} />
-              <T variant="footnote" weight="medium">{t(`games.names.${g}`)}</T>
-            </PressableScale>
-          ))}
-        </ScrollView>
-      </Section>
       <View style={{ paddingHorizontal: SCREEN_PAD, marginTop: 28 }}>
         <Segmented value={tab} onChange={setTab} options={[{ value: 'stats', label: t('profile.stats') }, { value: 'achievements', label: t('profile.achievements') }, { value: 'history', label: t('profile.history') }]} />
       </View>
@@ -86,10 +75,10 @@ export default function Profile() {
           <ListGroup style={{ marginTop: 12 }}>
             <ListRow title={t('profile.roundsPlayed')} value={formatCoins(sel.rounds)} />
             <ListRow title={t('profile.winRate')} value={sel.rounds ? `${((sel.wins / sel.rounds) * 100).toFixed(1)} %` : '—'} />
-            <ListRow title={t('profile.wagered')} value={`${formatCoins(sel.wagered)} Ti`} />
-            <ListRow title={t('profile.returned')} value={`${formatCoins(sel.returned)} Ti`} />
-            <ListRow title={t('profile.netResult')} value={`${sel.returned - sel.wagered >= 0 ? '+' : '−'}${formatCoins(Math.abs(sel.returned - sel.wagered))} Ti`} />
-            <ListRow title={t('profile.biggestWin')} value={`${formatCoins(sel.biggestWin)} Ti`} />
+            <ListRow title={t('profile.wagered')} value={`${formatCoins(sel.wagered)}`} />
+            <ListRow title={t('profile.returned')} value={`${formatCoins(sel.returned)}`} />
+            <ListRow title={t('profile.netResult')} value={`${sel.returned - sel.wagered >= 0 ? '+' : '−'}${formatCoins(Math.abs(sel.returned - sel.wagered))}`} />
+            <ListRow title={t('profile.biggestWin')} value={`${formatCoins(sel.biggestWin)}`} />
             <ListRow title={t('profile.bestMultiplier')} value={sel.bestMultiplier ? formatMult(sel.bestMultiplier) : '—'} />
             {game === 'blackjack' && <ListRow title={t('ranking.skill')} value={(() => { const d = useProgress.getState().bjDecisions; return d.total ? `${((d.correct / d.total) * 100).toFixed(1)} % (${d.total})` : '—'; })()} />}
           </ListGroup>

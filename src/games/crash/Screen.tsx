@@ -227,7 +227,7 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
             </>
           )}
           {flying ? (
-            <Button title={t('common.cashout')} subtitle={`${formatCoins(payoutFor(roundBet, Math.floor(mult * 100) / 100))} Ti`} onPress={cashout} />
+            <Button title={t('common.cashout')} subtitle={`${formatCoins(payoutFor(roundBet, Math.floor(mult * 100) / 100))} ${t('common.coins')}`} onPress={cashout} />
           ) : (
             <Button title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
           )}

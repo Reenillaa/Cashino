@@ -1,4 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-<defs><mask id="m"><rect width="1024" height="1024" fill="#fff"/><polygon points="242,242 782,242 242,782" fill="#000" opacity="0.45"/><circle cx="512" cy="512" r="86" fill="#000"/></mask></defs>
-<rect x="242" y="242" width="540" height="540" rx="148" fill="#fff" mask="url(#m)"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><defs><mask id="m">
+<rect width="1024" height="1024" fill="black"/><circle cx="512" cy="512" r="340" fill="white"/>
+<rect x="478" y="170" width="68" height="104" rx="22" fill="black"  transform="rotate(0 512 512)"/>
+<rect x="478" y="170" width="68" height="104" rx="22" fill="black"  transform="rotate(45 512 512)"/>
+<rect x="478" y="170" width="68" height="104" rx="22" fill="black"  transform="rotate(90 512 512)"/>
+<rect x="478" y="170" width="68" height="104" rx="22" fill="black"  transform="rotate(135 512 512)"/>
+<rect x="478" y="170" width="68" height="104" rx="22" fill="black"  transform="rotate(180 512 512)"/>
+<rect x="478" y="170" width="68" height="104" rx="22" fill="black"  transform="rotate(225 512 512)"/>
+<rect x="478" y="170" width="68" height="104" rx="22" fill="black"  transform="rotate(270 512 512)"/>
+<rect x="478" y="170" width="68" height="104" rx="22" fill="black"  transform="rotate(315 512 512)"/>
+<circle cx="512" cy="512" r="214" fill="black"/>
+<path d="M 577.4 453.1 A 88 88 0 1 0 577.4 570.9" fill="none" stroke="white" stroke-width="54" stroke-linecap="round"/>
+</mask></defs><rect width="1024" height="1024" fill="#FFFFFF" mask="url(#m)"/></svg>

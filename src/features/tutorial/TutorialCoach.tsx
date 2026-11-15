@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
+import Animated, { Easing, FadeInDown, FadeOut } from 'react-native-reanimated';
 import type { GameId } from '@/engine/games/types.ts';
-import { Button, Glass, Icon, PressableScale, T } from '@/design/components';
+import { Button, Icon, PressableScale, T } from '@/design/components';
 import { useTheme } from '@/design/theme';
+import { motion } from '@/design/tokens';
 import { tr, useT } from '@/i18n';
 import { useLearning } from '@/state/learning';
 import { useProgress } from '@/state/progress';
@@ -41,6 +42,11 @@ export function TutorialCoach({ game }: { game: GameId }) {
     if (completed) {
       useProgress.getState().addXp(XP.tutorialComplete);
       useProgress.getState().pushToast({ kind: 'info', title: t('tutorial.finish'), body: `+${XP.tutorialComplete} XP` });
+    }
+    // Give the previous room back in the same update, so the room carousel that follows starts on it.
+    if (prevRoom.current !== undefined) {
+      useRooms.getState().choose(game, prevRoom.current ?? 'r1');
+      prevRoom.current = undefined;
     }
     useTutorialRuntime.getState().stop();
   };
@@ -81,16 +87,16 @@ export function TutorialCoach({ game }: { game: GameId }) {
   if (!active || !cur) return null;
   const answered = cur.kind === 'quiz' && picked !== null;
   return (
-    <Animated.View key={step} entering={reduceMotion ? undefined : FadeInDown.springify().damping(20)} exiting={reduceMotion ? undefined : FadeOut} style={styles.wrap} accessibilityLiveRegion="polite">
-      <Glass radius={22} style={styles.card}>
+    <Animated.View key={step} entering={reduceMotion ? undefined : FadeInDown.duration(motion.slow).easing(Easing.bezier(...motion.easeEnter))} exiting={reduceMotion ? undefined : FadeOut.duration(motion.fast)} style={styles.wrap} accessibilityLiveRegion="polite">
+      <View style={[styles.card, { backgroundColor: c.surface2 }]}>
         <View style={styles.top}>
           <T variant="caption" color="text3" style={{ flex: 1 }}>{t('tutorial.step', { n: step + 1, total: steps.length })}</T>
           <PressableScale onPress={() => finish(false)} accessibilityLabel={t('tutorial.skip')} hitSlop={10}>
             <T variant="footnote" color="text3">{t('tutorial.skip')}</T>
           </PressableScale>
         </View>
-        <T variant="callout" weight="semibold" style={{ marginTop: 6 }}>{tr(cur.title, lang)}</T>
-        <T variant="footnote" color="text2" style={{ marginTop: 4 }}>{tr(cur.body, lang)}</T>
+        <T variant="headline" weight="semibold" style={{ marginTop: 6, fontSize: 18 }}>{tr(cur.title, lang)}</T>
+        <T variant="body" color="text2" style={{ marginTop: 4 }}>{tr(cur.body, lang)}</T>
         {cur.kind === 'quiz' && (
           <View style={{ gap: 8, marginTop: 12 }}>
             {cur.options!.map((o, i) => {
@@ -105,10 +111,10 @@ export function TutorialCoach({ game }: { game: GameId }) {
                     if (right) haptic.success();
                     else haptic.warning();
                   }}
-                  style={[styles.option, { borderColor: show ? (right ? c.win : c.loss) : c.hairlineStrong, backgroundColor: c.surface2 }]}
+                  style={[styles.option, { borderColor: show ? (right ? c.win : c.loss) : 'transparent', backgroundColor: c.surface3 }]}
                   accessibilityLabel={tr(o, lang)}
                 >
-                  <T variant="footnote" weight="medium" style={{ flex: 1 }}>{tr(o, lang)}</T>
+                  <T variant="callout" weight="medium" style={{ flex: 1 }}>{tr(o, lang)}</T>
                   {show && <Icon name={right ? 'check' : 'close'} size={16} color={right ? c.win : c.loss} />}
                 </PressableScale>
               );
@@ -136,15 +142,15 @@ export function TutorialCoach({ game }: { game: GameId }) {
             />
           )}
         </View>
-      </Glass>
+      </View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: { paddingHorizontal: 16, zIndex: 20 },
-  card: { padding: 16 },
+  card: { padding: 18, borderRadius: 24 },
   top: { flexDirection: 'row', alignItems: 'center' },
-  option: { flexDirection: 'row', alignItems: 'center', minHeight: 40, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1 },
+  option: { flexDirection: 'row', alignItems: 'center', minHeight: 48, paddingHorizontal: 14, borderRadius: 16, borderWidth: 1.5 },
   actions: { marginTop: 12, flexDirection: 'row', justifyContent: 'flex-end' },
 });

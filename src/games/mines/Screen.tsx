@@ -190,7 +190,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
               <Button title={t('play.random')} kind="secondary" onPress={pickRandom} style={{ flex: 1 }} />
               <Button
                 title={t('common.cashout')}
-                subtitle={k ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} Ti` : undefined}
+                subtitle={k ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} ${t('common.coins')}` : undefined}
                 onPress={cashout}
                 disabled={k === 0}
                 style={{ flex: 1.6 }}

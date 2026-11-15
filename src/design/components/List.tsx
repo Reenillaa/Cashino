@@ -14,7 +14,7 @@ export function ListGroup({ children, footer, style }: { children: React.ReactNo
   const items = React.Children.toArray(children).filter(Boolean);
   return (
     <View style={[{ marginHorizontal: SCREEN_PAD }, style]}>
-      <View style={{ backgroundColor: c.surface1, borderRadius: radius.md, overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth, borderColor: c.hairline }}>
+      <View style={{ backgroundColor: c.surface1, borderRadius: radius.lg, overflow: 'hidden' }}>
         {items.map((child, i) => (
           <View key={i}>
             {child}
@@ -99,6 +99,6 @@ export function ToggleRow({ icon, title, subtitle, value, onChange }: { icon?: I
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, minHeight: 52, paddingVertical: 10 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, minHeight: 56, paddingVertical: 12 },
   iconWrap: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
 });

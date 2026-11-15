@@ -1,22 +1,24 @@
-# Titanium (nombre provisional)
+# Cashino
 
 Plataforma móvil premium de **14 juegos de casino y azar con moneda 100 % virtual** (sin valor monetario, sin compras, sin retiradas), con Academy educativa, multijugador online, rankings y progresión. React Native + Expo, prioridad iPhone.
 
-> El nombre del producto y de la moneda (“Ti”) son provisionales: se cambian en `src/config/brand.ts` y `app.config.ts`.
+> La moneda son **fichas** sin valor monetario. Nombre e identidad: `src/config/brand.ts` y `app.config.ts`.
+
+![Recorrido: inicio → juego → sala → partida](docs/cashino-flow.gif)
 
 ## Jugar ya
 **https://reenillaa.github.io/Cashino/** — en el iPhone ábrelo en Safari → Compartir → *Añadir a pantalla de inicio* y se abre a pantalla completa como una app (se publica sola en cada push a `main`).
 
 ## Qué incluye
-- **14 juegos jugables**: Poker (Texas Hold'em NL vs bots y online), Blackjack, Crash, Dice, Mines, Plinko, Cruce (estilo chicken-road), Ruleta europea, Limbo, Coinflip, Baccarat, Hi-Lo, Keno y Sic Bo.
+- **14 juegos jugables**: Póker (Texas Hold'em NL vs bots y online), Blackjack, Cohete (crash), Dados, Minas, Plinko, Cruza la calle (estilo chicken-road), Ruleta europea, Limbo, Cara o cruz, Bacará, Mayor o menor, Keno y Sic Bo.
 - Resultados **calculados antes de animar** y **verificables** (HMAC-SHA256, semillas servidor/cliente/nonce).
 - **Tutorial interactivo** por juego (se hace en el juego real, en modo práctica) que se recuerda (`<juego>_tutorial_completed`).
 - **Academy**: 42 lecciones ES/EN con cuestionarios, 8 simuladores, insignias y nivel de aprendizaje. Sin promesas de ganar.
-- **Salas por juego** con carrusel animado: Práctica, Inicial 20–100, Media 200–1.000 y Alta 2.000–10.000 (límites validados también en servidor).
+- **Salas por juego** con carrusel animado: 🏠 Práctica (gratis), ☕️ El Bar 20–100, 🎩 El Club 200–1.000 y 💎 Sala VIP 2.000–10.000 (límites validados también en servidor).
 - **Economía virtual** simulada: saldo inicial 1.000, regalo diario sin presión, recargas gratuitas, práctica ilimitada.
 - **Progresión**: niveles, XP con topes diarios, logros, misiones diarias/semanales, temporadas de 56 días.
 - **Online (Supabase)**: cuentas, amigos, bloqueos, equipos, salas privadas con código, Sit & Go, reacciones (sin chat), rankings que nunca usan el saldo.
-- **Diseño Titanium**: obsidiana/grafito/plata/marfil, cristal solo en la capa de control, acentos “anodizados” por juego, modo oscuro y claro, sonido sintetizado propio, hápticos, accesibilidad básica.
+- **Diseño estilo Offsuit**: negro puro, sin cajas ni bordes, tarjetas pastel con emoji grande por juego, números grandes en peso ligero, botones en píldora, control de apuesta − / + pensado para cualquiera, animaciones suaves al cambiar de pestaña y al entrar en cada juego, sonidos sintetizados “físicos” (fichas, cartas, marimba, monedas), hápticos y accesibilidad básica.
 
 ## Empezar
 ```bash
@@ -48,7 +50,7 @@ src/app/          Rutas (Expo Router): pestañas, juego, academy, online, ajuste
 src/engine/       Motor puro TS (RNG verificable, 14 juegos, póker, bots, economía, rankings) + tests
 src/games/        UI de cada juego + marco común (GameShell, apuesta, historial, reglas)
 src/features/     academy, tutorial, play (sesiones), online, social, sync, economy, progression
-src/design/       Tokens Titanium, tema, componentes
+src/design/       Tokens (colores, arte pastel por juego), tema, componentes
 src/i18n/         es.ts / en.ts
 src/state/        Stores persistidos (zustand)
 src/services/     supabase, audio, hápticos, almacenamiento, aleatoriedad, notificaciones

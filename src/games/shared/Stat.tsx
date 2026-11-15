@@ -1,18 +1,17 @@
 import React from 'react';
 import { View } from 'react-native';
 import { T } from '@/design/components';
-import { useTheme } from '@/design/theme';
 
+/** A label over a big number — no box around it (Offsuit's "Win 71%" style). */
 export function Stat({ label, value, tint }: { label: string; value: string; tint?: string }) {
-  const { c } = useTheme();
   return (
-    <View style={{ flex: 1, backgroundColor: c.surface2, borderRadius: 12, paddingVertical: 8, paddingHorizontal: 10 }} accessible accessibilityLabel={`${label}: ${value}`}>
-      <T variant="caption" color="text3" style={{ fontSize: 9.5 }} numberOfLines={1}>{label}</T>
-      <T variant="callout" weight="semibold" tabular numberOfLines={1} style={tint ? { color: tint } : undefined}>{value}</T>
+    <View style={{ flex: 1, alignItems: 'center' }} accessible accessibilityLabel={`${label}: ${value}`}>
+      <T variant="footnote" color="text3" numberOfLines={2} align="center">{label}</T>
+      <T variant="headline" weight="medium" tabular numberOfLines={1} adjustsFontSizeToFit style={[{ fontSize: 22, lineHeight: 28 }, tint ? { color: tint } : null]}>{value}</T>
     </View>
   );
 }
 
 export function StatRow({ children }: { children: React.ReactNode }) {
-  return <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>{children}</View>;
+  return <View style={{ flexDirection: 'row', gap: 8, marginBottom: 14 }}>{children}</View>;
 }

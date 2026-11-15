@@ -36,7 +36,7 @@ rmSync(out('expo.icon'), { recursive: true, force: true });
 mkdirSync(out('app.icon/Assets'), { recursive: true });
 copyFileSync(new URL('../brand/logo-symbol.svg', import.meta.url), out('app.icon/Assets/symbol.svg'));
 writeFileSync(out('app.icon/icon.json'), JSON.stringify({
-  fill: { 'automatic-gradient': 'extended-srgb:0.10000,0.10900,0.12500,1.00000' },
+  fill: { 'automatic-gradient': 'extended-srgb:0.00000,0.00000,0.00000,1.00000' },
   groups: [{ layers: [{ 'image-name': 'symbol.svg', name: 'symbol', position: { scale: 1, 'translation-in-points': [0, 0] } }], shadow: { kind: 'neutral', opacity: 0.5 }, translucency: { enabled: true, value: 0.35 } }],
   'supported-platforms': { circles: ['watchOS'], squares: 'shared' },
 }, null, 2));

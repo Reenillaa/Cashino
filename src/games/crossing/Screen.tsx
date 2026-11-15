@@ -200,7 +200,7 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
           {active ? (
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <Button title={t('play.go')} kind="secondary" onPress={go} loading={moving} style={{ flex: 1 }} />
-              <Button title={t('common.cashout')} subtitle={lane ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} Ti` : undefined} onPress={cashout} disabled={lane === 0 || moving} style={{ flex: 1.4 }} />
+              <Button title={t('common.cashout')} subtitle={lane ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} ${t('common.coins')}` : undefined} onPress={cashout} disabled={lane === 0 || moving} style={{ flex: 1.4 }} />
             </View>
           ) : (
             <Button title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />

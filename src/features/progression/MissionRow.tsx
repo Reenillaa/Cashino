@@ -1,6 +1,6 @@
 import React from 'react';
-import { View } from 'react-native';
-import { Button, Icon, ProgressBar, Surface, T } from '@/design/components';
+import { Text, View } from 'react-native';
+import { Button, Icon, ProgressBar, T } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import type { MissionDef } from '@/engine/meta/progression.ts';
@@ -16,16 +16,16 @@ export function MissionRow({ mission, progress, claimed }: { mission: MissionDef
     void claimMissionReward(mission).then(() => sfx('cashout')).catch(() => undefined);
   };
   return (
-    <Surface padded={false} style={{ padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-      <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: c.surface3, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon name={claimed ? 'check' : 'target'} size={18} color={claimed ? c.win : c.text} />
+    <View style={{ paddingVertical: 14, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+      <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: claimed ? c.surface2 : c.surface3, alignItems: 'center', justifyContent: 'center' }}>
+        {claimed ? <Icon name="check" size={18} color={c.win} /> : <Text style={{ fontSize: 18 }} accessible={false}>🎯</Text>}
       </View>
       <View style={{ flex: 1, gap: 6 }}>
-        <T variant="footnote" weight="medium">{label}</T>
+        <T variant="callout" weight="medium">{label}</T>
         <ProgressBar value={Math.min(1, progress / mission.target)} height={4} tint={done ? c.win : undefined} />
-        <T variant="caption" color="text3" style={{ letterSpacing: 0.2, textTransform: 'none' }}>{t('missions.reward', { coins: mission.coins, xp: mission.xp })}</T>
+        <T variant="footnote" color="text3">{t('missions.reward', { coins: mission.coins, xp: mission.xp })}</T>
       </View>
       {done && !claimed ? <Button title={t('missions.claim')} size="sm" onPress={claim} /> : <T variant="footnote" color="text3" tabular>{Math.min(progress, mission.target)}/{mission.target}</T>}
-    </Surface>
+    </View>
   );
 }

@@ -40,7 +40,7 @@ export function Sheet({ visible, onClose, title, children, maxHeight = 0.86 }: {
       </Animated.View>
       <Animated.View
         accessibilityViewIsModal
-        style={[styles.sheet, { backgroundColor: c.bgElevated, maxHeight: height * maxHeight, paddingBottom: insets.bottom + 16, borderColor: c.hairlineStrong }, sheet]}
+        style={[styles.sheet, { backgroundColor: c.bgElevated, maxHeight: height * maxHeight, paddingBottom: insets.bottom + 16 }, sheet]}
       >
         <View style={[styles.grabber, { backgroundColor: c.hairlineStrong }]} />
         {title ? (
@@ -58,7 +58,7 @@ export function Sheet({ visible, onClose, title, children, maxHeight = 0.86 }: {
 }
 
 const styles = StyleSheet.create({
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, paddingTop: 8 },
+  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, paddingTop: 8 },
   grabber: { alignSelf: 'center', width: 38, height: 5, borderRadius: 3, marginBottom: 8 },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: SCREEN_PAD, paddingBottom: 12, gap: 12 },
 });

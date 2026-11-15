@@ -4,19 +4,20 @@ import { GlassTabBar } from '@/design/components';
 import { useT } from '@/i18n';
 import { useSocialBadge } from '@/features/social/useSocialBadge';
 
+/** Four simple destinations: the home screen is also the game lobby (one place to start playing). */
 export default function TabsLayout() {
   const { t } = useT();
   const badge = useSocialBadge();
   const items = [
     { key: 'index', label: t('tabs.home'), icon: 'home' as const },
-    { key: 'games', label: t('tabs.games'), icon: 'games' as const },
     { key: 'ranking', label: t('tabs.ranking'), icon: 'ranking' as const },
     { key: 'social', label: t('tabs.social'), icon: 'social' as const, badge },
     { key: 'profile', label: t('tabs.profile'), icon: 'profile' as const },
   ];
   return (
     <Tabs
-      screenOptions={{ headerShown: false, animation: 'fade' }}
+      // Screens animate themselves on focus (Screen → useFocusEntrance), so the navigator just swaps.
+      screenOptions={{ headerShown: false, animation: 'none' }}
       tabBar={({ state, navigateToTab }) => (
         <GlassTabBar
           items={items}
@@ -29,7 +30,6 @@ export default function TabsLayout() {
       )}
     >
       <Tabs.Screen name="index" />
-      <Tabs.Screen name="games" />
       <Tabs.Screen name="ranking" />
       <Tabs.Screen name="social" />
       <Tabs.Screen name="profile" />

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
-import Svg, { Circle, Defs, LinearGradient, Stop, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Stop, G, Path } from 'react-native-svg';
 import { Button, T, formatCoins, formatMult } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
@@ -34,7 +34,15 @@ function CoinFace({ side, size }: { side: Side; size: number }) {
       </Defs>
       <Circle cx="50" cy="50" r="48" fill={`url(#cf${side})`} />
       <Circle cx="50" cy="50" r="40" fill="none" stroke="rgba(0,0,0,0.18)" strokeWidth="2" />
-      <SvgText x="50" y="62" fontSize="34" fontWeight="600" textAnchor="middle" fill="rgba(20,20,24,0.75)">{heads ? 'H' : 'T'}</SvgText>
+      {heads ? (
+        <G fill="none" stroke="rgba(20,20,24,0.7)" strokeWidth="4.5" strokeLinecap="round">
+          <Circle cx="39" cy="43" r="2.2" fill="rgba(20,20,24,0.7)" />
+          <Circle cx="61" cy="43" r="2.2" fill="rgba(20,20,24,0.7)" />
+          <Path d="M36 57c4 7 9 10 14 10s10-3 14-10" />
+        </G>
+      ) : (
+        <Path d="M50 30v40M30 50h40" stroke="rgba(20,20,24,0.7)" strokeWidth="9" strokeLinecap="round" />
+      )}
     </Svg>
   );
 }
@@ -127,7 +135,7 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
           <View style={styles.calls}>
             {calls.slice(-10).map((h, i) => (
               <View key={i} style={[styles.dot, { backgroundColor: h.call === h.result ? tint : c.loss }]} accessibilityLabel={h.call === h.result ? '✓' : '✗'}>
-                <T variant="caption" style={{ fontSize: 9, color: '#111' }}>{h.result === 'heads' ? 'H' : 'T'}</T>
+                <T variant="caption" style={{ fontSize: 10, color: '#111' }}>{h.result === 'heads' ? '☺' : '✚'}</T>
               </View>
             ))}
           </View>
@@ -154,7 +162,7 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
               </View>
               <Button
                 title={t('common.cashout')}
-                subtitle={wins ? `${formatCoins(payoutFor(roundBet, streakMultiplier(wins)))} Ti` : undefined}
+                subtitle={wins ? `${formatCoins(payoutFor(roundBet, streakMultiplier(wins)))} ${t('common.coins')}` : undefined}
                 onPress={cashout}
                 disabled={wins === 0 || flipping}
                 style={{ marginTop: 10 }}

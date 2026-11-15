@@ -205,7 +205,7 @@ function TournamentsTab() {
               key={tr.id}
               icon="medal"
               title={tr.name}
-              subtitle={`${tr.max_players} · ${tr.entry_fee ? `${tr.entry_fee} Ti` : t('social.freeEntry')} · ${tr.status}`}
+              subtitle={`${tr.max_players} · ${tr.entry_fee ? `${tr.entry_fee} ${t('common.coins')}` : t('social.freeEntry')} · ${tr.status}`}
               onPress={() => tr.table_id && void callFn<{ tableId: string }>('poker', { action: 'join', tableId: tr.table_id, requestId: `${Date.now()}` }).then((r) => router.push(`/online/${r.tableId}`)).catch(() => router.push(`/online/${tr.table_id}`))}
             />
           ))}

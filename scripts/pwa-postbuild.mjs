@@ -5,8 +5,8 @@ import { readFileSync, writeFileSync, existsSync, copyFileSync } from 'node:fs';
 
 const base = (process.argv[2] ?? '').replace(/\/$/, '');
 const dist = new URL('../dist/', import.meta.url).pathname;
-const NAME = 'Titanium';
-const THEME = '#08090B';
+const NAME = 'Cashino';
+const THEME = '#000000';
 
 for (const f of ['icon-192.png', 'icon-512.png', 'apple-touch-icon.png']) {
   if (!existsSync(dist + f)) copyFileSync(new URL(`../public/${f}`, import.meta.url).pathname, dist + f);
