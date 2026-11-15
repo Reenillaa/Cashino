@@ -5,7 +5,10 @@ import type { TableState, PokerAction } from '@/engine/poker/table.ts';
 import { legalActions, potTotal } from '@/engine/poker/table.ts';
 import { evaluate, CATEGORY_KEYS } from '@/engine/poker/evaluator.ts';
 import { cardCode } from '@/engine/cards/cards.ts';
-import { Avatar, Button, Glass, PlayingCard, Slider, T, Tag, formatCoins } from '@/design/components';
+import { Avatar, Glass, Icon, PlayingCard, PressableScale, T, Tag, formatCoins } from '@/design/components';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BetInput } from '../shared/BetInput';
+import { Felt } from '../shared/Felt';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
@@ -31,6 +34,7 @@ export function PokerTableView({
   const h = table.hand;
   const legal = h && !h.complete && h.toAct === heroSeat ? legalActions(table) : null;
   const [raiseTo, setRaiseTo] = useState<number | null>(null);
+  const [raising, setRaising] = useState(false);
   const hero = h?.players.find((p) => p.seat === heroSeat);
   const heroRank = hero && hero.hole.length === 2 && h && h.board.length >= 3 ? evaluate([...hero.hole, ...h.board]) : null;
   const winners = new Set(h?.complete ? Object.keys(h.winnings ?? {}).map(Number) : []);
@@ -40,12 +44,6 @@ export function PokerTableView({
   const pot = h ? potTotal(h) : 0;
   const others = table.seats.map((s, i) => ({ s, i })).filter((x) => x.s && x.i !== heroSeat);
   const r = legal ? Math.max(legal.minRaiseTo, Math.min(legal.maxRaiseTo, raiseTo ?? legal.minRaiseTo)) : 0;
-  const heroBet = hero?.bet ?? 0;
-  const preset = (frac: number) => {
-    if (!legal || !h) return;
-    const target = Math.round(h.currentBet + legal.callAmount + frac * (pot + legal.callAmount));
-    setRaiseTo(Math.max(legal.minRaiseTo, Math.min(legal.maxRaiseTo, target)));
-  };
   return (
     <View style={{ flex: 1 }}>
       {/* Opponents */}
@@ -76,8 +74,9 @@ export function PokerTableView({
           );
         })}
       </View>
-      {/* Board */}
+      {/* Board on an oval felt */}
       <View style={styles.board}>
+        <Felt shape="oval" colors={['#2E7D5B', '#0E3B2C']} style={styles.felt} />
         <View style={{ flexDirection: 'row', gap: 6 }}>
           {Array.from({ length: 5 }, (_, k) => {
             const card = h?.board[k];
@@ -126,37 +125,34 @@ export function PokerTableView({
           ) : null}
         </Glass>
       </View>
-      {/* Actions */}
+      {/* Actions: three clearly different buttons; the raise amount is chosen on the chip wheel only when you want to raise. */}
       <TutorialTarget id="poker:act">
       <View style={styles.actions}>
         {legal ? (
           <>
-            {(legal.canBet || legal.canRaise) && (
-              <View style={{ marginBottom: 8 }}>
-                <View style={{ flexDirection: 'row', gap: 6, marginBottom: 2 }}>
-                  <Button title={t('poker.halfPot')} kind="secondary" size="sm" onPress={() => preset(0.5)} style={{ flex: 1 }} />
-                  <Button title={t('poker.fullPot')} kind="secondary" size="sm" onPress={() => preset(1)} style={{ flex: 1 }} />
-                  <Button title={t('poker.allIn')} kind="secondary" size="sm" onPress={() => setRaiseTo(legal.maxRaiseTo)} style={{ flex: 1 }} />
-                </View>
-                <Slider value={r} min={legal.minRaiseTo} max={legal.maxRaiseTo} step={Math.max(1, Math.floor(table.config.bigBlind / 2))} onChange={setRaiseTo} accessibilityLabel={t('poker.raise')} />
-              </View>
-            )}
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              {legal.canFold && <Button title={t('poker.fold')} kind="secondary" size="md" onPress={() => onAction({ type: 'fold' })} style={{ flex: 1 }} />}
+            {raising && (legal.canBet || legal.canRaise) ? (
+              <Animated.View entering={FadeIn} style={{ marginBottom: 10 }}>
+                <BetInput value={r} onChange={setRaiseTo} balance={legal.maxRaiseTo} min={legal.minRaiseTo} max={legal.maxRaiseTo} label={legal.canBet ? t('poker.bet') : t('poker.raise')} />
+              </Animated.View>
+            ) : null}
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              {legal.canFold && <ActionButton icon="close" label={t('poker.fold')} colors={['#5A2A3A', '#3A1A26']} onPress={() => { setRaising(false); onAction({ type: 'fold' }); }} />}
               {legal.canCheck ? (
-                <Button title={t('poker.check')} kind="secondary" size="md" onPress={() => onAction({ type: 'check' })} style={{ flex: 1 }} />
+                <ActionButton icon="check" label={t('poker.check')} colors={['#12C08A', '#0B6E6E']} onPress={() => { setRaising(false); onAction({ type: 'check' }); }} />
               ) : (
-                <Button title={t('poker.call', { amount: formatCoins(legal.callAmount) })} kind="secondary" size="md" onPress={() => onAction({ type: 'call' })} style={{ flex: 1.2 }} />
+                <ActionButton icon="check" label={t('poker.call', { amount: formatCoins(legal.callAmount) })} colors={['#12C08A', '#0B6E6E']} onPress={() => { setRaising(false); onAction({ type: 'call' }); }} />
               )}
               {(legal.canBet || legal.canRaise) && (
-                <Button
-                  title={`${r >= legal.maxRaiseTo ? t('poker.allIn') : legal.canBet ? t('poker.bet') : t('poker.raise')} ${formatCoins(r)}`}
-                  size="md"
+                <ActionButton
+                  icon="arrowUp"
+                  label={raising ? `${r >= legal.maxRaiseTo ? t('poker.allIn') : legal.canBet ? t('poker.bet') : t('poker.raise')} ${formatCoins(r)}` : legal.canBet ? t('poker.bet') : t('poker.raise')}
+                  colors={['#FFB938', '#F2672E']}
                   onPress={() => {
+                    if (!raising) return setRaising(true);
                     onAction({ type: legal.canBet ? 'bet' : 'raise', amount: r });
                     setRaiseTo(null);
+                    setRaising(false);
                   }}
-                  style={{ flex: 1.4 }}
                 />
               )}
             </View>
@@ -164,7 +160,6 @@ export function PokerTableView({
         ) : (
           <T variant="footnote" color="text3" align="center" style={{ paddingVertical: 14 }}>
             {h?.complete ? t('poker.newHand') + '…' : h?.toAct !== null && h?.toAct !== undefined ? `${table.seats[h.toAct]?.isBot ? '🤖' : '⏳'} …` : t('poker.waiting')}
-            {heroBet ? '' : ''}
           </T>
         )}
       </View>
@@ -178,9 +173,25 @@ const styles = StyleSheet.create({
   opp: { alignItems: 'center', minWidth: 60 },
   dealer: { position: 'absolute', right: -4, bottom: -2, width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   reaction: { position: 'absolute', top: -14, right: -14 },
-  board: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  board: { flex: 1, alignItems: 'center', justifyContent: 'center', marginHorizontal: 14 },
   slot: { width: 46, height: 64, borderRadius: 8, borderWidth: 1, borderStyle: 'dashed' },
   hero: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', gap: 16, paddingHorizontal: 16 },
   heroCard: { padding: 12, alignItems: 'center', gap: 4, minWidth: 96 },
   actions: { paddingHorizontal: 12, paddingTop: 12 },
+  felt: { position: 'absolute', left: -6, right: -6, top: '12%', bottom: '12%' },
+  action: { flex: 1, height: 70, borderRadius: 22, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', gap: 4, paddingHorizontal: 6 },
+  actionIcon: { width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center' },
 });
+
+/** Big round-cornered action with its own colour and icon, so fold / call / raise never look alike. */
+function ActionButton({ icon, label, colors, onPress }: { icon: 'close' | 'check' | 'arrowUp'; label: string; colors: [string, string]; onPress: () => void }) {
+  return (
+    <PressableScale onPress={onPress} scaleTo={0.94} feedback="medium" accessibilityLabel={label} style={styles.action}>
+      <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+      <View style={styles.actionIcon}>
+        <Icon name={icon} size={20} color="#fff" strokeWidth={2.6} />
+      </View>
+      <T weight="displaySemi" numberOfLines={1} adjustsFontSizeToFit style={{ color: '#fff', fontSize: 12.5 }}>{label}</T>
+    </PressableScale>
+  );
+}

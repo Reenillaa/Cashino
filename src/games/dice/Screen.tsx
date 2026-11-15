@@ -18,6 +18,8 @@ import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 import { MoreOptions } from '../shared/MoreOptions';
+import { TumbleDie } from '../shared/Die';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const tint = META.dice.tint;
 
@@ -31,6 +33,8 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
   const [roll, setRoll] = useState<number | null>(null);
   const [won, setWon] = useState<boolean | null>(null);
   const [rolling, setRolling] = useState(false);
+  const [tumble, setTumble] = useState(false);
+  const [faces, setFaces] = useState<[number, number]>([5, 3]);
   const { result, show } = useResult();
   const onError = usePlayErrors();
   const history = useGameHistory('dice', (d) => d);
@@ -43,9 +47,15 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
   const play = async () => {
     try {
       setRolling(true);
+      setTumble(true);
+      setWon(null);
       sfx('dice');
       const r = await s.op('play', { bet, mode, target });
       const v = r.view as { roll: number; won: boolean };
+      // The dice tumble for a moment (the result is already decided), then land and reveal the number.
+      await wait(reduceMotion ? 0 : 720);
+      setFaces([Math.min(6, Math.floor(v.roll / 16.67) + 1), (Math.floor(v.roll * 100) % 6) + 1]);
+      setTumble(false);
       marker.set(reduceMotion ? v.roll : withTiming(v.roll, { duration: 520, easing: Easing.out(Easing.cubic) }));
       setRoll(v.roll);
       await wait(reduceMotion ? 0 : 560);
@@ -55,6 +65,7 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
     } catch (e) {
       onError(e);
     } finally {
+      setTumble(false);
       setRolling(false);
     }
   };
@@ -71,11 +82,15 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage}>
-          <AnimatedNumber value={roll ?? 50} format={(n) => n.toFixed(2)} duration={reduceMotion ? 0 : 520} variant="hero" style={{ fontSize: 76, lineHeight: 82, color: won === null ? c.text : won ? c.win : c.text2 }} />
+          <View style={{ flexDirection: 'row', gap: 22, marginBottom: 6 }}>
+            <TumbleDie face={faces[0]} rolling={tumble} glow={tint} />
+            <TumbleDie face={faces[1]} rolling={tumble} glow={tint} delay={70} />
+          </View>
+          <AnimatedNumber value={roll ?? 50} format={(n) => n.toFixed(2)} duration={reduceMotion ? 0 : 520} variant="hero" style={{ fontSize: 58, lineHeight: 66, color: won === null ? c.text : won ? c.win : '#FF7A7A', textShadowColor: won ? 'rgba(59,227,154,0.6)' : 'transparent', textShadowRadius: 20 }} />
           <T variant="footnote" color="text3">{winLeft ? `${t('play.rollUnder')} ${target.toFixed(2)}` : `${t('play.rollOver')} ${target.toFixed(2)}`}</T>
           <View style={{ width: '100%', marginTop: 36 }} onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}>
-            <View style={[styles.track, { backgroundColor: c.surface2 }]}>
-              <View style={{ position: 'absolute', top: 0, bottom: 0, left: winLeft ? 0 : `${target}%`, right: winLeft ? `${100 - target}%` : 0, backgroundColor: alpha(tint, 0.55), borderRadius: 7 }} />
+            <View style={[styles.track, { backgroundColor: 'rgba(255,90,110,0.35)' }]}>
+              <LinearGradient colors={['#3BE39A', '#12C08A']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ position: 'absolute', top: 0, bottom: 0, left: winLeft ? 0 : `${target}%`, right: winLeft ? `${100 - target}%` : 0, borderRadius: 7 }} />
             </View>
             {roll !== null && (
               <Animated.View style={[styles.marker, { backgroundColor: c.text, borderColor: c.bg }, markerStyle]}>
@@ -132,7 +147,7 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
 }
 
 const styles = StyleSheet.create({
-  stage: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 28 },
+  stage: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
   track: { height: 14, borderRadius: 7, overflow: 'hidden' },
   marker: { position: 'absolute', top: -34, width: 44, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 2 },
   scale: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },

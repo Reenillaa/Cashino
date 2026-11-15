@@ -22,8 +22,11 @@ import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 import { MoreOptions } from '../shared/MoreOptions';
+import { LinearGradient } from 'expo-linear-gradient';
+import { gameVivid } from '@/design/tokens';
 
 const tint = META.mines.tint;
+const MV = gameVivid.mines;
 
 function Gem({ size }: { size: number }) {
   return (
@@ -151,12 +154,15 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
                     {
                       width: size,
                       height: size,
-                      backgroundColor: show ? (isMine ? alpha(c.loss, view!.hitMine === i ? 0.35 : 0.12) : alpha(tint, revealed ? 0.22 : 0.08)) : c.surface2,
-                      borderColor: show ? 'transparent' : c.hairlineStrong,
+                      backgroundColor: show ? (isMine ? alpha(c.loss, view!.hitMine === i ? 0.45 : 0.14) : alpha('#3BE39A', revealed ? 0.28 : 0.1)) : alpha(MV[0], 0.32),
+                      borderColor: show ? (revealed && !isMine ? alpha('#3BE39A', 0.8) : 'transparent') : alpha(MV[1], 0.9),
+                      borderBottomWidth: show ? StyleSheet.hairlineWidth : 4,
+                      shadowColor: revealed && !isMine ? '#3BE39A' : '#000', shadowOpacity: revealed && !isMine ? 0.6 : 0.3, shadowRadius: revealed ? 12 : 4,
                       opacity: ended && !revealed && view!.hitMine !== i ? 0.55 : 1,
                     },
                   ]}
                 >
+                  {!show ? <LinearGradient pointerEvents="none" colors={['rgba(255,255,255,0.28)', 'rgba(255,255,255,0.02)']} end={{ x: 0, y: 0.8 }} style={[StyleSheet.absoluteFill, { borderRadius: 14 }]} /> : null}
                   {show ? (
                     <Animated.View entering={reduceMotion ? undefined : ZoomIn.springify().damping(12)}>
                       {isMine ? <Mine size={size * 0.55} color={c.loss} /> : <Gem size={size * 0.55} />}
@@ -215,5 +221,5 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
 const styles = StyleSheet.create({
   stage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tile: { borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: StyleSheet.hairlineWidth },
+  tile: { borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
 });

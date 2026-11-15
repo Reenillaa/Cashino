@@ -17,6 +17,7 @@ import { useBet, useGameHistory, usePlayErrors, useResult } from '../shared/hook
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
+import { ChipStack, Felt } from '../shared/Felt';
 
 const tint = META.blackjack.tint;
 interface HandV { cards: string[]; bet: number; done: boolean; outcome?: string; payout?: number }
@@ -32,7 +33,7 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
   const [hint, setHint] = useState(false);
   // Small phones: smaller cards so the dealer's and your hand never touch.
   const [stageH, setStageH] = useState(400);
-  const cardSize = stageH < 330 ? 'sm' : 'md';
+  const cardSize = stageH < 440 ? 'sm' : 'md';
   const showOdds = useSettings((st) => st.showOdds);
   const { result, show } = useResult();
   const onError = usePlayErrors();
@@ -89,6 +90,8 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
       forceTutorial={forceTutorial}
       history={<HistoryStrip items={history} />}
       stage={
+        <View style={{ flex: 1, paddingHorizontal: 10, paddingBottom: 8 }}>
+        <Felt label={t('play.bjTableNote')} style={{ flex: 1 }}>
         <View style={styles.stage} onLayout={(e) => setStageH(e.nativeEvent.layout.height)}>
           <View style={{ alignItems: 'center', gap: 8 }}>
             <T variant="caption" color="text3">{t('play.dealer')} {dealerTotal !== null ? `· ${dealerTotal}` : ''}</T>
@@ -99,7 +102,7 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
                   {view.holeHidden && <View style={{ marginLeft: -26 }}><PlayingCard card={null} faceDown size={cardSize} delay={120} /></View>}
                 </>
               ) : (
-                <T variant="footnote" color="text3" align="center">{t('play.bjTableNote')}</T>
+                <View style={{ height: 84 }} />
               )}
             </View>
           </View>
@@ -122,6 +125,9 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
               );
             })}
           </View>
+          {view ? <ChipStack amount={view.hands.reduce((n, h) => n + h.bet, 0)} color={tint} /> : null}
+        </View>
+        </Felt>
           <ResultBanner result={result} />
         </View>
       }
@@ -161,6 +167,6 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
 }
 
 const styles = StyleSheet.create({
-  stage: { flex: 1, justifyContent: 'space-around', paddingVertical: 8 },
+  stage: { flex: 1, justifyContent: 'space-between', paddingTop: 16, paddingBottom: 18 },
   badge: { minWidth: 44, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
 });

@@ -12,12 +12,11 @@ import { HistoryStrip } from '../shared/HistoryStrip';
 import { ResultBanner } from '../shared/ResultBanner';
 import { ChipRack, ChipToken, chipFor } from '../shared/ChipRack';
 import { useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
-import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
+import { Felt } from '../shared/Felt';
 
-const tint = META.baccarat.tint;
 interface BView { player: string[]; banker: string[]; playerTotal: number; bankerTotal: number; winner: 'player' | 'banker' | 'tie'; order: ('player' | 'banker')[] }
 
 export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: boolean }) {
@@ -89,7 +88,9 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
       forceTutorial={forceTutorial}
       history={<HistoryStrip items={history} />}
       stage={
-        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
+        <View style={{ flex: 1, paddingHorizontal: 10, paddingBottom: 8 }}>
+        <Felt shape="table" colors={['#8A2346', '#3A0C24']} label="Punto Banco" style={{ flex: 1 }}>
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 18 }}>
           <View style={{ flexDirection: 'row', gap: 12 }}>
             {hand('player')}
             {hand('banker')}
@@ -105,6 +106,8 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
             {spot('banker', t('play.banker'), '0.95:1')}
           </View>
           </TutorialTarget>
+        </View>
+        </Felt>
           <ResultBanner result={result} />
         </View>
       }
@@ -134,7 +137,7 @@ function BacHand({ label, cards, total, winner }: { label: string; cards: string
           </View>
         ))}
       </View>
-      <View style={[styles.total, { backgroundColor: winner ? alpha(c.win, 0.2) : c.surface2 }]}>
+      <View style={[styles.total, { backgroundColor: winner ? alpha(c.win, 0.3) : 'rgba(0,0,0,0.3)' }]}>
         <T variant="headline" tabular color={winner ? 'win' : 'text'}>{total ?? '–'}</T>
       </View>
     </View>
@@ -142,9 +145,8 @@ function BacHand({ label, cards, total, winner }: { label: string; cards: string
 }
 
 function BacSpot({ label, pays, amount, highlight, onPress }: { label: string; pays: string; amount?: number; highlight: boolean; onPress: () => void }) {
-  const { c } = useTheme();
   return (
-    <PressableScale onPress={onPress} feedback="none" scaleTo={0.96} accessibilityLabel={`${label} ${pays}${amount ? `, ${amount}` : ''}`} style={[styles.spot, { flex: 1, backgroundColor: c.surface2, borderColor: highlight ? tint : c.hairline }]}>
+    <PressableScale onPress={onPress} feedback="none" scaleTo={0.96} accessibilityLabel={`${label} ${pays}${amount ? `, ${amount}` : ''}`} style={[styles.spot, { flex: 1, backgroundColor: 'rgba(0,0,0,0.28)', borderColor: highlight ? '#FFE58A' : 'rgba(255,229,138,0.35)' }]}>
       <T variant="callout" weight="semibold">{label}</T>
       <T variant="caption" color="text3" style={{ fontSize: 10 }}>{pays}</T>
       {amount ? <View style={styles.placed}><ChipToken value={chipFor(amount)} size={22} /></View> : null}

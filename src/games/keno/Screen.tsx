@@ -17,8 +17,11 @@ import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 import { MoreOptions } from '../shared/MoreOptions';
+import { LinearGradient } from 'expo-linear-gradient';
+import { gameVivid } from '@/design/tokens';
 
 const tint = META.keno.tint;
+const KV = gameVivid.keno;
 
 export default function KenoScreen({ forceTutorial }: { forceTutorial?: boolean }) {
   const { t } = useT();
@@ -105,13 +108,16 @@ export default function KenoScreen({ forceTutorial }: { forceTutorial?: boolean 
                     {
                       width: cell,
                       height: cell,
-                      backgroundColor: hit ? tint : picked ? alpha(tint, 0.22) : out ? c.surface3 : c.surface2,
-                      borderColor: picked ? tint : c.hairline,
+                      backgroundColor: hit ? '#FFB938' : picked ? KV[1] : out ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.06)',
+                      borderColor: hit ? '#FFE58A' : picked ? alpha('#FFFFFF', 0.6) : 'rgba(255,255,255,0.1)',
+                      transform: [{ scale: hit ? 1.08 : 1 }],
+                      shadowColor: hit ? '#FFB938' : KV[0], shadowOpacity: hit || picked ? 0.7 : 0, shadowRadius: 10,
                     },
                   ]}
                 >
+                  {picked ? <LinearGradient pointerEvents="none" colors={hit ? ['#FFE58A', '#F2672E'] : [KV[0], KV[1]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: 999 }]} /> : null}
                   {out && !hit ? <Animated.View entering={reduceMotion ? undefined : ZoomIn} style={[styles.dot, { backgroundColor: c.text3 }]} /> : null}
-                  <T variant="footnote" weight="semibold" tabular style={{ color: hit ? '#081014' : c.text }}>{n}</T>
+                  <T weight="displaySemi" tabular style={{ color: hit ? '#3A1A00' : '#fff', fontSize: 12 }}>{n}</T>
                 </PressableScale>
               );
             })}
@@ -155,7 +161,7 @@ export default function KenoScreen({ forceTutorial }: { forceTutorial?: boolean 
 const styles = StyleSheet.create({
   stage: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  cell: { borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+  cell: { borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1, overflow: 'hidden' },
   dot: { position: 'absolute', top: 4, right: 4, width: 5, height: 5, borderRadius: 3 },
   pay: { flexDirection: 'row', gap: 4, paddingHorizontal: 20, flexWrap: 'wrap', justifyContent: 'center' },
   payCell: { minWidth: 34, paddingHorizontal: 4, paddingVertical: 4, borderRadius: 8, alignItems: 'center' },

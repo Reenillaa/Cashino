@@ -7,7 +7,7 @@ import type { GameId } from '@/engine/games/types.ts';
 import Animated, { Easing, FadeIn, FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { AccentContext, AnimatedNumber, Aurora, GameGlyph, Icon, IconButton, PressableScale, Sheet, T, formatCoins } from '@/design/components';
 import { useTheme, alpha } from '@/design/theme';
-import { gameArt, gameVivid, motion, roomArt } from '@/design/tokens';
+import { gameVivid, motion, roomArt } from '@/design/tokens';
 import { tr, useT } from '@/i18n';
 import { META } from '@/games/catalog';
 import { RULES } from '@/games/rules';
@@ -19,7 +19,7 @@ import { RoomPicker } from './RoomPicker';
 import { TutorialCoach, useTutorialAutostart } from '@/features/tutorial/TutorialCoach';
 import { useTutorialRuntime } from '@/features/tutorial/tutorial';
 import { FairnessPanel } from './FairnessPanel';
-import { LogoCurtain } from '@/features/brand/Splash';
+import { GameIntro } from '@/features/brand/Splash';
 import { useWallet } from '@/state/wallet';
 
 /**
@@ -56,7 +56,6 @@ export function GameShell({
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const meta = META[game];
-  const art = gameArt[game];
   const vivid = gameVivid[game];
   const [sheet, setSheet] = useState<null | 'rules' | 'fair'>(null);
   const tutorialActive = useTutorialRuntime((s) => s.game === game);
@@ -83,7 +82,7 @@ export function GameShell({
   return (
     <AccentContext.Provider value={vivid}>
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Aurora colors={[vivid[0], vivid[1], art.colors[0]]} height={560} alpha={0.42} />
+      <Aurora colors={[vivid[0], vivid[1], vivid[0]]} alpha={0.34} />
       {/* Header: back · game + balance · rules */}
       <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
         <IconButton icon="chevronLeft" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} label={t('common.back')} />
@@ -154,7 +153,7 @@ export function GameShell({
         </Animated.View>
       )}
       {/* Branded curtain on entry, then the guided tutorial overlay (coach marks) */}
-      <LogoCurtain />
+      <GameIntro game={game} name={t(`games.names.${game}`)} />
       <TutorialCoach game={game} />
       <Sheet visible={sheet === 'rules'} onClose={() => setSheet(null)} title={t('tutorial.help')}>
         {!locked && (

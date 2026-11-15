@@ -17,6 +17,7 @@ import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 import { MoreOptions } from '../shared/MoreOptions';
+import { Gauge } from '../shared/Gauge';
 
 const tint = META.limbo.tint;
 
@@ -69,14 +70,16 @@ export default function LimboScreen({ forceTutorial }: { forceTutorial?: boolean
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage}>
-          <AnimatedNumber
-            value={shown}
-            duration={reduceMotion ? 0 : 600}
-            format={(n) => `${n >= 1000 ? Math.floor(n).toLocaleString('es-ES') : n.toFixed(2)}×`}
-            variant="hero"
-            style={{ fontSize: 84, lineHeight: 92, color: won === null ? c.text : won ? c.win : c.loss }}
-          />
-          <T variant="footnote" color="text3">{t('play.target')} {formatMult(target)}</T>
+          <Gauge value={shown} target={target} spinning={busy && won === null && shown === 1}>
+            <AnimatedNumber
+              value={shown}
+              duration={reduceMotion ? 0 : 600}
+              format={(n) => `${n >= 1000 ? Math.floor(n).toLocaleString('es-ES') : n.toFixed(2)}×`}
+              variant="hero"
+              style={{ fontSize: 40, lineHeight: 48, color: won === null ? c.text : won ? c.win : c.loss }}
+            />
+            <T variant="footnote" color="text2">{t('play.target')} {formatMult(target)}</T>
+          </Gauge>
           <ResultBanner result={result} />
         </View>
       }

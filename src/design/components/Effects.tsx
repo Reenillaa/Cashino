@@ -49,15 +49,30 @@ function Blob({ color, size, x, y, dx, dy, period, alpha }: { color: string; siz
   );
 }
 
-/** Slow-moving coloured light behind content (home hero, game stage). Pure transform animation. */
-export function Aurora({ colors, height = 420, alpha = 0.45 }: { colors: string[]; height?: number; alpha?: number }) {
-  const [w, setW] = useState(390);
+/**
+ * Slow-moving coloured light behind content. Without `height` it covers the whole parent with light
+ * at the top and the bottom and only a very soft darkening in the middle (no visible cut).
+ */
+export function Aurora({ colors, height, alpha = 0.45 }: { colors: string[]; height?: number; alpha?: number }) {
+  const [box, setBox] = useState({ w: 390, h: height ?? 800 });
+  const { w, h } = box;
+  const full = height === undefined;
   return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { height, overflow: 'hidden' }]} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
-      <Blob color={colors[0]} size={w * 1.1} x={-w * 0.35} y={-w * 0.45} dx={w * 0.12} dy={w * 0.08} period={7000} alpha={alpha} />
-      <Blob color={colors[1] ?? colors[0]} size={w * 0.95} x={w * 0.35} y={-w * 0.3} dx={-w * 0.14} dy={w * 0.12} period={8600} alpha={alpha * 0.9} />
-      {colors[2] ? <Blob color={colors[2]} size={w * 0.8} x={w * 0.05} y={height * 0.25} dx={w * 0.1} dy={-w * 0.08} period={9800} alpha={alpha * 0.6} /> : null}
-      <LinearGradient pointerEvents="none" colors={['rgba(0,0,0,0)', '#000000']} locations={[0.55, 1]} style={StyleSheet.absoluteFill} />
+    <View
+      pointerEvents="none"
+      style={[StyleSheet.absoluteFill, !full && { height }, { overflow: 'hidden' }]}
+      onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}
+    >
+      <Blob color={colors[0]} size={w * 1.2} x={-w * 0.4} y={-w * 0.5} dx={w * 0.14} dy={w * 0.1} period={7000} alpha={alpha} />
+      <Blob color={colors[1] ?? colors[0]} size={w * 1.05} x={w * 0.3} y={-w * 0.3} dx={-w * 0.14} dy={w * 0.14} period={8600} alpha={alpha * 0.9} />
+      {colors[2] ? <Blob color={colors[2]} size={w * 0.9} x={w * 0.05} y={full ? h * 0.38 : h * 0.3} dx={w * 0.12} dy={-w * 0.1} period={9800} alpha={alpha * (full ? 0.55 : 0.6)} /> : null}
+      {full ? <Blob color={colors[0]} size={w * 1.3} x={-w * 0.15} y={h - w * 0.75} dx={w * 0.1} dy={-w * 0.06} period={11000} alpha={alpha * 0.7} /> : null}
+      <LinearGradient
+        pointerEvents="none"
+        colors={full ? ['rgba(0,0,0,0)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.1)'] : ['rgba(0,0,0,0)', 'rgba(0,0,0,0.6)', '#000000']}
+        locations={full ? [0, 0.55, 1] : [0.35, 0.75, 1]}
+        style={StyleSheet.absoluteFill}
+      />
     </View>
   );
 }

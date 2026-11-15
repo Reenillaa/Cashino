@@ -20,15 +20,20 @@ import { MoreOptions } from '../shared/MoreOptions';
 
 const tint = META.crash.tint;
 
-function Rocket({ angle }: { angle: number }) {
+function Rocket({ angle, flame }: { angle: number; flame: number }) {
   return (
-    <G rotation={angle} origin="0,0">
-      <Path d="M-14 -5 L8 -5 Q18 0 8 5 L-14 5 Z" fill="#E9EDF2" />
-      <Path d="M-14 -5 L-20 -11 L-10 -5 Z M-14 5 L-20 11 L-10 5 Z" fill={tint} />
-      <Circle cx="2" cy="0" r="2.4" fill={tint} />
+    <G rotation={angle} origin="0,0" scale={1.9}>
+      <Path d={`M-15 -3.5 L${-24 - flame * 7} 0 L-15 3.5 Z`} fill="#FFB020" />
+      <Path d={`M-15 -2 L${-19 - flame * 4} 0 L-15 2 Z`} fill="#FFF3A0" />
+      <Path d="M-14 -5 L8 -5 Q18 0 8 5 L-14 5 Z" fill="#F4F2FA" />
+      <Path d="M-14 -5 L-20 -11 L-10 -5 Z M-14 5 L-20 11 L-10 5 Z" fill="#FF4F7B" />
+      <Circle cx="2" cy="0" r="2.6" fill="#3D7BFF" stroke="#231A3A" strokeWidth={0.8} />
     </G>
   );
 }
+
+/** Fixed pseudo-random stars (x, y in 0..1, size). */
+const STARS = Array.from({ length: 34 }, (_, i) => [((i * 73) % 100) / 100, ((i * 41 + 17) % 100) / 100, 0.6 + ((i * 7) % 3) * 0.6] as const);
 
 type Phase = 'idle' | 'flying' | 'crashed' | 'cashed';
 
@@ -139,22 +144,16 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
     }
   };
 
-  // Curve geometry: x = time, y = log(multiplier), auto-scaling viewport.
+  // Straight launch line: the rocket climbs a fixed diagonal; the further it goes, the slower the tip
+  // moves on screen while the stars stream past faster (so it keeps feeling like speed).
   const elapsed = timeFor(mult);
-  const maxT = Math.max(8000, elapsed * 1.15);
-  const maxLog = Math.max(Math.log(2), Math.log(mult) * 1.2);
-  const pad = 18;
+  const pad = 26;
   const W = Math.max(1, box.w - pad * 2), H = Math.max(1, box.h - pad * 2);
-  const pt = (ms: number) => {
-    const m = multiplierAt(ms);
-    return [pad + (ms / maxT) * W, pad + H - (Math.log(m) / maxLog) * H] as const;
-  };
-  const N = 40;
-  const pts = Array.from({ length: N + 1 }, (_, i) => pt((elapsed * i) / N));
-  const d = pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
-  const [tx, ty] = pts[pts.length - 1];
-  const [px, py] = pts[Math.max(0, pts.length - 3)];
-  const angle = (Math.atan2(ty - py, tx - px) * 180) / Math.PI;
+  const f = 0.1 + 0.7 * (1 - 1 / (1 + Math.log(Math.max(1, mult)) * 1.6));
+  const tx = pad + W * f, ty = pad + H - H * f;
+  const d = `M${pad},${pad + H} L${tx.toFixed(1)},${ty.toFixed(1)}`;
+  const angle = (Math.atan2(-H, W) * 180) / Math.PI;
+  const drift = (elapsed / 1000) * (40 + Math.log(Math.max(1, mult)) * 60);
   const color = phase === 'crashed' ? c.loss : phase === 'cashed' ? c.win : c.text;
   const flying = phase === 'flying';
   return (
@@ -166,7 +165,14 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
       forceTutorial={forceTutorial}
       history={<HistoryStrip items={history} />}
       stage={
-        <View style={{ flex: 1, marginHorizontal: 16, borderRadius: 24, overflow: 'hidden', backgroundColor: c.surface1 }} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+        <View style={{ flex: 1, marginHorizontal: 12, borderRadius: 28, overflow: 'hidden', backgroundColor: 'rgba(8,10,30,0.55)' }} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+          {box.w > 0 && (
+            <Svg width={box.w} height={box.h} style={StyleSheet.absoluteFill}>
+              {STARS.map(([sx, sy, r], i) => (
+                <Circle key={i} cx={(((sx * box.w - drift * r * 0.6) % box.w) + box.w) % box.w} cy={(sy * box.h + drift * r * 0.5) % box.h} r={r} fill="#FFFFFF" opacity={0.25 + r * 0.25} />
+              ))}
+            </Svg>
+          )}
           {box.w > 0 && phase !== 'idle' && (
             <Svg width={box.w} height={box.h} style={StyleSheet.absoluteFill}>
               <Defs>
@@ -176,11 +182,12 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
                 </LinearGradient>
               </Defs>
               <Path d={`${d} L${tx},${pad + H} L${pad},${pad + H} Z`} fill="url(#crashFill)" />
-              <Path d={d} stroke={phase === 'crashed' ? c.loss : tint} strokeWidth={3} fill="none" strokeLinecap="round" />
+              <Path d={d} stroke={phase === 'crashed' ? c.loss : tint} strokeWidth={12} strokeOpacity={0.25} fill="none" strokeLinecap="round" />
+              <Path d={d} stroke={phase === 'crashed' ? c.loss : '#FFFFFF'} strokeWidth={4} fill="none" strokeLinecap="round" />
               {phase !== 'crashed' ? (
                 <G x={tx} y={ty}>
                   {!reduceEffects && flying && <Circle cx={-22} cy={0} r={5 + ((mult * 37) % 3)} fill={alpha('#FFB45C', 0.5)} />}
-                  <Rocket angle={angle} />
+                  <Rocket angle={angle} flame={flying ? (Math.floor(elapsed / 60) % 3) / 2 : 0} />
                 </G>
               ) : (
                 <G x={tx} y={ty}>

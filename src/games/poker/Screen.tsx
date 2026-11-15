@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, Chip, Segmented, Slider, Surface, T, formatCoins } from '@/design/components';
+import { Button, Chip, GameLogo, Segmented, Slider, Surface, T, formatCoins } from '@/design/components';
 import { useT } from '@/i18n';
 import { useGameSession, PlayError } from '@/features/play/session';
 import { useSession } from '@/state/session';
@@ -11,6 +11,8 @@ import { META } from '../catalog';
 import { PokerTableView } from './Table';
 import { usePokerGame, type PokerSetup } from './usePokerGame';
 import type { BotDifficulty } from '@/engine/poker/bots.ts';
+import { Felt } from '../shared/Felt';
+import { MoreOptions } from '../shared/MoreOptions';
 
 const tint = META.poker.tint;
 
@@ -65,7 +67,17 @@ export default function PokerScreen({ forceTutorial }: { forceTutorial?: boolean
           </View>
         ) : (
           <ScrollView contentContainerStyle={{ paddingHorizontal: 20, gap: 14, paddingBottom: 20 }}>
-            <T variant="title">{t('poker.vsBots')}</T>
+            <Felt shape="oval" colors={['#2E7D5B', '#0E3B2C']} style={{ height: 210, marginTop: 6 }}>
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <GameLogo game="poker" size={96} />
+                <T weight="display" style={{ color: '#fff', fontSize: 22, marginTop: 6 }}>{t('poker.vsBots')}</T>
+                <T variant="footnote" style={{ color: 'rgba(255,255,255,0.8)' }}>
+                  {opponents + 1} {t('poker.seats').toLowerCase()} · {t(`poker.${difficulty}`)} · {formatCoins(format === 'sng' ? room.min : buyIn)} {t('common.coins')}
+                </T>
+              </View>
+            </Felt>
+            <MoreOptions game="poker" summary={`${format === 'cash' ? t('poker.cash') : t('poker.tournament')} · ${t('poker.blinds', { sb: room.poker.sb, bb: room.poker.bb })}`}>
+            <View style={{ gap: 14 }}>
             <Segmented value={format} onChange={setFormat} options={[{ value: 'cash', label: t('poker.cash') }, { value: 'sng', label: t('poker.tournament') }]} />
             <T variant="caption" color="text3">{t('poker.seats')}</T>
             <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -85,6 +97,8 @@ export default function PokerScreen({ forceTutorial }: { forceTutorial?: boolean
                 <T variant="footnote" color="text3">1.500 chips · 🏆 65 % / 35 %</T>
               )}
             </Surface>
+            </View>
+            </MoreOptions>
             {signedIn && <T variant="footnote" color="text3">{t('common.practiceBanner')}</T>}
           </ScrollView>
         )
@@ -93,7 +107,7 @@ export default function PokerScreen({ forceTutorial }: { forceTutorial?: boolean
         table ? null : (
           <View style={{ gap: 10 }}>
             <Button title={t('common.play')} onPress={sit} />
-            <Button title={t('poker.online')} kind="secondary" icon="users" onPress={() => router.push('/online')} />
+            <Button title={t('poker.online')} kind="ghost" size="sm" icon="users" onPress={() => router.push('/online')} />
           </View>
         )
       }

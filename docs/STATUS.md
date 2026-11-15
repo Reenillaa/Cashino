@@ -74,6 +74,16 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - **Tarjetas de juego** con el logo flotando, discos de luz y destello; **barra de pestañas** flotante con burbuja de degradado que se desliza.
 - **Ganar se nota**: explosión de fichas de colores y cartel con los colores del juego.
 
+## Cambios de la ronda 6 (los juegos, más juego y menos botones)
+- **Rueda de fichas** para apostar en todos los juegos: deslizas o tocas y la ficha del centro es tu apuesta (cantidades redondas entre el mínimo de la sala y el máximo/tu saldo). Adiós al − / +.
+- **Entrada de cada juego**: su degradado, rayos de luz girando, el logo del juego entrando en giro con su nombre y zoom hacia la mesa.
+- **Fondo de color en toda la pantalla** (sin el corte negro a media altura).
+- **Dados**: dos dados que ruedan y botan al tirar y aterrizan; barra verde (ganas) / roja (pierdes).
+- **Cohete**: trayectoria en línea recta, cohete grande con llama y estrellas pasando.
+- **Limbo**: velocímetro con zona roja/verde, marca en tu objetivo y aguja que sube hasta el resultado.
+- **Blackjack** y **Bacará** sobre un tapete con borde dorado y fichas apostadas; **Póker** con mesa ovalada, entrada simplificada (un botón y ajustes plegados) y acciones con color e icono propios (retirarse / pasar-igualar / subir); la subida se elige con la rueda de fichas.
+- **Minas** con casillas en relieve y **Keno** con números en forma de bola.
+
 ## Decisiones técnicas registradas
 - Motor puro compartido app ↔ Edge Functions (`npm run sync:engine`).
 - Sin Skia en v1 (SVG + Reanimated bastan y funcionan en web/CI).
