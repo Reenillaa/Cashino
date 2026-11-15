@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { ZoomIn, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import Svg, { Path, Circle } from 'react-native-svg';
@@ -7,6 +7,8 @@ import { useTheme, alpha } from '@/design/theme';
 import { useT } from '@/i18n';
 import { minesMultiplier, nextSafeChance, MINES_TILES } from '@/engine/games/mines.ts';
 import { payoutFor } from '@/engine/games/types.ts';
+import { randomInt } from '@/engine/rng/rng.ts';
+import { secureRng } from '@/services/random';
 import { useGameSession } from '@/features/play/session';
 import { tutorialEvent } from '@/features/tutorial/tutorial';
 import { GameShell, ControlRow } from '../shared/GameShell';
@@ -55,9 +57,6 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
   const onError = usePlayErrors();
   const history = useGameHistory('mines');
   const shake = useSharedValue(0);
-  useEffect(() => {
-    if (s.active && !view) setView(s.active.view as unknown as View_);
-  }, [s.active]); // eslint-disable-line react-hooks/exhaustive-deps
   const active = view?.status === 'active';
   const k = view?.revealed.length ?? 0;
   const m = active ? view!.mines : mines;
@@ -85,7 +84,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
       if (v.status === 'lost') {
         sfx('mine');
         haptic.heavy();
-        if (!reduceMotion) shake.value = withSequence(withTiming(-8, { duration: 50 }), withTiming(8, { duration: 50 }), withTiming(-5, { duration: 50 }), withTiming(0, { duration: 50 }));
+        if (!reduceMotion) shake.set(withSequence(withTiming(-8, { duration: 50 }), withTiming(8, { duration: 50 }), withTiming(-5, { duration: 50 }), withTiming(0, { duration: 50 })));
         show({ bet: v.bet, payout: 0 }, { silent: true });
         tutorialEvent('mines', 'mines:end');
       } else {
@@ -118,7 +117,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
   const pickRandom = () => {
     if (!active) return;
     const free = Array.from({ length: MINES_TILES }, (_, i) => i).filter((i) => !view!.revealed.includes(i));
-    void reveal(free[Math.floor(Math.random() * free.length)]);
+    void reveal(free[randomInt(secureRng, free.length)]);
   };
   return (
     <GameShell

@@ -74,9 +74,6 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
   const lanes = CROSSING_CONFIG[diff].lanes;
   const lane = view?.lane ?? 0;
   useEffect(() => {
-    if (s.active && !view) setView(s.active.view as unknown as CView);
-  }, [s.active]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
     scroll.current?.scrollTo({ x: Math.max(0, (lane - 1) * LANE_W), animated: !reduceMotion });
   }, [lane, reduceMotion]);
 
@@ -84,7 +81,7 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
     try {
       const r = await s.op('start', { bet, difficulty });
       setView(r.view as unknown as CView);
-      carY.value = -120;
+      carY.set(-120);
       sfx('chip');
       tutorialEvent('crossing', 'crossing:start');
     } catch (e) {
@@ -96,14 +93,14 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
       setMoving(true);
       const r = await s.op('advance');
       const v = r.view as unknown as CView;
-      if (!reduceMotion) hop.value = withSequence(withTiming(-16, { duration: 120, easing: Easing.out(Easing.quad) }), withTiming(0, { duration: 140, easing: Easing.in(Easing.quad) }));
+      if (!reduceMotion) hop.set(withSequence(withTiming(-16, { duration: 120, easing: Easing.out(Easing.quad) }), withTiming(0, { duration: 140, easing: Easing.in(Easing.quad) })));
       sfx('step');
       haptic.light();
       setView(v);
       tutorialEvent('crossing', 'crossing:advance');
       if (v.status === 'lost') {
-        carY.value = -120;
-        carY.value = reduceMotion ? 140 : withTiming(420, { duration: 520, easing: Easing.in(Easing.quad) });
+        carY.set(-120);
+        carY.set(reduceMotion ? 140 : withTiming(420, { duration: 520, easing: Easing.in(Easing.quad) }));
         await wait(reduceMotion ? 0 : 260);
         sfx('hit');
         haptic.heavy();

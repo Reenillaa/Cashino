@@ -29,9 +29,12 @@ export default function OnlineLobby() {
     setTables((data as Row[]) ?? []);
   }, [signedIn]);
   useEffect(() => {
-    void load();
+    const first = setTimeout(() => void load(), 0);
     const id = setInterval(() => void load(), 8000);
-    return () => clearInterval(id);
+    return () => {
+      clearTimeout(first);
+      clearInterval(id);
+    };
   }, [load]);
   const fail = (e: unknown) => useProgress.getState().pushToast({ kind: 'info', title: `${t('common.error')} (${(e as Error).message})` });
   const join = async (args: Record<string, unknown>) => {

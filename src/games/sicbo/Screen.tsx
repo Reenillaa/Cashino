@@ -34,24 +34,23 @@ export function Die({ value, size = 56, color = '#F6F7F9', pip = '#111317' }: { 
 
 function RollingDie({ value, rolling, delay }: { value: number; rolling: boolean; delay: number }) {
   const rot = useSharedValue(0);
-  const [face, setFace] = useState(value);
+  const [flicker, setFlicker] = useState(value);
   React.useEffect(() => {
     if (!rolling) {
-      setFace(value);
-      rot.value = withTiming(0, { duration: 200 });
+      rot.set(withTiming(0, { duration: 200 }));
       return;
     }
-    rot.value = withRepeat(withSequence(withTiming(18, { duration: 70 }), withTiming(-18, { duration: 70 })), -1, true);
-    const id = setInterval(() => setFace(1 + Math.floor(Math.random() * 6)), 90 + delay);
+    rot.set(withRepeat(withSequence(withTiming(18, { duration: 70 }), withTiming(-18, { duration: 70 })), -1, true));
+    const id = setInterval(() => setFlicker(1 + Math.floor(Math.random() * 6)), 90 + delay);
     return () => clearInterval(id);
-  }, [rolling, value]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [rolling, delay, rot]);
   const st = useAnimatedStyle(() => ({ transform: [{ rotate: `${rot.value}deg` }] }));
-  return <Animated.View style={st}><Die value={face} size={64} /></Animated.View>;
+  return <Animated.View style={st}><Die value={rolling ? flicker : value} size={64} /></Animated.View>;
 }
 
 export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean }) {
   const { t } = useT();
-  const { c, reduceMotion } = useTheme();
+  const { reduceMotion } = useTheme();
   const s = useGameSession('sicbo');
   const [chip, setChip] = useState(10);
   const [bets, setBets] = useState<Record<string, { bet: SicBoBet; amount: number }>>({});
@@ -93,18 +92,9 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
     }
   };
 
-  const Cell = ({ bet, label, sub, flex = 1, children }: { bet: SicBoBet; label?: string; sub?: string; flex?: number; children?: React.ReactNode }) => {
+  const cell = (bet: SicBoBet, opts: { label?: string; sub?: string; flex?: number; children?: React.ReactNode } = {}) => {
     const k = sicBoKey(bet);
-    const placed = bets[k]?.amount;
-    const win = winKeys.includes(k);
-    return (
-      <PressableScale onPress={() => place(bet)} feedback="none" scaleTo={0.94} accessibilityLabel={`${label ?? k} ${sub ?? ''}${placed ? `, ${placed}` : ''}`} style={[styles.cell, { flex, backgroundColor: win ? alpha(tint, 0.35) : c.surface2, borderColor: win ? tint : c.hairline }]}>
-        {children}
-        {label ? <T variant="footnote" weight="semibold">{label}</T> : null}
-        {sub ? <T variant="caption" color="text3" style={{ fontSize: 9, letterSpacing: 0.2 }}>{sub}</T> : null}
-        {placed ? <View style={styles.placed}><ChipToken value={[1000, 500, 100, 25, 10, 5, 1].find((x) => x <= placed) ?? 1} size={18} /></View> : null}
-      </PressableScale>
-    );
+    return <SicBoCell key={k} k={k} {...opts} placed={bets[k]?.amount} win={winKeys.includes(k)} onPress={() => place(bet)} />;
   };
   return (
     <GameShell
@@ -121,25 +111,25 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
               {dice.map((d, i) => <RollingDie key={i} value={d} rolling={rolling} delay={i * 13} />)}
             </View>
             <View style={styles.row}>
-              <Cell bet={{ kind: 'small' }} label={t('play.small')} sub="4–10 · 1:1" />
-              <Cell bet={{ kind: 'odd' }} label={t('play.odd')} sub="1:1" />
-              <Cell bet={{ kind: 'anyTriple' }} label={t('play.anyTriple')} sub={`${SICBO_PAYS.anyTriple}:1`} />
-              <Cell bet={{ kind: 'even' }} label={t('play.even')} sub="1:1" />
-              <Cell bet={{ kind: 'big' }} label={t('play.big')} sub="11–17 · 1:1" />
+              {cell({ kind: 'small' }, { label: t('play.small'), sub: '4–10 · 1:1' })}
+              {cell({ kind: 'odd' }, { label: t('play.odd'), sub: '1:1' })}
+              {cell({ kind: 'anyTriple' }, { label: t('play.anyTriple'), sub: `${SICBO_PAYS.anyTriple}:1` })}
+              {cell({ kind: 'even' }, { label: t('play.even'), sub: '1:1' })}
+              {cell({ kind: 'big' }, { label: t('play.big'), sub: '11–17 · 1:1' })}
             </View>
             <T variant="caption" color="text3" style={{ marginTop: 6 }}>{t('play.total')}</T>
             <View style={[styles.row, { flexWrap: 'wrap' }]}>
-              {Object.keys(TOTAL_PAYS).map((k) => <Cell key={k} bet={{ kind: 'total', total: Number(k) }} label={k} sub={`${TOTAL_PAYS[Number(k)]}:1`} flex={0} />)}
+              {Object.keys(TOTAL_PAYS).map((k) => cell({ kind: 'total', total: Number(k) }, { label: k, sub: `${TOTAL_PAYS[Number(k)]}:1`, flex: 0 }))}
             </View>
             <T variant="caption" color="text3" style={{ marginTop: 6 }}>{t('play.single')} · 1:1 / 2:1 / 3:1</T>
-            <View style={styles.row}>{[1, 2, 3, 4, 5, 6].map((f) => <Cell key={f} bet={{ kind: 'single', face: f }}><Die value={f} size={22} /></Cell>)}</View>
+            <View style={styles.row}>{[1, 2, 3, 4, 5, 6].map((f) => cell({ kind: 'single', face: f }, { children: <Die value={f} size={22} /> }))}</View>
             <T variant="caption" color="text3" style={{ marginTop: 6 }}>{t('play.doubleBet')} · {SICBO_PAYS.double}:1</T>
-            <View style={styles.row}>{[1, 2, 3, 4, 5, 6].map((f) => <Cell key={f} bet={{ kind: 'double', face: f }} label={`${f}${f}`} />)}</View>
+            <View style={styles.row}>{[1, 2, 3, 4, 5, 6].map((f) => cell({ kind: 'double', face: f }, { label: `${f}${f}` }))}</View>
             <T variant="caption" color="text3" style={{ marginTop: 6 }}>{t('play.triple')} · {SICBO_PAYS.triple}:1</T>
-            <View style={styles.row}>{[1, 2, 3, 4, 5, 6].map((f) => <Cell key={f} bet={{ kind: 'triple', face: f }} label={`${f}${f}${f}`} />)}</View>
+            <View style={styles.row}>{[1, 2, 3, 4, 5, 6].map((f) => cell({ kind: 'triple', face: f }, { label: `${f}${f}${f}` }))}</View>
             <T variant="caption" color="text3" style={{ marginTop: 6 }}>{t('play.combo')} · {SICBO_PAYS.combo}:1</T>
             <View style={[styles.row, { flexWrap: 'wrap' }]}>
-              {[1, 2, 3, 4, 5].flatMap((a) => [2, 3, 4, 5, 6].filter((b) => b > a).map((b) => <Cell key={`${a}${b}`} bet={{ kind: 'combo', faces: [a, b] }} label={`${a}·${b}`} flex={0} />))}
+              {[1, 2, 3, 4, 5].flatMap((a) => [2, 3, 4, 5, 6].filter((b) => b > a).map((b) => cell({ kind: 'combo', faces: [a, b] }, { label: `${a}·${b}`, flex: 0 })))}
             </View>
           </ScrollView>
           <ResultBanner result={result} />
@@ -156,6 +146,18 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
         </View>
       }
     />
+  );
+}
+
+function SicBoCell({ k, label, sub, flex = 1, children, placed, win, onPress }: { k: string; label?: string; sub?: string; flex?: number; children?: React.ReactNode; placed?: number; win: boolean; onPress: () => void }) {
+  const { c } = useTheme();
+  return (
+    <PressableScale onPress={onPress} feedback="none" scaleTo={0.94} accessibilityLabel={`${label ?? k} ${sub ?? ''}${placed ? `, ${placed}` : ''}`} style={[styles.cell, { flex, backgroundColor: win ? alpha(tint, 0.35) : c.surface2, borderColor: win ? tint : c.hairline }]}>
+      {children}
+      {label ? <T variant="footnote" weight="semibold">{label}</T> : null}
+      {sub ? <T variant="caption" color="text3" style={{ fontSize: 9, letterSpacing: 0.2 }}>{sub}</T> : null}
+      {placed ? <View style={styles.placed}><ChipToken value={[1000, 500, 100, 25, 10, 5, 1].find((x) => x <= placed) ?? 1} size={18} /></View> : null}
+    </PressableScale>
   );
 }
 

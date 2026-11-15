@@ -20,10 +20,10 @@ export function ResultBanner({ result }: { result: ResultInfo | null }) {
   const s = useSharedValue(0);
   useEffect(() => {
     if (!result) return;
-    s.value = 0;
-    s.value = reduceMotion
+    s.set(0);
+    s.set(reduceMotion
       ? withSequence(withTiming(1, { duration: 0 }), withDelay(1400, withTiming(0, { duration: 200 })))
-      : withSequence(withSpring(1, { damping: 14, stiffness: 220 }), withDelay(1200, withTiming(0, { duration: 260 })));
+      : withSequence(withSpring(1, { damping: 14, stiffness: 220 }), withDelay(1200, withTiming(0, { duration: 260 }))));
   }, [result?.key]); // eslint-disable-line react-hooks/exhaustive-deps
   const style = useAnimatedStyle(() => ({ opacity: s.value, transform: [{ scale: 0.9 + 0.1 * s.value }] }));
   if (!result) return null;

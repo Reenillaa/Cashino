@@ -21,7 +21,7 @@ interface BView { player: string[]; banker: string[]; playerTotal: number; banke
 
 export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: boolean }) {
   const { t } = useT();
-  const { c, reduceMotion } = useTheme();
+  const { reduceMotion } = useTheme();
   const s = useGameSession('baccarat');
   const [chip, setChip] = useState(10);
   const [bets, setBets] = useState<Partial<Record<BaccaratBetKind, number>>>({});
@@ -67,33 +67,15 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
       setBusy(false);
     }
   };
-  const Hand = ({ side }: { side: 'player' | 'banker' }) => {
+  const hand = (side: 'player' | 'banker') => {
     const cards = coup ? (side === 'player' ? coup.player : coup.banker) : [];
     const n = side === 'player' ? shown.p : shown.b;
-    const totalV = coup && n === cards.length ? (side === 'player' ? coup.playerTotal : coup.bankerTotal) : null;
-    const winner = coup && totalV !== null && shown.p === coup.player.length && shown.b === coup.banker.length && coup.winner === side;
-    return (
-      <View style={{ flex: 1, alignItems: 'center', gap: 10 }}>
-        <T variant="caption" color={winner ? 'win' : 'text3'}>{side === 'player' ? t('play.player') : t('play.banker')}</T>
-        <View style={{ flexDirection: 'row', minHeight: 84 }}>
-          {cards.slice(0, n).map((code, i) => (
-            <View key={i} style={{ marginLeft: i ? 4 : 0, marginTop: i === 2 ? 10 : 0 }}>
-              <PlayingCard card={parseCard(code)} size="sm" />
-            </View>
-          ))}
-        </View>
-        <View style={[styles.total, { backgroundColor: winner ? alpha(c.win, 0.2) : c.surface2 }]}>
-          <T variant="headline" tabular color={winner ? 'win' : 'text'}>{totalV ?? '–'}</T>
-        </View>
-      </View>
-    );
+    const total = coup && n === cards.length ? (side === 'player' ? coup.playerTotal : coup.bankerTotal) : null;
+    const winner = !!coup && total !== null && shown.p === coup.player.length && shown.b === coup.banker.length && coup.winner === side;
+    return <BacHand key={side} label={side === 'player' ? t('play.player') : t('play.banker')} cards={cards.slice(0, n)} total={total} winner={winner} />;
   };
-  const Spot = ({ k, label, pays, flex = 1 }: { k: BaccaratBetKind; label: string; pays: string; flex?: number }) => (
-    <PressableScale onPress={() => place(k)} feedback="none" scaleTo={0.96} accessibilityLabel={`${label} ${pays}${bets[k] ? `, ${bets[k]}` : ''}`} style={[styles.spot, { flex, backgroundColor: c.surface2, borderColor: coup && coup.winner === k && !busy ? tint : c.hairline }]}>
-      <T variant="callout" weight="semibold">{label}</T>
-      <T variant="caption" color="text3" style={{ fontSize: 10 }}>{pays}</T>
-      {bets[k] ? <View style={styles.placed}><ChipToken value={[1000, 500, 100, 25, 10, 5, 1].find((x) => x <= (bets[k] ?? 0)) ?? 1} size={22} /></View> : null}
-    </PressableScale>
+  const spot = (k: BaccaratBetKind, label: string, pays: string) => (
+    <BacSpot key={k} label={label} pays={pays} amount={bets[k]} highlight={!!coup && coup.winner === k && !busy} onPress={() => place(k)} />
   );
   return (
     <GameShell
@@ -106,17 +88,17 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
       stage={
         <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
           <View style={{ flexDirection: 'row', gap: 12 }}>
-            <Hand side="player" />
-            <Hand side="banker" />
+            {hand('player')}
+            {hand('banker')}
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 22 }}>
-            <Spot k="playerPair" label={t('play.playerPair')} pays="11:1" />
-            <Spot k="tie" label={t('play.tie')} pays={`${BACCARAT_PAYS.tie}:1`} />
-            <Spot k="bankerPair" label={t('play.bankerPair')} pays="11:1" />
+            {spot('playerPair', t('play.playerPair'), '11:1')}
+            {spot('tie', t('play.tie'), `${BACCARAT_PAYS.tie}:1`)}
+            {spot('bankerPair', t('play.bankerPair'), '11:1')}
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
-            <Spot k="player" label={t('play.player')} pays="1:1" />
-            <Spot k="banker" label={t('play.banker')} pays="0.95:1" />
+            {spot('player', t('play.player'), '1:1')}
+            {spot('banker', t('play.banker'), '0.95:1')}
           </View>
           <ResultBanner result={result} />
         </View>
@@ -132,6 +114,36 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
         </View>
       }
     />
+  );
+}
+
+function BacHand({ label, cards, total, winner }: { label: string; cards: string[]; total: number | null; winner: boolean }) {
+  const { c } = useTheme();
+  return (
+    <View style={{ flex: 1, alignItems: 'center', gap: 10 }}>
+      <T variant="caption" color={winner ? 'win' : 'text3'}>{label}</T>
+      <View style={{ flexDirection: 'row', minHeight: 84 }}>
+        {cards.map((code, i) => (
+          <View key={i} style={{ marginLeft: i ? 4 : 0, marginTop: i === 2 ? 10 : 0 }}>
+            <PlayingCard card={parseCard(code)} size="sm" />
+          </View>
+        ))}
+      </View>
+      <View style={[styles.total, { backgroundColor: winner ? alpha(c.win, 0.2) : c.surface2 }]}>
+        <T variant="headline" tabular color={winner ? 'win' : 'text'}>{total ?? '–'}</T>
+      </View>
+    </View>
+  );
+}
+
+function BacSpot({ label, pays, amount, highlight, onPress }: { label: string; pays: string; amount?: number; highlight: boolean; onPress: () => void }) {
+  const { c } = useTheme();
+  return (
+    <PressableScale onPress={onPress} feedback="none" scaleTo={0.96} accessibilityLabel={`${label} ${pays}${amount ? `, ${amount}` : ''}`} style={[styles.spot, { flex: 1, backgroundColor: c.surface2, borderColor: highlight ? tint : c.hairline }]}>
+      <T variant="callout" weight="semibold">{label}</T>
+      <T variant="caption" color="text3" style={{ fontSize: 10 }}>{pays}</T>
+      {amount ? <View style={styles.placed}><ChipToken value={[1000, 500, 100, 25, 10, 5, 1].find((x) => x <= amount) ?? 1} size={22} /></View> : null}
+    </PressableScale>
   );
 }
 

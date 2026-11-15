@@ -44,7 +44,7 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
       sfx('dice');
       const r = await s.op('play', { bet, mode, target });
       const v = r.view as { roll: number; won: boolean };
-      marker.value = reduceMotion ? v.roll : withTiming(v.roll, { duration: 520, easing: Easing.out(Easing.cubic) });
+      marker.set(reduceMotion ? v.roll : withTiming(v.roll, { duration: 520, easing: Easing.out(Easing.cubic) }));
       setRoll(v.roll);
       await wait(reduceMotion ? 0 : 560);
       setWon(v.won);

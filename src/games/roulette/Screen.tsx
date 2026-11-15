@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
 import { Button, PressableScale, T, formatCoins } from '@/design/components';
-import { useTheme, alpha } from '@/design/theme';
+import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { WHEEL_ORDER, pocketColor, betKey, type RouletteBet } from '@/engine/games/roulette.ts';
 import { useGameSession, PlayError } from '@/features/play/session';
@@ -122,15 +122,15 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
       const v = r.view as { number: number; winning: string[] };
       const idx = WHEEL_ORDER.indexOf(v.number as (typeof WHEEL_ORDER)[number]);
       const dur = reduceMotion ? 0 : 4200;
-      const wEnd = wheelRot.value + 720 + Math.random() * 360;
+      const wEnd = wheelRot.get() + 720 + Math.random() * 360;
       const target = (((wEnd + idx * SEG) % 360) + 360) % 360;
       const bEnd = target - 360 * 4;
       sfx('roll', 0.5);
-      wheelRot.value = withTiming(wEnd, { duration: dur, easing: Easing.out(Easing.cubic) });
-      ballRot.value = ballRot.value % 360;
-      ballRot.value = withTiming(bEnd, { duration: dur, easing: Easing.out(Easing.cubic) });
-      ballR.value = 0;
-      ballR.value = withTiming(1, { duration: dur, easing: Easing.in(Easing.quad) });
+      wheelRot.set(withTiming(wEnd, { duration: dur, easing: Easing.out(Easing.cubic) }));
+      ballRot.set(ballRot.get() % 360);
+      ballRot.set(withTiming(bEnd, { duration: dur, easing: Easing.out(Easing.cubic) }));
+      ballR.set(0);
+      ballR.set(withTiming(1, { duration: dur, easing: Easing.in(Easing.quad) }));
       await wait(dur);
       sfx('balldrop');
       setLast(v);
@@ -152,20 +152,11 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
     return { transform: [{ translateX: size / 2 - 6 + radius * Math.cos(a) }, { translateY: size / 2 - 6 + radius * Math.sin(a) }] };
   });
 
-  const Cell = ({ bet, label, flex = 1, color, height = 34 }: { bet: RouletteBet; label: string; flex?: number; color?: string; height?: number }) => {
+  /** Render helper (not a component): returns a module-level BetCell element. */
+  const cell = (bet: RouletteBet, label: string, color?: string) => {
     const k = betKey(bet);
-    const placed = bets[k]?.amount;
-    const win = last?.winning.includes(k) || (bet.kind === 'straight' && last?.number === bet.numbers[0]);
-    return (
-      <PressableScale onPress={() => place(bet)} feedback="none" scaleTo={0.94} accessibilityLabel={`${label}${placed ? `, ${placed}` : ''}`} style={[styles.cell, { flex, height, backgroundColor: color ?? c.surface2, borderColor: win ? c.text : c.hairline, borderWidth: win ? 2 : StyleSheet.hairlineWidth }]}>
-        <T variant="footnote" weight="semibold" style={{ color: '#F3F4F6' }}>{label}</T>
-        {placed ? (
-          <View style={styles.placed}>
-            <ChipToken value={[1000, 500, 100, 25, 10, 5, 1].find((x) => x <= placed) ?? 1} size={20} />
-          </View>
-        ) : null}
-      </PressableScale>
-    );
+    const win = !!last && (last.winning.includes(k) || (bet.kind === 'straight' && last.number === bet.numbers[0]));
+    return <BetCell key={k} label={label} color={color} placed={bets[k]?.amount} win={win} onPress={() => place(bet)} />;
   };
   const numColor = (n: number) => (pocketColor(n) === 'red' ? RED : pocketColor(n) === 'black' ? BLACK : GREEN);
   return (
@@ -187,20 +178,16 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
             </View>
             {last && <T variant="headline" style={{ marginTop: 8, color: numColor(last.number) === BLACK ? c.text : numColor(last.number) }}>{last.number}</T>}
             <View style={[styles.board, { borderColor: c.hairline }]}>
-              <View style={styles.row}><Cell bet={{ kind: 'straight', numbers: [0] }} label="0" color={GREEN} /></View>
+              <View style={styles.row}>{cell({ kind: 'straight', numbers: [0] }, '0', GREEN)}</View>
               {Array.from({ length: 12 }, (_, r) => (
                 <View key={r} style={styles.row}>
-                  {[3 * r + 1, 3 * r + 2, 3 * r + 3].map((n) => <Cell key={n} bet={{ kind: 'straight', numbers: [n] }} label={`${n}`} color={numColor(n)} />)}
+                  {[3 * r + 1, 3 * r + 2, 3 * r + 3].map((n) => cell({ kind: 'straight', numbers: [n] }, `${n}`, numColor(n)))}
                 </View>
               ))}
-              <View style={styles.row}>
-                {([1, 2, 3] as const).map((col) => <Cell key={col} bet={{ kind: 'column', column: col }} label="2:1" />)}
-              </View>
-              <View style={styles.row}>
-                {([1, 2, 3] as const).map((d) => <Cell key={d} bet={{ kind: 'dozen', dozen: d }} label={`${12 * (d - 1) + 1}–${12 * d}`} />)}
-              </View>
-              <View style={styles.row}>{OUTSIDE.slice(0, 3).map((o) => <Cell key={o.bet.kind} bet={o.bet} label={o.labelKey.startsWith('play.') ? t(o.labelKey) : o.labelKey} color={o.bet.kind === 'red' ? RED : undefined} />)}</View>
-              <View style={styles.row}>{OUTSIDE.slice(3).map((o) => <Cell key={o.bet.kind} bet={o.bet} label={o.labelKey.startsWith('play.') ? t(o.labelKey) : o.labelKey} color={o.bet.kind === 'black' ? BLACK : undefined} />)}</View>
+              <View style={styles.row}>{([1, 2, 3] as const).map((col) => cell({ kind: 'column', column: col }, '2:1'))}</View>
+              <View style={styles.row}>{([1, 2, 3] as const).map((d) => cell({ kind: 'dozen', dozen: d }, `${12 * (d - 1) + 1}–${12 * d}`))}</View>
+              <View style={styles.row}>{OUTSIDE.slice(0, 3).map((o) => cell(o.bet, o.labelKey.startsWith('play.') ? t(o.labelKey) : o.labelKey, o.bet.kind === 'red' ? RED : undefined))}</View>
+              <View style={styles.row}>{OUTSIDE.slice(3).map((o) => cell(o.bet, o.labelKey.startsWith('play.') ? t(o.labelKey) : o.labelKey, o.bet.kind === 'black' ? BLACK : undefined))}</View>
             </View>
           </ScrollView>
           <ResultBanner result={result} />
@@ -219,6 +206,20 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
         </View>
       }
     />
+  );
+}
+
+function BetCell({ label, flex = 1, color, placed, win, onPress }: { label: string; flex?: number; color?: string; placed?: number; win: boolean; onPress: () => void }) {
+  const { c } = useTheme();
+  return (
+    <PressableScale onPress={onPress} feedback="none" scaleTo={0.94} accessibilityLabel={`${label}${placed ? `, ${placed}` : ''}`} style={[styles.cell, { flex, height: 34, backgroundColor: color ?? c.surface2, borderColor: win ? c.text : c.hairline, borderWidth: win ? 2 : StyleSheet.hairlineWidth }]}>
+      <T variant="footnote" weight="semibold" style={{ color: '#F3F4F6' }}>{label}</T>
+      {placed ? (
+        <View style={styles.placed}>
+          <ChipToken value={[1000, 500, 100, 25, 10, 5, 1].find((x) => x <= placed) ?? 1} size={20} />
+        </View>
+      ) : null}
+    </PressableScale>
   );
 }
 

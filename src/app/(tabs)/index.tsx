@@ -15,6 +15,7 @@ import { META } from '@/games/catalog';
 import type { GameId } from '@/engine/games/types.ts';
 import { MissionRow } from '@/features/progression/MissionRow';
 import { claimDailyReward, claimRefill } from '@/features/economy/rewards';
+import { useNow } from '@/features/time/useNow';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
@@ -35,15 +36,16 @@ export default function Home() {
   const missionProgress = useProgress((s) => s.missionProgress);
   const missionClaimed = useProgress((s) => s.missionClaimed);
   const lvl = levelFromXp(xp);
-  const hour = new Date().getHours();
+  const now = useNow();
+  const hour = new Date(now).getHours();
   const greeting = hour < 13 ? t('home.morning') : hour < 20 ? t('home.afternoon') : t('home.evening');
   const name = profile?.display_name || profile?.username || t('home.guest');
   const balance = signedIn ? serverBalance ?? 0 : wallet.balance;
-  const today = utcDay(Date.now());
+  const today = utcDay(now);
   const canClaim = wallet.canClaimDaily();
   const streak = canClaim ? nextStreak(wallet.daily, today) : wallet.daily.streak;
-  const msToTomorrow = (today + 1) * DAY_MS - Date.now();
-  const season = seasonAt(Date.now());
+  const msToTomorrow = (today + 1) * DAY_MS - now;
+  const season = seasonAt(now);
   const missions = dailyMissions(today);
 
   const claim = async () => {

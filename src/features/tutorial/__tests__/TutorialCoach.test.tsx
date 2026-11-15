@@ -6,6 +6,7 @@ import { useLearning } from '@/state/learning';
 import { usePlayModes } from '@/features/play/session';
 import i18n from '@/i18n';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 jest.mock('expo-crypto', () => ({ getRandomValues: (b: Uint8Array) => require('node:crypto').randomFillSync(b) }));
 
 describe('TutorialCoach (interactive first-game tutorial)', () => {

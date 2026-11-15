@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, PlayingCard, T, formatCoins, formatMult } from '@/design/components';
 import { useTheme } from '@/design/theme';
@@ -31,9 +31,6 @@ export default function HiloScreen({ forceTutorial }: { forceTutorial?: boolean 
   const { result, show } = useResult();
   const onError = usePlayErrors();
   const history = useGameHistory('hilo');
-  useEffect(() => {
-    if (s.active && !view) setView(s.active.view as unknown as HView);
-  }, [s.active]); // eslint-disable-line react-hooks/exhaustive-deps
   const active = view?.status === 'active';
   const current: Card | null = view ? parseCard(view.current) : null;
   const correct = view?.steps.filter((x) => x.guess !== 'skip' && x.correct).length ?? 0;

@@ -33,7 +33,7 @@ type Phase = 'idle' | 'flying' | 'crashed' | 'cashed';
 
 export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean }) {
   const { t } = useT();
-  const { c, reduceMotion, reduceEffects } = useTheme();
+  const { c, reduceEffects } = useTheme();
   const s = useGameSession('crash');
   const [bet, setBet] = useBet('crash');
   const [auto, setAuto] = useState<number | null>(null);
@@ -50,6 +50,7 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
   const raf = useRef<number | null>(null);
   const poll = useRef<ReturnType<typeof setInterval> | null>(null);
   const betRef = useRef(bet);
+  const [roundBet, setRoundBet] = useState(bet);
   const lastTick = useRef(1);
 
   const stop = () => {
@@ -83,6 +84,7 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
   const start = async () => {
     try {
       betRef.current = bet;
+      setRoundBet(bet);
       const r = await s.op('start', { bet, autoCashout: auto });
       t0.current = Date.now();
       lastTick.current = 1;
@@ -176,7 +178,7 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
               <Path d={d} stroke={phase === 'crashed' ? c.loss : tint} strokeWidth={3} fill="none" strokeLinecap="round" />
               {phase !== 'crashed' ? (
                 <G x={tx} y={ty}>
-                  {!reduceEffects && flying && <Circle cx={-22} cy={0} r={5 + (Date.now() % 300) / 100} fill={alpha('#FFB45C', 0.5)} />}
+                  {!reduceEffects && flying && <Circle cx={-22} cy={0} r={5 + ((mult * 37) % 3)} fill={alpha('#FFB45C', 0.5)} />}
                   <Rocket angle={angle} />
                 </G>
               ) : (
@@ -225,7 +227,7 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
             </>
           )}
           {flying ? (
-            <Button title={t('common.cashout')} subtitle={`${formatCoins(payoutFor(betRef.current, Math.floor(mult * 100) / 100))} Ti`} onPress={cashout} />
+            <Button title={t('common.cashout')} subtitle={`${formatCoins(payoutFor(roundBet, Math.floor(mult * 100) / 100))} Ti`} onPress={cashout} />
           ) : (
             <Button title={t('play.placeBet')} onPress={start} disabled={bet > s.balance} style={{ marginTop: 12 }} />
           )}

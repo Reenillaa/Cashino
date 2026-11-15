@@ -15,6 +15,7 @@ import { masteryScore, blackjackSkill } from '@/engine/meta/ranking.ts';
 import { ACHIEVEMENTS } from '@/engine/meta/achievements.ts';
 import { META } from '@/games/catalog';
 import { LESSONS } from '@/features/academy/content';
+import { useNow } from '@/features/time/useNow';
 
 const HOW: [string, { es: string; en: string }][] = [
   ['ranking.points', { es: 'Rondas +2 (máx. 200/día) · Lección +30 · Logro +50 · Sit & Go: 1º +120, top 3 +50 · Misiones.', en: 'Rounds +2 (max 200/day) · Lesson +30 · Achievement +50 · Sit & Go: 1st +120, top 3 +50 · Missions.' }],
@@ -35,7 +36,8 @@ export default function Ranking() {
   const [game, setGame] = useState<GameId>('poker');
   const [entries, setEntries] = useState<Entry[]>([]);
   const [how, setHow] = useState(false);
-  const season = seasonAt(Date.now());
+  const now = useNow();
+  const season = seasonAt(now);
   const seasonPoints = useProgress((s) => s.seasonPoints);
   const stats = useProgress((s) => s.stats);
   const bj = useProgress((s) => s.bjDecisions);
@@ -44,7 +46,7 @@ export default function Ranking() {
   const tutorials = useLearning((s) => s.tutorials);
 
   useEffect(() => {
-    if (!supabase || !userId) return setEntries([]);
+    if (!supabase || !userId) return;
     let alive = true;
     const run = async () => {
       let rows: Entry[] = [];
@@ -83,7 +85,8 @@ export default function Ranking() {
         ? blackjackSkill(bj.correct, bj.total)
         : masteryScore({ rounds: stats[game]?.rounds ?? 0, academyProgress: lessonsFor(game) / totalLessons(game), achievementRatio: gameAch, tutorialDone: !!tutorials[tutorialKey(game)] })
       : seasonPoints;
-  const me = entries.find((e) => e.user_id === userId);
+  const list = userId ? entries : [];
+  const me = list.find((e) => e.user_id === userId);
   const metricLabel = scope !== 'game' ? t('ranking.points') : game === 'poker' ? t('ranking.rating') : game === 'blackjack' ? t('ranking.skill') : t('ranking.mastery');
   return (
     <Screen title={t('ranking.title')} subtitle={`${t('home.season', { n: season.number })} · ${new Date(season.end).toLocaleDateString()}`} right={<Chip label={t('ranking.how')} icon="info" onPress={() => setHow(true)} />}>
@@ -112,11 +115,11 @@ export default function Ranking() {
       <Section title={userId ? metricLabel : t('ranking.localPreview')}>
         {!userId ? (
           <T variant="footnote" color="text3" style={{ paddingHorizontal: SCREEN_PAD }}>{onlineConfigured ? t('ranking.offlineNote') : t('auth.notConfigured')}</T>
-        ) : entries.length === 0 ? (
+        ) : list.length === 0 ? (
           <T variant="footnote" color="text3" style={{ paddingHorizontal: SCREEN_PAD }}>{t('common.empty')}</T>
         ) : (
           <View style={{ marginHorizontal: SCREEN_PAD, borderRadius: radius.md, overflow: 'hidden', backgroundColor: c.surface1, borderWidth: StyleSheet.hairlineWidth, borderColor: c.hairline }}>
-            {entries.map((e, i) => (
+            {list.map((e, i) => (
               <View key={e.user_id} style={[styles.row, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.hairline }, e.user_id === userId && { backgroundColor: c.surface3 }]} accessible accessibilityLabel={`${e.rank}. ${e.username}, ${e.value}`}>
                 <T variant="callout" weight="semibold" tabular style={{ width: 34 }} color={e.rank <= 3 ? 'text' : 'text3'}>{e.rank}</T>
                 <Avatar id={e.avatar} size={32} />

@@ -5,11 +5,10 @@ import { Avatar, Button, EmptyState, ListGroup, ListRow, Screen, Section, Segmen
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD } from '@/design/tokens';
 import { useT } from '@/i18n';
-import { onlineConfigured } from '@/services/supabase';
+import { callFn, onlineConfigured } from '@/services/supabase';
 import { useSession } from '@/state/session';
 import { useProgress } from '@/state/progress';
 import { searchProfiles, useActivity, useFriends, useInvites, useTeams, useTournaments, type MiniProfile } from '@/features/social/useSocial';
-import { callFn } from '@/services/supabase';
 
 type Tab = 'friends' | 'rooms' | 'teams' | 'tournaments';
 

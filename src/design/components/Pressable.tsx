@@ -24,11 +24,11 @@ export function PressableScale({ style, scaleTo = 0.97, feedback = 'light', soun
       disabled={disabled}
       {...rest}
       onPressIn={(e) => {
-        s.value = withSpring(scaleTo, motion.snappy);
+        s.set(withSpring(scaleTo, motion.snappy));
         onPressIn?.(e);
       }}
       onPressOut={(e) => {
-        s.value = withSpring(1, motion.snappy);
+        s.set(withSpring(1, motion.snappy));
         onPressOut?.(e);
       }}
       onPress={(e) => {

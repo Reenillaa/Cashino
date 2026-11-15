@@ -6,7 +6,7 @@ import { legalActions, potTotal } from '@/engine/poker/table.ts';
 import { evaluate, CATEGORY_KEYS } from '@/engine/poker/evaluator.ts';
 import { cardCode } from '@/engine/cards/cards.ts';
 import { Avatar, Button, Glass, PlayingCard, Slider, T, Tag, formatCoins } from '@/design/components';
-import { useTheme, alpha } from '@/design/theme';
+import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 
 /** Shared table view for offline (bots) and online play. `heroSeat` is the viewer's seat. */

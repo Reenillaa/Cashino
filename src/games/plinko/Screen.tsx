@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
@@ -34,25 +34,25 @@ interface BallSpec {
 function Ball({ spec, geo, onLand, reduceMotion }: { spec: BallSpec; geo: { cx: number; dx: number; top: number; dy: number; r: number }; onLand: (b: BallSpec) => void; reduceMotion: boolean }) {
   const x = useSharedValue(geo.cx);
   const y = useSharedValue(geo.top - geo.dy);
-  const started = useRef(false);
-  if (!started.current) {
-    started.current = true;
+  useEffect(() => {
     const n = spec.path.length;
     if (reduceMotion) {
-      x.value = geo.cx + (spec.bin - n / 2) * geo.dx;
-      y.value = geo.top + n * geo.dy;
-      setTimeout(() => onLand(spec), 50);
-    } else {
-      let rights = 0;
-      const xs: number[] = [];
-      const ys: number[] = [];
-      spec.path.forEach((right, r) => {
-        rights += right ? 1 : 0;
-        xs.push(geo.cx + (rights - (r + 1) / 2) * geo.dx);
-        ys.push(geo.top + (r + 1) * geo.dy);
-      });
-      x.value = withSequence(withTiming(geo.cx, { duration: ROW_MS }), ...xs.map((v) => withTiming(v, { duration: ROW_MS, easing: Easing.inOut(Easing.quad) })));
-      y.value = withSequence(
+      x.set(geo.cx + (spec.bin - n / 2) * geo.dx);
+      y.set(geo.top + n * geo.dy);
+      const id = setTimeout(() => onLand(spec), 50);
+      return () => clearTimeout(id);
+    }
+    let rights = 0;
+    const xs: number[] = [];
+    const ys: number[] = [];
+    spec.path.forEach((right, r) => {
+      rights += right ? 1 : 0;
+      xs.push(geo.cx + (rights - (r + 1) / 2) * geo.dx);
+      ys.push(geo.top + (r + 1) * geo.dy);
+    });
+    x.set(withSequence(withTiming(geo.cx, { duration: ROW_MS }), ...xs.map((v) => withTiming(v, { duration: ROW_MS, easing: Easing.inOut(Easing.quad) }))));
+    y.set(
+      withSequence(
         withTiming(geo.top, { duration: ROW_MS, easing: Easing.in(Easing.quad) }),
         ...ys.map((v, i) =>
           i === ys.length - 1
@@ -61,10 +61,12 @@ function Ball({ spec, geo, onLand, reduceMotion }: { spec: BallSpec; geo: { cx: 
               })
             : withTiming(v, { duration: ROW_MS, easing: Easing.bezier(0.3, -0.4, 0.7, 1) }),
         ),
-      );
-      for (let i = 0; i < n; i++) setTimeout(() => sfx('peg', 0.35), ROW_MS * (i + 1));
-    }
-  }
+      ),
+    );
+    const timers = Array.from({ length: n }, (_, i) => setTimeout(() => sfx('peg', 0.35), ROW_MS * (i + 1)));
+    return () => timers.forEach(clearTimeout);
+    // The ball's path is fixed for its whole life: animate once on mount.
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const style = useAnimatedStyle(() => ({ transform: [{ translateX: x.value - geo.r }, { translateY: y.value - geo.r }] }));
   return <Animated.View pointerEvents="none" style={[styles.ball, { width: geo.r * 2, height: geo.r * 2, borderRadius: geo.r, backgroundColor: '#FFFFFF' }, style]} />;
 }

@@ -7,10 +7,7 @@ export function useSocialBadge(): number {
   const userId = useSession((s) => s.userId);
   const [n, setN] = useState(0);
   useEffect(() => {
-    if (!supabase || !userId) {
-      setN(0);
-      return;
-    }
+    if (!supabase || !userId) return;
     let alive = true;
     const load = async () => {
       const [{ count: req }, { count: inv }] = await Promise.all([
@@ -19,12 +16,13 @@ export function useSocialBadge(): number {
       ]);
       if (alive) setN((req ?? 0) + (inv ?? 0));
     };
-    void load().catch(() => undefined);
+    const first = setTimeout(() => void load().catch(() => undefined), 0);
     const id = setInterval(() => void load().catch(() => undefined), 60_000);
     return () => {
       alive = false;
+      clearTimeout(first);
       clearInterval(id);
     };
   }, [userId]);
-  return n;
+  return userId ? n : 0;
 }

@@ -5,6 +5,8 @@
 | Suite | Comando | Resultado |
 |---|---|---|
 | TypeScript estricto | `npm run typecheck` | ✅ sin errores |
+| Lint (incl. reglas del React Compiler) | `npm run lint` | ✅ 0 errores, 0 avisos |
+| Configuración Expo | `npx expo-doctor` | ✅ 20/20 comprobaciones |
 | Motor (reglas, probabilidades, EV, estados, protocolo) | `npm run test:engine` | ✅ 98 pruebas |
 | App (stores, sesión de juego, i18n, tutorial UI) | `npm run test:app` | ✅ 13 pruebas |
 | **Total Jest** | `npm test` | ✅ **111/111** (11 suites) |

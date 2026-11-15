@@ -31,7 +31,9 @@ export function useOnlineTable(tableId: string) {
   const [status, setStatus] = useState<'connecting' | 'live' | 'reconnecting'>('connecting');
   const [error, setError] = useState<string | null>(null);
   const rowRef = useRef<TableRow | null>(null);
-  rowRef.current = row;
+  useEffect(() => {
+    rowRef.current = row;
+  }, [row]);
 
   const refetch = useCallback(async () => {
     if (!supabase) return;
@@ -45,7 +47,7 @@ export function useOnlineTable(tableId: string) {
 
   useEffect(() => {
     if (!supabase || !userId) return;
-    void refetch();
+    // The first fetch happens when the channel reports SUBSCRIBED (and again on every reconnection).
     const ch = supabase
       .channel(`table:${tableId}`)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'poker_tables', filter: `id=eq.${tableId}` }, (p) => setRow(p.new as TableRow))

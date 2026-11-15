@@ -31,8 +31,24 @@ export function TutorialCoach({ game }: { game: GameId }) {
   const step = useTutorialRuntime((s) => s.step);
   const steps = TUTORIALS[game];
   const cur = steps[step];
-  const [picked, setPicked] = useState<number | null>(null);
+  const [pickedState, setPickedState] = useState<{ step: number; i: number } | null>(null);
+  const picked = pickedState?.step === step ? pickedState.i : null;
+  const setPicked = (i: number) => setPickedState({ step, i });
   const prevPractice = useRef<boolean | null>(null);
+
+  const finish = (completed: boolean) => {
+    useLearning.getState().completeTutorial(game);
+    if (completed) {
+      useProgress.getState().addXp(XP.tutorialComplete);
+      useProgress.getState().pushToast({ kind: 'info', title: t('tutorial.finish'), body: `+${XP.tutorialComplete} XP` });
+    }
+    useTutorialRuntime.getState().stop();
+  };
+  const advance = () => {
+    const s = useTutorialRuntime.getState().step;
+    if (s + 1 >= steps.length) finish(true);
+    else useTutorialRuntime.getState().next();
+  };
 
   // Force free practice while the tutorial runs, restore afterwards.
   useEffect(() => {
@@ -61,22 +77,6 @@ export function TutorialCoach({ game }: { game: GameId }) {
     rt.listeners.add(l);
     return () => void rt.listeners.delete(l);
   }, [active, game]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => setPicked(null), [step]);
-
-  const finish = (completed: boolean) => {
-    useLearning.getState().completeTutorial(game);
-    if (completed) {
-      useProgress.getState().addXp(XP.tutorialComplete);
-      useProgress.getState().pushToast({ kind: 'info', title: t('tutorial.finish'), body: `+${XP.tutorialComplete} XP` });
-    }
-    useTutorialRuntime.getState().stop();
-  };
-  const advance = () => {
-    const s = useTutorialRuntime.getState().step;
-    if (s + 1 >= steps.length) finish(true);
-    else useTutorialRuntime.getState().next();
-  };
 
   if (!active || !cur) return null;
   const answered = cur.kind === 'quiz' && picked !== null;

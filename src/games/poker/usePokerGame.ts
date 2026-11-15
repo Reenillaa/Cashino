@@ -25,12 +25,14 @@ const STYLES: BotStyle[] = ['shark', 'rock', 'maniac', 'station', 'shark'];
 export function usePokerGame() {
   const [table, setTable] = useState<P.TableState | null>(null);
   const [setup, setSetup] = useState<PokerSetup | null>(null);
-  const [equity, setEquity] = useState<number | null>(null);
+  const [equityState, setEquityState] = useState<{ key: string; value: number } | null>(null);
   const [finished, setFinished] = useState<{ place: number; prize: number } | null>(null);
   const profiles = useRef<Record<string, BotProfile>>({});
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const tableRef = useRef<P.TableState | null>(null);
-  tableRef.current = table;
+  useEffect(() => {
+    tableRef.current = table;
+  }, [table]);
 
   const clear = () => {
     if (timer.current) clearTimeout(timer.current);
@@ -98,7 +100,10 @@ export function usePokerGame() {
           const place = winner?.id === HERO ? 1 : total - t.eliminated.indexOf(HERO);
           const pool = setup.stakes.buyIn * total;
           const prize = place === 1 ? Math.floor(pool * 0.65) : place === 2 ? Math.floor(pool * 0.35) : 0;
-          if (prize > 0) setup.practice ? useWallet.getState().practiceCredit(prize) : useWallet.getState().credit(prize, 'payout', 'poker');
+          if (prize > 0) {
+            if (setup.practice) useWallet.getState().practiceCredit(prize);
+            else useWallet.getState().credit(prize, 'payout', 'poker');
+          }
           setFinished({ place, prize });
           return;
         }
@@ -115,7 +120,6 @@ export function usePokerGame() {
       timer.current = setTimeout(() => {
         const next = P.startHand(nt, secureRng);
         setTable(next);
-        setEquity(null);
         sfx('card');
       }, 2600);
       return;
@@ -144,16 +148,18 @@ export function usePokerGame() {
     step();
   }, [table, step]);
 
-  // Equity for the hero (Offsuit-style "win %" panel), computed off the critical path.
+  // Equity for the hero (Offsuit-style "win %" panel), computed off the critical path and keyed by the
+  // situation, so a stale value is never shown.
+  const h = table?.hand;
+  const hero = h?.players.find((p) => p.id === HERO);
+  const opp = h ? h.players.filter((p) => !p.folded && p.id !== HERO).length : 0;
+  const eqKey = h && hero && !hero.folded && !h.complete ? `${h.number}:${h.board.length}:${opp}` : '';
   useEffect(() => {
-    const h = table?.hand;
-    if (!h || h.complete) return;
-    const hero = h.players.find((p) => p.id === HERO);
-    if (!hero || hero.folded) return setEquity(null);
-    const opp = h.players.filter((p) => !p.folded && p.id !== HERO).length;
-    const id = setTimeout(() => setEquity(monteCarloEquity(secureRng, hero.hole, h.board, opp, 400)), 30);
+    if (!eqKey || !h || !hero) return;
+    const id = setTimeout(() => setEquityState({ key: eqKey, value: monteCarloEquity(secureRng, hero.hole, h.board, opp, 400) }), 30);
     return () => clearTimeout(id);
-  }, [table?.hand?.board.length, table?.hand?.number, table?.hand?.players.filter((p) => p.folded).length]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [eqKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const equity = eqKey && equityState?.key === eqKey ? equityState.value : null;
 
   const heroAct = useCallback((a: P.PokerAction) => {
     const t = tableRef.current;
@@ -171,7 +177,10 @@ export function usePokerGame() {
     if (t && setup?.format === 'cash') {
       // Leaving mid-hand counts as folding: chips already in the pot stay there.
       const stack = t.seats[0]?.stack ?? 0;
-      if (stack > 0) setup.practice ? useWallet.getState().practiceCredit(stack) : useWallet.getState().credit(stack, 'payout', 'poker');
+      if (stack > 0) {
+        if (setup.practice) useWallet.getState().practiceCredit(stack);
+        else useWallet.getState().credit(stack, 'payout', 'poker');
+      }
     }
     setTable(null);
     setSetup(null);
@@ -189,5 +198,5 @@ export function usePokerGame() {
     setTable(P.canStartHand(nt) ? P.startHand(nt, secureRng) : nt);
   }, [setup]);
 
-  return { table, setup, equity, finished, start, heroAct, leave, rebuy, profiles: profiles.current };
+  return { table, setup, equity, finished, start, heroAct, leave, rebuy };
 }

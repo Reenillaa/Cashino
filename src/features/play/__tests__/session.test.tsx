@@ -5,6 +5,7 @@ import { useProgress } from '@/state/progress';
 import { useFairness } from '@/state/fairness';
 import { hashServerSeed } from '@/engine/rng/rng.ts';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 jest.mock('expo-crypto', () => ({ getRandomValues: (b: Uint8Array) => require('node:crypto').randomFillSync(b) }));
 
 describe('useGameSession (local modes)', () => {

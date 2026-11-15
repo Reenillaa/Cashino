@@ -94,11 +94,11 @@ export function PlayingCard({
   const appear = useSharedValue(reduceMotion ? 1 : 0);
   const flip = useSharedValue(faceDown || !card ? 0 : 1);
   useEffect(() => {
-    appear.value = reduceMotion ? 1 : withDelay(delay, withSpring(1, { damping: 18, stiffness: 200 }));
+    appear.set(reduceMotion ? 1 : withDelay(delay, withSpring(1, { damping: 18, stiffness: 200 })));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const target = faceDown || !card ? 0 : 1;
-    flip.value = reduceMotion ? target : withDelay(delay + 120, withTiming(target, { duration: 320 }));
+    flip.set(reduceMotion ? target : withDelay(delay + 120, withTiming(target, { duration: 320 })));
   }, [faceDown, card, reduceMotion]); // eslint-disable-line react-hooks/exhaustive-deps
   const wrap = useAnimatedStyle(() => ({
     opacity: appear.value,

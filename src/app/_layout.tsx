@@ -13,7 +13,6 @@ import { Geist_600SemiBold } from '@expo-google-fonts/geist/600SemiBold';
 import { Geist_700Bold } from '@expo-google-fonts/geist/700Bold';
 import { GeistMono_400Regular } from '@expo-google-fonts/geist-mono/400Regular';
 import { GeistMono_500Medium } from '@expo-google-fonts/geist-mono/500Medium';
-import '@/i18n';
 import { setLanguage } from '@/i18n';
 import { useSettings } from '@/state/settings';
 import { useTheme } from '@/design/theme';

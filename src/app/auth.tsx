@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, EmptyState, Screen, Segmented, Surface, T } from '@/design/components';
+import { Button, EmptyState, Screen, Segmented, Surface, T, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD } from '@/design/tokens';
 import { useT } from '@/i18n';
@@ -10,7 +10,6 @@ import { useWallet } from '@/state/wallet';
 import { useSession } from '@/state/session';
 import { ECONOMY, guestMigrationAmount } from '@/engine/meta/economy.ts';
 import { migrateGuest, syncLearning } from '@/features/sync/sync';
-import { formatCoins } from '@/design/components';
 
 export default function Auth() {
   const { t } = useT();

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, PlayingCard, T, Tag } from '@/design/components';
 import { useTheme, alpha } from '@/design/theme';
@@ -33,9 +33,6 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
   const { result, show } = useResult();
   const onError = usePlayErrors();
   const history = useGameHistory('blackjack', (d) => d);
-  useEffect(() => {
-    if (s.active && !view) setView(s.active.view as unknown as BView);
-  }, [s.active]); // eslint-disable-line react-hooks/exhaustive-deps
   const playing = view?.phase === 'player';
 
   const settle = (v: BView, payout: number) => {

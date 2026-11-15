@@ -13,20 +13,23 @@ export function Sheet({ visible, onClose, title, children, maxHeight = 0.86 }: {
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   const [mounted, setMounted] = useState(visible);
+  // Derived state: mount immediately when opened; unmount after the closing animation.
+  if (visible && !mounted) setMounted(true);
   const y = useSharedValue(height);
   const fade = useSharedValue(0);
   useEffect(() => {
     if (visible) {
-      setMounted(true);
-      fade.value = withTiming(1, { duration: reduceMotion ? 0 : motion.base });
-      y.value = reduceMotion ? 0 : withSpring(0, motion.smooth);
-    } else if (mounted) {
-      fade.value = withTiming(0, { duration: reduceMotion ? 0 : motion.fast });
-      y.value = withTiming(height, { duration: reduceMotion ? 0 : 220, easing: Easing.in(Easing.cubic) }, (done) => {
-        if (done) runOnJS(setMounted)(false);
-      });
+      fade.set(withTiming(1, { duration: reduceMotion ? 0 : motion.base }));
+      y.set(reduceMotion ? 0 : withSpring(0, motion.smooth));
+    } else {
+      fade.set(withTiming(0, { duration: reduceMotion ? 0 : motion.fast }));
+      y.set(
+        withTiming(height, { duration: reduceMotion ? 0 : 220, easing: Easing.in(Easing.cubic) }, (done) => {
+          if (done) runOnJS(setMounted)(false);
+        }),
+      );
     }
-  }, [visible]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [visible, reduceMotion, height, fade, y]);
   const sheet = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }));
   const backdrop = useAnimatedStyle(() => ({ opacity: fade.value }));
   if (!mounted) return null;

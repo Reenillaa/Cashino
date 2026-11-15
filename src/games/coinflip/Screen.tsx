@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Defs, LinearGradient, Stop, Text as SvgText } from 'react-native-svg';
@@ -46,7 +46,8 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
   const [bet, setBet] = useBet('coinflip');
   const restored = s.active?.view as { wins?: number; bet?: number; history?: { call: Side; result: Side }[] } | undefined;
   const [wins, setWins] = useState(restored?.wins ?? 0);
-  const [active, setActive] = useState(!!s.active);
+  // The active round lives in the session store (local or server), so it survives restarts.
+  const active = !!s.active;
   const [face, setFace] = useState<Side>('heads');
   const [flipping, setFlipping] = useState(false);
   const [calls, setCalls] = useState<{ call: Side; result: Side }[]>(restored?.history ?? []);
@@ -55,15 +56,11 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
   const history = useGameHistory('coinflip');
   const rot = useSharedValue(0);
   const lift = useSharedValue(0);
-  useEffect(() => {
-    if (s.active && !active) setActive(true);
-  }, [s.active]); // eslint-disable-line react-hooks/exhaustive-deps
   const roundBet = restored?.bet ?? bet;
 
   const start = async () => {
     try {
       await s.op('start', { bet });
-      setActive(true);
       setWins(0);
       setCalls([]);
       sfx('chip');
@@ -82,10 +79,10 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
       haptic.light();
       if (!reduceMotion) {
         // Whole turns only: the face is swapped while the coin is edge-on, so it never lands mirrored.
-        rot.value = 0;
-        rot.value = withTiming(4 * 360, { duration: 900, easing: Easing.out(Easing.cubic) });
+        rot.set(0);
+        rot.set(withTiming(4 * 360, { duration: 900, easing: Easing.out(Easing.cubic) }));
         setTimeout(() => setFace(last), 450);
-        lift.value = withSequence(withTiming(-60, { duration: 420, easing: Easing.out(Easing.quad) }), withTiming(0, { duration: 480, easing: Easing.in(Easing.quad) }));
+        lift.set(withSequence(withTiming(-60, { duration: 420, easing: Easing.out(Easing.quad) }), withTiming(0, { duration: 480, easing: Easing.in(Easing.quad) })));
         await wait(920);
       }
       setFace(last);
@@ -93,7 +90,6 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
       setWins(v.wins);
       tutorialEvent('coinflip', 'coin:call');
       if (r.done) {
-        setActive(false);
         show({ bet: roundBet, payout: 0 });
       } else {
         sfx('reveal');
@@ -107,7 +103,6 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
   const cashout = async () => {
     try {
       const r = await s.op('cashout');
-      setActive(false);
       show({ bet: roundBet, payout: r.payout, multiplier: streakMultiplier(wins) });
     } catch (e) {
       onError(e);

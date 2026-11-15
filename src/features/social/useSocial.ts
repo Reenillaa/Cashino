@@ -10,7 +10,7 @@ export function useFriends() {
   const userId = useSession((s) => s.userId);
   const [rows, setRows] = useState<FriendRow[]>([]);
   const load = useCallback(async () => {
-    if (!supabase || !userId) return setRows([]);
+    if (!supabase || !userId) return;
     const { data } = await supabase.from('friendships').select('id, requester, addressee, status').order('created_at', { ascending: false });
     const list = data ?? [];
     const ids = [...new Set(list.map((f) => (f.requester === userId ? f.addressee : f.requester)))];
@@ -18,7 +18,11 @@ export function useFriends() {
     const byId = Object.fromEntries((profs ?? []).map((p) => [p.id, p as MiniProfile]));
     setRows(list.map((f) => ({ ...f, other: byId[f.requester === userId ? f.addressee : f.requester] ?? { id: '?', username: '…', avatar: 'a0' } })));
   }, [userId]);
-  useEffect(() => void load(), [load]);
+  useEffect(() => {
+    // Async fetch: state is only updated after the request resolves.
+    const id = setTimeout(() => void load(), 0);
+    return () => clearTimeout(id);
+  }, [load]);
   const request = async (to: string) => {
     if (!supabase || !userId) return;
     const { error } = await supabase.from('friendships').insert({ requester: userId, addressee: to });
@@ -45,10 +49,11 @@ export function useFriends() {
     if (!supabase || !userId) return;
     await supabase.from('reports').insert({ reporter: userId, reported: other, reason });
   };
+  const visible = userId ? rows : [];
   return {
-    accepted: rows.filter((r) => r.status === 'accepted').map((r) => ({ ...r.other, friendshipId: r.id })),
-    incoming: rows.filter((r) => r.status === 'pending' && r.addressee === userId),
-    outgoing: rows.filter((r) => r.status === 'pending' && r.requester === userId),
+    accepted: visible.filter((r) => r.status === 'accepted').map((r) => ({ ...r.other, friendshipId: r.id })),
+    incoming: visible.filter((r) => r.status === 'pending' && r.addressee === userId),
+    outgoing: visible.filter((r) => r.status === 'pending' && r.requester === userId),
     request, respond, remove, block, report, reload: load,
   };
 }
@@ -73,7 +78,10 @@ export function useTeams() {
     const { data: all } = await supabase.from('teams').select('id, name').order('created_at', { ascending: false }).limit(20);
     setList(all ?? []);
   }, [userId]);
-  useEffect(() => void load(), [load]);
+  useEffect(() => {
+    const id = setTimeout(() => void load(), 0);
+    return () => clearTimeout(id);
+  }, [load]);
   const create = async (name: string) => {
     if (!supabase || !userId) return;
     const { data, error } = await supabase.from('teams').insert({ name, owner: userId }).select('id').single();
@@ -102,7 +110,10 @@ export function useTournaments() {
     const { data } = await supabase.from('tournaments').select('id, name, status, entry_fee, max_players, table_id').in('status', ['registering', 'running']).order('created_at', { ascending: false }).limit(20);
     setList(data ?? []);
   }, []);
-  useEffect(() => void load(), [load]);
+  useEffect(() => {
+    const id = setTimeout(() => void load(), 0);
+    return () => clearTimeout(id);
+  }, [load]);
   return { list, reload: load };
 }
 
@@ -124,7 +135,10 @@ export function useInvites() {
     const { data } = await supabase.from('table_invites').select('id, table_id, from_user, status').eq('to_user', userId).eq('status', 'pending');
     setItems(data ?? []);
   }, [userId]);
-  useEffect(() => void load(), [load]);
+  useEffect(() => {
+    const id = setTimeout(() => void load(), 0);
+    return () => clearTimeout(id);
+  }, [load]);
   const decline = async (id: string) => {
     if (!supabase) return;
     await supabase.from('table_invites').update({ status: 'declined' }).eq('id', id);
