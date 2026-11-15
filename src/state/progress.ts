@@ -6,6 +6,8 @@ import { applyRound, emptyStats, newlyUnlocked, type GameStats } from '@/engine/
 import { levelFromXp, roundXp, dailyMissions, weeklyMissions, missionIncrement, type MissionDef, type MissionEvent } from '@/engine/meta/progression.ts';
 import { utcDay, ECONOMY } from '@/engine/meta/economy.ts';
 import { SP } from '@/engine/meta/ranking.ts';
+import { useWallet } from './wallet';
+import { useSession } from './session';
 
 export interface RoundLog {
   id: string;
@@ -114,7 +116,13 @@ export const useProgress = create<ProgressState>()(
         set((s) => ({ xp: s.xp + xp }));
         const after = levelFromXp(get().xp).level;
         if (after > before) {
-          get().pushToast({ kind: 'level', title: `${after}` });
+          // Level-up gift (25 × level, local wallet). Accounts get progress rewards from the server.
+          let bonus = 0;
+          if (!useSession.getState().userId) {
+            for (let l = before + 1; l <= after; l++) bonus += levelBonus(l);
+            if (bonus > 0) useWallet.getState().credit(bonus, 'level');
+          }
+          get().pushToast({ kind: 'level', title: `${after}`, body: bonus > 0 ? `${bonus}` : undefined });
           return after;
         }
         return null;

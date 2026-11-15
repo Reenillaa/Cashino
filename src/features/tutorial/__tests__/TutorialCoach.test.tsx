@@ -9,7 +9,7 @@ import i18n from '@/i18n';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 jest.mock('expo-crypto', () => ({ getRandomValues: (b: Uint8Array) => require('node:crypto').randomFillSync(b) }));
 
-describe('TutorialCoach (interactive first-game tutorial)', () => {
+describe('TutorialCoach (optional guided tutorial)', () => {
   beforeEach(async () => {
     await i18n.changeLanguage('es');
     useLearning.getState().resetAll();
@@ -21,7 +21,7 @@ describe('TutorialCoach (interactive first-game tutorial)', () => {
     await act(async () => useTutorialRuntime.getState().start('dice'));
     expect(screen.getByText('Tú eliges el riesgo')).toBeTruthy();
     expect(useRooms.getState().byGame.dice).toBe('practice'); // free practice room while learning
-    await act(async () => fireEvent.press(screen.getByText('Entendido')));
+    await act(async () => fireEvent.press(screen.getByText('Siguiente')));
     expect(screen.getByText('Mueve el objetivo')).toBeTruthy();
     // "do" step: completes only when the real game emits the action
     await act(async () => tutorialEvent('dice', 'dice:roll'));
@@ -36,10 +36,11 @@ describe('TutorialCoach (interactive first-game tutorial)', () => {
     expect(useRooms.getState().byGame.dice).toBe('r1'); // previous room restored
   });
 
-  it('can be skipped and then does not reappear automatically', async () => {
+  it('shows nothing until the player asks for it, and can be left at any step', async () => {
     await render(<TutorialCoach game="crash" />);
+    expect(screen.queryByText('Salir')).toBeNull(); // optional: never starts by itself
     await act(async () => useTutorialRuntime.getState().start('crash'));
-    await act(async () => fireEvent.press(screen.getByText('Saltar tutorial')));
+    await act(async () => fireEvent.press(screen.getByText('Salir')));
     expect(useLearning.getState().isTutorialDone('crash')).toBe(true);
     expect(useTutorialRuntime.getState().game).toBeNull();
   });

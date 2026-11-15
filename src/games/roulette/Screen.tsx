@@ -15,6 +15,7 @@ import { ChipRack, ChipToken, chipFor } from '../shared/ChipRack';
 import { useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
+import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 
 const RED = '#C8323A';
 const BLACK = '#1C1F24';
@@ -179,6 +180,7 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
               <Animated.View style={[styles.ball, ballStyle]} />
             </View>
             {last && <T variant="headline" style={{ marginTop: 8, color: numColor(last.number) === BLACK ? c.text : numColor(last.number) }}>{last.number}</T>}
+            <TutorialTarget id="roulette:place">
             <View style={[styles.board, { borderColor: c.hairline }]}>
               <View style={styles.row}>{cell({ kind: 'straight', numbers: [0] }, '0', GREEN)}</View>
               {Array.from({ length: 12 }, (_, r) => (
@@ -191,6 +193,7 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
               <View style={styles.row}>{OUTSIDE.slice(0, 3).map((o) => cell(o.bet, o.labelKey.startsWith('play.') ? t(o.labelKey) : o.labelKey, o.bet.kind === 'red' ? RED : undefined))}</View>
               <View style={styles.row}>{OUTSIDE.slice(3).map((o) => cell(o.bet, o.labelKey.startsWith('play.') ? t(o.labelKey) : o.labelKey, o.bet.kind === 'black' ? BLACK : undefined))}</View>
             </View>
+            </TutorialTarget>
           </ScrollView>
           <ResultBanner result={result} />
         </View>
@@ -204,7 +207,7 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
             <Button title={t('common.clear')} kind="ghost" size="sm" onPress={() => { setBets({}); setStack([]); }} disabled={!total || spinning} />
             <Button title="↻" kind="ghost" size="sm" accessibilityHint="Repeat" onPress={() => { const lb = lastBets.current; const sum = Object.values(lb).reduce((a, b) => a + b.amount, 0); if (sum <= s.balance && sum >= s.room.min && sum <= s.room.max) setBets(lb); }} disabled={spinning} />
           </View>
-          <Button title={t('play.spin')} onPress={spin} loading={spinning} disabled={!total || total > s.balance || total < s.room.min} />
+          <Button spot="roulette:spin" title={t('play.spin')} onPress={spin} loading={spinning} disabled={!total || total > s.balance || total < s.room.min} />
         </View>
       }
     />

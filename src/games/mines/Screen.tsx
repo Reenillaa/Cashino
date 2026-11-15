@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { ZoomIn, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import Svg, { Path, Circle } from 'react-native-svg';
-import { Button, Chip, PressableScale, T, formatCoins, formatMult } from '@/design/components';
+import { Button, Chip, PressableScale, formatCoins, formatMult } from '@/design/components';
 import { useTheme, alpha } from '@/design/theme';
 import { useT } from '@/i18n';
 import { minesMultiplier, nextSafeChance, MINES_TILES } from '@/engine/games/mines.ts';
@@ -20,6 +20,8 @@ import { useBet, useGameHistory, usePlayErrors, useResult } from '../shared/hook
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
+import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
+import { MoreOptions } from '../shared/MoreOptions';
 
 const tint = META.mines.tint;
 
@@ -129,6 +131,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage} onLayout={(e) => setStageH(e.nativeEvent.layout.height)}>
+          <TutorialTarget id="mines:reveal">
           <Animated.View style={[styles.grid, { width: size * 5 + 32 }, gridStyle]} accessibilityLabel={t('play.pick')}>
             {Array.from({ length: MINES_TILES }, (_, i) => {
               const revealed = view?.revealed.includes(i);
@@ -165,6 +168,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
               );
             })}
           </Animated.View>
+          </TutorialTarget>
           <ResultBanner result={result} />
         </View>
       }
@@ -178,17 +182,18 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
             </StatRow>
           ) : (
             <>
-              <T variant="caption" color="text3" style={{ marginBottom: 6 }}>{t('play.mines')}</T>
-              <ControlRow>
-                {[1, 3, 5, 10, 15, 20, 24].map((n) => <Chip key={n} label={`${n}`} selected={mines === n} tint={tint} onPress={() => setMines(n)} />)}
-              </ControlRow>
+              <MoreOptions game="mines" summary={`${mines} ${t('play.mines').toLowerCase()} · ${25 - mines} ${t('play.gems').toLowerCase()}`}>
+                <ControlRow>
+                  {[1, 3, 5, 10, 15, 20, 24].map((n) => <Chip key={n} label={`${n}`} selected={mines === n} tint={tint} onPress={() => setMines(n)} />)}
+                </ControlRow>
+              </MoreOptions>
               <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
             </>
           )}
           {active ? (
             <View style={{ flexDirection: 'row', gap: 10 }}>
               <Button title={t('play.random')} kind="secondary" onPress={pickRandom} style={{ flex: 1 }} />
-              <Button
+              <Button spot="mines:end"
                 title={t('common.cashout')}
                 subtitle={k ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} ${t('common.coins')}` : undefined}
                 onPress={cashout}
@@ -197,7 +202,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
               />
             </View>
           ) : (
-            <Button title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
+            <Button spot="mines:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
           )}
         </View>
       }

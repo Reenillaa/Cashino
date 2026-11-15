@@ -15,6 +15,8 @@ import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../share
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
+import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
+import { MoreOptions } from '../shared/MoreOptions';
 
 const tint = META.keno.tint;
 
@@ -84,6 +86,7 @@ export default function KenoScreen({ forceTutorial }: { forceTutorial?: boolean 
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage}>
+          <TutorialTarget id="keno:pick">
           <View style={[styles.grid, { width: cell * 8 + 42 }]}>
             {Array.from({ length: KENO_NUMBERS }, (_, i) => i + 1).map((n) => {
               const picked = picks.includes(n);
@@ -113,6 +116,7 @@ export default function KenoScreen({ forceTutorial }: { forceTutorial?: boolean 
               );
             })}
           </View>
+          </TutorialTarget>
           {picks.length > 0 && (
             <View style={styles.pay}>
               {table.map((m, h) => (
@@ -128,16 +132,18 @@ export default function KenoScreen({ forceTutorial }: { forceTutorial?: boolean 
       }
       controls={
         <View>
-          <Segmented size="sm" value={risk} onChange={setRisk} disabled={busy} options={[{ value: 'low', label: t('play.low') }, { value: 'medium', label: t('play.medium') }, { value: 'high', label: t('play.high') }]} style={{ marginBottom: 10 }} />
+          <MoreOptions game="keno" disabled={busy} summary={`${t('play.risk')} ${(risk === 'low' ? t('play.low') : risk === 'medium' ? t('play.medium') : t('play.high')).toLowerCase()} · ${picks.length}/${KENO_MAX_PICKS}`}>
+            <Segmented size="sm" value={risk} onChange={setRisk} disabled={busy} options={[{ value: 'low', label: t('play.low') }, { value: 'medium', label: t('play.medium') }, { value: 'high', label: t('play.high') }]} style={{ marginBottom: 10 }} />
+          </MoreOptions>
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 10 }}>
-            <Button title={t('play.autoPick')} kind="secondary" size="md" onPress={auto} disabled={busy} style={{ flex: 1 }} />
-            <Button title={t('common.clear')} kind="secondary" size="md" onPress={() => { setPicks([]); setDrawn([]); }} disabled={busy} style={{ flex: 1 }} />
+            <Button title={t('play.autoPick')} kind="secondary" size="sm" onPress={auto} disabled={busy} style={{ flex: 1 }} />
+            <Button title={t('common.clear')} kind="secondary" size="sm" onPress={() => { setPicks([]); setDrawn([]); }} disabled={busy} style={{ flex: 1 }} />
             <View style={{ justifyContent: 'center', paddingHorizontal: 6 }}>
               <T variant="footnote" color="text3" tabular>{picks.length}/{KENO_MAX_PICKS}</T>
             </View>
           </View>
           <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} disabled={busy} tint={tint} />
-          <Button title={t('play.draw')} onPress={draw} loading={busy} disabled={picks.length === 0 || (bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
+          <Button spot="keno:draw" title={t('play.draw')} onPress={draw} loading={busy} disabled={picks.length === 0 || (bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
         </View>
       }
     />

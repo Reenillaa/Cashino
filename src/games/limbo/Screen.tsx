@@ -15,6 +15,8 @@ import { Stat, StatRow } from '../shared/Stat';
 import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
+import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
+import { MoreOptions } from '../shared/MoreOptions';
 
 const tint = META.limbo.tint;
 
@@ -80,9 +82,12 @@ export default function LimboScreen({ forceTutorial }: { forceTutorial?: boolean
       }
       controls={
         <View>
+          <MoreOptions game="limbo" disabled={busy} summary={`${t('play.target')} ${formatMult(target)} · ${(chance * 100).toFixed(chance < 0.01 ? 2 : 1)} %`}>
+          <TutorialTarget id="limbo:adjust">
           <ControlRow>
             {[1.5, 2, 3, 5, 10, 100].map((x) => <Chip key={x} label={`${x}×`} selected={target === x} tint={tint} onPress={() => applyTarget(x)} />)}
           </ControlRow>
+          </TutorialTarget>
           <View style={[styles.targetField, { backgroundColor: c.surface2 }]}>
             <T variant="caption" color="text3" style={{ fontSize: 10 }}>{t('play.target')}</T>
             <TextInput
@@ -98,8 +103,9 @@ export default function LimboScreen({ forceTutorial }: { forceTutorial?: boolean
             <Stat label={t('play.winChance')} value={`${(chance * 100).toFixed(chance < 0.01 ? 4 : 2)} %`} />
             <Stat label={t('play.potential')} value={formatCoins(payoutFor(bet, target) - bet)} tint={tint} />
           </StatRow>
+          </MoreOptions>
           <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} disabled={busy} tint={tint} />
-          <Button title={t('play.placeBet')} onPress={play} loading={busy} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
+          <Button spot="limbo:play" title={t('play.placeBet')} onPress={play} loading={busy} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
         </View>
       }
     />

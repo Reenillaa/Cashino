@@ -2,12 +2,12 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AnimatedNumber, Avatar, Button, Icon, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
+import { AnimatedNumber, Avatar, Button, ChipLogo, Icon, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
-import { SCREEN_PAD, onPastel, radius } from '@/design/tokens';
+import { SCREEN_PAD, gameArt, onPastel, radius } from '@/design/tokens';
 import { useT } from '@/i18n';
 import { useWallet } from '@/state/wallet';
-import { useProgress } from '@/state/progress';
+import { levelBonus, useProgress } from '@/state/progress';
 import { useSession } from '@/state/session';
 import { levelFromXp, dailyMissions } from '@/engine/meta/progression.ts';
 import { ECONOMY, dailyRewardAmount, nextStreak, utcDay } from '@/engine/meta/economy.ts';
@@ -37,6 +37,8 @@ export default function Home() {
   const xp = useProgress((s) => s.xp);
   const missionProgress = useProgress((s) => s.missionProgress);
   const missionClaimed = useProgress((s) => s.missionClaimed);
+  const stats = useProgress((s) => s.stats);
+  const practiceStats = useProgress((s) => s.practiceStats);
   const lvl = levelFromXp(xp);
   const now = useNow();
   const balance = signedIn ? serverBalance ?? 0 : wallet.balance;
@@ -46,7 +48,11 @@ export default function Home() {
   const missions = dailyMissions(today);
   const low = signedIn ? (serverBalance ?? 0) < ECONOMY.refillThreshold : wallet.canRefill();
   const tileW = (Math.min(width, 640) - SCREEN_PAD * 2 - 12) / 2;
+  // 7 stamps per row: screen − page padding − card padding − 6 gaps.
+  const stampW = Math.floor((Math.min(width, 640) - SCREEN_PAD * 2 - 32 - 6 * 8) / 7);
   const open = (id: string) => router.push(`/game/${id}`);
+  const tried = CATALOG.filter((g) => (stats[g.id]?.rounds ?? 0) + (practiceStats[g.id]?.rounds ?? 0) > 0).map((g) => g.id);
+  const runStreak = wallet.daily.streak > 0 && wallet.daily.lastClaimDay !== null && today - wallet.daily.lastClaimDay <= 1 ? wallet.daily.streak : 0;
 
   const claim = async () => {
     try {
@@ -63,7 +69,10 @@ export default function Home() {
     <Screen>
       {/* Header: wordmark + settings + avatar */}
       <View style={[styles.header, { paddingHorizontal: SCREEN_PAD }]}>
-        <T variant="headline" weight="semibold" style={{ flex: 1, fontSize: 22, letterSpacing: -0.6 }} accessibilityRole="header">cashino</T>
+        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <ChipLogo size={30} id="home" />
+          <T variant="headline" weight="semibold" style={{ fontSize: 22, letterSpacing: -0.6 }} accessibilityRole="header">cashino</T>
+        </View>
         <PressableScale onPress={() => router.push('/settings')} accessibilityLabel={t('settings.title')} style={[styles.round, { backgroundColor: c.surface2 }]}>
           <Icon name="settings" size={20} color={c.text} />
         </PressableScale>
@@ -74,13 +83,23 @@ export default function Home() {
 
       {/* Balance hero */}
       <View style={{ paddingHorizontal: SCREEN_PAD, marginTop: 28 }}>
-        <AnimatedNumber value={balance} variant="hero" accessibilityLabel={`${formatCoins(balance)} ${t('home.chips')}`} />
+        <AnimatedNumber value={balance} variant="hero" weight="semibold" color="win" style={{ letterSpacing: -2.4 }} accessibilityLabel={`${formatCoins(balance)} ${t('home.chips')}`} />
         <PressableScale onPress={() => router.push('/(tabs)/profile')} scaleTo={0.98} feedback="select" style={styles.levelRow} accessibilityLabel={`${t('common.level')} ${lvl.level}`}>
           <T variant="body" color="text2">{t('home.chips')}</T>
           <T variant="body" color="text3">·</T>
           <T variant="body" color="text2">{t('common.level')} {lvl.level}</T>
-          <ProgressBar value={lvl.needed ? lvl.into / lvl.needed : 1} height={4} style={{ width: 64, marginLeft: 4 }} />
+          <ProgressBar value={lvl.needed ? lvl.into / lvl.needed : 1} height={4} tint={c.win} style={{ width: 64, marginLeft: 4 }} />
         </PressableScale>
+        <View style={styles.hookRow}>
+          {runStreak > 0 && (
+            <View style={[styles.pill, { backgroundColor: c.surface1 }]}>
+              <T variant="footnote" weight="semibold">{t('home.streak', { n: runStreak })}</T>
+            </View>
+          )}
+          <T variant="footnote" color="text3" style={{ flexShrink: 1 }}>
+            {t('home.nextLevel', { xp: Math.max(0, lvl.needed - lvl.into), level: lvl.level + 1, bonus: levelBonus(lvl.level + 1) })}
+          </T>
+        </View>
       </View>
 
       {/* Refill when the balance is almost gone */}
@@ -99,14 +118,16 @@ export default function Home() {
         <PressableScale onPress={claim} scaleTo={0.98} style={{ marginHorizontal: SCREEN_PAD, marginTop: 24 }} accessibilityLabel={`${t('home.gift')}: +${dailyRewardAmount(streak)} ${t('common.coins')}`}>
           <View style={styles.gift}>
             <LinearGradient colors={['#FFE6A7', '#FFC6D9']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-            <Text style={{ fontSize: 40 }} accessible={false}>🎁</Text>
-            <View style={{ flex: 1 }}>
-              <T variant="callout" weight="semibold" style={{ color: onPastel.text }}>{t('home.gift')}</T>
-              <T variant="headline" weight="semibold" tabular style={{ color: onPastel.text }}>+{formatCoins(dailyRewardAmount(streak))} {t('common.coins')}</T>
-              <T variant="footnote" style={{ color: onPastel.text2 }}>{t('home.giftDay', { day: streak })}</T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+              <Text style={{ fontSize: 40 }} accessible={false}>🎁</Text>
+              <View style={{ flex: 1 }}>
+                <T variant="callout" weight="semibold" style={{ color: onPastel.text }}>{t('home.gift')}</T>
+                <T variant="headline" weight="semibold" tabular style={{ color: onPastel.text }}>+{formatCoins(dailyRewardAmount(streak))} {t('common.coins')}</T>
+                <T variant="footnote" style={{ color: onPastel.text2 }}>{t('home.giftDay', { day: streak })}</T>
+              </View>
             </View>
             <View style={[styles.giftBtn, { backgroundColor: onPastel.text }]}>
-              <T variant="footnote" weight="semibold" style={{ color: '#fff' }}>{t('home.claim')}</T>
+              <T variant="callout" weight="semibold" style={{ color: '#fff' }}>{t('home.claim')}</T>
             </View>
           </View>
         </PressableScale>
@@ -127,6 +148,25 @@ export default function Home() {
           {CATALOG.map((g, i) => (
             <GameTile key={g.id} id={g.id} index={i + 2} style={{ width: tileW }} onPress={() => open(g.id)} />
           ))}
+        </View>
+      </Section>
+
+      {/* Collection: try every game (an honest exploration goal, no luck involved) */}
+      <Section title={t('home.album')} action={<T variant="footnote" weight="semibold" color={tried.length === 14 ? 'win' : 'text2'}>{tried.length}/14</T>}>
+        <View style={[styles.album, { backgroundColor: c.surface1, marginHorizontal: SCREEN_PAD }]}>
+          <View style={styles.albumGrid}>
+            {CATALOG.map((g) => {
+              const got = tried.includes(g.id);
+              return (
+                <PressableScale key={g.id} onPress={() => open(g.id)} scaleTo={0.9} feedback="select" accessibilityLabel={`${t(`games.names.${g.id}`)}${got ? ' ✓' : ''}`} style={[styles.stamp, { width: stampW, backgroundColor: got ? c.surface3 : c.surface2 }]}>
+                  <Text style={{ fontSize: 24, opacity: got ? 1 : 0.28 }} accessible={false}>{gameArt[g.id].emoji}</Text>
+                  {got ? <View style={[styles.check, { backgroundColor: c.win }]} /> : null}
+                </PressableScale>
+              );
+            })}
+          </View>
+          <ProgressBar value={tried.length / 14} height={5} tint={c.win} style={{ marginTop: 14 }} />
+          <T variant="footnote" color="text2" style={{ marginTop: 8 }}>{tried.length === 14 ? t('home.albumDone') : t('home.albumBody', { n: tried.length })}</T>
         </View>
       </Section>
 
@@ -163,8 +203,14 @@ const styles = StyleSheet.create({
   levelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2, alignSelf: 'flex-start' },
   notice: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg, marginTop: 20 },
   noticeEmoji: { fontSize: 26 },
-  gift: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18, borderRadius: radius.xl, overflow: 'hidden' },
-  giftBtn: { height: 40, paddingHorizontal: 16, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  gift: { gap: 14, padding: 18, borderRadius: radius.xl, overflow: 'hidden' },
+  giftBtn: { height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  hookRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, flexWrap: 'wrap' },
+  pill: { paddingHorizontal: 12, height: 30, borderRadius: 15, justifyContent: 'center' },
+  album: { borderRadius: radius.lg, padding: 16 },
+  albumGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  stamp: { aspectRatio: 1, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  check: { position: 'absolute', right: 3, top: 3, width: 8, height: 8, borderRadius: 4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: radius.lg },
 });

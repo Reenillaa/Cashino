@@ -18,3 +18,4 @@ export * from './Toasts';
 export * from './Empty';
 export * from './Icon';
 export * from './GameGlyph';
+export * from './Logo';

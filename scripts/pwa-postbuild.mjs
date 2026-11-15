@@ -42,6 +42,13 @@ const tags = [
   '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">',
   `<meta name="apple-mobile-web-app-title" content="${NAME}">`,
   `<meta name="theme-color" content="${THEME}">`,
+  // Native feel on iPhone: no grey tap flash, no long-press callouts/selection (inputs still editable).
+  // Home-screen apps with a translucent status bar size 100% as (screen − status bar), leaving a black
+  // strip at the bottom: in standalone mode fill the real screen instead.
+  `<style id="cashino-native">html,body{background:${THEME};overscroll-behavior:none}` +
+    'body{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}' +
+    'input,textarea{-webkit-user-select:auto;user-select:auto}' +
+    '@media all and (display-mode: standalone){html,body,#root{height:100vh}}</style>',
 ].join('');
 html = html.replace(/<meta name="viewport"[^>]*>/, '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no">');
 if (!html.includes('rel="manifest"')) html = html.replace('</head>', `${tags}</head>`);

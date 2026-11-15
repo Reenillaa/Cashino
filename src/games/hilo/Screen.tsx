@@ -17,6 +17,7 @@ import { useBet, useGameHistory, usePlayErrors, useResult } from '../shared/hook
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
+import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 
 const tint = META.hilo.tint;
 interface HView { bet: number; current: string; status: string; multiplier: number; steps: { card: string; guess: string; probability: number; correct: boolean }[] }
@@ -88,27 +89,31 @@ export default function HiloScreen({ forceTutorial }: { forceTutorial?: boolean 
       }
       controls={
         <View>
-          <StatRow>
-            <Stat label={t('play.multiplierNow')} value={correct ? formatMult(view!.multiplier) : '—'} tint={tint} />
-            <Stat label={t('play.streak')} value={`${correct}`} />
-          </StatRow>
+          {active && (
+            <StatRow>
+              <Stat label={t('play.multiplierNow')} value={correct ? formatMult(view!.multiplier) : '—'} tint={tint} />
+              <Stat label={t('play.streak')} value={`${correct}`} />
+            </StatRow>
+          )}
           {active && current ? (
             <>
+              <TutorialTarget id="hilo:guess">
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 {guesses.map((g) => {
                   const p = guessProbability(current, g);
                   return <Button key={g} kind="secondary" title={labelFor(g)} subtitle={`${(p * 100).toFixed(1)} % · ${formatMult((view!.multiplier || 1) * (correct ? 1 : 0.99) / p)}`} onPress={() => run('guess', { guess: g })} disabled={busy} style={{ flex: 1 }} size="md" />;
                 })}
               </View>
+              </TutorialTarget>
               <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
                 <Button title={t('play.skipCard')} kind="ghost" size="md" onPress={() => run('skip')} disabled={busy} style={{ flex: 1 }} />
-                <Button title={t('common.cashout')} subtitle={correct ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} ${t('common.coins')}` : undefined} onPress={() => run('cashout')} disabled={!correct || busy} style={{ flex: 1.4 }} />
+                <Button spot="hilo:end" title={t('common.cashout')} subtitle={correct ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} ${t('common.coins')}` : undefined} onPress={() => run('cashout')} disabled={!correct || busy} style={{ flex: 1.4 }} />
               </View>
             </>
           ) : (
             <>
               <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
-              <Button title={t('play.placeBet')} onPress={() => run('start', { bet })} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
+              <Button spot="hilo:start" title={t('play.placeBet')} onPress={() => run('start', { bet })} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
             </>
           )}
         </View>

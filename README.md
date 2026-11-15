@@ -12,8 +12,8 @@ Plataforma móvil premium de **14 juegos de casino y azar con moneda 100 % virtu
 ## Qué incluye
 - **14 juegos jugables**: Póker (Texas Hold'em NL vs bots y online), Blackjack, Cohete (crash), Dados, Minas, Plinko, Cruza la calle (estilo chicken-road), Ruleta europea, Limbo, Cara o cruz, Bacará, Mayor o menor, Keno y Sic Bo.
 - Resultados **calculados antes de animar** y **verificables** (HMAC-SHA256, semillas servidor/cliente/nonce).
-- **Tutorial interactivo** por juego (se hace en el juego real, en modo práctica) que se recuerda (`<juego>_tutorial_completed`).
-- **Academy**: 42 lecciones ES/EN con cuestionarios, 8 simuladores, insignias y nivel de aprendizaje. Sin promesas de ganar.
+- **Guía opcional** por juego (botón «?»): oscurece la pantalla y señala el botón exacto que tocar, en la sala de práctica; se recuerda (`<juego>_tutorial_completed`).
+- **Academy**: por juego, el modelo explicado con gráficos (probabilidades, lo que devuelve cada apuesta, «de cada 100 fichas», fórmula y ejemplo) y un simulador que juega miles de rondas reales con el motor; además 42 lecciones ES/EN con cuestionarios y 8 simuladores avanzados. Sin promesas de ganar.
 - **Salas por juego** con carrusel animado: 🏠 Práctica (gratis), ☕️ El Bar 20–100, 🎩 El Club 200–1.000 y 💎 Sala VIP 2.000–10.000 (límites validados también en servidor).
 - **Economía virtual** simulada: saldo inicial 1.000, regalo diario sin presión, recargas gratuitas, práctica ilimitada.
 - **Progresión**: niveles, XP con topes diarios, logros, misiones diarias/semanales, temporadas de 56 días.

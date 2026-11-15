@@ -18,6 +18,7 @@ import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../share
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
+import { MoreOptions } from '../shared/MoreOptions';
 
 const tint = META.crossing.tint;
 const LANE_W = 84;
@@ -187,23 +188,24 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
             </StatRow>
           ) : (
             <>
-              <Segmented
-                size="sm"
-                value={difficulty}
-                onChange={setDifficulty}
-                options={[{ value: 'easy', label: t('play.easy') }, { value: 'medium', label: t('play.medium') }, { value: 'hard', label: t('play.hard') }, { value: 'extreme', label: t('play.extreme') }]}
-                style={{ marginBottom: 10 }}
-              />
+              <MoreOptions game="crossing" summary={`${t('play.difficulty')}: ${t(`play.${difficulty}`).toLowerCase()}`}>
+                <Segmented
+                  size="sm"
+                  value={difficulty}
+                  onChange={setDifficulty}
+                  options={[{ value: 'easy', label: t('play.easy') }, { value: 'medium', label: t('play.medium') }, { value: 'hard', label: t('play.hard') }, { value: 'extreme', label: t('play.extreme') }]}
+                />
+              </MoreOptions>
               <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
             </>
           )}
           {active ? (
             <View style={{ flexDirection: 'row', gap: 10 }}>
-              <Button title={t('play.go')} kind="secondary" onPress={go} loading={moving} style={{ flex: 1 }} />
-              <Button title={t('common.cashout')} subtitle={lane ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} ${t('common.coins')}` : undefined} onPress={cashout} disabled={lane === 0 || moving} style={{ flex: 1.4 }} />
+              <Button spot="crossing:advance" title={t('play.go')} kind="secondary" onPress={go} loading={moving} style={{ flex: 1 }} />
+              <Button spot="crossing:end" title={t('common.cashout')} subtitle={lane ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} ${t('common.coins')}` : undefined} onPress={cashout} disabled={lane === 0 || moving} style={{ flex: 1.4 }} />
             </View>
           ) : (
-            <Button title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
+            <Button spot="crossing:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
           )}
         </View>
       }

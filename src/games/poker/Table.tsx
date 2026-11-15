@@ -8,6 +8,7 @@ import { cardCode } from '@/engine/cards/cards.ts';
 import { Avatar, Button, Glass, PlayingCard, Slider, T, Tag, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
+import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 
 /** Shared table view for offline (bots) and online play. `heroSeat` is the viewer's seat. */
 export function PokerTableView({
@@ -126,6 +127,7 @@ export function PokerTableView({
         </Glass>
       </View>
       {/* Actions */}
+      <TutorialTarget id="poker:act">
       <View style={styles.actions}>
         {legal ? (
           <>
@@ -166,6 +168,7 @@ export function PokerTableView({
           </T>
         )}
       </View>
+      </TutorialTarget>
     </View>
   );
 }

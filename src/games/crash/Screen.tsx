@@ -16,6 +16,7 @@ import { useBet, useGameHistory, usePlayErrors, useResult } from '../shared/hook
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
+import { MoreOptions } from '../shared/MoreOptions';
 
 const tint = META.crash.tint;
 
@@ -203,7 +204,7 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
         <View>
           {!flying && (
             <>
-              <T variant="caption" color="text3" style={{ marginBottom: 6 }}>{t('play.autoCashout')}</T>
+              <MoreOptions game="crash" summary={`${t('play.autoCashout')}: ${auto ? formatMult(auto) : t('common.off').toLowerCase()}`}>
               <ControlRow>
                 <Chip label={t('common.off')} selected={auto === null} onPress={() => { setAuto(null); setAutoText(''); }} />
                 {[1.5, 2, 3, 5, 10].map((x) => <Chip key={x} label={`${x}×`} selected={auto === x} tint={tint} onPress={() => { setAuto(x); setAutoText(String(x)); }} />)}
@@ -223,13 +224,14 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
                   />
                 </View>
               </ControlRow>
+              </MoreOptions>
               <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
             </>
           )}
           {flying ? (
-            <Button title={t('common.cashout')} subtitle={`${formatCoins(payoutFor(roundBet, Math.floor(mult * 100) / 100))} ${t('common.coins')}`} onPress={cashout} />
+            <Button spot="crash:end" title={t('common.cashout')} subtitle={`${formatCoins(payoutFor(roundBet, Math.floor(mult * 100) / 100))} ${t('common.coins')}`} onPress={cashout} />
           ) : (
-            <Button title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
+            <Button spot="crash:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
           )}
         </View>
       }

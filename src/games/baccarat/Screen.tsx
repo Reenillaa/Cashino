@@ -15,6 +15,7 @@ import { useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks'
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
+import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 
 const tint = META.baccarat.tint;
 interface BView { player: string[]; banker: string[]; playerTotal: number; bankerTotal: number; winner: 'player' | 'banker' | 'tie'; order: ('player' | 'banker')[] }
@@ -98,10 +99,12 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
             {spot('tie', t('play.tie'), `${BACCARAT_PAYS.tie}:1`)}
             {spot('bankerPair', t('play.bankerPair'), '11:1')}
           </View>
+          <TutorialTarget id="bac:place">
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
             {spot('player', t('play.player'), '1:1')}
             {spot('banker', t('play.banker'), '0.95:1')}
           </View>
+          </TutorialTarget>
           <ResultBanner result={result} />
         </View>
       }
@@ -112,7 +115,7 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
             <T variant="footnote" color="text3" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular color={total && total < s.room.min ? 'warn' : 'text'}>{formatCoins(total)}</T> / {formatCoins(s.room.min)}–{formatCoins(s.room.max)}</T>
             <Button title={t('common.clear')} kind="ghost" size="sm" onPress={() => setBets({})} disabled={!total || busy} />
           </View>
-          <Button title={t('play.deal')} onPress={deal} loading={busy} disabled={!total || total > s.balance || total < s.room.min} />
+          <Button spot="bac:deal" title={t('play.deal')} onPress={deal} loading={busy} disabled={!total || total > s.balance || total < s.room.min} />
         </View>
       }
     />

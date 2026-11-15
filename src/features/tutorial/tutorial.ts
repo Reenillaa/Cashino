@@ -8,6 +8,8 @@ export interface TutorialStep {
   body: Bi;
   /** For "do" steps: the game event that completes the step (emitted by the real game UI). */
   event?: string;
+  /** Control to highlight (TutorialTarget id). Defaults to `event` for "do" steps; null = none. */
+  target?: string | null;
   options?: Bi[];
   answer?: number;
   explain?: Bi;

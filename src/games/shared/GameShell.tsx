@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { GameId } from '@/engine/games/types.ts';
-import Animated, { Easing, FadeIn, FadeInDown } from 'react-native-reanimated';
+import Animated, { Easing, FadeIn, FadeInDown, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { AnimatedNumber, Icon, IconButton, PressableScale, Sheet, T, formatCoins } from '@/design/components';
 import { useTheme, alpha } from '@/design/theme';
 import { gameArt, motion, roomArt } from '@/design/tokens';
@@ -19,6 +19,7 @@ import { RoomPicker } from './RoomPicker';
 import { TutorialCoach, useTutorialAutostart } from '@/features/tutorial/TutorialCoach';
 import { useTutorialRuntime } from '@/features/tutorial/tutorial';
 import { FairnessPanel } from './FairnessPanel';
+import { LogoCurtain } from '@/features/brand/Splash';
 import { useWallet } from '@/state/wallet';
 
 /**
@@ -60,8 +61,9 @@ export function GameShell({
   const tutorialActive = useTutorialRuntime((s) => s.game === game);
   const room = useRoom(game);
   const chooseRoom = useRooms((s) => s.choose);
-  // Every visit opens on the room carousel, unless a round is still running or the first-game tutorial starts.
-  const [picked, setPicked] = useState(() => !!locked || !!forceTutorial || !useLearning.getState().isTutorialDone(game));
+  // Every visit opens on the room carousel, unless a round is still running or a guide was requested.
+  const [picked, setPicked] = useState(() => !!locked || !!forceTutorial);
+  const tutorialDone = useLearning((s) => s.isTutorialDone(game));
   // When the tutorial ends (finished or skipped) the player chooses a real room next.
   const [wasTutorial, setWasTutorial] = useState(tutorialActive);
   if (wasTutorial !== tutorialActive) {
@@ -72,6 +74,11 @@ export function GameShell({
   useTutorialAutostart(game, !!forceTutorial);
   const rules = RULES[game];
   const enter = reduceMotion ? undefined : FadeInDown.duration(motion.slow).easing(Easing.bezier(...motion.easeEnter));
+  const startGuide = () => {
+    setSheet(null);
+    setPicked(true);
+    useTutorialRuntime.getState().start(game);
+  };
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <LinearGradient pointerEvents="none" colors={[alpha(art.colors[1], 0.13), alpha(art.colors[0], 0.04), alpha(art.colors[0], 0)]} locations={[0, 0.55, 1]} style={[StyleSheet.absoluteFill, { height: 420 }]} />
@@ -84,11 +91,11 @@ export function GameShell({
             <T variant="callout" weight="semibold">{t(`games.names.${game}`)}</T>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4 }}>
-            <AnimatedNumber value={balance} variant="footnote" weight="medium" color="text2" />
+            <AnimatedNumber value={balance} variant="footnote" weight="semibold" color={mode === 'practice' ? 'text2' : 'win'} />
             <T variant="footnote" color="text3">{mode === 'practice' ? `· ${t('common.practice')}` : t('common.coins')}</T>
           </View>
         </View>
-        <IconButton icon="info" onPress={() => setSheet('rules')} label={t('common.rules')} />
+        <HelpButton onPress={() => setSheet('rules')} label={t('tutorial.help')} hint={!tutorialDone && !tutorialActive} />
       </View>
       {showPicker ? (
         <View style={{ flex: 1, paddingBottom: Math.max(insets.bottom, 10) }}>
@@ -125,9 +132,6 @@ export function GameShell({
               <T variant="footnote" color="text3">{t('common.practiceBanner')} · {t('common.reset')}</T>
             </PressableScale>
           )}
-          <View style={{ marginTop: 10 }}>
-            <TutorialCoach game={game} />
-          </View>
           {history ? <View style={{ marginTop: 10 }}>{history}</View> : null}
           {/* Stage */}
           <Animated.View style={[{ flex: 1, marginTop: 8 }, stageStyle]} entering={enter}>
@@ -145,7 +149,21 @@ export function GameShell({
           )}
         </Animated.View>
       )}
-      <Sheet visible={sheet === 'rules'} onClose={() => setSheet(null)} title={`${t('common.rules')} · ${t(`games.names.${game}`)}`}>
+      {/* Branded curtain on entry, then the guided tutorial overlay (coach marks) */}
+      <LogoCurtain />
+      <TutorialCoach game={game} />
+      <Sheet visible={sheet === 'rules'} onClose={() => setSheet(null)} title={t('tutorial.help')}>
+        {!locked && (
+          <PressableScale onPress={startGuide} scaleTo={0.98} accessibilityLabel={t('tutorial.guided')} style={[styles.guide, { backgroundColor: c.surface2 }]}>
+            <Text style={{ fontSize: 34 }} accessible={false}>🎓</Text>
+            <View style={{ flex: 1 }}>
+              <T variant="headline" weight="semibold">{t('tutorial.guided')}</T>
+              <T variant="footnote" color="text2" style={{ marginTop: 2 }}>{t('tutorial.guidedBody')}</T>
+            </View>
+            <Icon name="chevronRight" size={18} color={c.text3} />
+          </PressableScale>
+        )}
+        <T variant="headline" weight="medium" style={{ marginTop: 22, marginBottom: 6 }}>{t('tutorial.rulesTitle')}</T>
         <T variant="body" color="text2">{tr(rules.summary, lang)}</T>
         <View style={{ gap: 10, marginTop: 16 }}>
           {rules.rules.map((r, i) => (
@@ -170,17 +188,6 @@ export function GameShell({
           <PressableScale
             onPress={() => {
               setSheet(null);
-              useTutorialRuntime.getState().start(game);
-            }}
-            style={[styles.linkBtn, { backgroundColor: c.surface2 }]}
-            accessibilityLabel={t('tutorial.replay')}
-          >
-            <Icon name="sparkles" size={16} color={c.text} />
-            <T variant="footnote" weight="semibold">{t('tutorial.replay')}</T>
-          </PressableScale>
-          <PressableScale
-            onPress={() => {
-              setSheet(null);
               router.push(`/academy/${game}`);
             }}
             style={[styles.linkBtn, { backgroundColor: c.surface2 }]}
@@ -192,7 +199,7 @@ export function GameShell({
         </View>
         <PressableScale onPress={() => setSheet('fair')} style={[styles.linkBtn, { backgroundColor: c.surface2, marginTop: 10, flex: 0 }]} accessibilityLabel={t('play.fairness')}>
           <Icon name="shield" size={16} color={c.text} />
-          <T variant="footnote" weight="semibold">{t('play.fairness')}</T>
+          <T variant="footnote" weight="semibold">{t('tutorial.fairness')}</T>
         </PressableScale>
         <T variant="footnote" color="text3" style={{ marginTop: 20 }}>{t('common.noMoneyDisclaimer')}</T>
       </Sheet>
@@ -215,7 +222,27 @@ export function ControlRow({ children }: { children: React.ReactNode }) {
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 12 },
   roomChip: { height: 36, borderRadius: 18, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 7 },
-  panel: { borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: 16, paddingTop: 16 },
+  panel: { borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: 16, paddingTop: 14 },
   oddsRow: { flexDirection: 'row', paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, gap: 12 },
-  linkBtn: { flex: 1, height: 44, borderRadius: 14, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center' },
+  linkBtn: { flex: 1, height: 48, borderRadius: 24, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center' },
+  guide: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 22 },
+  help: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  helpDot: { position: 'absolute', top: 2, right: 2, width: 12, height: 12, borderRadius: 6, borderWidth: 2 },
 });
+
+/** "?" in the top-right corner. Until the player has seen the guide once, a small green dot breathes on it. */
+function HelpButton({ onPress, label, hint }: { onPress: () => void; label: string; hint: boolean }) {
+  const { c, reduceMotion } = useTheme();
+  const p = useSharedValue(0);
+  useEffect(() => {
+    p.set(0);
+    if (hint && !reduceMotion) p.set(withRepeat(withSequence(withTiming(1, { duration: 900 }), withTiming(0, { duration: 900 })), -1));
+  }, [hint, reduceMotion, p]);
+  const dot = useAnimatedStyle(() => ({ transform: [{ scale: 1 + 0.25 * p.value }], opacity: 1 - 0.3 * p.value }));
+  return (
+    <PressableScale onPress={onPress} accessibilityLabel={label} hitSlop={8} style={[styles.help, { backgroundColor: c.surface2 }]}>
+      <T variant="headline" weight="semibold" style={{ fontSize: 21, lineHeight: 26 }}>?</T>
+      {hint ? <Animated.View style={[styles.helpDot, { backgroundColor: c.win, borderColor: c.bg }, dot]} /> : null}
+    </PressableScale>
+  );
+}

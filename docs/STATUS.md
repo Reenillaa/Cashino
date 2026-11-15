@@ -54,6 +54,17 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - **Sonidos nuevos** (`scripts/generate-sounds.mjs` v2): síntesis modal y ruido filtrado con reverb ligera — fichas de arcilla, cartas sobre tapete, marimba para ganar, monedas al retirar, dados de madera; nada de pitidos.
 - Skill **REA** (`github.com/morluto/rea`): leída. Es una herramienta MCP de ingeniería inversa de binarios (Ghidra/IDA/Hopper), no una guía de diseño. No se ha usado: aplicarla a Offsuit exigiría descifrar su app de la App Store (DRM) y copiar software propietario, cosas que su propio aviso legal excluye. El estilo se ha tomado de las capturas públicas.
 
+## Cambios de la ronda 4 (probado en iPhone real)
+- **Franja negra abajo en el iPhone** (app añadida a la pantalla de inicio): Safari mide mal la altura con la barra de estado translúcida; en modo app se usa la altura real de la pantalla. También sin destello gris al tocar ni menú al mantener pulsado.
+- **Tutorial opcional**: ya no salta solo. Botón **«?»** arriba a la derecha → «Enséñame paso a paso», reglas y comprobación de resultados. Un punto verde avisa hasta que lo ves una vez.
+- **Guía que señala**: oscurece la pantalla y rodea con un anillo el control exacto que hay que tocar en cada paso (Repartir, Pedir/Plantarse, la barra del Dados, la cuadrícula de Minas…), con una burbuja pequeña. Funciona en los 14 juegos.
+- **Panel de abajo más ligero en todos los juegos**: apuesta en una sola fila (− cantidad +), ajustes secundarios (riesgo, minas, filas, objetivo, retiro automático…) plegados en una línea «⚙️ 3 minas · Cambiar», datos más pequeños y solo durante la ronda. Blackjack con las 4 acciones y el consejo en dos filas; cartas más pequeñas en pantallas bajas.
+- **Logo animado**: animación de arranque (la ficha rueda y aparece «cashino») y una cortinilla con la ficha girando al entrar en cada juego.
+- **Saldo** del inicio en verde y más grueso; logo en la cabecera.
+- **Academy**: cada juego tiene ahora su página con *la idea*, *lo que puede pasar* (probabilidad exacta y lo que devuelve, en barras), *de cada 100 fichas* (cuántas vuelven y cuántas se queda la casa), *cómo se calcula*, *un ejemplo con 20 fichas* y un **simulador que juega miles de rondas de verdad** con el mismo motor del juego (varios jugadores, línea teórica y conclusión en palabras sencillas). Todos los números salen del motor o de valores publicados ya verificados en los tests.
+- **Ganchos sanos**: racha de días 🔥, «te faltan X XP para el nivel N y su regalo», colección de los 14 juegos y celebración con confeti al subir de nivel. Se ha corregido que **el regalo por subir de nivel (25 × nivel) nunca se pagaba**.
+- **Lo que no se ha hecho a propósito**: casi-aciertos simulados, pérdidas disfrazadas de premio, cuentas atrás de presión o celebrar las rachas de pérdidas. Son trucos de enganche de casino y van contra el encargo original (economía sin mecánicas compulsivas), y más pensando en personas mayores.
+
 ## Decisiones técnicas registradas
 - Motor puro compartido app ↔ Edge Functions (`npm run sync:engine`).
 - Sin Skia en v1 (SVG + Reanimated bastan y funcionan en web/CI).

@@ -15,6 +15,7 @@ import { setLanguage } from '@/i18n';
 import { useSettings } from '@/state/settings';
 import { useTheme } from '@/design/theme';
 import { Toasts } from '@/design/components';
+import { Splash } from '@/features/brand/Splash';
 import { syncMusic } from '@/services/audio';
 import { useAuthListener } from '@/features/auth/useAuthListener';
 import { useBreakReminder } from '@/features/wellbeing/useBreakReminder';
@@ -47,6 +48,7 @@ export default function RootLayout() {
           <Stack.Screen name="rules/[id]" options={{ presentation: 'modal' }} />
         </Stack>
         <Toasts />
+        <Splash />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

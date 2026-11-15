@@ -15,6 +15,7 @@ import { useBet, useGameHistory, usePlayErrors } from '../shared/hooks';
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
+import { MoreOptions } from '../shared/MoreOptions';
 
 const tint = META.plinko.tint;
 const ROW_MS = 120;
@@ -150,6 +151,7 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
       }
       controls={
         <View>
+          <MoreOptions game="plinko" disabled={inFlight} summary={`${t('play.risk')} ${(risk === 'low' ? t('play.low') : risk === 'medium' ? t('play.medium') : t('play.high')).toLowerCase()} · ${rows} ${t('play.rows').toLowerCase()}`}>
           <Segmented
             size="sm"
             value={risk}
@@ -164,8 +166,9 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
               <Slider value={rows} min={8} max={16} step={1} onChange={setRows} tint={tint} accessibilityLabel={t('play.rows')} />
             </View>
           </View>
+          </MoreOptions>
           <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
-          <Button title={t('play.drop')} onPress={drop} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
+          <Button spot="plinko:drop" title={t('play.drop')} onPress={drop} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
         </View>
       }
     />

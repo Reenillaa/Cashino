@@ -18,6 +18,7 @@ import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../share
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
+import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 
 const tint = META.coinflip.tint;
 
@@ -144,22 +145,24 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
       }
       controls={
         <View>
-          <StatRow>
+          {active && <StatRow>
             <Stat label={t('play.streak')} value={`${wins}`} />
             <Stat label={t('play.multiplierNow')} value={wins ? formatMult(streakMultiplier(wins)) : '—'} tint={tint} />
             <Stat label={t('play.nextMultiplier')} value={formatMult(streakMultiplier(wins + 1))} />
-          </StatRow>
+          </StatRow>}
           {!active ? (
             <>
               <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
-              <Button title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
+              <Button spot="coin:start" title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
             </>
           ) : (
             <>
+              <TutorialTarget id="coin:call">
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 <Button title={t('play.heads')} kind="secondary" onPress={() => call('heads')} disabled={flipping} style={{ flex: 1 }} />
                 <Button title={t('play.tails')} kind="secondary" onPress={() => call('tails')} disabled={flipping} style={{ flex: 1 }} />
               </View>
+              </TutorialTarget>
               <Button
                 title={t('common.cashout')}
                 subtitle={wins ? `${formatCoins(payoutFor(roundBet, streakMultiplier(wins)))} ${t('common.coins')}` : undefined}

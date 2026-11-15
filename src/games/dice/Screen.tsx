@@ -16,6 +16,8 @@ import { Stat, StatRow } from '../shared/Stat';
 import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
+import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
+import { MoreOptions } from '../shared/MoreOptions';
 
 const tint = META.dice.tint;
 
@@ -89,6 +91,7 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
       }
       controls={
         <View>
+          <MoreOptions game="dice" disabled={rolling} summary={`${mode === 'under' ? t('play.rollUnder') : t('play.rollOver')} ${target.toFixed(2)} · ${formatMult(mult)} · ${(chance * 100).toFixed(0)} %`}>
           <Segmented
             size="sm"
             value={mode}
@@ -99,6 +102,7 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
             options={[{ value: 'under', label: t('play.rollUnder') }, { value: 'over', label: t('play.rollOver') }]}
             style={{ marginBottom: 6 }}
           />
+          <TutorialTarget id="dice:adjust">
           <Slider
             value={target}
             min={2}
@@ -110,13 +114,15 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
             onChange={setTarget}
             onEnd={() => tutorialEvent('dice', 'dice:adjust')}
           />
+          </TutorialTarget>
           <StatRow>
             <Stat label={t('common.multiplier')} value={formatMult(mult)} tint={tint} />
             <Stat label={t('play.winChance')} value={`${(chance * 100).toFixed(2)} %`} />
             <Stat label={t('play.potential')} value={formatCoins(payoutFor(bet, mult) - bet)} />
           </StatRow>
+          </MoreOptions>
           <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} disabled={rolling} tint={tint} />
-          <Button title={t('play.roll')} onPress={play} loading={rolling} disabled={!valid || (bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
+          <Button spot="dice:roll" title={t('play.roll')} onPress={play} loading={rolling} disabled={!valid || (bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 10 }} />
         </View>
       }
     />

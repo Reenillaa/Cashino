@@ -16,6 +16,7 @@ import { useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks'
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
+import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 
 const tint = META.sicbo.tint;
 const PIPS: Record<number, [number, number][]> = {
@@ -112,6 +113,7 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
             <View style={styles.dice}>
               {dice.map((d, i) => <RollingDie key={i} value={d} rolling={rolling} delay={i * 13} />)}
             </View>
+            <TutorialTarget id="sicbo:place">
             <View style={styles.row}>
               {cell({ kind: 'small' }, { label: t('play.small'), sub: '4–10 · 1:1' })}
               {cell({ kind: 'odd' }, { label: t('play.odd'), sub: '1:1' })}
@@ -119,6 +121,7 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
               {cell({ kind: 'even' }, { label: t('play.even'), sub: '1:1' })}
               {cell({ kind: 'big' }, { label: t('play.big'), sub: '11–17 · 1:1' })}
             </View>
+            </TutorialTarget>
             <T variant="caption" color="text3" style={{ marginTop: 6 }}>{t('play.total')}</T>
             <View style={[styles.row, { flexWrap: 'wrap' }]}>
               {Object.keys(TOTAL_PAYS).map((k) => cell({ kind: 'total', total: Number(k) }, { label: k, sub: `${TOTAL_PAYS[Number(k)]}:1`, flex: 0 }))}
@@ -144,7 +147,7 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
             <T variant="footnote" color="text3" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular color={total && total < s.room.min ? 'warn' : 'text'}>{formatCoins(total)}</T> / {formatCoins(s.room.min)}–{formatCoins(s.room.max)}</T>
             <Button title={t('common.clear')} kind="ghost" size="sm" onPress={() => setBets({})} disabled={!total || rolling} />
           </View>
-          <Button title={t('play.roll')} onPress={roll} loading={rolling} disabled={!total || total > s.balance || total < s.room.min} />
+          <Button spot="sicbo:roll" title={t('play.roll')} onPress={roll} loading={rolling} disabled={!total || total > s.balance || total < s.room.min} />
         </View>
       }
     />
