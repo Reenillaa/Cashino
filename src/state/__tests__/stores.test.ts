@@ -14,16 +14,16 @@ describe('wallet store', () => {
   });
   it('daily gift once per day and refill only when nearly empty', () => {
     const now = Date.UTC(2026, 10, 15, 12);
-    expect(useWallet.getState().claimDaily(now)).toBe(500);
+    expect(useWallet.getState().claimDaily(now)).toBe(ECONOMY.dailyRewards[0]);
     expect(useWallet.getState().canClaimDaily(now)).toBe(false);
     expect(useWallet.getState().canRefill(now)).toBe(false);
-    useWallet.setState({ balance: 10 });
-    expect(useWallet.getState().refillNow(now)).toBe(ECONOMY.refillAmount - 10);
+    useWallet.setState({ balance: 5 });
+    expect(useWallet.getState().refillNow(now)).toBe(ECONOMY.refillAmount - 5);
     expect(useWallet.getState().balance).toBe(ECONOMY.refillAmount);
   });
   it('practice chips are separate from coins', () => {
-    useWallet.getState().practiceDebit(500);
-    expect(useWallet.getState().practice).toBe(ECONOMY.practiceBalance - 500);
+    useWallet.getState().practiceDebit(300);
+    expect(useWallet.getState().practice).toBe(ECONOMY.practiceBalance - 300);
     expect(useWallet.getState().balance).toBe(ECONOMY.startingBalance);
   });
 });

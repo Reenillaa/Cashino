@@ -121,8 +121,8 @@ export const font = {
   regular: 'Geist_400Regular',
   medium: 'Geist_500Medium',
   semibold: 'Geist_600SemiBold',
-  bold: 'Geist_700Bold',
-  mono: 'GeistMono_400Regular',
+  bold: 'Geist_600SemiBold',
+  mono: 'GeistMono_500Medium',
   monoMedium: 'GeistMono_500Medium',
 } as const;
 
@@ -139,11 +139,23 @@ export const type = {
 } as const;
 export type TypeVariant = keyof typeof type;
 
+/**
+ * Motion (Taste skill rules): transform/opacity only, one ease-out curve for UI, a softer one for
+ * entrances, critically-damped springs (no bounce, no overshoot). Durations in ms.
+ */
 export const motion = {
-  snappy: { damping: 22, stiffness: 320, mass: 1 },
-  smooth: { damping: 26, stiffness: 180, mass: 1 },
-  bouncy: { damping: 12, stiffness: 180, mass: 1 },
-  fast: 140,
-  base: 240,
+  snappy: { damping: 38, stiffness: 340, mass: 1 },
+  smooth: { damping: 30, stiffness: 220, mass: 1 },
+  /** Kept for celebratory moments only; still never overshoots. */
+  bouncy: { damping: 26, stiffness: 170, mass: 1 },
+  press: 90,
+  hoverIn: 150,
+  hoverOut: 120,
+  fast: 120,
+  base: 200,
+  slide: 240,
   slow: 420,
+  enter: 1100,
+  ease: [0.2, 0.8, 0.2, 1] as const,
+  easeEnter: [0.22, 1, 0.36, 1] as const,
 } as const;

@@ -75,7 +75,7 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
   const { t } = useT();
   const { c, reduceMotion } = useTheme();
   const s = useGameSession('plinko');
-  const [bet, setBet] = useBet('plinko');
+  const [bet, setBet] = useBet('plinko', s.room);
   const [rows, setRows] = useState(12);
   const [risk, setRisk] = useState<PlinkoRisk>('medium');
   const [balls, setBalls] = useState<BallSpec[]>([]);
@@ -164,8 +164,8 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
               <Slider value={rows} min={8} max={16} step={1} onChange={setRows} tint={tint} accessibilityLabel={t('play.rows')} />
             </View>
           </View>
-          <BetInput value={bet} onChange={setBet} balance={s.balance} tint={tint} />
-          <Button title={t('play.drop')} onPress={drop} disabled={bet > s.balance} style={{ marginTop: 12 }} />
+          <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
+          <Button title={t('play.drop')} onPress={drop} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
         </View>
       }
     />

@@ -25,7 +25,7 @@ export default function HiloScreen({ forceTutorial }: { forceTutorial?: boolean 
   const { t } = useT();
   const { c } = useTheme();
   const s = useGameSession('hilo');
-  const [bet, setBet] = useBet('hilo');
+  const [bet, setBet] = useBet('hilo', s.room);
   const [view, setView] = useState<HView | null>((s.active?.view as unknown as HView) ?? null);
   const [busy, setBusy] = useState(false);
   const { result, show } = useResult();
@@ -107,8 +107,8 @@ export default function HiloScreen({ forceTutorial }: { forceTutorial?: boolean 
             </>
           ) : (
             <>
-              <BetInput value={bet} onChange={setBet} balance={s.balance} tint={tint} />
-              <Button title={t('play.placeBet')} onPress={() => run('start', { bet })} disabled={bet > s.balance} style={{ marginTop: 12 }} />
+              <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
+              <Button title={t('play.placeBet')} onPress={() => run('start', { bet })} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
             </>
           )}
         </View>

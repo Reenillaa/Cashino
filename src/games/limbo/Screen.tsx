@@ -22,7 +22,7 @@ export default function LimboScreen({ forceTutorial }: { forceTutorial?: boolean
   const { t } = useT();
   const { c, reduceMotion } = useTheme();
   const s = useGameSession('limbo');
-  const [bet, setBet] = useBet('limbo');
+  const [bet, setBet] = useBet('limbo', s.room);
   const [target, setTarget] = useState(2);
   const [text, setText] = useState('2.00');
   const [shown, setShown] = useState(1);
@@ -98,8 +98,8 @@ export default function LimboScreen({ forceTutorial }: { forceTutorial?: boolean
             <Stat label={t('play.winChance')} value={`${(chance * 100).toFixed(chance < 0.01 ? 4 : 2)} %`} />
             <Stat label={t('play.potential')} value={formatCoins(payoutFor(bet, target) - bet)} tint={tint} />
           </StatRow>
-          <BetInput value={bet} onChange={setBet} balance={s.balance} disabled={busy} tint={tint} />
-          <Button title={t('play.placeBet')} onPress={play} loading={busy} disabled={bet > s.balance} style={{ marginTop: 12 }} />
+          <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} disabled={busy} tint={tint} />
+          <Button title={t('play.placeBet')} onPress={play} loading={busy} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
         </View>
       }
     />

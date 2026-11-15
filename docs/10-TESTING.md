@@ -7,9 +7,9 @@
 | TypeScript estricto | `npm run typecheck` | ✅ sin errores |
 | Lint (incl. reglas del React Compiler) | `npm run lint` | ✅ 0 errores, 0 avisos |
 | Configuración Expo | `npx expo-doctor` | ✅ 20/20 comprobaciones |
-| Motor (reglas, probabilidades, EV, estados, protocolo) | `npm run test:engine` | ✅ 98 pruebas |
-| App (stores, sesión de juego, i18n, tutorial UI) | `npm run test:app` | ✅ 13 pruebas |
-| **Total Jest** | `npm test` | ✅ **111/111** (11 suites) |
+| Motor (reglas, probabilidades, EV, estados, protocolo, salas) | `npm run test:engine` | ✅ 100 pruebas |
+| App (stores, sesión de juego y salas, i18n, tutorial UI) | `npm run test:app` | ✅ 14 pruebas |
+| **Total Jest** | `npm test` | ✅ **114/114** (11 suites) |
 | Esquema SQL (RLS, cartera, idempotencia, recompensas, social) | `./supabase/tests/run.sh` | ✅ `ALL SCHEMA TESTS PASSED` |
 | Edge Functions | `deno check …` | ✅ type-check sin errores |
 | Web export + recorrido en navegador | `npm run export:web` + Playwright | ✅ 14 juegos jugados, 0 errores de consola |

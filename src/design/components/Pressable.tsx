@@ -1,11 +1,12 @@
 import React from 'react';
 import { Pressable, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { motion } from '../tokens';
 import { haptic } from '@/services/haptics';
 import { sfx } from '@/services/audio';
 
 const APressable = Animated.createAnimatedComponent(Pressable);
+const EASE = Easing.bezier(...motion.ease);
 
 export interface ScaleProps extends Omit<PressableProps, 'style'> {
   style?: StyleProp<ViewStyle>;
@@ -14,21 +15,21 @@ export interface ScaleProps extends Omit<PressableProps, 'style'> {
   sound?: boolean;
 }
 
-/** Pressable with a physical spring scale, optional haptic and tap sound. */
-export function PressableScale({ style, scaleTo = 0.97, feedback = 'light', sound = false, onPressIn, onPressOut, onPress, disabled, ...rest }: ScaleProps) {
+/** Pressable with Taste press feedback (scale .985 + 1px down in 90ms, release 120ms), haptic and optional sound. */
+export function PressableScale({ style, scaleTo = 0.985, feedback = 'light', sound = false, onPressIn, onPressOut, onPress, disabled, ...rest }: ScaleProps) {
   const s = useSharedValue(1);
-  const anim = useAnimatedStyle(() => ({ transform: [{ scale: s.value }] }));
+  const anim = useAnimatedStyle(() => ({ transform: [{ translateY: Math.min(1, (1 - s.value) * 66) }, { scale: s.value }] }));
   return (
     <APressable
       accessibilityRole="button"
       disabled={disabled}
       {...rest}
       onPressIn={(e) => {
-        s.set(withSpring(scaleTo, motion.snappy));
+        s.set(withTiming(scaleTo, { duration: motion.press, easing: EASE }));
         onPressIn?.(e);
       }}
       onPressOut={(e) => {
-        s.set(withSpring(1, motion.snappy));
+        s.set(withTiming(1, { duration: motion.hoverOut, easing: EASE }));
         onPressOut?.(e);
       }}
       onPress={(e) => {

@@ -23,7 +23,7 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
   const { t } = useT();
   const { c, reduceMotion } = useTheme();
   const s = useGameSession('dice');
-  const [bet, setBet] = useBet('dice');
+  const [bet, setBet] = useBet('dice', s.room);
   const [mode, setMode] = useState<DiceMode>('under');
   const [target, setTarget] = useState(50);
   const [roll, setRoll] = useState<number | null>(null);
@@ -115,8 +115,8 @@ export default function DiceScreen({ forceTutorial }: { forceTutorial?: boolean 
             <Stat label={t('play.winChance')} value={`${(chance * 100).toFixed(2)} %`} />
             <Stat label={t('play.potential')} value={formatCoins(payoutFor(bet, mult) - bet)} />
           </StatRow>
-          <BetInput value={bet} onChange={setBet} balance={s.balance} disabled={rolling} tint={tint} />
-          <Button title={t('play.roll')} onPress={play} loading={rolling} disabled={!valid || bet > s.balance} style={{ marginTop: 12 }} />
+          <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} disabled={rolling} tint={tint} />
+          <Button title={t('play.roll')} onPress={play} loading={rolling} disabled={!valid || (bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
         </View>
       }
     />

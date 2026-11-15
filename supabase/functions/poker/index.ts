@@ -10,18 +10,15 @@ import { botDecide, type BotProfile } from '../_shared/engine/poker/bots.ts';
 import { cryptoRng } from '../_shared/engine/rng/rng.ts';
 import { cardCode } from '../_shared/engine/cards/cards.ts';
 import { eloUpdate } from '../_shared/engine/meta/ranking.ts';
+import { roomById, type Room } from '../_shared/engine/meta/rooms.ts';
 
 const rng = cryptoRng((b) => crypto.getRandomValues(b));
 const ACTION_MS = 25_000;
 const NEXT_HAND_MS = 2_500;
-const STAKES = [
-  { sb: 5, bb: 10, buyIn: 1000 },
-  { sb: 25, bb: 50, buyIn: 5000 },
-  { sb: 100, bb: 200, buyIn: 20000 },
-];
+
 const BOT_STYLES = ['shark', 'rock', 'maniac', 'station', 'shark'] as const;
 type Db = ReturnType<typeof admin>;
-interface Extra { leaving: string[]; botProfiles: Record<string, BotProfile>; kind: 'cash' | 'sng'; buyIn: number; tournamentId?: string; handEndedAt?: number }
+interface Extra { leaving: string[]; botProfiles: Record<string, BotProfile>; kind: 'cash' | 'sng'; buyIn: number; minBuyIn: number; maxBuyIn: number; tournamentId?: string; handEndedAt?: number }
 interface Stored { table: P.TableState; extra: Extra }
 
 const code6 = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 32]).join('');
@@ -128,12 +125,15 @@ Deno.serve(
 
     if (action === 'create') {
       const kind = body.kind === 'sng' ? 'sng' : 'cash';
-      const stakes = STAKES[Math.max(0, Math.min(2, Number(body.stakes ?? 0)))];
+      const room = roomById(body.room) as Room | undefined;
+      if (!room || room.practice) throw new HttpError('invalid_room');
+      const stakes = { sb: room.poker.sb, bb: room.poker.bb, buyIn: room.max };
       const maxSeats = Math.max(2, Math.min(6, Number(body.maxSeats ?? 6)));
       const isPrivate = !!body.private;
       const bots = Math.max(0, Math.min(maxSeats - 1, Number(body.bots ?? 0)));
       const table = P.createTable({ maxSeats, smallBlind: stakes.sb, bigBlind: stakes.bb, tournament: kind === 'sng' ? { levels: P.DEFAULT_SNG_LEVELS, handsPerLevel: 8 } : undefined });
-      const extra: Extra = { leaving: [], botProfiles: {}, kind, buyIn: kind === 'sng' ? stakes.buyIn / 2 : stakes.buyIn };
+      // Cash: buy-in anywhere in the room range. Sit & Go: entry = room minimum, 1,500 tournament chips each.
+      const extra: Extra = { leaving: [], botProfiles: {}, kind, buyIn: kind === 'sng' ? room.min : room.max, minBuyIn: room.min, maxBuyIn: room.max };
       let t = table;
       for (let i = 0; i < bots; i++) {
         const style = BOT_STYLES[i % BOT_STYLES.length];
@@ -150,7 +150,7 @@ Deno.serve(
       }
       const { data: row, error } = await db
         .from('poker_tables')
-        .insert({ name: String(body.name ?? 'Table').slice(0, 40), is_private: isPrivate, code: isPrivate ? code6() : null, owner: userId, kind, tournament_id: tournamentId ?? null, config: { ...table.config, buyIn: extra.buyIn }, public_state: P.viewFor(t, null) })
+        .insert({ name: String(body.name ?? 'Table').slice(0, 40), is_private: isPrivate, code: isPrivate ? code6() : null, owner: userId, kind, tournament_id: tournamentId ?? null, config: { ...table.config, buyIn: extra.buyIn, minBuyIn: extra.minBuyIn, maxBuyIn: extra.maxBuyIn, room: room.id }, public_state: P.viewFor(t, null) })
         .select('id, code')
         .single();
       if (error) throw new Error(error.message);
@@ -179,10 +179,11 @@ Deno.serve(
       const free = s.table.seats.findIndex((x) => !x);
       if (free < 0) throw new HttpError('table_full', 409);
       const { data: profile } = await db.from('profiles').select('username, avatar').eq('id', userId).single();
-      const { error } = await db.rpc('wallet_apply', { p_user: userId, p_amount: -s.extra.buyIn, p_kind: 'buyin', p_ref: tableId, p_key: `buyin:${tableId}:${userId}:${String(body.requestId ?? now)}` });
+      const amount = s.extra.kind === 'sng' ? s.extra.buyIn : Math.max(s.extra.minBuyIn, Math.min(s.extra.maxBuyIn, Math.floor(Number(body.buyIn ?? s.extra.maxBuyIn))));
+      const { error } = await db.rpc('wallet_apply', { p_user: userId, p_amount: -amount, p_kind: 'buyin', p_ref: tableId, p_key: `buyin:${tableId}:${userId}:${String(body.requestId ?? now)}` });
       rpcError(error);
-      s = { ...s, table: P.sitDown(s.table, free, { id: userId, name: profile?.username ?? 'player', isBot: false, stack: s.extra.kind === 'sng' ? 1500 : s.extra.buyIn, sittingOut: false, avatar: profile?.avatar }) };
-      await db.from('poker_seats').insert({ table_id: tableId, seat: free, user_id: userId, buy_in: s.extra.buyIn });
+      s = { ...s, table: P.sitDown(s.table, free, { id: userId, name: profile?.username ?? 'player', isBot: false, stack: s.extra.kind === 'sng' ? 1500 : amount, sittingOut: false, avatar: profile?.avatar }) };
+      await db.from('poker_seats').insert({ table_id: tableId, seat: free, user_id: userId, buy_in: amount });
       if (s.extra.tournamentId) await db.from('tournament_entries').upsert({ tournament_id: s.extra.tournamentId, user_id: userId });
       await db.from('table_invites').update({ status: 'accepted' }).eq('table_id', tableId).eq('to_user', userId);
       // Cash tables start automatically; Sit & Go starts when full or when the owner presses start.
@@ -237,7 +238,7 @@ Deno.serve(
           }
         }
         s.extra.leaving = [];
-        if (s.extra.kind === 'cash') s.table.seats = s.table.seats.map((x) => (x?.isBot && x.stack === 0 ? { ...x, stack: s.extra.buyIn } : x));
+        if (s.extra.kind === 'cash') s.table.seats = s.table.seats.map((x) => (x?.isBot && x.stack === 0 ? { ...x, stack: s.extra.maxBuyIn } : x));
         if (P.tournamentWinner(s.table)) await finishTournament(db, s, tableId);
         else if (P.canStartHand(s.table)) s = advance({ ...s, table: P.startHand(s.table, rng), extra: { ...s.extra, handEndedAt: undefined } }, now);
         else s.extra.handEndedAt = undefined;

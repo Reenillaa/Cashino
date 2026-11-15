@@ -33,8 +33,15 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 | 27 | Backend y persistencia | 🟡 | Persistencia local ✅; esquema y funciones listos, no desplegados |
 | 28 | Operaciones críticas seguras | ✅ | Probado en Postgres (`docs/07`) |
 | 29 | Pruebas ejecutadas y documentadas | ✅ | `docs/10` |
-| 30 | Repositorio preparado | 🟡 | Git con commits, CI, README; **falta subirlo a GitHub** (necesita tu autorización/repo) |
-| 31 | Procedimiento de instalación en iPhone | ✅ | `docs/09` (requiere tu cuenta de Apple Developer) |
+| 30 | Repositorio preparado | ✅ | Subido a `Reenillaa/Cashino` con CI y despliegue a GitHub Pages |
+| 31 | Procedimiento de instalación en iPhone | ✅ | Web app instalable vía GitHub Pages (Safari → Añadir a pantalla de inicio); EAS/TestFlight opcional en `docs/09` |
+
+## Cambios de la ronda 2
+- Saldo inicial **1.000 Ti** y economía reescalada (simulada de nuevo, `docs/06`).
+- **Salas por juego** (Práctica, 20–100, 200–1.000, 2.000–10.000) con carrusel animado al abrir cada juego; límites validados en cliente y servidor; póker con ciegas y entrada por sala.
+- Movimiento según la skill **Taste**: curvas ease-out sin rebote, pulsación 0,985 + 1 px en 90 ms, una entrada por pantalla, solo transform/opacidad; 5 archivos de fuente (antes 7).
+- Skill **RE** (`github.com/morluto/re`): el repositorio devuelve 404 / no accesible, no se pudo usar.
+- Publicación como **PWA en GitHub Pages** (`.github/workflows/pages.yml`).
 
 ## Decisiones técnicas registradas
 - Motor puro compartido app ↔ Edge Functions (`npm run sync:engine`).

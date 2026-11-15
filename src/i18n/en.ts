@@ -56,6 +56,12 @@ const en: Dictionary = {
     multiplierNow: 'Current multiplier', nextMultiplier: 'Next', safeChance: 'Safe chance', potential: 'Potential win',
     red: 'Red', black: 'Black', selectChip: 'Chip', tapToBet: 'Tap the table to bet', totalBet: 'Total bet', lastResults: 'Last results',
   },
+  rooms: {
+    title: 'Choose a room', subtitle: 'Each room sets the minimum and maximum bet.', practice: 'Practice', r1: 'Starter', r2: 'Mid', r3: 'High',
+    tier: { practice: 'Free', r1: 'Tier 1', r2: 'Tier 2', r3: 'Tier 3' }, limits: 'Min – max bet', enter: 'Enter {{name}}',
+    locked: 'You need {{amount}} Ti', free: 'Chips with no value · unranked', counts: 'Real Ti · XP and missions', change: 'Change room',
+    blinds: 'Blinds {{sb}}/{{bb}}', buyIn: 'Buy-in {{min}}–{{max}} Ti', chips: 'Chips {{chips}}', maxReached: 'Room maximum: {{max}} Ti', minRequired: 'Room minimum: {{min}} Ti',
+  },
   poker: {
     lobby: 'Poker', vsBots: 'Against bots', online: 'Online tables', private: 'Private table', tournament: 'Sit & Go', cash: 'Cash table',
     fold: 'Fold', check: 'Check', call: 'Call {{amount}}', bet: 'Bet', raise: 'Raise', allIn: 'All-in', pot: 'Pot',

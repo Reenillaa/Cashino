@@ -1,0 +1,53 @@
+// Turns the exported web build (dist/) into an installable PWA for GitHub Pages:
+// manifest + iOS home-screen tags, SPA fallback (404.html) and .nojekyll.
+// Usage: node scripts/pwa-postbuild.mjs /Cashino
+import { readFileSync, writeFileSync, existsSync, copyFileSync } from 'node:fs';
+
+const base = (process.argv[2] ?? '').replace(/\/$/, '');
+const dist = new URL('../dist/', import.meta.url).pathname;
+const NAME = 'Titanium';
+const THEME = '#08090B';
+
+for (const f of ['icon-192.png', 'icon-512.png', 'apple-touch-icon.png']) {
+  if (!existsSync(dist + f)) copyFileSync(new URL(`../public/${f}`, import.meta.url).pathname, dist + f);
+}
+writeFileSync(
+  dist + 'manifest.json',
+  JSON.stringify(
+    {
+      name: NAME,
+      short_name: NAME,
+      description: 'Juegos con moneda virtual sin valor monetario · Virtual-currency games, no real money.',
+      start_url: `${base}/`,
+      scope: `${base}/`,
+      display: 'standalone',
+      orientation: 'portrait',
+      background_color: THEME,
+      theme_color: THEME,
+      icons: [
+        { src: `${base}/icon-192.png`, sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: `${base}/icon-512.png`, sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+      ],
+    },
+    null,
+    2,
+  ),
+);
+let html = readFileSync(dist + 'index.html', 'utf8');
+const tags = [
+  `<link rel="manifest" href="${base}/manifest.json">`,
+  `<link rel="apple-touch-icon" href="${base}/apple-touch-icon.png">`,
+  '<meta name="apple-mobile-web-app-capable" content="yes">',
+  '<meta name="mobile-web-app-capable" content="yes">',
+  '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">',
+  `<meta name="apple-mobile-web-app-title" content="${NAME}">`,
+  `<meta name="theme-color" content="${THEME}">`,
+].join('');
+html = html.replace(/<meta name="viewport"[^>]*>/, '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no">');
+if (!html.includes('rel="manifest"')) html = html.replace('</head>', `${tags}</head>`);
+html = html.replace('<body', `<body style="background:${THEME}"`);
+writeFileSync(dist + 'index.html', html);
+// GitHub Pages serves 404.html for unknown paths: reuse the app so deep links (/game/dice) work.
+writeFileSync(dist + '404.html', html);
+writeFileSync(dist + '.nojekyll', '');
+console.log(`PWA ready for base "${base || '/'}"`);

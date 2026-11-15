@@ -13,7 +13,7 @@ function Field({ label, value }: { label: string; value: string }) {
   return (
     <PressableScale onPress={() => void Clipboard.setStringAsync(value)} scaleTo={0.99} accessibilityLabel={`${label}: ${value}`} style={[styles.field, { backgroundColor: c.surface2 }]}>
       <T variant="caption" color="text3">{label}</T>
-      <T style={{ fontFamily: 'GeistMono_400Regular', fontSize: 12, marginTop: 4 }} color="text2" selectable>{value}</T>
+      <T style={{ fontFamily: 'GeistMono_500Medium', fontSize: 12, marginTop: 4 }} color="text2" selectable>{value}</T>
     </PressableScale>
   );
 }
@@ -44,7 +44,7 @@ export function FairnessPanel({ online, locked }: { online: boolean; locked: boo
       <Field label={t('play.serverSeedHash')} value={f.serverSeedHash} />
       <View style={[styles.field, { backgroundColor: c.surface2 }]}>
         <T variant="caption" color="text3">{t('play.clientSeed')}</T>
-        <TextInput value={client} onChangeText={setClient} autoCapitalize="none" autoCorrect={false} accessibilityLabel={t('play.clientSeed')} style={{ color: c.text, fontFamily: 'GeistMono_400Regular', fontSize: 13, marginTop: 4, padding: 0 }} />
+        <TextInput value={client} onChangeText={setClient} autoCapitalize="none" autoCorrect={false} accessibilityLabel={t('play.clientSeed')} style={{ color: c.text, fontFamily: 'GeistMono_500Medium', fontSize: 13, marginTop: 4, padding: 0 }} />
       </View>
       <Field label={t('play.nonce')} value={String(f.nonce)} />
       <Button title={t('play.rotateSeed')} kind="secondary" size="md" disabled={locked} onPress={() => f.setClientSeed(client)} />
@@ -57,9 +57,9 @@ export function FairnessPanel({ online, locked }: { online: boolean; locked: boo
           </T>
           <View style={[styles.field, { backgroundColor: c.surface2 }]}>
             <T variant="caption" color="text3">{t('play.nonce')} (1–{prev.lastNonce})</T>
-            <TextInput value={nonce} onChangeText={(s) => setNonce(s.replace(/\D/g, ''))} keyboardType="number-pad" accessibilityLabel={t('play.nonce')} style={{ color: c.text, fontFamily: 'GeistMono_400Regular', fontSize: 13, marginTop: 4, padding: 0 }} />
+            <TextInput value={nonce} onChangeText={(s) => setNonce(s.replace(/\D/g, ''))} keyboardType="number-pad" accessibilityLabel={t('play.nonce')} style={{ color: c.text, fontFamily: 'GeistMono_500Medium', fontSize: 13, marginTop: 4, padding: 0 }} />
           </View>
-          <T style={{ fontFamily: 'GeistMono_400Regular', fontSize: 12 }} color="text2">
+          <T style={{ fontFamily: 'GeistMono_500Medium', fontSize: 12 }} color="text2">
             u₀…u₃ = {floats.map((x) => x.toFixed(8)).join('  ')}
           </T>
         </View>

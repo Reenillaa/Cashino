@@ -8,8 +8,11 @@ import { useT } from '@/i18n';
 import { supabase, callFn, onlineConfigured } from '@/services/supabase';
 import { useSession } from '@/state/session';
 import { useProgress } from '@/state/progress';
+import { roomById } from '@/engine/meta/rooms.ts';
 
-interface Row { id: string; name: string; kind: string; status: string; config: { smallBlind: number; bigBlind: number; buyIn: number; maxSeats: number }; public_state: { seats: (unknown | null)[] } }
+const ROOM_IDS = ['r1', 'r2', 'r3'] as const;
+
+interface Row { id: string; name: string; kind: string; status: string; config: { smallBlind: number; bigBlind: number; buyIn: number; minBuyIn?: number; maxBuyIn?: number; maxSeats: number }; public_state: { seats: (unknown | null)[] } }
 
 export default function OnlineLobby() {
   const { t } = useT();
@@ -51,7 +54,7 @@ export default function OnlineLobby() {
   const create = async () => {
     try {
       setBusy(true);
-      const r = await callFn<{ tableId: string; code: string | null }>('poker', { action: 'create', kind, stakes, private: priv, bots, name: priv ? t('poker.private') : t(kind === 'sng' ? 'poker.tournament' : 'poker.cash') });
+      const r = await callFn<{ tableId: string; code: string | null }>('poker', { action: 'create', kind, room: ROOM_IDS[stakes], private: priv, bots, name: priv ? t('poker.private') : t(kind === 'sng' ? 'poker.tournament' : 'poker.cash') });
       await join({ tableId: r.tableId });
     } catch (e) {
       fail(e);
@@ -86,7 +89,10 @@ export default function OnlineLobby() {
         <Surface style={{ marginHorizontal: SCREEN_PAD, gap: 12 }}>
           <Segmented value={kind} onChange={setKind} options={[{ value: 'cash', label: t('poker.cash') }, { value: 'sng', label: t('poker.tournament') }]} />
           <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-            {['5/10', '25/50', '100/200'].map((s, i) => <Chip key={s} label={s} selected={stakes === i} onPress={() => setStakes(i)} />)}
+            {ROOM_IDS.map((id, i) => {
+              const r = roomById(id)!;
+              return <Chip key={id} label={`${t(`rooms.${id}`)} · ${r.min}–${r.max}`} selected={stakes === i} onPress={() => setStakes(i)} />;
+            })}
           </View>
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
             <T variant="footnote" color="text3">{t('common.bot')}</T>
@@ -108,7 +114,7 @@ export default function OnlineLobby() {
                   key={tb.id}
                   icon={tb.kind === 'sng' ? 'medal' : 'users'}
                   title={`${tb.name} · ${tb.config.smallBlind}/${tb.config.bigBlind}`}
-                  subtitle={`${seated}/${tb.config.maxSeats} · ${t('poker.buyIn')} ${tb.config.buyIn} Ti`}
+                  subtitle={`${seated}/${tb.config.maxSeats} · ${t('poker.buyIn')} ${tb.kind === 'sng' ? tb.config.buyIn : `${tb.config.minBuyIn ?? tb.config.buyIn}–${tb.config.maxBuyIn ?? tb.config.buyIn}`} Ti`}
                   right={tb.status === 'running' ? <Tag label="LIVE" tint={c.win} /> : undefined}
                   onPress={() => join({ tableId: tb.id })}
                 />

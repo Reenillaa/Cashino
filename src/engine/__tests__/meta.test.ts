@@ -7,7 +7,7 @@ describe('economy', () => {
   it('daily streak grows and decays gently', () => {
     let s: E.DailyState = { lastClaimDay: null, streak: 0 };
     let r = E.claimDaily(s, 100);
-    expect(r.amount).toBe(500);
+    expect(r.amount).toBe(E.ECONOMY.dailyRewards[0]);
     s = r.state;
     expect(() => E.claimDaily(s, 100)).toThrow();
     for (let d = 101; d <= 107; d++) s = E.claimDaily(s, d).state;
@@ -20,12 +20,12 @@ describe('economy', () => {
     let refill: E.RefillState = { day: 0, used: 0 };
     expect(E.canRefill(500, refill, 10)).toBe(false);
     for (let i = 0; i < 3; i++) {
-      const r = E.applyRefill(20, refill, 10);
-      expect(r.amount).toBe(1980);
+      const r = E.applyRefill(5, refill, 10);
+      expect(r.amount).toBe(E.ECONOMY.refillAmount - 5);
       refill = r.refill;
     }
-    expect(E.canRefill(20, refill, 10)).toBe(false);
-    expect(E.canRefill(20, refill, 11)).toBe(true);
+    expect(E.canRefill(5, refill, 10)).toBe(false);
+    expect(E.canRefill(5, refill, 11)).toBe(true);
   });
   it('caps guest migration', () => {
     expect(E.guestMigrationAmount(1e9)).toBe(E.ECONOMY.guestMigrationCap);

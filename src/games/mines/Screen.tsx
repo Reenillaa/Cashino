@@ -49,7 +49,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
   const { c, reduceMotion } = useTheme();
   const { width } = useWindowDimensions();
   const s = useGameSession('mines');
-  const [bet, setBet] = useBet('mines');
+  const [bet, setBet] = useBet('mines', s.room);
   const [mines, setMines] = useState(3);
   const [view, setView] = useState<View_ | null>((s.active?.view as unknown as View_) ?? null);
   const [busyTile, setBusyTile] = useState<number | null>(null);
@@ -182,7 +182,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
               <ControlRow>
                 {[1, 3, 5, 10, 15, 20, 24].map((n) => <Chip key={n} label={`${n}`} selected={mines === n} tint={tint} onPress={() => setMines(n)} />)}
               </ControlRow>
-              <BetInput value={bet} onChange={setBet} balance={s.balance} tint={tint} />
+              <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
             </>
           )}
           {active ? (
@@ -197,7 +197,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
               />
             </View>
           ) : (
-            <Button title={t('play.placeBet')} onPress={start} disabled={bet > s.balance} style={{ marginTop: 12 }} />
+            <Button title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
           )}
         </View>
       }

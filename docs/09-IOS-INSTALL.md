@@ -1,5 +1,20 @@
 # 09 · Instalar en iPhone
 
+## Opción recomendada: web app en GitHub Pages (sin App Store, sin cuenta de Apple)
+Cada `push` a `main` ejecuta `.github/workflows/pages.yml`: compila la app para web (`EXPO_BASE_URL=/<repo>`), la convierte en PWA (`scripts/pwa-postbuild.mjs`: manifest, icono, etiquetas de iOS y 404.html para enlaces profundos) y la publica en **https://reenillaa.github.io/Cashino/**.
+
+1. Solo la primera vez: en GitHub → **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. En el iPhone abre la URL en **Safari** → botón **Compartir** → **Añadir a pantalla de inicio**.
+3. Se abre a pantalla completa con su icono, como una app. El progreso se guarda en el navegador del dispositivo.
+
+Limitaciones de la versión web: sin vibración háptica (iOS no la expone a la web) y el desenfoque de cristal depende de Safari. Todo lo demás funciona igual (juegos, Academy, salas, progreso offline).
+
+Para probarla en local con la misma ruta: `npm run export:pages` y sirve `dist/` bajo `/Cashino/`.
+
+---
+
+## Opción nativa (opcional): EAS Build / TestFlight
+
 > Nada de esto requiere un Mac: EAS compila en la nube. Sí requiere cuentas que **tienes que aportar tú**.
 
 ## Lo que necesitas

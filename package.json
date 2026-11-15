@@ -69,7 +69,8 @@
     "gen:sounds": "node scripts/generate-sounds.mjs",
     "gen:icons": "node scripts/generate-icons.mjs",
     "sim:economy": "node scripts/economy-sim.mjs",
-    "export:web": "expo export --platform web"
+    "export:web": "expo export --platform web",
+    "export:pages": "EXPO_BASE_URL=/Cashino expo export --platform web && node scripts/pwa-postbuild.mjs /Cashino"
   },
   "private": true
 }

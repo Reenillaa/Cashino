@@ -35,7 +35,7 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
   const { t } = useT();
   const { c, reduceEffects } = useTheme();
   const s = useGameSession('crash');
-  const [bet, setBet] = useBet('crash');
+  const [bet, setBet] = useBet('crash', s.room);
   const [auto, setAuto] = useState<number | null>(null);
   const [autoText, setAutoText] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
@@ -223,13 +223,13 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
                   />
                 </View>
               </ControlRow>
-              <BetInput value={bet} onChange={setBet} balance={s.balance} tint={tint} />
+              <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
             </>
           )}
           {flying ? (
             <Button title={t('common.cashout')} subtitle={`${formatCoins(payoutFor(roundBet, Math.floor(mult * 100) / 100))} Ti`} onPress={cashout} />
           ) : (
-            <Button title={t('play.placeBet')} onPress={start} disabled={bet > s.balance} style={{ marginTop: 12 }} />
+            <Button title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
           )}
         </View>
       }

@@ -11,20 +11,9 @@ import { useLearning } from '@/state/learning';
 import { useFairness } from '@/state/fairness';
 import { useSession } from '@/state/session';
 import { callFn, OnlineError } from '@/services/supabase';
+import { useRoom } from './rooms';
 
 export type PlayMode = 'coins' | 'practice' | 'online';
-
-/** Per-game preferred mode (coins vs practice). Online is used automatically when signed in + connected. */
-interface ModeState {
-  practice: Partial<Record<GameId, boolean>>;
-  setPractice: (g: GameId, v: boolean) => void;
-}
-export const usePlayModes = create<ModeState>()(
-  persist(
-    (set) => ({ practice: {}, setPractice: (g, v) => set((s) => ({ practice: { ...s.practice, [g]: v } })) }),
-    { name: `${STORAGE_PREFIX}modes`, storage: persistStorage },
-  ),
-);
 
 interface SeedInfo {
   serverSeed: string;
@@ -83,13 +72,14 @@ export interface OpOutcome extends OpResult {
 }
 
 /**
- * Runs game operations against the right wallet:
+ * Runs game operations in the selected room against the right wallet:
  *  - practice: unlimited practice chips (no value, no rankings)
  *  - coins: guest wallet on device, provably-fair local RNG
  *  - online: Edge Function `game` (server RNG, server wallet, hidden state on the server)
  */
 export function useGameSession(game: GameId) {
-  const practicePref = usePlayModes((s) => !!s.practice[game]);
+  const room = useRoom(game);
+  const practicePref = room.practice;
   const signedIn = useSession((s) => !!s.userId);
   const connected = useSession((s) => s.connected);
   const serverBalance = useSession((s) => s.balance);
@@ -120,6 +110,8 @@ export function useGameSession(game: GameId) {
       try {
         const current = useActiveRounds.getState().rounds[game];
         const roundMode: PlayMode = current?.mode ?? mode;
+        // Rounds are always played in the selected room; the protocol checks its limits.
+        if (!current && !('room' in params)) params = { ...params, room: room.id };
         if (roundMode === 'online') {
           const res = await callFn<OpResult & { balance: number }>('game', { game, op: name, params, requestId: `${Date.now()}-${Math.random().toString(36).slice(2)}` });
           useSession.getState().setBalance(res.balance);
@@ -177,10 +169,10 @@ export function useGameSession(game: GameId) {
         setBusy(false);
       }
     },
-    [game, mode],
+    [game, mode, room.id],
   );
 
-  return { mode, balance, op, busy, active, practice: practicePref };
+  return { mode, balance, op, busy, active, practice: practicePref, room };
 }
 
 function afterRound(

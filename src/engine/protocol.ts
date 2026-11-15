@@ -21,6 +21,7 @@ import * as Bac from './games/baccarat.ts';
 import * as SicBo from './games/sicbo.ts';
 import * as BJ from './games/blackjack.ts';
 import { cardCode } from './cards/cards.ts';
+import { roomById, stakeAllowed } from './meta/rooms.ts';
 
 export const MAX_BET = 1_000_000;
 
@@ -288,11 +289,20 @@ const handlers: Record<Exclude<GameId, 'poker'>, Handler> = {
   },
 };
 
+const STARTING_OPS = new Set(['play', 'start', 'deal']);
+
 export function runOp(game: GameId, state: unknown, op: string, params: Params, ctx: OpContext): OpResult {
   if (game === 'poker') fail('use_poker_service');
   const h = handlers[game as Exclude<GameId, 'poker'>];
   if (!h) fail('unknown_game');
-  return h(state, op, params ?? {}, ctx);
+  const res = h(state, op, params ?? {}, ctx);
+  // Room limits apply to the stake that opens a round (doubles/splits in blackjack are extra stakes).
+  if (STARTING_OPS.has(op) && params?.room !== undefined) {
+    const room = roomById(params.room);
+    if (!room) fail('invalid_room');
+    if (!stakeAllowed(room!, res.stake)) fail('stake_outside_room');
+  }
+  return res;
 }
 
 export const MULTI_STEP: GameId[] = ['coinflip', 'mines', 'crossing', 'hilo', 'blackjack', 'crash'];

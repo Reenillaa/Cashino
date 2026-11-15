@@ -63,3 +63,19 @@ describe('game protocol', () => {
     }
   });
 });
+
+describe('rooms', () => {
+  it('enforces the room limits on the opening stake', () => {
+    expect(runOp('dice', null, 'play', { bet: 20, mode: 'under', target: 50, room: 'r1' }, ctx()).stake).toBe(20);
+    expect(() => runOp('dice', null, 'play', { bet: 19, mode: 'under', target: 50, room: 'r1' }, ctx())).toThrow('stake_outside_room');
+    expect(() => runOp('dice', null, 'play', { bet: 101, mode: 'under', target: 50, room: 'r1' }, ctx())).toThrow('stake_outside_room');
+    expect(() => runOp('limbo', null, 'play', { bet: 50, target: 2, room: 'vip' }, ctx())).toThrow('invalid_room');
+    expect(runOp('mines', null, 'start', { bet: 1000, mines: 3, room: 'r2' }, ctx()).stake).toBe(1000);
+  });
+  it('applies to the total stake of table games', () => {
+    const bets = [{ bet: { kind: 'red' }, amount: 60 }, { bet: { kind: 'odd' }, amount: 50 }];
+    expect(() => runOp('roulette', null, 'play', { bets, room: 'r1' }, ctx())).toThrow('stake_outside_room');
+    expect(() => runOp('roulette', null, 'play', { bets, room: 'r2' }, ctx())).toThrow('stake_outside_room'); // 110 < 200
+    expect(runOp('roulette', null, 'play', { bets: [{ bet: { kind: 'red' }, amount: 200 }], room: 'r2' }, ctx()).stake).toBe(200);
+  });
+});

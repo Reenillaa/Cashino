@@ -64,26 +64,26 @@ export interface MissionDef {
 }
 
 const DAILY_POOL: MissionDef[] = [
-  { id: 'd-play-10', kind: 'playRounds', target: 10, coins: 300, xp: 60, sp: 40 },
-  { id: 'd-variety-3', kind: 'variety', target: 3, coins: 300, xp: 60, sp: 40 },
-  { id: 'd-lesson-1', kind: 'lesson', target: 1, coins: 400, xp: 80, sp: 60 },
-  { id: 'd-quiz-1', kind: 'quiz', target: 1, coins: 300, xp: 60, sp: 40 },
-  { id: 'd-mult-3', kind: 'multiplier', target: 3, coins: 300, xp: 60, sp: 40 },
-  { id: 'd-poker-5', kind: 'pokerHands', target: 5, coins: 300, xp: 60, sp: 40 },
-  { id: 'd-win-5', kind: 'winRounds', target: 5, coins: 250, xp: 50, sp: 30 },
-  { id: 'd-bj-5', kind: 'playGame', game: 'blackjack', target: 5, coins: 250, xp: 50, sp: 30 },
-  { id: 'd-mines-5', kind: 'playGame', game: 'mines', target: 5, coins: 250, xp: 50, sp: 30 },
-  { id: 'd-roulette-5', kind: 'playGame', game: 'roulette', target: 5, coins: 250, xp: 50, sp: 30 },
-  { id: 'd-plinko-10', kind: 'playGame', game: 'plinko', target: 10, coins: 250, xp: 50, sp: 30 },
-  { id: 'd-baccarat-5', kind: 'playGame', game: 'baccarat', target: 5, coins: 250, xp: 50, sp: 30 },
+  { id: 'd-play-10', kind: 'playRounds', target: 10, coins: 30, xp: 60, sp: 40 },
+  { id: 'd-variety-3', kind: 'variety', target: 3, coins: 30, xp: 60, sp: 40 },
+  { id: 'd-lesson-1', kind: 'lesson', target: 1, coins: 40, xp: 80, sp: 60 },
+  { id: 'd-quiz-1', kind: 'quiz', target: 1, coins: 30, xp: 60, sp: 40 },
+  { id: 'd-mult-3', kind: 'multiplier', target: 3, coins: 30, xp: 60, sp: 40 },
+  { id: 'd-poker-5', kind: 'pokerHands', target: 5, coins: 30, xp: 60, sp: 40 },
+  { id: 'd-win-5', kind: 'winRounds', target: 5, coins: 25, xp: 50, sp: 30 },
+  { id: 'd-bj-5', kind: 'playGame', game: 'blackjack', target: 5, coins: 25, xp: 50, sp: 30 },
+  { id: 'd-mines-5', kind: 'playGame', game: 'mines', target: 5, coins: 25, xp: 50, sp: 30 },
+  { id: 'd-roulette-5', kind: 'playGame', game: 'roulette', target: 5, coins: 25, xp: 50, sp: 30 },
+  { id: 'd-plinko-10', kind: 'playGame', game: 'plinko', target: 10, coins: 25, xp: 50, sp: 30 },
+  { id: 'd-baccarat-5', kind: 'playGame', game: 'baccarat', target: 5, coins: 25, xp: 50, sp: 30 },
 ];
 
 const WEEKLY_POOL: MissionDef[] = [
-  { id: 'w-play-100', kind: 'playRounds', target: 100, coins: 2_000, xp: 400, sp: 300 },
-  { id: 'w-variety-8', kind: 'variety', target: 8, coins: 2_000, xp: 400, sp: 300 },
-  { id: 'w-lesson-5', kind: 'lesson', target: 5, coins: 2_500, xp: 500, sp: 400 },
-  { id: 'w-poker-40', kind: 'pokerHands', target: 40, coins: 2_000, xp: 400, sp: 300 },
-  { id: 'w-mult-10', kind: 'multiplier', target: 10, coins: 1_500, xp: 300, sp: 250 },
+  { id: 'w-play-100', kind: 'playRounds', target: 100, coins: 200, xp: 400, sp: 300 },
+  { id: 'w-variety-8', kind: 'variety', target: 8, coins: 200, xp: 400, sp: 300 },
+  { id: 'w-lesson-5', kind: 'lesson', target: 5, coins: 250, xp: 500, sp: 400 },
+  { id: 'w-poker-40', kind: 'pokerHands', target: 40, coins: 200, xp: 400, sp: 300 },
+  { id: 'w-mult-10', kind: 'multiplier', target: 10, coins: 150, xp: 300, sp: 250 },
 ];
 
 function pick<T>(pool: T[], seed: number, n: number): T[] {

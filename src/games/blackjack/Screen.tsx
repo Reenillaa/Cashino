@@ -25,7 +25,7 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
   const { t } = useT();
   const { c } = useTheme();
   const s = useGameSession('blackjack');
-  const [bet, setBet] = useBet('blackjack', 20);
+  const [bet, setBet] = useBet('blackjack', s.room);
   const [view, setView] = useState<BView | null>((s.active?.view as unknown as BView) ?? null);
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState(false);
@@ -143,8 +143,8 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
             </>
           ) : (
             <>
-              <BetInput value={bet} onChange={setBet} balance={s.balance} tint={tint} />
-              <Button title={t('play.deal')} onPress={deal} loading={busy} disabled={bet > s.balance || bet < 1} style={{ marginTop: 12 }} />
+              <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
+              <Button title={t('play.deal')} onPress={deal} loading={busy} disabled={bet > s.balance || bet < s.room.min || bet > s.room.max} style={{ marginTop: 12 }} />
             </>
           )}
         </View>

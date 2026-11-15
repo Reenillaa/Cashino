@@ -7,7 +7,7 @@ import { useTheme } from '@/design/theme';
 import { tr, useT } from '@/i18n';
 import { useLearning } from '@/state/learning';
 import { useProgress } from '@/state/progress';
-import { usePlayModes } from '@/features/play/session';
+import { useRooms, type RoomId } from '@/features/play/rooms';
 import { XP } from '@/engine/meta/progression.ts';
 import { TUTORIALS } from './content';
 import { useTutorialRuntime } from './tutorial';
@@ -34,7 +34,7 @@ export function TutorialCoach({ game }: { game: GameId }) {
   const [pickedState, setPickedState] = useState<{ step: number; i: number } | null>(null);
   const picked = pickedState?.step === step ? pickedState.i : null;
   const setPicked = (i: number) => setPickedState({ step, i });
-  const prevPractice = useRef<boolean | null>(null);
+  const prevRoom = useRef<RoomId | null | undefined>(undefined);
 
   const finish = (completed: boolean) => {
     useLearning.getState().completeTutorial(game);
@@ -50,15 +50,15 @@ export function TutorialCoach({ game }: { game: GameId }) {
     else useTutorialRuntime.getState().next();
   };
 
-  // Force free practice while the tutorial runs, restore afterwards.
+  // Free practice room while the tutorial runs, previous room restored afterwards.
   useEffect(() => {
-    const modes = usePlayModes.getState();
+    const rooms = useRooms.getState();
     if (active) {
-      prevPractice.current = !!modes.practice[game];
-      modes.setPractice(game, true);
-    } else if (prevPractice.current !== null) {
-      modes.setPractice(game, prevPractice.current);
-      prevPractice.current = null;
+      prevRoom.current = rooms.byGame[game] ?? null;
+      rooms.choose(game, 'practice');
+    } else if (prevRoom.current !== undefined) {
+      rooms.choose(game, prevRoom.current ?? 'r1');
+      prevRoom.current = undefined;
     }
   }, [active, game]);
 

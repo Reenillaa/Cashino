@@ -77,12 +77,15 @@ Reglas: cristal **solo** sobre contenido que se desplaza debajo (si no hay nada 
 
 ## 7. Movimiento
 
+> Revisado con la skill **Taste** (motion.md): una curva ease-out para la interfaz `(.2,.8,.2,1)`, una de entrada `(.22,1,.36,1)`, **sin rebote ni sobrepaso**, solo transform/opacidad, pulsación a 0,985 y 1 px en 90 ms (vuelta en 120 ms), una entrada por pantalla y nada que se anime al hacer scroll salvo el carrusel de salas (petición explícita del producto, inspirada en Offsuit).
+
+
 | Token | Valor | Uso |
 |---|---|---|
-| `spring.snappy` | damping 22, stiffness 320 | Pulsaciones, toggles |
-| `spring.smooth` | damping 26, stiffness 180 | Paneles, hojas, transiciones |
-| `spring.bouncy` | damping 12, stiffness 180 | Celebraciones, cartas al asentarse |
-| `duration.fast/base/slow` | 140 / 240 / 420 ms | Fundidos |
+| `spring.snappy` | damping 38, stiffness 340 (crítico) | Indicadores, toggles |
+| `spring.smooth` | damping 30, stiffness 220 (crítico) | Paneles, hojas |
+| `press / hoverOut` | 90 / 120 ms | Pulsación |
+| `fast / base / slide / slow / enter` | 120 / 200 / 240 / 420 / 1100 ms | Fundidos, paneles, entradas |
 | `easing.standard` | `cubic-bezier(.2,.8,.2,1)` | Todo lo no-spring |
 
 - **Interfaz general**: suave, discreta, física (escala 0.97 al pulsar, *spring* al soltar).

@@ -33,7 +33,8 @@ const config: ExpoConfig = {
     ['expo-notifications', { color: '#08090B' }],
     ['expo-splash-screen', { backgroundColor: '#08090B', image: './assets/images/splash-icon.png', imageWidth: 120, dark: { backgroundColor: '#08090B', image: './assets/images/splash-icon.png' } }],
   ],
-  experiments: { typedRoutes: false, reactCompiler: true },
+  // EXPO_BASE_URL=/Cashino when publishing to GitHub Pages (served from https://<user>.github.io/<repo>/).
+  experiments: { typedRoutes: false, reactCompiler: true, ...(process.env.EXPO_BASE_URL ? { baseUrl: process.env.EXPO_BASE_URL } : {}) },
   extra: { eas: { projectId: process.env.EAS_PROJECT_ID } },
 };
 

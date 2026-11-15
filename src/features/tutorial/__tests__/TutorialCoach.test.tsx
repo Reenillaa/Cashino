@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { TutorialCoach } from '../TutorialCoach';
 import { tutorialEvent, useTutorialRuntime } from '../tutorial';
 import { useLearning } from '@/state/learning';
-import { usePlayModes } from '@/features/play/session';
+import { useRooms } from '@/features/play/rooms';
 import i18n from '@/i18n';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -13,14 +13,14 @@ describe('TutorialCoach (interactive first-game tutorial)', () => {
   beforeEach(async () => {
     await i18n.changeLanguage('es');
     useLearning.getState().resetAll();
-    usePlayModes.setState({ practice: {} });
+    useRooms.setState({ byGame: {} });
   });
 
-  it('teaches with real game events, forces practice and remembers completion', async () => {
+  it('teaches with real game events in the practice room and remembers completion', async () => {
     await render(<TutorialCoach game="dice" />);
     await act(async () => useTutorialRuntime.getState().start('dice'));
     expect(screen.getByText('Tú eliges el riesgo')).toBeTruthy();
-    expect(usePlayModes.getState().practice.dice).toBe(true); // free practice while learning
+    expect(useRooms.getState().byGame.dice).toBe('practice'); // free practice room while learning
     await act(async () => fireEvent.press(screen.getByText('Entendido')));
     expect(screen.getByText('Mueve el objetivo')).toBeTruthy();
     // "do" step: completes only when the real game emits the action
@@ -33,7 +33,7 @@ describe('TutorialCoach (interactive first-game tutorial)', () => {
     expect(screen.getByText(/0,99 \/ 0,50/)).toBeTruthy();
     await act(async () => fireEvent.press(screen.getByText('¡A jugar!')));
     expect(useLearning.getState().tutorials.dice_tutorial_completed).toBe(true);
-    expect(usePlayModes.getState().practice.dice).toBe(false); // mode restored
+    expect(useRooms.getState().byGame.dice).toBe('r1'); // previous room restored
   });
 
   it('can be skipped and then does not reappear automatically', async () => {

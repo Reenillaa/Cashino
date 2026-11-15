@@ -43,7 +43,7 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
   const { t } = useT();
   const { c, reduceMotion } = useTheme();
   const s = useGameSession('coinflip');
-  const [bet, setBet] = useBet('coinflip');
+  const [bet, setBet] = useBet('coinflip', s.room);
   const restored = s.active?.view as { wins?: number; bet?: number; history?: { call: Side; result: Side }[] } | undefined;
   const [wins, setWins] = useState(restored?.wins ?? 0);
   // The active round lives in the session store (local or server), so it survives restarts.
@@ -143,8 +143,8 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
           </StatRow>
           {!active ? (
             <>
-              <BetInput value={bet} onChange={setBet} balance={s.balance} tint={tint} />
-              <Button title={t('play.placeBet')} onPress={start} disabled={bet > s.balance} style={{ marginTop: 12 }} />
+              <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} tint={tint} />
+              <Button title={t('play.placeBet')} onPress={start} disabled={(bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
             </>
           ) : (
             <>

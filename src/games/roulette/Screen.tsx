@@ -11,7 +11,7 @@ import { tutorialEvent } from '@/features/tutorial/tutorial';
 import { GameShell } from '../shared/GameShell';
 import { HistoryStrip } from '../shared/HistoryStrip';
 import { ResultBanner } from '../shared/ResultBanner';
-import { ChipRack, ChipToken } from '../shared/ChipRack';
+import { ChipRack, ChipToken, chipFor } from '../shared/ChipRack';
 import { useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
@@ -74,7 +74,8 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
   const { t } = useT();
   const { c, reduceMotion } = useTheme();
   const s = useGameSession('roulette');
-  const [chip, setChip] = useState(10);
+  const [chipPick, setChip] = useState<number | null>(null);
+  const chip = chipPick !== null && s.room.chips.includes(chipPick) ? chipPick : s.room.chips[1];
   const [bets, setBets] = useState<Record<string, { bet: RouletteBet; amount: number }>>({});
   const [stack, setStack] = useState<string[]>([]);
   const [spinning, setSpinning] = useState(false);
@@ -92,6 +93,7 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
   const place = (bet: RouletteBet) => {
     if (spinning) return;
     if (total + chip > s.balance) return onError(new PlayError('insufficient'));
+    if (total + chip > s.room.max) return onError(new PlayError(`room_max:${s.room.max}`));
     const k = betKey(bet);
     setLast(null);
     setBets((b) => ({ ...b, [k]: { bet, amount: (b[k]?.amount ?? 0) + chip } }));
@@ -195,14 +197,14 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
       }
       controls={
         <View>
-          <ChipRack value={chip} onChange={setChip} balance={s.balance} />
+          <ChipRack value={chip} onChange={setChip} balance={s.balance} values={s.room.chips} />
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, marginBottom: 10 }}>
-            <T variant="footnote" color="text3" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular>{formatCoins(total)}</T></T>
+            <T variant="footnote" color="text3" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular color={total && total < s.room.min ? 'warn' : 'text'}>{formatCoins(total)}</T> / {formatCoins(s.room.min)}–{formatCoins(s.room.max)}</T>
             <Button title={t('play.undo')} kind="ghost" size="sm" onPress={undo} disabled={!stack.length || spinning} />
             <Button title={t('common.clear')} kind="ghost" size="sm" onPress={() => { setBets({}); setStack([]); }} disabled={!total || spinning} />
-            <Button title="↻" kind="ghost" size="sm" accessibilityHint="Repeat" onPress={() => { const lb = lastBets.current; const sum = Object.values(lb).reduce((a, b) => a + b.amount, 0); if (sum <= s.balance) setBets(lb); }} disabled={spinning} />
+            <Button title="↻" kind="ghost" size="sm" accessibilityHint="Repeat" onPress={() => { const lb = lastBets.current; const sum = Object.values(lb).reduce((a, b) => a + b.amount, 0); if (sum <= s.balance && sum >= s.room.min && sum <= s.room.max) setBets(lb); }} disabled={spinning} />
           </View>
-          <Button title={t('play.spin')} onPress={spin} loading={spinning} disabled={!total || total > s.balance} />
+          <Button title={t('play.spin')} onPress={spin} loading={spinning} disabled={!total || total > s.balance || total < s.room.min} />
         </View>
       }
     />
@@ -216,7 +218,7 @@ function BetCell({ label, flex = 1, color, placed, win, onPress }: { label: stri
       <T variant="footnote" weight="semibold" style={{ color: '#F3F4F6' }}>{label}</T>
       {placed ? (
         <View style={styles.placed}>
-          <ChipToken value={[1000, 500, 100, 25, 10, 5, 1].find((x) => x <= placed) ?? 1} size={20} />
+          <ChipToken value={chipFor(placed)} size={20} />
         </View>
       ) : null}
     </PressableScale>

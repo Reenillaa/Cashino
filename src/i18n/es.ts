@@ -54,6 +54,12 @@ const es = {
     multiplierNow: 'Multiplicador actual', nextMultiplier: 'Siguiente', safeChance: 'Prob. de acierto', potential: 'Ganancia potencial',
     red: 'Rojo', black: 'Negro', selectChip: 'Ficha', tapToBet: 'Toca la mesa para apostar', totalBet: 'Apuesta total', lastResults: 'Últimos resultados',
   },
+  rooms: {
+    title: 'Elige sala', subtitle: 'Cada sala fija la apuesta mínima y máxima.', practice: 'Práctica', r1: 'Inicial', r2: 'Media', r3: 'Alta',
+    tier: { practice: 'Gratis', r1: 'Nivel 1', r2: 'Nivel 2', r3: 'Nivel 3' }, limits: 'Apuesta mín. – máx.', enter: 'Entrar en {{name}}',
+    locked: 'Necesitas {{amount}} Ti', free: 'Fichas sin valor · no puntúa', counts: 'Ti reales · XP y misiones', change: 'Cambiar sala',
+    blinds: 'Ciegas {{sb}}/{{bb}}', buyIn: 'Entrada {{min}}–{{max}} Ti', chips: 'Fichas {{chips}}', maxReached: 'Máximo de la sala: {{max}} Ti', minRequired: 'Mínimo de la sala: {{min}} Ti',
+  },
   poker: {
     lobby: 'Poker', vsBots: 'Contra bots', online: 'Mesas online', private: 'Mesa privada', tournament: 'Sit & Go', cash: 'Mesa cash',
     fold: 'Retirarse', check: 'Pasar', call: 'Igualar {{amount}}', bet: 'Apostar', raise: 'Subir', allIn: 'All-in', pot: 'Bote',

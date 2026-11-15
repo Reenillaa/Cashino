@@ -7,7 +7,7 @@ insert into auth.users (id, email, raw_user_meta_data) values
 
 do $$ begin
   assert (select count(*) from public.profiles) = 3, 'profiles created';
-  assert (select balance from public.wallets where user_id = '11111111-1111-1111-1111-111111111111') = 10000, 'signup balance';
+  assert (select balance from public.wallets where user_id = '11111111-1111-1111-1111-111111111111') = 1000, 'signup balance';
   assert (select count(*) from public.user_seeds) = 3, 'seeds created';
   assert (select length(server_seed_hash) from public.user_seeds limit 1) = 64, 'seed hash';
 end $$;
@@ -17,7 +17,7 @@ set role service_role;
 select public.game_commit('11111111-1111-1111-1111-111111111111', 'dice', 100, 198, true, null, '{"roll":12}', 1, 2,
   '{"bet":100,"payout":198,"detail":"12.00","multiStep":false}', 'hash', 'client', 'req-1', null);
 do $$ begin
-  assert (select balance from public.wallets where user_id = '11111111-1111-1111-1111-111111111111') = 10098, 'win applied';
+  assert (select balance from public.wallets where user_id = '11111111-1111-1111-1111-111111111111') = 1098, 'win applied';
   assert (select rounds from public.game_stats where user_id = '11111111-1111-1111-1111-111111111111' and game = 'dice') = 1, 'stats';
   assert (select xp from public.profiles where id = '11111111-1111-1111-1111-111111111111') = 10, 'xp awarded';
   assert (select points from public.season_scores where user_id = '11111111-1111-1111-1111-111111111111') = 2, 'season points';
@@ -29,7 +29,7 @@ do $$ begin
     raise exception 'duplicate request was accepted';
   exception when unique_violation then null;
   end;
-  assert (select balance from public.wallets where user_id = '11111111-1111-1111-1111-111111111111') = 10098, 'no double payout';
+  assert (select balance from public.wallets where user_id = '11111111-1111-1111-1111-111111111111') = 1098, 'no double payout';
 end $$;
 -- Insufficient balance aborts the whole operation
 do $$ begin
@@ -39,7 +39,7 @@ do $$ begin
   exception when others then
     if sqlerrm <> 'insufficient' then raise; end if;
   end;
-  assert (select balance from public.wallets where user_id = '22222222-2222-2222-2222-222222222222') = 10000, 'balance untouched';
+  assert (select balance from public.wallets where user_id = '22222222-2222-2222-2222-222222222222') = 1000, 'balance untouched';
   assert (select count(*) from public.processed_requests where key = 'req-2') = 0, 'rolled back';
 end $$;
 -- Multi-step session with optimistic versioning
@@ -55,7 +55,7 @@ end $$;
 select public.game_commit('22222222-2222-2222-2222-222222222222', 'mines', 0, 115, true, null, '{}', 5, 4, '{"bet":50,"payout":115,"multiStep":true}', 'h', 'c', 'm-3', 1);
 do $$ begin
   assert (select count(*) from public.game_sessions where user_id = '22222222-2222-2222-2222-222222222222') = 0, 'session cleared';
-  assert (select balance from public.wallets where user_id = '22222222-2222-2222-2222-222222222222') = 10065, 'multi-step net';
+  assert (select balance from public.wallets where user_id = '22222222-2222-2222-2222-222222222222') = 1065, 'multi-step net';
 end $$;
 -- Rewards cannot be claimed twice
 select public.claim_reward('22222222-2222-2222-2222-222222222222', 'daily', '2026-11-15', 500);
@@ -65,12 +65,12 @@ do $$ begin
     raise exception 'double claim accepted';
   exception when others then if sqlerrm <> 'already_claimed' then raise; end if;
   end;
-  assert (select balance from public.wallets where user_id = '22222222-2222-2222-2222-222222222222') = 10565, 'single daily';
+  assert (select balance from public.wallets where user_id = '22222222-2222-2222-2222-222222222222') = 1565, 'single daily';
 end $$;
 -- Guest migration is capped and one-time
 select public.migrate_guest('33333333-3333-3333-3333-333333333333', 'device-x', 999999);
 do $$ begin
-  assert (select balance from public.wallets where user_id = '33333333-3333-3333-3333-333333333333') = 60000, 'migration capped at 50k';
+  assert (select balance from public.wallets where user_id = '33333333-3333-3333-3333-333333333333') = 6000, 'migration capped at 5k';
   begin
     perform public.migrate_guest('33333333-3333-3333-3333-333333333333', 'device-y', 10);
     raise exception 'second migration accepted';

@@ -20,11 +20,13 @@ function round(bet) {
   if (r < 0.9) return rng.float() < surviveChance(3, 4) ? Math.floor(bet * minesMultiplier(3, 4)) : 0;
   return settleCrash(bet, crashPoint(rng), 10).payout; // occasional high-variance play
 }
+// Bets respect the rooms: 20–100 (and 200–1000 once the balance allows it).
+const roomBet = (want, bal) => (bal >= 2000 && want >= 200 ? Math.min(1000, Math.max(200, want)) : Math.min(100, Math.max(20, want)));
 const PLAYERS = {
-  casual: { roundsPerDay: 60, bet: () => 10 },
-  regular: { roundsPerDay: 150, bet: (b) => Math.max(10, Math.floor(b * 0.01)) },
-  highroller: { roundsPerDay: 200, bet: (b) => Math.max(10, Math.floor(b * 0.05)) },
-  reckless: { roundsPerDay: 200, bet: (b) => Math.max(10, Math.floor(b * 0.2)) },
+  casual: { roundsPerDay: 60, bet: () => 20 },
+  regular: { roundsPerDay: 150, bet: (b) => roomBet(Math.floor(b * 0.03), b) },
+  highroller: { roundsPerDay: 200, bet: (b) => roomBet(Math.floor(b * 0.1), b) },
+  reckless: { roundsPerDay: 200, bet: (b) => roomBet(Math.floor(b * 0.3), b) },
 };
 function simulate(start, kind, days = 30, n = 400) {
   const p = PLAYERS[kind];
@@ -36,7 +38,7 @@ function simulate(start, kind, days = 30, n = 400) {
       bal += dailyRewardAmount(streak);
       let refills = 0;
       for (let k = 0; k < p.roundsPerDay; k++) {
-        if (bal < ECONOMY.minBet || bal < 10) {
+        if (bal < ECONOMY.refillThreshold) {
           if (refills < ECONOMY.refillsPerDay) { bal = ECONOMY.refillAmount; refills++; firstBust = Math.min(firstBust, d); } else break;
         }
         const bet = Math.min(bal, p.bet(bal));
@@ -52,7 +54,7 @@ function simulate(start, kind, days = 30, n = 400) {
   return { bustDay1: bustDay1 / n, bustWeek1: bustWeek1 / n, refillDayShare: refillDays / (n * days), medianDay30: endBal[Math.floor(n / 2)] };
 }
 const rows = [];
-for (const start of [2000, 5000, 10000, 25000]) {
+for (const start of [500, 1000, 2500, 5000]) {
   for (const kind of Object.keys(PLAYERS)) rows.push({ start, kind, ...simulate(start, kind) });
 }
 console.log('| Start | Player | Bust day 1 | Bust week 1 | Days needing refill | Median balance day 30 |');

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, Chip, Segmented, Surface, T, formatCoins } from '@/design/components';
+import { Button, Chip, Segmented, Slider, Surface, T, formatCoins } from '@/design/components';
 import { useT } from '@/i18n';
 import { useGameSession, PlayError } from '@/features/play/session';
 import { useSession } from '@/state/session';
@@ -13,11 +13,6 @@ import { usePokerGame, type PokerSetup } from './usePokerGame';
 import type { BotDifficulty } from '@/engine/poker/bots.ts';
 
 const tint = META.poker.tint;
-const STAKES = [
-  { sb: 5, bb: 10, buyIn: 1000 },
-  { sb: 25, bb: 50, buyIn: 5000 },
-  { sb: 100, bb: 200, buyIn: 20000 },
-];
 
 export default function PokerScreen({ forceTutorial }: { forceTutorial?: boolean }) {
   const { t } = useT();
@@ -29,12 +24,17 @@ export default function PokerScreen({ forceTutorial }: { forceTutorial?: boolean
   const [format, setFormat] = useState<'cash' | 'sng'>('cash');
   const [opponents, setOpponents] = useState(4);
   const [difficulty, setDifficulty] = useState<BotDifficulty>('medium');
-  const [stake, setStake] = useState(0);
+  const room = s.room;
+  const [buyInPick, setBuyIn] = useState<{ room: string; v: number } | null>(null);
+  const buyIn = buyInPick?.room === room.id ? buyInPick.v : room.max;
   // Signed-in players play bots locally in practice; coins at stake online go through the server tables.
   const practice = s.mode === 'practice' || signedIn;
-  const balance = practice ? s.balance : s.balance;
   const sit = () => {
-    const cfg: PokerSetup = { format, opponents, difficulty, stakes: format === 'sng' ? { sb: 10, bb: 20, buyIn: STAKES[stake].buyIn / 2 } : STAKES[stake], practice };
+    // Cash: buy-in inside the room range. Sit & Go: entry = room minimum, 1,500 tournament chips each.
+    const cfg: PokerSetup = {
+      format, opponents, difficulty, practice,
+      stakes: format === 'sng' ? { sb: room.poker.sb, bb: room.poker.bb, buyIn: room.min } : { sb: room.poker.sb, bb: room.poker.bb, buyIn },
+    };
     if (!game.start(cfg)) onError(new PlayError('insufficient'));
   };
   const table = game.table;
@@ -42,8 +42,9 @@ export default function PokerScreen({ forceTutorial }: { forceTutorial?: boolean
     <GameShell
       game="poker"
       mode={practice ? 'practice' : s.mode}
-      balance={balance}
+      balance={s.balance}
       locked={!!table}
+      describeRoom={(r) => `${t('rooms.blinds', { sb: r.poker.sb, bb: r.poker.bb })} · ${t('rooms.buyIn', { min: formatCoins(r.min), max: formatCoins(r.max) })}`}
       forceTutorial={forceTutorial}
       stage={
         table ? (
@@ -73,17 +74,17 @@ export default function PokerScreen({ forceTutorial }: { forceTutorial?: boolean
             <T variant="caption" color="text3">{t('poker.difficulty')}</T>
             <Segmented value={difficulty} onChange={setDifficulty} options={[{ value: 'easy', label: t('poker.easy') }, { value: 'medium', label: t('poker.medium') }, { value: 'advanced', label: t('poker.advanced') }]} />
             <T variant="caption" color="text3">{t('poker.buyIn')}</T>
-            <View style={{ gap: 8 }}>
-              {STAKES.map((st, i) => (
-                <Chip
-                  key={i}
-                  selected={stake === i}
-                  tint={tint}
-                  onPress={() => setStake(i)}
-                  label={format === 'cash' ? `${t('poker.blinds', { sb: st.sb, bb: st.bb })} · ${formatCoins(st.buyIn)} Ti` : `${t('poker.buyIn')} ${formatCoins(st.buyIn / 2)} Ti · 1.500 chips`}
-                />
-              ))}
-            </View>
+            <Surface level={2} style={{ gap: 6 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <T variant="title" tabular>{formatCoins(format === 'sng' ? room.min : buyIn)} <T variant="callout" color="text3">Ti</T></T>
+                <T variant="footnote" color="text3">{t('poker.blinds', { sb: room.poker.sb, bb: room.poker.bb })}</T>
+              </View>
+              {format === 'cash' ? (
+                <Slider value={buyIn} min={room.min} max={room.max} step={Math.max(1, room.min / 2)} tint={tint} onChange={(v) => setBuyIn({ room: room.id, v })} accessibilityLabel={t('poker.buyIn')} />
+              ) : (
+                <T variant="footnote" color="text3">1.500 chips · 🏆 65 % / 35 %</T>
+              )}
+            </Surface>
             {signedIn && <T variant="footnote" color="text3">{t('common.practiceBanner')}</T>}
           </ScrollView>
         )

@@ -10,7 +10,7 @@ import { tutorialEvent } from '@/features/tutorial/tutorial';
 import { GameShell } from '../shared/GameShell';
 import { HistoryStrip } from '../shared/HistoryStrip';
 import { ResultBanner } from '../shared/ResultBanner';
-import { ChipRack, ChipToken } from '../shared/ChipRack';
+import { ChipRack, ChipToken, chipFor } from '../shared/ChipRack';
 import { useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
@@ -23,7 +23,8 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
   const { t } = useT();
   const { reduceMotion } = useTheme();
   const s = useGameSession('baccarat');
-  const [chip, setChip] = useState(10);
+  const [chipPick, setChip] = useState<number | null>(null);
+  const chip = chipPick !== null && s.room.chips.includes(chipPick) ? chipPick : s.room.chips[1];
   const [bets, setBets] = useState<Partial<Record<BaccaratBetKind, number>>>({});
   const [coup, setCoup] = useState<BView | null>(null);
   const [shown, setShown] = useState({ p: 0, b: 0 });
@@ -35,6 +36,7 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
   const place = (k: BaccaratBetKind) => {
     if (busy) return;
     if (total + chip > s.balance) return onError(new PlayError('insufficient'));
+    if (total + chip > s.room.max) return onError(new PlayError(`room_max:${s.room.max}`));
     setCoup(null);
     setBets((b) => ({ ...b, [k]: (b[k] ?? 0) + chip }));
     sfx('chip');
@@ -105,12 +107,12 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
       }
       controls={
         <View>
-          <ChipRack value={chip} onChange={setChip} balance={s.balance} />
+          <ChipRack value={chip} onChange={setChip} balance={s.balance} values={s.room.chips} />
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, marginBottom: 10 }}>
-            <T variant="footnote" color="text3" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular>{formatCoins(total)}</T></T>
+            <T variant="footnote" color="text3" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular color={total && total < s.room.min ? 'warn' : 'text'}>{formatCoins(total)}</T> / {formatCoins(s.room.min)}–{formatCoins(s.room.max)}</T>
             <Button title={t('common.clear')} kind="ghost" size="sm" onPress={() => setBets({})} disabled={!total || busy} />
           </View>
-          <Button title={t('play.deal')} onPress={deal} loading={busy} disabled={!total || total > s.balance} />
+          <Button title={t('play.deal')} onPress={deal} loading={busy} disabled={!total || total > s.balance || total < s.room.min} />
         </View>
       }
     />
@@ -142,7 +144,7 @@ function BacSpot({ label, pays, amount, highlight, onPress }: { label: string; p
     <PressableScale onPress={onPress} feedback="none" scaleTo={0.96} accessibilityLabel={`${label} ${pays}${amount ? `, ${amount}` : ''}`} style={[styles.spot, { flex: 1, backgroundColor: c.surface2, borderColor: highlight ? tint : c.hairline }]}>
       <T variant="callout" weight="semibold">{label}</T>
       <T variant="caption" color="text3" style={{ fontSize: 10 }}>{pays}</T>
-      {amount ? <View style={styles.placed}><ChipToken value={[1000, 500, 100, 25, 10, 5, 1].find((x) => x <= amount) ?? 1} size={22} /></View> : null}
+      {amount ? <View style={styles.placed}><ChipToken value={chipFor(amount)} size={22} /></View> : null}
     </PressableScale>
   );
 }

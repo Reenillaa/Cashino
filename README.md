@@ -4,12 +4,16 @@ Plataforma móvil premium de **14 juegos de casino y azar con moneda 100 % virtu
 
 > El nombre del producto y de la moneda (“Ti”) son provisionales: se cambian en `src/config/brand.ts` y `app.config.ts`.
 
+## Jugar ya
+**https://reenillaa.github.io/Cashino/** — en el iPhone ábrelo en Safari → Compartir → *Añadir a pantalla de inicio* y se abre a pantalla completa como una app (se publica sola en cada push a `main`).
+
 ## Qué incluye
 - **14 juegos jugables**: Poker (Texas Hold'em NL vs bots y online), Blackjack, Crash, Dice, Mines, Plinko, Cruce (estilo chicken-road), Ruleta europea, Limbo, Coinflip, Baccarat, Hi-Lo, Keno y Sic Bo.
 - Resultados **calculados antes de animar** y **verificables** (HMAC-SHA256, semillas servidor/cliente/nonce).
 - **Tutorial interactivo** por juego (se hace en el juego real, en modo práctica) que se recuerda (`<juego>_tutorial_completed`).
 - **Academy**: 42 lecciones ES/EN con cuestionarios, 8 simuladores, insignias y nivel de aprendizaje. Sin promesas de ganar.
-- **Economía virtual** simulada: saldo inicial 10.000, regalo diario sin presión, recargas gratuitas, práctica ilimitada.
+- **Salas por juego** con carrusel animado: Práctica, Inicial 20–100, Media 200–1.000 y Alta 2.000–10.000 (límites validados también en servidor).
+- **Economía virtual** simulada: saldo inicial 1.000, regalo diario sin presión, recargas gratuitas, práctica ilimitada.
 - **Progresión**: niveles, XP con topes diarios, logros, misiones diarias/semanales, temporadas de 56 días.
 - **Online (Supabase)**: cuentas, amigos, bloqueos, equipos, salas privadas con código, Sit & Go, reacciones (sin chat), rankings que nunca usan el saldo.
 - **Diseño Titanium**: obsidiana/grafito/plata/marfil, cristal solo en la capa de control, acentos “anodizados” por juego, modo oscuro y claro, sonido sintetizado propio, hápticos, accesibilidad básica.
@@ -29,13 +33,14 @@ Para ver la app en un iPhone necesitas un **development build** (usa módulos na
 | Script | Qué hace |
 |---|---|
 | `npm run typecheck` | TypeScript estricto |
-| `npm test` | Jest: motor (98) + app (13) |
+| `npm test` | Jest: motor (100) + app (14) |
 | `npm run test:engine` / `test:app` | Suites por separado |
 | `./supabase/tests/run.sh` | Pruebas del esquema SQL en un Postgres local |
 | `npm run sync:engine` | Copia el motor a las Edge Functions (antes de desplegar) |
 | `npm run sim:economy` | Simulación de la economía |
 | `npm run gen:sounds` / `gen:icons` | Regenera sonidos sintetizados / iconos desde `brand/` |
 | `npm run export:web` | Build web (usada para verificación visual) |
+| `npm run export:pages` | Build PWA para GitHub Pages bajo `/Cashino` |
 
 ## Estructura
 ```

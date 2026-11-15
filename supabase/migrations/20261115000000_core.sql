@@ -321,7 +321,7 @@ begin
   uname := left(base, 14) || '_' || substr(md5(new.id::text), 1, 4);
   insert into profiles (id, username, avatar) values (new.id, uname, 'a' || (abs(hashtext(new.id::text)) % 24));
   insert into wallets (user_id, balance) values (new.id, 0);
-  perform wallet_apply(new.id, 10000, 'signup', null, 'signup:' || new.id);
+  perform wallet_apply(new.id, 1000, 'signup', null, 'signup:' || new.id);
   insert into progress (user_id) values (new.id);
   insert into poker_ratings (user_id) values (new.id);
   insert into user_seeds (user_id, server_seed, server_seed_hash, client_seed)
@@ -342,7 +342,7 @@ create policy "migrations: self read" on public.guest_migrations for select to a
 
 create or replace function public.migrate_guest(p_user uuid, p_device text, p_amount bigint)
 returns bigint language plpgsql security definer set search_path = public as $$
-declare amt bigint := greatest(0, least(p_amount, 50000));
+declare amt bigint := greatest(0, least(p_amount, 5000));
 begin
   insert into guest_migrations (user_id, device_id, amount) values (p_user, p_device, amt);
   return wallet_apply(p_user, amt, 'migration', p_device, 'migration:' || p_user);

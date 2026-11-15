@@ -1,5 +1,7 @@
 import { act, renderHook } from '@testing-library/react-native';
-import { useGameSession, usePlayModes, useActiveRounds } from '../session';
+import { useGameSession, useActiveRounds } from '../session';
+import { useRooms } from '../rooms';
+import { ECONOMY } from '@/engine/meta/economy.ts';
 import { useWallet } from '@/state/wallet';
 import { useProgress } from '@/state/progress';
 import { useFairness } from '@/state/fairness';
@@ -13,7 +15,13 @@ describe('useGameSession (local modes)', () => {
     useWallet.getState().resetAll();
     useProgress.getState().resetAll();
     useActiveRounds.setState({ rounds: {} });
-    usePlayModes.setState({ practice: {} });
+    useRooms.setState({ byGame: {} });
+  });
+
+  it('rejects a bet below the room minimum', async () => {
+    const { result } = await renderHook(() => useGameSession('dice'));
+    await expect(result.current.op('play', { bet: 10, mode: 'under', target: 50 })).rejects.toThrow('stake_outside_room');
+    expect(useWallet.getState().balance).toBe(ECONOMY.startingBalance);
   });
 
   it('plays a dice round with guest coins and records a verifiable proof', async () => {
@@ -24,27 +32,29 @@ describe('useGameSession (local modes)', () => {
       out = await result.current.op('play', { bet: 100, mode: 'under', target: 50 });
     });
     expect(out!.done).toBe(true);
-    expect(useWallet.getState().balance).toBe(10000 - 100 + out!.payout);
+    expect(useWallet.getState().balance).toBe(ECONOMY.startingBalance - 100 + out!.payout);
+    expect(result.current.room.id).toBe('r1');
     const h = useProgress.getState().history[0];
     expect(h.game).toBe('dice');
     expect(h.fair?.hash).toBe(hashServerSeed(useFairness.getState().serverSeed));
   });
 
-  it('uses practice chips when practice mode is on and rejects overspending', async () => {
-    usePlayModes.getState().setPractice('limbo', true);
+  it('uses practice chips in the practice room and rejects stakes outside the room', async () => {
+    useRooms.getState().choose('limbo', 'practice');
     const { result } = await renderHook(() => useGameSession('limbo'));
     expect(result.current.mode).toBe('practice');
     await act(async () => {
       await result.current.op('play', { bet: 50, target: 2 });
     });
-    expect(useWallet.getState().balance).toBe(10000);
-    await expect(result.current.op('play', { bet: 10_000_000, target: 2 })).rejects.toThrow();
+    expect(useWallet.getState().balance).toBe(ECONOMY.startingBalance);
+    expect(useWallet.getState().practice).not.toBe(ECONOMY.practiceBalance);
+    await expect(result.current.op('play', { bet: 5_000, target: 2 })).rejects.toThrow('stake_outside_room');
   });
 
   it('keeps a multi-step round active (persisted) until cash out', async () => {
     const { result } = await renderHook(() => useGameSession('mines'));
     await act(async () => {
-      await result.current.op('start', { bet: 10, mines: 1 });
+      await result.current.op('start', { bet: 20, mines: 1 });
     });
     expect(useActiveRounds.getState().rounds.mines).toBeDefined();
     expect((useActiveRounds.getState().rounds.mines!.view as { minePositions: unknown }).minePositions).toBeNull();
@@ -59,6 +69,6 @@ describe('useGameSession (local modes)', () => {
     });
     expect(cash!.done).toBe(true);
     expect(useActiveRounds.getState().rounds.mines).toBeUndefined();
-    expect(useWallet.getState().balance).toBe(10000 - 10 + cash!.payout);
+    expect(useWallet.getState().balance).toBe(ECONOMY.startingBalance - 20 + cash!.payout);
   });
 });

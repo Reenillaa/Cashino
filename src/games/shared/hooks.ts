@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { GameId } from '@/engine/games/types.ts';
+import type { Room } from '@/engine/meta/rooms.ts';
 import { useProgress } from '@/state/progress';
 import { useT } from '@/i18n';
 import { formatMult } from '@/design/components';
@@ -26,15 +27,18 @@ export function useGameHistory(game: GameId, label?: (detail: string, mult: numb
   );
 }
 
-const lastBets: Partial<Record<GameId, number>> = {};
-export function useBet(game: GameId, initial = 10) {
-  const [bet, setBetState] = useState(lastBets[game] ?? initial);
+const lastBets: Partial<Record<string, number>> = {};
+/** Bet amount remembered per game and room, always starting inside the room limits. */
+export function useBet(game: GameId, room: Room) {
+  const key = `${game}:${room.id}`;
+  const [state, setState] = useState<{ key: string; bet: number }>({ key, bet: lastBets[key] ?? room.min });
+  const bet = state.key === key ? state.bet : lastBets[key] ?? room.min;
   const setBet = useCallback(
     (v: number) => {
-      lastBets[game] = v;
-      setBetState(v);
+      lastBets[key] = v;
+      setState({ key, bet: v });
     },
-    [game],
+    [key],
   );
   return [bet, setBet] as const;
 }
@@ -63,7 +67,7 @@ export function usePlayErrors() {
       haptic.error();
       const code = e instanceof PlayError || e instanceof OnlineError ? (e instanceof OnlineError ? e.code : e.message) : 'error';
       if (code === 'busy') return;
-      const msg = code === 'insufficient' ? t('common.insufficient') : code === 'not_configured' ? t('auth.notConfigured') : code === 'network' ? t('common.offline') : `${t('common.error')} (${code})`;
+      const msg = code.startsWith('room_max:') ? t('rooms.maxReached', { max: code.split(':')[1] }) : code === 'stake_outside_room' ? t('rooms.limits') : code === 'insufficient' ? t('common.insufficient') : code === 'not_configured' ? t('auth.notConfigured') : code === 'network' ? t('common.offline') : `${t('common.error')} (${code})`;
       useProgress.getState().pushToast({ kind: 'info', title: msg });
     },
     [t],

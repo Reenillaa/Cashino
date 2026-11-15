@@ -4,18 +4,18 @@
  * (see docs/06-ECONOMY.md).
  */
 export const ECONOMY = {
-  startingBalance: 10_000,
-  practiceBalance: 10_000,
+  startingBalance: 1_000,
+  practiceBalance: 1_000,
   minBet: 1,
   /** Daily gift by streak day (1-indexed). Missing days steps the streak back gently instead of resetting it. */
-  dailyRewards: [500, 600, 700, 800, 900, 1_000, 1_500],
-  /** Free balance recovery when the wallet is nearly empty. */
-  refillThreshold: 100,
-  refillAmount: 2_000,
+  dailyRewards: [100, 120, 140, 160, 180, 200, 300],
+  /** Free balance recovery when the wallet cannot cover the smallest room (20 Ti). */
+  refillThreshold: 20,
+  refillAmount: 300,
   refillsPerDay: 3,
-  levelUpBonusBase: 250,
+  levelUpBonusBase: 25,
   /** One-time cap when migrating a guest wallet into an account. */
-  guestMigrationCap: 50_000,
+  guestMigrationCap: 5_000,
 } as const;
 
 export const DAY_MS = 86_400_000;

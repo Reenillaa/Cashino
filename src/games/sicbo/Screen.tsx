@@ -11,7 +11,7 @@ import { tutorialEvent } from '@/features/tutorial/tutorial';
 import { GameShell } from '../shared/GameShell';
 import { HistoryStrip } from '../shared/HistoryStrip';
 import { ResultBanner } from '../shared/ResultBanner';
-import { ChipRack, ChipToken } from '../shared/ChipRack';
+import { ChipRack, ChipToken, chipFor } from '../shared/ChipRack';
 import { useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
 import { META } from '../catalog';
 import { sfx } from '@/services/audio';
@@ -52,7 +52,8 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
   const { t } = useT();
   const { reduceMotion } = useTheme();
   const s = useGameSession('sicbo');
-  const [chip, setChip] = useState(10);
+  const [chipPick, setChip] = useState<number | null>(null);
+  const chip = chipPick !== null && s.room.chips.includes(chipPick) ? chipPick : s.room.chips[1];
   const [bets, setBets] = useState<Record<string, { bet: SicBoBet; amount: number }>>({});
   const [dice, setDice] = useState<[number, number, number]>([1, 3, 5]);
   const [rolling, setRolling] = useState(false);
@@ -65,6 +66,7 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
   const place = (bet: SicBoBet) => {
     if (rolling) return;
     if (total + chip > s.balance) return onError(new PlayError('insufficient'));
+    if (total + chip > s.room.max) return onError(new PlayError(`room_max:${s.room.max}`));
     const k = sicBoKey(bet);
     setWinKeys([]);
     setBets((b) => ({ ...b, [k]: { bet, amount: (b[k]?.amount ?? 0) + chip } }));
@@ -137,12 +139,12 @@ export default function SicBoScreen({ forceTutorial }: { forceTutorial?: boolean
       }
       controls={
         <View>
-          <ChipRack value={chip} onChange={setChip} balance={s.balance} />
+          <ChipRack value={chip} onChange={setChip} balance={s.balance} values={s.room.chips} />
           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, marginBottom: 10 }}>
-            <T variant="footnote" color="text3" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular>{formatCoins(total)}</T></T>
+            <T variant="footnote" color="text3" style={{ flex: 1 }}>{t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular color={total && total < s.room.min ? 'warn' : 'text'}>{formatCoins(total)}</T> / {formatCoins(s.room.min)}–{formatCoins(s.room.max)}</T>
             <Button title={t('common.clear')} kind="ghost" size="sm" onPress={() => setBets({})} disabled={!total || rolling} />
           </View>
-          <Button title={t('play.roll')} onPress={roll} loading={rolling} disabled={!total || total > s.balance} />
+          <Button title={t('play.roll')} onPress={roll} loading={rolling} disabled={!total || total > s.balance || total < s.room.min} />
         </View>
       }
     />
@@ -156,7 +158,7 @@ function SicBoCell({ k, label, sub, flex = 1, children, placed, win, onPress }: 
       {children}
       {label ? <T variant="footnote" weight="semibold">{label}</T> : null}
       {sub ? <T variant="caption" color="text3" style={{ fontSize: 9, letterSpacing: 0.2 }}>{sub}</T> : null}
-      {placed ? <View style={styles.placed}><ChipToken value={[1000, 500, 100, 25, 10, 5, 1].find((x) => x <= placed) ?? 1} size={18} /></View> : null}
+      {placed ? <View style={styles.placed}><ChipToken value={chipFor(placed)} size={18} /></View> : null}
     </PressableScale>
   );
 }

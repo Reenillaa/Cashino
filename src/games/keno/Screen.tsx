@@ -23,7 +23,7 @@ export default function KenoScreen({ forceTutorial }: { forceTutorial?: boolean 
   const { c, reduceMotion } = useTheme();
   const { width } = useWindowDimensions();
   const s = useGameSession('keno');
-  const [bet, setBet] = useBet('keno');
+  const [bet, setBet] = useBet('keno', s.room);
   const [picks, setPicks] = useState<number[]>([]);
   const [risk, setRisk] = useState<KenoRisk>('medium');
   const [drawn, setDrawn] = useState<number[]>([]);
@@ -136,8 +136,8 @@ export default function KenoScreen({ forceTutorial }: { forceTutorial?: boolean 
               <T variant="footnote" color="text3" tabular>{picks.length}/{KENO_MAX_PICKS}</T>
             </View>
           </View>
-          <BetInput value={bet} onChange={setBet} balance={s.balance} disabled={busy} tint={tint} />
-          <Button title={t('play.draw')} onPress={draw} loading={busy} disabled={picks.length === 0 || bet > s.balance} style={{ marginTop: 12 }} />
+          <BetInput value={bet} onChange={setBet} balance={s.balance} min={s.room.min} max={s.room.max} disabled={busy} tint={tint} />
+          <Button title={t('play.draw')} onPress={draw} loading={busy} disabled={picks.length === 0 || (bet > s.balance || bet < s.room.min || bet > s.room.max)} style={{ marginTop: 12 }} />
         </View>
       }
     />
