@@ -1,56 +1,61 @@
-# Welcome to your Expo app 👋
+# Titanium (nombre provisional)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Plataforma móvil premium de **14 juegos de casino y azar con moneda 100 % virtual** (sin valor monetario, sin compras, sin retiradas), con Academy educativa, multijugador online, rankings y progresión. React Native + Expo, prioridad iPhone.
 
-## Get started
+> El nombre del producto y de la moneda (“Ti”) son provisionales: se cambian en `src/config/brand.ts` y `app.config.ts`.
 
-1. Install dependencies
+## Qué incluye
+- **14 juegos jugables**: Poker (Texas Hold'em NL vs bots y online), Blackjack, Crash, Dice, Mines, Plinko, Cruce (estilo chicken-road), Ruleta europea, Limbo, Coinflip, Baccarat, Hi-Lo, Keno y Sic Bo.
+- Resultados **calculados antes de animar** y **verificables** (HMAC-SHA256, semillas servidor/cliente/nonce).
+- **Tutorial interactivo** por juego (se hace en el juego real, en modo práctica) que se recuerda (`<juego>_tutorial_completed`).
+- **Academy**: 42 lecciones ES/EN con cuestionarios, 8 simuladores, insignias y nivel de aprendizaje. Sin promesas de ganar.
+- **Economía virtual** simulada: saldo inicial 10.000, regalo diario sin presión, recargas gratuitas, práctica ilimitada.
+- **Progresión**: niveles, XP con topes diarios, logros, misiones diarias/semanales, temporadas de 56 días.
+- **Online (Supabase)**: cuentas, amigos, bloqueos, equipos, salas privadas con código, Sit & Go, reacciones (sin chat), rankings que nunca usan el saldo.
+- **Diseño Titanium**: obsidiana/grafito/plata/marfil, cristal solo en la capa de control, acentos “anodizados” por juego, modo oscuro y claro, sonido sintetizado propio, hápticos, accesibilidad básica.
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+## Empezar
 ```bash
-npm run reset-project
+npm install
+```
+```bash
+npx expo start
+```
+Sin variables de entorno la app funciona **entera en modo offline/invitado**. Para lo online, copia `.env.example` a `.env` y sigue `docs/09-IOS-INSTALL.md`.
+
+Para ver la app en un iPhone necesitas un **development build** (usa módulos nativos que Expo Go no trae): ver `docs/09-IOS-INSTALL.md`.
+
+## Scripts
+| Script | Qué hace |
+|---|---|
+| `npm run typecheck` | TypeScript estricto |
+| `npm test` | Jest: motor (98) + app (13) |
+| `npm run test:engine` / `test:app` | Suites por separado |
+| `./supabase/tests/run.sh` | Pruebas del esquema SQL en un Postgres local |
+| `npm run sync:engine` | Copia el motor a las Edge Functions (antes de desplegar) |
+| `npm run sim:economy` | Simulación de la economía |
+| `npm run gen:sounds` / `gen:icons` | Regenera sonidos sintetizados / iconos desde `brand/` |
+| `npm run export:web` | Build web (usada para verificación visual) |
+
+## Estructura
+```
+src/app/          Rutas (Expo Router): pestañas, juego, academy, online, ajustes, auth
+src/engine/       Motor puro TS (RNG verificable, 14 juegos, póker, bots, economía, rankings) + tests
+src/games/        UI de cada juego + marco común (GameShell, apuesta, historial, reglas)
+src/features/     academy, tutorial, play (sesiones), online, social, sync, economy, progression
+src/design/       Tokens Titanium, tema, componentes
+src/i18n/         es.ts / en.ts
+src/state/        Stores persistidos (zustand)
+src/services/     supabase, audio, hápticos, almacenamiento, aleatoriedad, notificaciones
+supabase/         Migraciones (RLS), Edge Functions (game, rewards, account, poker), tests SQL
+docs/             Documentación numerada + STATUS.md
+brand/            Propuestas de icono y logotipo
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+## Documentación
+1. [Investigación](docs/01-RESEARCH.md) · 2. [Dirección artística](docs/02-DESIGN-TITANIUM.md) · 3. [Arquitectura](docs/03-ARCHITECTURE.md) · 4. [Juegos y matemáticas](docs/04-GAMES-AND-MATH.md) · 5. [Offline y sincronización](docs/05-SYNC-OFFLINE.md) · 6. [Economía](docs/06-ECONOMY.md) · 7. [Seguridad](docs/07-SECURITY.md) · 8. [Rankings](docs/08-RANKINGS.md) · 9. [Instalar en iPhone](docs/09-IOS-INSTALL.md) · 10. [Pruebas](docs/10-TESTING.md) · [**Estado**](docs/STATUS.md)
 
-### Other setup steps
+## Aviso
+Entretenimiento con moneda virtual. No hay dinero real, compras, retiradas ni premios con valor económico. Juega con moderación.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+© Todos los derechos reservados. Software propietario.

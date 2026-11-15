@@ -1,13 +1,14 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useTheme, alpha } from '../theme';
+import { useTheme, alpha, adaptTint } from '../theme';
 import { radius } from '../tokens';
 import { T } from './Text';
 import { PressableScale } from './Pressable';
 import { Icon, type IconName } from './Icon';
 
-export function Chip({ label, selected, onPress, icon, tint }: { label: string; selected?: boolean; onPress?: () => void; icon?: IconName; tint?: string }) {
-  const { c } = useTheme();
+export function Chip({ label, selected, onPress, icon, tint: rawTint }: { label: string; selected?: boolean; onPress?: () => void; icon?: IconName; tint?: string }) {
+  const { c, isDark } = useTheme();
+  const tint = rawTint ? adaptTint(rawTint, isDark) : undefined;
   const content = (
     <View
       style={[

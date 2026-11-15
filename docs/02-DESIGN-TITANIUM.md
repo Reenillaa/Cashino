@@ -71,7 +71,7 @@ Reglas: cristal **solo** sobre contenido que se desplaza debajo (si no hay nada 
 
 ## 6. Iconografía
 
-- Iconos de interfaz: **SF Symbols** en iOS (vía `expo-symbols`) con equivalentes SVG propios para web/Android.
+- Iconos de interfaz: set SVG propio (`src/design/components/Icon.tsx`, 60 iconos, trazo 1.75 pt) idéntico en iOS, Android y web — coherente con los glifos de juego y verificable en web. (SF Symbols queda como opción futura vía `expo-symbols`.)
 - Iconos de juego: set propio de 14 glifos geométricos dibujados en SVG con trazo 1.75 pt sobre retícula 24, coherentes entre sí (no emoji, no clip-art de casino).
 - Cartas: diseño tipográfico propio — índice grande en Geist 600, palos dibujados en SVG, palos rojos con forma distinta para no depender del color.
 

@@ -1,0 +1,31 @@
+# Supabase CLI configuration (local development + function settings).
+project_id = "titanium-app"
+
+[api]
+port = 54321
+schemas = ["public"]
+
+[db]
+port = 54322
+major_version = 16
+
+[realtime]
+enabled = true
+
+[auth]
+site_url = "titanium://"
+additional_redirect_urls = ["titanium://auth-callback"]
+enable_signup = true
+minimum_password_length = 8
+
+[auth.email]
+enable_confirmations = true
+
+[functions.game]
+verify_jwt = true
+[functions.rewards]
+verify_jwt = true
+[functions.account]
+verify_jwt = true
+[functions.poker]
+verify_jwt = true

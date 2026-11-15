@@ -41,3 +41,12 @@ export function alpha(hex: string, a: number): string {
   const n = parseInt(h.length === 3 ? h.split('').map((x) => x + x).join('') : h, 16);
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
 }
+
+/** Anodized tints are tuned for dark surfaces; in light mode they are darkened to keep contrast. */
+export function adaptTint(hex: string, isDark: boolean): string {
+  if (isDark || !hex.startsWith('#')) return hex;
+  const n = parseInt(hex.slice(1), 16);
+  const mix = (v: number) => Math.round(v * 0.62);
+  const r = mix((n >> 16) & 255), g = mix((n >> 8) & 255), b = mix(n & 255);
+  return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+}

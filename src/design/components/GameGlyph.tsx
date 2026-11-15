@@ -1,6 +1,7 @@
 import React from 'react';
 import Svg, { Circle, Path, Rect, G } from 'react-native-svg';
 import type { GameId } from '@/engine/games/types.ts';
+import { adaptTint, useTheme } from '../theme';
 
 /** Geometric glyph per game, same 24-grid and stroke language as the UI icons. */
 const GLYPHS: Record<GameId, React.ReactNode> = {
@@ -21,8 +22,9 @@ const GLYPHS: Record<GameId, React.ReactNode> = {
 };
 
 export function GameGlyph({ game, size = 28, color }: { game: GameId; size?: number; color: string }) {
+  const { isDark } = useTheme();
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={adaptTint(color, isDark)} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
       <G>{GLYPHS[game]}</G>
     </Svg>
   );
