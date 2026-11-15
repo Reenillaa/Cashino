@@ -52,3 +52,6 @@ supabase/.branches/
 
 # test output
 coverage/
+
+# deno
+supabase/functions/node_modules/

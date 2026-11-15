@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/services/supabase';
 import { useSession } from '@/state/session';
 
-/** Number of pending friend requests + invites (0 when offline / guest). */
+/** Number of pending friend requests + table invites (0 when offline / guest). */
 export function useSocialBadge(): number {
   const userId = useSession((s) => s.userId);
   const [n, setN] = useState(0);
@@ -15,7 +15,7 @@ export function useSocialBadge(): number {
     const load = async () => {
       const [{ count: req }, { count: inv }] = await Promise.all([
         supabase!.from('friendships').select('*', { count: 'exact', head: true }).eq('addressee', userId).eq('status', 'pending'),
-        supabase!.from('invites').select('*', { count: 'exact', head: true }).eq('to_user', userId).eq('status', 'pending'),
+        supabase!.from('table_invites').select('*', { count: 'exact', head: true }).eq('to_user', userId).eq('status', 'pending'),
       ]);
       if (alive) setN((req ?? 0) + (inv ?? 0));
     };
