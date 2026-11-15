@@ -1,18 +1,54 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import React, { useEffect } from 'react';
+import { View } from 'react-native';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { useFonts } from 'expo-font';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Geist_300Light } from '@expo-google-fonts/geist/300Light';
+import { Geist_400Regular } from '@expo-google-fonts/geist/400Regular';
+import { Geist_500Medium } from '@expo-google-fonts/geist/500Medium';
+import { Geist_600SemiBold } from '@expo-google-fonts/geist/600SemiBold';
+import { Geist_700Bold } from '@expo-google-fonts/geist/700Bold';
+import { GeistMono_400Regular } from '@expo-google-fonts/geist-mono/400Regular';
+import { GeistMono_500Medium } from '@expo-google-fonts/geist-mono/500Medium';
+import '@/i18n';
+import { setLanguage } from '@/i18n';
+import { useSettings } from '@/state/settings';
+import { useTheme } from '@/design/theme';
+import { Toasts } from '@/design/components';
+import { syncMusic } from '@/services/audio';
+import { useAuthListener } from '@/features/auth/useAuthListener';
+import { useBreakReminder } from '@/features/wellbeing/useBreakReminder';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
-SplashScreen.preventAutoHideAsync();
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function RootLayout() {
+  const [loaded] = useFonts({ Geist_300Light, Geist_400Regular, Geist_500Medium, Geist_600SemiBold, Geist_700Bold, GeistMono_400Regular, GeistMono_500Medium });
+  const language = useSettings((s) => s.language);
+  const music = useSettings((s) => s.music);
+  const musicVolume = useSettings((s) => s.musicVolume);
+  const { c, isDark } = useTheme();
+  useAuthListener();
+  useBreakReminder();
+  useEffect(() => setLanguage(language), [language]);
+  useEffect(() => syncMusic(), [music, musicVolume]);
+  useEffect(() => {
+    if (loaded) SplashScreen.hideAsync().catch(() => undefined);
+  }, [loaded]);
+  if (!loaded) return <View style={{ flex: 1, backgroundColor: c.bg }} />;
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: c.bg }}>
+      <SafeAreaProvider>
+        <StatusBar style={isDark ? 'light' : 'dark'} />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg }, animation: 'default' }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="game/[id]" options={{ gestureEnabled: true }} />
+          <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
+        </Stack>
+        <Toasts />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><defs>
+<radialGradient id="bg" cx="50%" cy="28%" r="85%"><stop offset="0" stop-color="#2A2E35"/><stop offset="0.55" stop-color="#121418"/><stop offset="1" stop-color="#07080A"/></radialGradient>
+<linearGradient id="ti" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F5F7"/><stop offset="0.38" stop-color="#C8CDD3"/><stop offset="0.62" stop-color="#8E959F"/><stop offset="1" stop-color="#C8CDD3"/></linearGradient>
+<linearGradient id="tiDark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C838D"/><stop offset="1" stop-color="#3A3F47"/></linearGradient>
+<linearGradient id="ivory" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D9DDE2"/></linearGradient>
+<linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.10"/><stop offset="0.5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+</defs><rect width="1024" height="1024" fill="url(#bg)"/><rect width="1024" height="1024" fill="url(#sheen)"/><rect width="1024" height="1024" fill="url(#bg)"/><rect width="1024" height="1024" fill="url(#sheen)"/>
+<clipPath id="tile"><rect x="242" y="242" width="540" height="540" rx="148"/></clipPath>
+<g clip-path="url(#tile)">
+<rect x="242" y="242" width="540" height="540" fill="url(#tiDark)"/>
+<polygon points="242,242 782,242 242,782" fill="url(#ti)"/>
+<line x1="782" y1="242" x2="242" y2="782" stroke="#fff" stroke-opacity="0.5" stroke-width="5"/>
+</g>
+<clipPath id="pip"><circle cx="512" cy="512" r="86"/></clipPath>
+<g clip-path="url(#pip)"><rect x="400" y="400" width="240" height="240" fill="#C8CDD3"/><polygon points="400,400 640,400 400,640" fill="#262A31"/></g>
+</svg>

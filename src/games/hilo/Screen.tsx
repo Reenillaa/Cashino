@@ -1,0 +1,125 @@
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Button, PlayingCard, T, formatCoins, formatMult } from '@/design/components';
+import { useTheme } from '@/design/theme';
+import { useT } from '@/i18n';
+import { parseCard, type Card } from '@/engine/cards/cards.ts';
+import { guessProbability, legalGuesses, type HiloGuess } from '@/engine/games/hilo.ts';
+import { payoutFor } from '@/engine/games/types.ts';
+import { useGameSession } from '@/features/play/session';
+import { tutorialEvent } from '@/features/tutorial/tutorial';
+import { GameShell } from '../shared/GameShell';
+import { BetInput } from '../shared/BetInput';
+import { HistoryStrip } from '../shared/HistoryStrip';
+import { ResultBanner } from '../shared/ResultBanner';
+import { Stat, StatRow } from '../shared/Stat';
+import { useBet, useGameHistory, usePlayErrors, useResult } from '../shared/hooks';
+import { META } from '../catalog';
+import { sfx } from '@/services/audio';
+import { haptic } from '@/services/haptics';
+
+const tint = META.hilo.tint;
+interface HView { bet: number; current: string; status: string; multiplier: number; steps: { card: string; guess: string; probability: number; correct: boolean }[] }
+
+export default function HiloScreen({ forceTutorial }: { forceTutorial?: boolean }) {
+  const { t } = useT();
+  const { c } = useTheme();
+  const s = useGameSession('hilo');
+  const [bet, setBet] = useBet('hilo');
+  const [view, setView] = useState<HView | null>((s.active?.view as unknown as HView) ?? null);
+  const [busy, setBusy] = useState(false);
+  const { result, show } = useResult();
+  const onError = usePlayErrors();
+  const history = useGameHistory('hilo');
+  useEffect(() => {
+    if (s.active && !view) setView(s.active.view as unknown as HView);
+  }, [s.active]); // eslint-disable-line react-hooks/exhaustive-deps
+  const active = view?.status === 'active';
+  const current: Card | null = view ? parseCard(view.current) : null;
+  const correct = view?.steps.filter((x) => x.guess !== 'skip' && x.correct).length ?? 0;
+  const run = async (op: string, params: Record<string, unknown> = {}) => {
+    try {
+      setBusy(true);
+      const r = await s.op(op, params);
+      const v = r.view as unknown as HView;
+      setView(v);
+      if (op === 'start') {
+        sfx('card');
+        tutorialEvent('hilo', 'hilo:start');
+      } else if (op === 'guess') {
+        sfx('card');
+        tutorialEvent('hilo', 'hilo:guess');
+        if (v.status === 'lost') {
+          haptic.warning();
+          show({ bet: v.bet, payout: 0 });
+          tutorialEvent('hilo', 'hilo:end');
+        } else sfx('reveal', 0.7);
+      } else if (op === 'skip') sfx('flip');
+      else if (op === 'cashout') {
+        show({ bet: v.bet, payout: r.payout, multiplier: v.multiplier });
+        tutorialEvent('hilo', 'hilo:end');
+      }
+    } catch (e) {
+      onError(e);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const labelFor = (g: HiloGuess) => t(`play.${g}`);
+  const guesses = current ? legalGuesses(current) : (['higherOrSame', 'lowerOrSame'] as HiloGuess[]);
+  return (
+    <GameShell
+      game="hilo"
+      mode={s.mode}
+      balance={s.balance}
+      locked={active}
+      forceTutorial={forceTutorial}
+      history={<HistoryStrip items={history} />}
+      stage={
+        <View style={styles.stage}>
+          <PlayingCard key={view ? `${view.steps.length}-${view.current}` : 'none'} card={current} faceDown={!current} size="lg" />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingHorizontal: 20 }} style={{ flexGrow: 0, marginTop: 24 }}>
+            {(view?.steps ?? []).map((st, i) => (
+              <View key={i} style={{ alignItems: 'center', gap: 4 }}>
+                <PlayingCard card={parseCard(st.card)} size="xs" dim={st.guess === 'skip'} highlight={st.guess === 'skip' ? undefined : st.correct ? c.win : c.loss} />
+                <T variant="caption" color="text3" style={{ fontSize: 9 }}>{st.guess === 'skip' ? '↷' : st.correct ? '✓' : '✗'}</T>
+              </View>
+            ))}
+          </ScrollView>
+          <ResultBanner result={result} />
+        </View>
+      }
+      controls={
+        <View>
+          <StatRow>
+            <Stat label={t('play.multiplierNow')} value={correct ? formatMult(view!.multiplier) : '—'} tint={tint} />
+            <Stat label={t('play.streak')} value={`${correct}`} />
+          </StatRow>
+          {active && current ? (
+            <>
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                {guesses.map((g) => {
+                  const p = guessProbability(current, g);
+                  return <Button key={g} kind="secondary" title={labelFor(g)} subtitle={`${(p * 100).toFixed(1)} % · ${formatMult((view!.multiplier || 1) * (correct ? 1 : 0.99) / p)}`} onPress={() => run('guess', { guess: g })} disabled={busy} style={{ flex: 1 }} size="md" />;
+                })}
+              </View>
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+                <Button title={t('play.skipCard')} kind="ghost" size="md" onPress={() => run('skip')} disabled={busy} style={{ flex: 1 }} />
+                <Button title={t('common.cashout')} subtitle={correct ? `${formatCoins(payoutFor(view!.bet, view!.multiplier))} Ti` : undefined} onPress={() => run('cashout')} disabled={!correct || busy} style={{ flex: 1.4 }} />
+              </View>
+            </>
+          ) : (
+            <>
+              <BetInput value={bet} onChange={setBet} balance={s.balance} tint={tint} />
+              <Button title={t('play.placeBet')} onPress={() => run('start', { bet })} disabled={bet > s.balance} style={{ marginTop: 12 }} />
+            </>
+          )}
+        </View>
+      }
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  stage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+});

@@ -1,0 +1,73 @@
+import { useCallback, useMemo, useState } from 'react';
+import type { GameId } from '@/engine/games/types.ts';
+import { useProgress } from '@/state/progress';
+import { useT } from '@/i18n';
+import { formatMult } from '@/design/components';
+import type { HistoryItem } from './HistoryStrip';
+import type { ResultInfo } from './ResultBanner';
+import { PlayError } from '@/features/play/session';
+import { OnlineError } from '@/services/supabase';
+import { sfx } from '@/services/audio';
+import { haptic } from '@/services/haptics';
+
+/** Last results of a game for the history strip (persisted with progress). */
+export function useGameHistory(game: GameId, label?: (detail: string, mult: number) => string): HistoryItem[] {
+  const history = useProgress((s) => s.history);
+  return useMemo(
+    () =>
+      history
+        .filter((h) => h.game === game)
+        .slice(0, 16)
+        .map((h) => {
+          const mult = h.bet > 0 ? h.payout / h.bet : 0;
+          return { id: h.id, label: label ? label(h.detail, mult) : formatMult(mult), win: h.payout > h.bet ? true : h.payout === h.bet && h.bet > 0 ? null : false };
+        }),
+    [history, game], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+}
+
+const lastBets: Partial<Record<GameId, number>> = {};
+export function useBet(game: GameId, initial = 10) {
+  const [bet, setBetState] = useState(lastBets[game] ?? initial);
+  const setBet = useCallback(
+    (v: number) => {
+      lastBets[game] = v;
+      setBetState(v);
+    },
+    [game],
+  );
+  return [bet, setBet] as const;
+}
+
+export function useResult() {
+  const [result, setResult] = useState<ResultInfo | null>(null);
+  const show = useCallback((r: { bet: number; payout: number; multiplier?: number; label?: string }, opts?: { silent?: boolean }) => {
+    const net = r.payout - r.bet;
+    setResult({ key: `${Date.now()}`, net, payout: r.payout, multiplier: r.multiplier, label: r.label });
+    if (opts?.silent) return;
+    if (net > 0) {
+      sfx(r.multiplier && r.multiplier >= 10 ? 'bigwin' : 'win');
+      haptic.success();
+    } else if (net < 0) {
+      sfx('lose', 0.7);
+      haptic.soft();
+    }
+  }, []);
+  return { result, show, clear: () => setResult(null) };
+}
+
+export function usePlayErrors() {
+  const { t } = useT();
+  return useCallback(
+    (e: unknown) => {
+      haptic.error();
+      const code = e instanceof PlayError || e instanceof OnlineError ? (e instanceof OnlineError ? e.code : e.message) : 'error';
+      if (code === 'busy') return;
+      const msg = code === 'insufficient' ? t('common.insufficient') : code === 'not_configured' ? t('auth.notConfigured') : code === 'network' ? t('common.offline') : `${t('common.error')} (${code})`;
+      useProgress.getState().pushToast({ kind: 'info', title: msg });
+    },
+    [t],
+  );
+}
+
+export const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
