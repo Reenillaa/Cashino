@@ -123,7 +123,7 @@ export default function HorsesScreen({ forceTutorial }: { forceTutorial?: boolea
           {card && phase === 'card' ? <RaceCardView card={card} betType={type} picks={picks} onPick={pick} /> : null}
           {card && race && (phase === 'race' || phase === 'done') ? (
             <View>
-              <RaceView card={card} race={race} width={box.w} height={Math.min(box.h, 430)} onEnd={finished} />
+              <RaceView card={card} race={race} width={box.w - 24} height={Math.min(box.h, 440)} onEnd={finished} />
               {phase === 'done' ? (
                 <Animated.View entering={ZoomIn.springify().damping(14)} style={styles.podium}>
                   <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10 }}>
