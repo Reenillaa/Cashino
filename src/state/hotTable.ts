@@ -3,17 +3,12 @@ import { persist } from 'zustand/middleware';
 import { persistStorage, STORAGE_PREFIX } from '@/services/storage';
 import { utcDay } from '@/engine/meta/economy.ts';
 import type { GameId } from '@/engine/games/types.ts';
-import type { Room } from '@/engine/meta/rooms.ts';
 
-/**
- * "Hot table": when you have won a lot in one game today, that game's maximum bet drops until
- * tomorrow (UTC) and the game tells you so. The odds never change — every round stays exactly as
- * random and verifiable as always; only how much you can stake at that one table is limited.
- */
-export const HOT_NET = 2000; // net chips won today in one game
-export const HOT_STREAK = 8; // or this many wins in a row in that game
-export const HOT_CAP = 0.25; // share of the room's max bet you can still stake
+import { HOT_NET, HOT_STREAK } from '@/engine/meta/hot.ts';
 
+export { HOT_NET, HOT_STREAK, HOT_CAP, hotRoom } from '@/engine/meta/hot.ts';
+
+/** Per-device record of today's results per game, to show the hot-table limit (the server enforces it for accounts). */
 interface HotState {
   day: number;
   net: Partial<Record<GameId, number>>;
@@ -48,9 +43,4 @@ export const useHotTable = create<HotState>()(
 export function isHot(game: GameId, now = Date.now()): boolean {
   const s = useHotTable.getState();
   return s.day === utcDay(now) && !!s.hot[game];
-}
-
-/** The room as seen while the table is hot: same minimum, a quarter of the maximum. */
-export function hotRoom(room: Room): Room {
-  return { ...room, max: Math.max(room.min, Math.floor((room.max * HOT_CAP) / Math.max(1, room.min)) * room.min) };
 }

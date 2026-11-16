@@ -160,6 +160,22 @@ export default function Home() {
         </View>
       </Section>
 
+      {/* Live multiplayer rounds */}
+      <PressableScale onPress={() => router.push('/live/horses')} scaleTo={0.97} feedback="select" accessibilityLabel={t('live.banner')} style={[styles.shopCard, { marginHorizontal: SCREEN_PAD }]}>
+        <LinearGradient colors={['#12C08A', '#0B6E6E']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+        <T style={{ fontSize: 34 }}>🏇</T>
+        <View style={{ flex: 1 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: '#FF3B5C' }} />
+            <T weight="display" style={{ color: '#fff', fontSize: 20 }}>{t('live.banner')}</T>
+          </View>
+          <T variant="footnote" style={{ color: 'rgba(255,255,255,0.9)' }}>{t('live.bannerBody')}</T>
+        </View>
+        <PressableScale onPress={() => router.push('/live/roulette')} feedback="select" accessibilityLabel={t('live.roulette')} style={styles.liveRou}>
+          <T style={{ fontSize: 22 }}>🎡</T>
+        </PressableScale>
+      </PressableScale>
+
       {/* Shop: something to spend chips on (looks only) */}
       <PressableScale onPress={() => router.push('/shop')} scaleTo={0.97} feedback="select" accessibilityLabel={t('shop.open')} style={[styles.shopCard, { marginHorizontal: SCREEN_PAD }]}>
         <LinearGradient colors={['#7B5CFF', '#4B2BD6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
@@ -229,6 +245,7 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  liveRou: { width: 46, height: 46, borderRadius: 23, backgroundColor: 'rgba(0,0,0,0.25)', alignItems: 'center', justifyContent: 'center' },
   shopCard: { marginTop: 28, height: 84, borderRadius: 24, overflow: 'hidden', flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 18 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 10 },
   round: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },

@@ -256,4 +256,19 @@ export const RULES: Record<GameId, RulesDoc> = {
       { label: b('Retorno Empate', 'Return Tie'), value: '89.64 %' },
     ],
   },
+  horses: {
+    summary: b('Carreras de caballos como en el hipódromo: estudia el programa, elige tu apuesta y mira la carrera.', 'Horse racing like at the track: study the race card, pick your bet and watch the race.'),
+    rules: [
+      b('Ganador: tu caballo llega primero. Colocado: entre los 3 primeros.', 'Win: your horse finishes first. Place: in the first three.'),
+      b('Gemela: los 2 primeros en cualquier orden. Gemela exacta: los 2 primeros en orden.', 'Quinella: first two in any order. Exacta: first two in order.'),
+      b('Trío: los 3 primeros en orden. Trío reversa: los 3 primeros en cualquier orden.', 'Trifecta: first three in order. Trifecta box: first three in any order.'),
+      b('Cuotas fijas: cobras la cuota que ves al apostar (apuesta incluida).', 'Fixed odds: you are paid the odds you see when you bet (stake included).'),
+      b('Cuenta la velocidad, el fondo, el arranque, el jockey y la suerte, y sobre todo si al caballo le gustan el terreno y la distancia de hoy. La casa solo tiene en cuenta en parte esto último: ahí está tu ventaja si analizas bien.', 'Speed, stamina, acceleration, jockey and luck all count, and above all whether the horse likes today’s ground and trip. The bookmaker only partly prices that in: that is your edge if you study well.'),
+    ],
+    odds: [
+      { label: b('Margen de la casa (ganador / colocado / exóticas)', 'House margin (win / place / exotics)'), value: '15 / 18 / 20–25 %' },
+      { label: b('Apostando al azar a ganador (simulado)', 'Random win bets (simulated)'), value: '≈ 79 %' },
+      { label: b('El favorito gana (simulado)', 'Favourite wins (simulated)'), value: '≈ 43 %' },
+    ],
+  },
 };

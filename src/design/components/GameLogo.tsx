@@ -212,6 +212,24 @@ const ART: Record<GameId, (id: string) => React.ReactNode> = {
       <Rect x={22} y={68} width={56} height={9} rx={4.5} fill={`url(#${id}-gold)`} />
     </>
   ),
+  horses: (id) => (
+    <>
+      <Ellipse cx={52} cy={88} rx={34} ry={5} fill={SH} />
+      {/* horse */}
+      <Path d="M22 58 Q24 44 40 42 L62 40 Q70 30 74 22 L80 18 L86 22 L84 30 L78 34 Q76 44 72 52 L70 60 L74 82 L68 82 L64 62 L44 62 L40 82 L34 82 L34 64 Q26 66 22 58 Z" fill="#8A4B1F" />
+      <Path d="M22 58 Q14 60 12 72 Q18 66 24 64 Z" fill="#3A1F0A" />
+      <Path d="M74 22 Q70 26 66 36 L72 36 Q76 28 80 18 Z" fill="#3A1F0A" />
+      <Circle cx={81} cy={23} r={1.6} fill="#fff" />
+      {/* jockey */}
+      <Path d="M44 40 Q46 26 56 24 L62 30 L56 40 Z" fill="#7B5CFF" />
+      <Path d="M48 32 L58 28 L60 32 L50 36 Z" fill={`url(#${id}-gold)`} />
+      <Circle cx={58} cy={20} r={6} fill={`url(#${id}-gold)`} />
+      <Path d="M52 18 Q58 12 64 18 Z" fill="#7B5CFF" />
+      {/* number cloth */}
+      <Rect x={44} y={44} width={12} height={10} rx={2} fill="#FFFFFF" />
+      <SvgText x={50} y={52.5} fontSize={8} fontWeight="900" fill="#231A3A" textAnchor="middle">1</SvgText>
+    </>
+  ),
   wheel: (id) => {
     const cols = ['#FF4FA3', '#FFD06B', '#7B5CFF', '#12C08A', '#FF4FA3', '#FFD06B', '#7B5CFF', '#12C08A'];
     return (

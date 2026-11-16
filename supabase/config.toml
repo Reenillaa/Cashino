@@ -29,3 +29,7 @@ verify_jwt = true
 verify_jwt = true
 [functions.poker]
 verify_jwt = true
+[functions.shop]
+verify_jwt = true
+[functions.live]
+verify_jwt = true

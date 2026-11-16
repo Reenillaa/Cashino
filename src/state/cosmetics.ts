@@ -12,6 +12,11 @@ interface CosmeticsState {
   buy: (slot: Slot, id: string, price: number) => boolean;
   equip: (slot: Slot, id: string | null) => void;
   reset: () => void;
+  /** Signed in: owned/equipped come from the server; the guest collection is kept aside. */
+  account: boolean;
+  guest: { owned: string[]; equipped: CosmeticsState['equipped'] } | null;
+  applyServer: (owned: string[], equipped: Partial<CosmeticsState['equipped']>) => void;
+  leaveAccount: () => void;
 }
 
 const initial = () => ({ owned: ['back:classic', 'felt:green'], equipped: { back: 'classic', felt: 'green', avatar: null as string | null, frame: null as string | null, title: null as string | null } });
@@ -31,7 +36,17 @@ export const useCosmetics = create<CosmeticsState>()(
         if (id !== null && !get().owned.includes(`${slot}:${id}`)) return;
         set((s) => ({ equipped: { ...s.equipped, [slot]: id } }));
       },
-      reset: () => set(initial()),
+      reset: () => set({ ...initial(), account: false, guest: null }),
+      account: false,
+      guest: null,
+      applyServer: (owned, equipped) =>
+        set((s) => ({
+          account: true,
+          guest: s.account ? s.guest : { owned: s.owned, equipped: s.equipped },
+          owned,
+          equipped: { ...initial().equipped, ...equipped },
+        })),
+      leaveAccount: () => set((s) => (s.account ? { account: false, owned: s.guest?.owned ?? initial().owned, equipped: s.guest?.equipped ?? initial().equipped, guest: null } : {})),
     }),
     {
       name: `${STORAGE_PREFIX}cosmetics`,
@@ -40,7 +55,7 @@ export const useCosmetics = create<CosmeticsState>()(
       // v0 had no frame/title slots
       migrate: (old) => {
         const o = old as { owned?: string[]; equipped?: Record<string, unknown> };
-        return { owned: o.owned ?? initial().owned, equipped: { ...initial().equipped, ...(o.equipped ?? {}) } } as unknown as CosmeticsState;
+        return { owned: o.owned ?? initial().owned, equipped: { ...initial().equipped, ...(o.equipped ?? {}) }, account: false, guest: null } as unknown as CosmeticsState;
       },
     },
   ),

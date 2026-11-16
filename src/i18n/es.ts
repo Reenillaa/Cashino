@@ -1,6 +1,6 @@
 const es = {
   common: {
-    play: 'Jugar', back: 'Atrás', close: 'Cerrar', cancel: 'Cancelar', confirm: 'Confirmar', save: 'Guardar', done: 'Hecho',
+    remove: 'Quitar', play: 'Jugar', back: 'Atrás', close: 'Cerrar', cancel: 'Cancelar', confirm: 'Confirmar', save: 'Guardar', done: 'Hecho',
     next: 'Siguiente', skip: 'Saltar', retry: 'Reintentar', loading: 'Cargando…', error: 'Algo ha fallado', offline: 'Sin conexión',
     online: 'Online', practice: 'Práctica', coins: 'fichas', bet: 'Apuesta', payout: 'Pago', profit: 'Beneficio', multiplier: 'Multiplicador',
     chance: 'Probabilidad', history: 'Historial', rules: 'Reglas', tutorial: 'Tutorial', academy: 'Academy', stats: 'Estadísticas',
@@ -25,7 +25,7 @@ const es = {
     welcome: 'BIENVENIDO A',
     tapToPlay: 'Toca un juego para empezar',
     streak: '🔥 {{n}} días seguidos', nextLevel: 'Te faltan {{xp}} XP para el nivel {{level}} y su regalo de {{bonus}} fichas',
-    daysLeft_one: 'Queda {{count}} día', daysLeft_other: 'Quedan {{count}} días', album: 'Tu colección', albumBody: 'Has probado {{n}} de 20 juegos. Toca uno nuevo para estrenarlo.', albumDone: '¡Colección completa! Has probado los 20 juegos.',
+    daysLeft_one: 'Queda {{count}} día', daysLeft_other: 'Quedan {{count}} días', album: 'Tu colección', albumBody: 'Has probado {{n}} de 21 juegos. Toca uno nuevo para estrenarlo.', albumDone: '¡Colección completa! Has probado los 21 juegos.',
     levelUp: '¡Nivel {{n}}!', levelGift: '+{{n}} fichas de regalo', levelUpBody: 'Sigue así: cada nivel trae un regalo mayor.',
   },
   games: {
@@ -33,14 +33,14 @@ const es = {
     openRules: 'Reglas', openTutorial: 'Tutorial', openAcademy: 'Academy', houseEdge: 'Ventaja de la casa', rtp: 'RTP',
     names: {
       poker: 'Póker', blackjack: 'Blackjack', crash: 'Cohete', dice: 'Dados', mines: 'Minas', plinko: 'Plinko', crossing: 'Cruza la calle',
-      roulette: 'Ruleta', limbo: 'Limbo', coinflip: 'Cara o cruz', baccarat: 'Bacará', hilo: 'Mayor o menor', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Tragaperras', trader: 'Bolsa', videopoker: 'Video Póker', wheel: 'Rueda', towers: 'Torre del Dragón', diamonds: 'Diamantes', pump: 'Globo', dragontiger: 'Dragon Tiger',
+      roulette: 'Ruleta', limbo: 'Limbo', coinflip: 'Cara o cruz', baccarat: 'Bacará', hilo: 'Mayor o menor', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Tragaperras', trader: 'Bolsa', videopoker: 'Video Póker', wheel: 'Rueda', towers: 'Torre del Dragón', diamonds: 'Diamantes', pump: 'Globo', dragontiger: 'Dragon Tiger', horses: 'Carreras',
     },
     blurbs: {
       poker: 'El de toda la vida, contra bots o amigos.', blackjack: 'Suma 21 sin pasarte.',
       crash: 'Retírate antes de que explote.', dice: 'Elige un número y tira.', mines: 'Busca diamantes, evita bombas.',
       plinko: 'Suelta la bola y mira dónde cae.', crossing: 'Cruza paso a paso sin que te pillen.', roulette: 'Apuesta a un número o a un color.',
       limbo: 'Elige hasta dónde sube.', coinflip: 'Cara o cruz, así de fácil.', baccarat: 'Jugador, banca o empate.',
-      hilo: '¿La siguiente carta es mayor o menor?', keno: 'Elige números, como la lotería.', sicbo: 'Tres dados: adivina qué sale.', slots: 'Tres rodillos, tres iguales y premio.', trader: '¿Sube o baja? Invierte y mira la gráfica.', videopoker: 'La máquina de póker de Las Vegas.', wheel: 'Gira la rueda y cobra lo que marque.', towers: 'Sube pisos sin despertar al dragón.', diamonds: 'Cinco gemas: junta colores.', pump: 'Infla el globo… sin que explote.', dragontiger: 'Una carta cada uno: gana la más alta.',
+      hilo: '¿La siguiente carta es mayor o menor?', keno: 'Elige números, como la lotería.', sicbo: 'Tres dados: adivina qué sale.', slots: 'Tres rodillos, tres iguales y premio.', trader: '¿Sube o baja? Invierte y mira la gráfica.', videopoker: 'La máquina de póker de Las Vegas.', wheel: 'Gira la rueda y cobra lo que marque.', towers: 'Sube pisos sin despertar al dragón.', diamonds: 'Cinco gemas: junta colores.', pump: 'Infla el globo… sin que explote.', dragontiger: 'Una carta cada uno: gana la más alta.', horses: 'Estudia el programa y apuesta como en el hipódromo.',
     },
   },
   play: {
@@ -55,10 +55,18 @@ const es = {
     riskLow: 'Bajo', riskMedium: 'Medio', riskHigh: 'Alto', level: 'Dificultad', levelEasy: 'Fácil', levelMedium: 'Medio', levelHard: 'Difícil', levelExpert: 'Experto',
     pumpIt: 'Bombear', popped: '¡PUM!', floor: 'Piso {{n}}', dragon: 'Dragón', tiger: 'Tigre',
     dHands: { five: 'Cinco iguales', four: 'Cuatro iguales', full: 'Full', three: 'Trío', twoPair: 'Doble pareja', pair: 'Pareja', none: 'Nada' },
+    runners: 'corredores', backHorse: 'Apostar por {{name}}', profile: 'ficha', likes: 'Le gusta', bestTrip: 'Mejor distancia', years: 'años', addBet: 'Añadir', race: 'Correr', newRace: 'Nueva carrera', raceOn: '¡Están en carrera!',
+    pickHorses_one: 'Toca el número de {{count}} caballo más', pickHorses_other: 'Toca el número de {{count}} caballos',
+    raceOff: '¡Se abren los cajones y salen!', raceLeads: '{{name}} toma la delantera', raceStraight: 'Entran en la recta: {{a}} y {{b}} se lo juegan', raceLine: '¡{{name}} llega a la meta!', raceWinner: '¡Gana {{name}}!',
+    going: { firm: 'Firme', good: 'Bueno', soft: 'Blando', heavy: 'Pesado' },
+    style: { leader: 'Escapista', stalker: 'Persigue', closer: 'Remata' },
+    stat: { speed: 'Velocidad', stamina: 'Fondo', accel: 'Arranque', jockey: 'Jockey' },
+    betTypes: { win: 'Ganador', place: 'Colocado', quinella: 'Gemela', exacta: 'Gemela exacta', trifecta: 'Trío', trifectaBox: 'Trío reversa' },
+    betHelp: { win: 'Llega 1º', place: 'Entre los 3 primeros', quinella: 'Los 2 primeros, cualquier orden', exacta: 'Los 2 primeros en orden', trifecta: 'Los 3 primeros en orden', trifectaBox: 'Los 3 primeros, cualquier orden' },
     up: 'Sube', down: 'Baja', traderHint: '¿El precio acabará más alto o más bajo? Elige tu ficha y pulsa Sube o Baja.',
     tip: 'Consejo', showTip: '¿Qué haría un experto?', hideTip: 'Ocultar consejo',
     bjTableNote: 'El blackjack paga 3 a 2 · la banca se planta con 17',
-    amount: 'Importe', placeBet: 'Apostar', playPractice: 'Jugar práctica', again: 'Otra vez', bigWin: '¡GRAN PREMIO!', bacRule: 'GANA QUIEN SE ACERQUE MÁS A 9', hotTable: 'Mesa caliente: hoy has ganado mucho aquí, la apuesta máxima baja hasta mañana. ¡Prueba otro juego!', youWon: 'Has ganado', youLost: 'Esta vez no',
+    amount: 'Importe', placeBet: 'Apostar', playPractice: 'Jugar práctica', again: 'Otra vez', bigWin: '¡GRAN PREMIO!', bacRule: 'GANA QUIEN SE ACERQUE MÁS A 9', hotTable: 'Mesa caliente: hoy has ganado mucho aquí, la apuesta máxima baja hasta mañana. ¡Prueba otro juego!', hotTableError: '🔥 Mesa caliente: hoy aquí puedes apostar como mucho {{max}}.', youWon: 'Has ganado', youLost: 'Esta vez no',
     pushResult: 'Empate', autoCashout: 'Retiro automático', target: 'Objetivo', winChance: 'Probabilidad de ganar', rollOver: 'Mayor que',
     rollUnder: 'Menor que', roll: 'Tirar', mines: 'Minas', gems: 'Gemas', pick: 'Elige una casilla', random: 'Aleatoria',
     rows: 'Filas', risk: 'Riesgo', low: 'Bajo', medium: 'Medio', high: 'Alto', drop: 'Soltar bola', difficulty: 'Dificultad',
@@ -130,6 +138,13 @@ const es = {
     responsible: 'Juego responsable', responsibleBody: 'Todo es entretenimiento con moneda virtual. Si sientes que juegas más de lo que quieres, tómate un descanso.',
     sessionReminder: 'Recordatorio de descanso', every: 'Cada {{n}} min', never: 'Nunca', fairness: 'Juego verificable', licenses: 'Licencias',
   },
+  live: {
+    title: 'En directo', horses: 'Carreras en directo', roulette: 'Ruleta en directo', open: 'Apuestas abiertas', closed: 'Apuestas cerradas…', running: '¡En juego!', next: 'Siguiente ronda en',
+    signIn: 'El directo es con cuenta', signInBody: 'Crea tu cuenta gratis para jugar las mismas carreras y tiradas que el resto de jugadores, a la vez.',
+    bets: 'Apuestas de la ronda', noBets: 'Aún no ha apostado nadie. ¡Sé el primero!', place: 'Apostar', winners: 'Ganadores de la ronda', noWinners: 'Esta vez no ha ganado nadie', toStalls: 'Los caballos entran en los cajones…', noMoreBets: 'No va más',
+    number: 'Número', dozen: 'docena', banner: 'En directo', bannerBody: 'Carreras cada 2 min y ruleta cada 45 s, con todos a la vez',
+    r: { red: 'Rojo', black: 'Negro', even: 'Par', odd: 'Impar', low: '1–18', high: '19–36', zero: 'Cero', green: 'Cero', straight: 'Número', dozen: 'Docena', column: 'Columna' },
+  },
   shop: {
     tabs: { back: '🂠 Cartas', felt: '🟩 Tapetes', avatar: '🙂 Avatares', frame: '⭕ Marcos', title: '🏷️ Títulos' },
     title: 'Tienda', subtitle: 'Dale tu estilo a la mesa con tus fichas.', yourChips: 'Tus fichas', backs: 'Cartas', felts: 'Tapetes', avatars: 'Avatares',
@@ -162,8 +177,8 @@ const es = {
   tutorial: { title: 'Primera partida', skip: 'Salir', gotIt: 'Siguiente', finish: '¡A jugar!', step: 'Paso {{n}} de {{total}}', replay: 'Enséñame a jugar', tapHere: 'Toca aquí', help: '¿Cómo se juega?', guided: 'Enséñame paso a paso', guidedBody: 'Te voy señalando qué tocar. Es gratis: juegas en la sala de práctica.', rulesTitle: 'Reglas', fairness: 'Comprobar que es justo' },
   achievements: {
     'first-round': ['Primer paso', 'Juega tu primera ronda'], 'rounds-100': ['Constante', 'Juega 100 rondas'], 'rounds-1000': ['Veterano', 'Juega 1.000 rondas'],
-    explorer: ['Explorador', 'Prueba 7 juegos distintos'], completionist: ['Coleccionista', 'Juega los 20 juegos'], student: ['Estudiante', 'Completa 5 lecciones'],
-    scholar: ['Erudito', 'Completa 30 lecciones'], 'tutorials-all': ['Bien preparado', 'Completa los 20 tutoriales'], 'level-10': ['Nivel 10', 'Alcanza el nivel 10'],
+    explorer: ['Explorador', 'Prueba 7 juegos distintos'], completionist: ['Coleccionista', 'Juega los 21 juegos'], student: ['Estudiante', 'Completa 5 lecciones'],
+    scholar: ['Erudito', 'Completa 30 lecciones'], 'tutorials-all': ['Bien preparado', 'Completa los 21 tutoriales'], 'level-10': ['Nivel 10', 'Alcanza el nivel 10'],
     'level-25': ['Nivel 25', 'Alcanza el nivel 25'], 'crash-10x': ['Despegue', 'Retira a 10× en Crash'], 'limbo-100x': ['Sin límites', 'Gana a 100× en Limbo'],
     'mines-5x': ['Artificiero', 'Retira a 5× en Mines'], 'plinko-edge': ['Al borde', 'Acierta un extremo en Plinko'], 'coin-streak-5': ['Racha de 5', 'Acierta 5 lanzamientos seguidos'],
     'hilo-10x': ['Lector de cartas', 'Retira a 10× en Hi-Lo'], 'crossing-far': ['Al otro lado', 'Retira a 5× en Cruce'], 'roulette-straight': ['Pleno', 'Acierta un número en la ruleta'],

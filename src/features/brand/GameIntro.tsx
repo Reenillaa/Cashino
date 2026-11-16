@@ -10,6 +10,7 @@ import { parseCard } from '@/engine/cards/cards.ts';
 import type { GameId } from '@/engine/games/types.ts';
 import { SlotSymbolArt } from '@/games/slots/Symbols';
 import { IntroWheel } from './Splash';
+import { HorseSprite } from '@/games/horses/Art';
 
 /* ------------------------------------------------------------------ */
 /* A tiny keyframe helper: moves/turns/scales a piece between two poses */
@@ -62,6 +63,18 @@ function Pips({ n, size }: { n: number; size: number }) {
 type Scene = (p: SharedValue<number>, S: number) => React.ReactNode;
 
 const SCENES: Partial<Record<GameId, Scene>> = {
+  horses: (p, S) => (
+    <>
+      <Anim p={p} at={[0, 0.7]} from={{ x: S * 0.42 }} to={{ x: S * 0.42 }}>
+        <View style={{ width: 10, height: S * 0.8, flexDirection: 'column', overflow: 'hidden', borderRadius: 2 }}>
+          {Array.from({ length: 16 }, (_, k) => <View key={k} style={{ flex: 1, backgroundColor: k % 2 ? '#fff' : '#111' }} />)}
+        </View>
+      </Anim>
+      <Anim p={p} at={[0, 0.62]} from={{ x: -S * 1.1, y: -S * 0.16 }} to={{ x: S * 0.55, y: -S * 0.16 }} ease="linear"><HorseSprite n={3} silks={['#7B5CFF', '#FFD06B']} frame={1} size={S * 0.5} /></Anim>
+      <Anim p={p} at={[0, 0.62]} from={{ x: -S * 1.3, y: S * 0.16 }} to={{ x: S * 0.4, y: S * 0.16 }} ease="linear"><HorseSprite n={7} silks={['#FF4FA3', '#FFFFFF']} frame={3} size={S * 0.5} /></Anim>
+      <Anim p={p} at={[0.5, 0.64]} from={{ s: 0, o: 0 }} to={{ s: 1, o: 1, y: S * 0.42 }} ease="back"><Big color="#FFD06B" size={S * 0.12}>🏆 FOTO FINISH</Big></Anim>
+    </>
+  ),
   roulette: (p, S) => (
     <>
       <Anim p={p} at={[0, 0.75]} from={{ r: 0, s: 0.5, o: 0 }} to={{ r: 640, s: 1, o: 1 }}><IntroWheel size={S} /></Anim>

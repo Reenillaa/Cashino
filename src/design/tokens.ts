@@ -119,6 +119,7 @@ export const gameTint: Record<GameId, string> = {
   diamonds: '#5BE3B0',
   pump: '#FF8AC4',
   dragontiger: '#FFD06B',
+  horses: '#5BE3B0',
 };
 
 /**
@@ -148,6 +149,7 @@ export const gameArt: Record<GameId, { emoji: string; colors: [string, string] }
   diamonds: { emoji: '💎', colors: ['#C8F5DF', '#A6DCEF'] },
   pump: { emoji: '🎈', colors: ['#FFD3E8', '#FFB3D6'] },
   dragontiger: { emoji: '🐯', colors: ['#FFE9B0', '#FFD38A'] },
+  horses: { emoji: '🏇', colors: ['#C8F5DF', '#A6DCEF'] },
 };
 
 /** Room cards: a "place" per stake level (Offsuit names its tables after places too). */
@@ -192,6 +194,7 @@ export const gameVivid: Record<GameId, [string, string]> = {
   diamonds: ['#12C08A', '#0B6E6E'],
   pump: ['#FF4FA3', '#B3127A'],
   dragontiger: ['#FFB938', '#D9741C'],
+  horses: ['#12C08A', '#0B6E6E'],
 };
 
 /** Ink used on pastel art. */

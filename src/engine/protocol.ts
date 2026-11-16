@@ -28,6 +28,7 @@ import * as Towers from './games/towers.ts';
 import * as Diamonds from './games/diamonds.ts';
 import * as Pump from './games/pump.ts';
 import * as DT from './games/dragontiger.ts';
+import * as Horses from './games/horses.ts';
 import { cardCode } from './cards/cards.ts';
 import { roomById, stakeAllowed } from './meta/rooms.ts';
 
@@ -97,6 +98,38 @@ const handlers: Record<Exclude<GameId, 'poker'>, Handler> = {
     const b = bet(p.bet);
     const r = Slots.playSlots(rng, b);
     return single(b, r.payout, r.line.map((x) => ({ cherry: '🍒', lemon: '🍋', bell: '🔔', bar: 'BAR', seven: '7', diamond: '💎' })[x]).join(' '), { line: r.line, multiplier: r.multiplier });
+  },
+  horses: (s, op, p, { rng }) => {
+    type HState = { card: Horses.RaceCard; min: number; max: number };
+    const st = s as HState | null;
+    if (op === 'start') {
+      if (st) fail('round_active');
+      const room = roomById(p.room);
+      // the server passes `hotCap` when the hot-table limit applies (clients cannot lower it… or raise it)
+      const cap = typeof p.hotCap === 'number' ? p.hotCap : Infinity;
+      const ns: HState = { card: Horses.makeCard(rng), min: room?.min ?? 1, max: Math.min(room?.max ?? MAX_BET, cap) };
+      return { state: ns, view: { card: ns.card, min: ns.min, max: ns.max }, stake: 0, payout: 0, done: false };
+    }
+    if (!st) fail('no_round');
+    if (op === 'run') {
+      const bets = (Array.isArray(p.bets) ? p.bets : fail('invalid_bets')) as Horses.HorseBet[];
+      if (!bets.length || bets.length > 12) fail('invalid_bets');
+      const clean = bets.map((b) => ({ type: oneOf(b?.type, Horses.BET_TYPES, 'bet_type'), horses: Array.isArray(b?.horses) ? b.horses.map(Number) : [], amount: bet(b?.amount) }));
+      if (!clean.every(Horses.validBet)) fail('invalid_bets');
+      const total = clean.reduce((a, b) => a + b.amount, 0);
+      if (total < st!.min || total > st!.max) fail(`room_max:${st!.max}`);
+      const race = Horses.runRace(rng, st!.card);
+      const r = Horses.settleBets(st!.card, race.finish, clean);
+      return {
+        state: null,
+        view: { card: st!.card, race, lines: r.lines, totalBet: r.totalBet, payout: r.payout },
+        stake: r.totalBet,
+        payout: r.payout,
+        done: true,
+        summary: { bet: r.totalBet, payout: r.payout, detail: race.finish.slice(0, 3).join('-'), multiStep: true },
+      };
+    }
+    return fail('invalid_op');
   },
   wheel: (_s, op, p, { rng }) => {
     if (op !== 'play') fail('invalid_op');
@@ -415,7 +448,7 @@ export function runOp(game: GameId, state: unknown, op: string, params: Params, 
   if (!h) fail('unknown_game');
   const res = h(state, op, params ?? {}, ctx);
   // Room limits apply to the stake that opens a round (doubles/splits in blackjack are extra stakes).
-  if (STARTING_OPS.has(op) && params?.room !== undefined) {
+  if (STARTING_OPS.has(op) && params?.room !== undefined && res.stake > 0) {
     const room = roomById(params.room);
     if (!room) fail('invalid_room');
     if (!stakeAllowed(room!, res.stake)) fail('stake_outside_room');

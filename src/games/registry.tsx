@@ -22,6 +22,7 @@ import TowersScreen from './towers/Screen';
 import DiamondsScreen from './diamonds/Screen';
 import PumpScreen from './pump/Screen';
 import DragonTigerScreen from './dragontiger/Screen';
+import HorsesScreen from './horses/Screen';
 
 type GameScreen = React.ComponentType<{ forceTutorial?: boolean }>;
 
@@ -48,4 +49,5 @@ export const GAME_SCREENS: Record<GameId, GameScreen> = {
   diamonds: DiamondsScreen,
   pump: PumpScreen,
   dragontiger: DragonTigerScreen,
+  horses: HorsesScreen,
 };

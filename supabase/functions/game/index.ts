@@ -9,6 +9,7 @@ import { runOp, ProtocolError } from '../_shared/engine/protocol.ts';
 import { fairRng, hashServerSeed } from '../_shared/engine/rng/rng.ts';
 import { GAME_IDS, type GameId } from '../_shared/engine/games/types.ts';
 import { roomById } from '../_shared/engine/meta/rooms.ts';
+import { hotRoom, isHotFrom } from '../_shared/engine/meta/hot.ts';
 
 function countingRng(seed: { serverSeed: string; clientSeed: string; nonce: number }, skip: number) {
   const base = fairRng(seed);
@@ -22,7 +23,8 @@ Deno.serve(
     const db = admin();
     const game = body.game as GameId;
     const op = String(body.op ?? '');
-    const params = (body.params ?? {}) as Record<string, unknown>;
+    const params = { ...((body.params ?? {}) as Record<string, unknown>) };
+    delete params.hotCap; // only the server may set it
     const requestId = String(body.requestId ?? '').slice(0, 80);
 
     // Fairness info & seed rotation (no game state involved)
@@ -45,9 +47,17 @@ Deno.serve(
     if (!GAME_IDS.includes(game) || game === 'poker') throw new HttpError('unknown_game');
     if (!requestId) throw new HttpError('missing_request_id');
     // Real-coin rounds must declare a (non-practice) room; its limits are enforced by the protocol.
+    let stakeCap: number | null = null;
     if (['play', 'start', 'deal'].includes(op)) {
       const room = roomById(params.room);
       if (!room || room.practice) throw new HttpError('invalid_room');
+      // Hot table: after a big winning day in this game, its max stake drops (odds never change).
+      const today = new Date(); today.setUTCHours(0, 0, 0, 0);
+      const { data: todays } = await db.from('game_rounds').select('bet, payout').eq('user_id', userId).eq('game', game).gte('created_at', today.toISOString()).order('created_at', { ascending: true }).limit(2000);
+      if (isHotFrom((todays ?? []).map((r) => ({ bet: Number(r.bet), payout: Number(r.payout) })))) {
+        stakeCap = hotRoom(room).max;
+        params.hotCap = stakeCap; // games that take the stake later (horse racing) keep it in their state
+      }
     }
     const key = `${userId}:${requestId}`;
 
@@ -81,6 +91,7 @@ Deno.serve(
       if (e instanceof ProtocolError) throw new HttpError(e.message);
       throw e;
     }
+    if (stakeCap !== null && res.stake > stakeCap) throw new HttpError(`hot_table:${stakeCap}`, 409);
     const usedDraws = rng.draws(); // includes the skipped draws of previous operations
     const { data: balance, error } = await db.rpc('game_commit', {
       p_user: userId, p_game: game, p_stake: res.stake, p_payout: res.payout, p_done: res.done,

@@ -58,7 +58,7 @@ export default function Profile() {
           <ProgressBar value={lvl.needed ? lvl.into / lvl.needed : 1} style={{ marginTop: 6 }} />
         </View>
         <View style={{ flexDirection: 'row', alignSelf: 'stretch', marginTop: 12, paddingVertical: 14, borderRadius: 22, backgroundColor: c.surface1 }}>
-          {[[t('profile.roundsPlayed'), formatCoins(all.rounds)], [t('profile.lessons'), `${lessons}`], [t('profile.tutorials'), `${tutorials}/20`], [t('profile.achievements'), `${Object.keys(unlocked).length}/${ACHIEVEMENTS.length}`]].map(([k, v], i) => (
+          {[[t('profile.roundsPlayed'), formatCoins(all.rounds)], [t('profile.lessons'), `${lessons}`], [t('profile.tutorials'), `${tutorials}/21`], [t('profile.achievements'), `${Object.keys(unlocked).length}/${ACHIEVEMENTS.length}`]].map(([k, v], i) => (
             <View key={k} style={[{ flex: 1, alignItems: 'center', paddingHorizontal: 4 }, i > 0 && { borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: c.hairline }]}>
               <T variant="headline" weight="medium" tabular>{v}</T>
               <T variant="footnote" color="text3" style={{ fontSize: 11, textAlign: 'center' }} numberOfLines={2}>{k}</T>

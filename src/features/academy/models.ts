@@ -212,6 +212,21 @@ const MODELS: Record<GameId, Builder> = {
       example: L(lang, `Con 20 fichas, casi la mitad de las tiradas te devuelven algo (${fmtPct(lang, st.hit)}), pero los premios gordos son muy raros: tres diamantes, 1 vez de cada ${Math.round(1 / three('diamond')).toLocaleString('es-ES')}.`, `With 20 chips almost half the spins return something (${fmtPct(lang, st.hit)}), but big prizes are very rare: three diamonds, 1 time in ${Math.round(1 / three('diamond')).toLocaleString('en-US')}.`),
     };
   },
+  horses: (lang) => ({
+    idea: L(lang, 'La casa calcula sus cuotas simulando la carrera, pero solo tiene en cuenta en parte si a cada caballo le gustan el terreno y la distancia. Analizar eso es tu ventaja; apostar al azar te cuesta caro.', 'The bookmaker prices the race by simulating it, but only partly accounts for whether each horse likes the ground and trip. Studying that is your edge; betting at random costs you.'),
+    rowsTitle: L(lang, 'Con 8 caballos, la probabilidad de acertar…', 'With 8 runners, the chance of getting right…'),
+    rows: [
+      { label: L(lang, 'El favorito gana (simulado)', 'The favourite wins (simulated)'), p: 0.43, mult: null },
+      { label: L(lang, 'Colocado con un caballo al azar', 'Place with a random horse'), p: 3 / 8, mult: null },
+      { label: L(lang, 'Ganador con un caballo al azar', 'Win with a random horse'), p: 1 / 8, mult: null },
+      { label: L(lang, 'Gemela al azar', 'Random quinella'), p: 1 / 28, mult: null },
+      { label: L(lang, 'Trío reversa al azar', 'Random trifecta box'), p: 1 / 56, mult: null },
+      { label: L(lang, 'Trío en orden al azar', 'Random trifecta'), p: 1 / 336, mult: null },
+    ],
+    rtp: null,
+    formula: L(lang, 'Cuota = (1 − margen) ÷ probabilidad que calcula la casa. Margen: 15 % ganador, 18 % colocado, 20–25 % gemelas y tríos.', 'Odds = (1 − margin) ÷ the bookmaker’s probability. Margin: 15 % win, 18 % place, 20–25 % quinellas and trifectas.'),
+    example: L(lang, 'En simulación, apostar a ganador al azar devuelve ≈ 79 %, siempre al favorito ≈ 88 %, y un trío al azar ≈ 34 %. Elegir caballos a los que les gustan el terreno y la distancia del día se acercó al 110 % (con bastante margen de error).', 'In simulation, random win bets return ≈ 79 %, always backing the favourite ≈ 88 %, and a random trifecta ≈ 34 %. Picking horses that like the day’s ground and trip came close to 110 % (with a sizeable margin of error).'),
+  }),
   wheel: (lang) => ({
     idea: L(lang, 'Mismo retorno en los tres riesgos (99 %): cambia cómo llega el dinero, no cuánto pierdes de media.', 'Same return on all three risks (99 %): only how the money arrives changes, not how much you lose on average.'),
     rowsTitle: L(lang, 'En riesgo medio, de 30 casillas…', 'On medium risk, of 30 segments…'),

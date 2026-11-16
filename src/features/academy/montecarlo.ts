@@ -85,6 +85,7 @@ export const SIM_OPTIONS: Partial<Record<GameId, SimOption[]>> = {
   slots: [
     { label: L('Tirada normal', 'Normal spin'), round: one('slots', {}), rtp: 0.974 },
   ],
+  // horses: no live simulator — every race prices 20 000 simulated races, too slow to run thousands on a phone
   wheel: [
     { label: L('Riesgo bajo', 'Low risk'), round: one('wheel', { risk: 'low' }), rtp: 0.99 },
     { label: L('Riesgo alto', 'High risk'), round: one('wheel', { risk: 'high' }), rtp: 0.99 },

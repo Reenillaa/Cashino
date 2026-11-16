@@ -10,6 +10,7 @@ import { useWallet } from '@/state/wallet';
 import { useCosmetics, type Slot } from '@/state/cosmetics';
 import { CARD_BACKS, FELTS, FRAMES, PREMIUM_AVATARS, TITLES } from '@/features/shop/items';
 import { useSession } from '@/state/session';
+import { accountShop } from '@/features/shop/accountShop';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
@@ -21,7 +22,11 @@ export default function Shop() {
   const [tab, setTab] = useState<Slot>('back');
   const [confirm, setConfirm] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
-  const balance = useWallet((s) => s.balance);
+  const guestBalance = useWallet((s) => s.balance);
+  const accountBalance = useSession((s) => s.balance);
+  const account = useCosmetics((s) => s.account) && accountShop.active();
+  const balance = account ? accountBalance ?? 0 : guestBalance;
+  const [busy, setBusy] = useState(false);
   const owned = useCosmetics((s) => s.owned);
   const equipped = useCosmetics((s) => s.equipped);
   const myAvatar = useMyAvatar(useSession((st) => st.profile?.avatar));
@@ -32,7 +37,9 @@ export default function Shop() {
     const key = `${slot}:${id}`;
     if (owned.includes(key)) {
       const optional = slot === 'avatar' || slot === 'frame' || slot === 'title';
-      useCosmetics.getState().equip(slot, optional && equipped[slot] === id ? null : id);
+      const next = optional && equipped[slot] === id ? null : id;
+      if (account) void accountShop.equip(slot, next).catch(() => setMsg(t('common.offline')));
+      else useCosmetics.getState().equip(slot, next);
       sfx('chip', 0.6);
       haptic.select();
       return;
@@ -49,6 +56,19 @@ export default function Shop() {
       return;
     }
     setConfirm(null);
+    if (account) {
+      if (busy) return;
+      setBusy(true);
+      void accountShop
+        .buy(slot, id)
+        .then(() => {
+          sfx('cashout');
+          haptic.success();
+        })
+        .catch((e: { code?: string }) => setMsg(e.code === 'insufficient' ? t('shop.notEnough') : t('common.offline')))
+        .finally(() => setBusy(false));
+      return;
+    }
     if (useCosmetics.getState().buy(slot, id, price)) {
       sfx('cashout');
       haptic.success();

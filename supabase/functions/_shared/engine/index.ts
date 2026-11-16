@@ -31,3 +31,4 @@ export * as Towers from './games/towers.ts';
 export * as Diamonds from './games/diamonds.ts';
 export * as Pump from './games/pump.ts';
 export * as DragonTiger from './games/dragontiger.ts';
+export * as Horses from './games/horses.ts';

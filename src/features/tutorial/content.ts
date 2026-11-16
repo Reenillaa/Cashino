@@ -132,4 +132,9 @@ export const TUTORIALS: Record<GameId, TutorialStep[]> = {
     doIt('dt:place', ['Apuesta', 'Bet'], ['Toca Dragón, Tigre o Empate para poner tu ficha.', 'Tap Dragon, Tiger or Tie to place your chip.']),
     doIt('dt:deal', ['Reparte', 'Deal'], ['Pulsa Repartir.', 'Tap Deal.']),
   ],
+  horses: [
+    info(['El programa', 'The race card'], ['Cada caballo tiene su ficha: velocidad, fondo, arranque, últimas carreras y qué terreno y distancia le gustan. Toca uno para verla.', 'Every horse has a profile: speed, stamina, acceleration, recent runs and the ground and trip it likes. Tap one to see it.']),
+    doIt('horses:pick', ['Elige caballo', 'Pick a horse'], ['Toca el número de un caballo para apostar por él.', 'Tap a horse’s number to back it.']),
+    doIt('horses:run', ['¡A correr!', 'And they’re off!'], ['Elige tu ficha y pulsa Correr.', 'Pick your chip and tap Race.']),
+  ],
 };

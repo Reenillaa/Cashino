@@ -10,7 +10,8 @@ Plataforma móvil premium de **14 juegos de casino y azar con moneda 100 % virtu
 **https://reenillaa.github.io/Cashino/** — en el iPhone ábrelo en Safari → Compartir → *Añadir a pantalla de inicio* y se abre a pantalla completa como una app (se publica sola en cada push a `main`).
 
 ## Qué incluye
-- **20 juegos en el menú**: Póker (Texas Hold'em NL vs bots y online), Video Póker (Jacks or Better), Rueda, Torre del Dragón, Diamantes, Globo (Pump), Dragon Tiger, Blackjack, Cohete (crash), Dados, Minas, Plinko, Cruza la calle (estilo chicken-road), Ruleta europea, Limbo, Cara o cruz, Bacará, Mayor o menor, Tragaperras y Bolsa (sube o baja). Keno y Sic Bo siguen en el motor pero fuera del menú.
+- **21 juegos en el menú**: Carreras de caballos (apuestas de hipódromo), Póker (Texas Hold'em NL vs bots y online), Video Póker (Jacks or Better), Rueda, Torre del Dragón, Diamantes, Globo (Pump), Dragon Tiger, Blackjack, Cohete (crash), Dados, Minas, Plinko, Cruza la calle (estilo chicken-road), Ruleta europea, Limbo, Cara o cruz, Bacará, Mayor o menor, Tragaperras y Bolsa (sube o baja). Keno y Sic Bo siguen en el motor pero fuera del menú.
+- **Multijugador en directo**: carreras cada 2 min y ruleta cada 45 s, todos a la vez (con cuenta).
 - **Tienda estética** (dorsos, tapetes, avatares, marcos, títulos) pagada con fichas de juego y **retos diarios y semanales**.
 - Resultados **calculados antes de animar** y **verificables** (HMAC-SHA256, semillas servidor/cliente/nonce).
 - **Guía opcional** por juego (botón «?»): oscurece la pantalla y señala el botón exacto que tocar, en la sala de práctica; se recuerda (`<juego>_tutorial_completed`).

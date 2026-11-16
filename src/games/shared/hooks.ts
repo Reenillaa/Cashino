@@ -67,7 +67,7 @@ export function usePlayErrors() {
       haptic.error();
       const code = e instanceof PlayError || e instanceof OnlineError ? (e instanceof OnlineError ? e.code : e.message) : 'error';
       if (code === 'busy') return;
-      const msg = code.startsWith('room_max:') ? t('rooms.maxReached', { max: code.split(':')[1] }) : code === 'stake_outside_room' ? t('rooms.limits') : code === 'insufficient' ? t('common.insufficient') : code === 'not_configured' ? t('auth.notConfigured') : code === 'network' ? t('common.offline') : `${t('common.error')} (${code})`;
+      const msg = code.startsWith('hot_table') ? t('play.hotTableError', { max: code.split(':')[1] ?? '' }) : code.startsWith('room_max:') ? t('rooms.maxReached', { max: code.split(':')[1] }) : code === 'stake_outside_room' ? t('rooms.limits') : code === 'insufficient' ? t('common.insufficient') : code === 'not_configured' ? t('auth.notConfigured') : code === 'network' ? t('common.offline') : `${t('common.error')} (${code})`;
       useProgress.getState().pushToast({ kind: 'info', title: msg });
     },
     [t],

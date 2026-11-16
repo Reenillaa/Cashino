@@ -71,6 +71,14 @@ export default function OnlineLobby() {
   }
   return (
     <Screen title={t('poker.online')} subtitle={t('social.noChat')} back tabBar={false}>
+      <Section title={`🔴 ${t('live.title')}`}>
+        <View style={{ paddingHorizontal: SCREEN_PAD }}>
+          <ListGroup>
+            <ListRow icon="users" title={`🏇 ${t('live.horses')}`} subtitle={t('live.bannerBody')} onPress={() => router.push('/live/horses')} />
+            <ListRow icon="users" title={`🎡 ${t('live.roulette')}`} onPress={() => router.push('/live/roulette')} />
+          </ListGroup>
+        </View>
+      </Section>
       <Section title={t('poker.joinByCode')}>
         <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: SCREEN_PAD }}>
           <TextInput
