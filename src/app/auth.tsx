@@ -13,6 +13,9 @@ import { useSession } from '@/state/session';
 import { ECONOMY, guestMigrationAmount } from '@/engine/meta/economy.ts';
 import { migrateGuest, syncLearning } from '@/features/sync/sync';
 
+/** Social sign-in buttons appear only for providers enabled in Supabase (EXPO_PUBLIC_OAUTH_PROVIDERS="google,apple"). */
+const OAUTH = (process.env.EXPO_PUBLIC_OAUTH_PROVIDERS ?? '').split(',').map((x: string) => x.trim()).filter((x: string): x is OAuthProvider => x === 'apple' || x === 'google');
+
 export default function Auth() {
   const { t } = useT();
   const { c } = useTheme();
@@ -101,13 +104,17 @@ export default function Auth() {
               <T variant="footnote" color="text2" style={{ flex: 1 }}>{t('auth.notConfigured')} {t('auth.offlineOk')}</T>
             </View>
           ) : null}
-          <ProviderButton kind="apple" label={t('auth.withApple')} busy={oauthBusy === 'apple'} onPress={() => void provider('apple')} />
-          <ProviderButton kind="google" label={t('auth.withGoogle')} busy={oauthBusy === 'google'} onPress={() => void provider('google')} />
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 6 }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: c.surface3 }} />
-            <T variant="footnote" color="text3">{t('auth.orEmail')}</T>
-            <View style={{ flex: 1, height: 1, backgroundColor: c.surface3 }} />
-          </View>
+          {OAUTH.length ? (
+            <>
+            {OAUTH.includes('apple') ? <ProviderButton kind="apple" label={t('auth.withApple')} busy={oauthBusy === 'apple'} onPress={() => void provider('apple')} /> : null}
+            {OAUTH.includes('google') ? <ProviderButton kind="google" label={t('auth.withGoogle')} busy={oauthBusy === 'google'} onPress={() => void provider('google')} /> : null}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 6 }}>
+              <View style={{ flex: 1, height: 1, backgroundColor: c.surface3 }} />
+              <T variant="footnote" color="text3">{t('auth.orEmail')}</T>
+              <View style={{ flex: 1, height: 1, backgroundColor: c.surface3 }} />
+            </View>
+            </>
+          ) : null}
           <Segmented value={mode} onChange={setMode} options={[{ value: 'signUp', label: t('auth.signUp') }, { value: 'signIn', label: t('auth.signIn') }]} />
           {mode === 'signUp' && input({ value: username, onChangeText: (v) => setUsername(v.replace(/[^A-Za-z0-9_.]/g, '').slice(0, 20)), placeholder: t('auth.username'), accessibilityLabel: t('auth.username'), textContentType: 'username' })}
           {input({ value: email, onChangeText: setEmail, placeholder: t('auth.email'), keyboardType: 'email-address', accessibilityLabel: t('auth.email'), textContentType: 'emailAddress', autoComplete: 'email' })}

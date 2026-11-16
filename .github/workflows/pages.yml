@@ -28,6 +28,11 @@ jobs:
         run: npx expo export --platform web
         env:
           EXPO_BASE_URL: /${{ github.event.repository.name }}
+          # Online backend (Supabase project "Cashino"). The publishable key is PUBLIC by design: it ships
+          # inside the web app anyway and only allows what the row-level security policies allow.
+          # Never put the secret / service_role key here.
+          EXPO_PUBLIC_SUPABASE_URL: https://sdqezhwhkpybeciaonan.supabase.co
+          EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_QyImPhthm2wU3lpAE0RIjQ_jhqb3MDz
       - name: Make it an installable PWA (manifest, iOS tags, SPA fallback)
         run: node scripts/pwa-postbuild.mjs /${{ github.event.repository.name }}
       - uses: actions/configure-pages@v5

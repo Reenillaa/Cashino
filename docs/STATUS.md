@@ -97,6 +97,15 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - **Limbo**: eliges el objetivo arrastrando directamente sobre el velocímetro.
 - **Bacará y Sic Bo** apuestan también con la rueda de fichas.
 
+## Servidor online (Supabase) — activado
+- Proyecto Supabase **Cashino** (región eu-central-1, Postgres 17). Esquema aplicado: 33 tablas con RLS, saldos solo modificables por funciones del servidor, ranking, póker multijugador y torneos. Migración `20261116000000_hardening.sql` tras el revisor de seguridad (los avisos restantes son intencionados: vistas de ranking que solo exponen nombre/avatar/puntos y tablas internas sin políticas que solo usa el servidor).
+- Edge Functions desplegadas: `game` (los 20 juegos con RNG del servidor; el estado oculto, como los huevos de la Torre o el mazo, nunca llega al móvil), `rewards`, `account`, `poker`. Solo usan las claves que inyecta la plataforma.
+- Auth: correo + contraseña (mínimo 8). **Confirmación por correo desactivada**, porque el correo gratuito de Supabase solo envía a los miembros del equipo; para activarla hay que configurar un SMTP propio (Authentication → SMTP) y desmarcar *autoconfirm*. URL del sitio y de vuelta: la web de GitHub Pages y `cashino://`.
+- Apple y Google ocultos hasta activarlos en Supabase → Providers y añadir `EXPO_PUBLIC_OAUTH_PROVIDERS=google,apple` al build.
+- La web publicada se compila con la URL y la clave **publishable** (pública por diseño) en `.github/workflows/pages.yml`. La clave secreta nunca sale de Supabase.
+- Probado de verdad: registro, saldo inicial 1 000, 4 juegos con saldo correcto, Torre (2 pasos), ranking por juego y de temporada, y una mesa de póker con 2 usuarios reales (cada uno solo ve sus cartas). Los usuarios de prueba se borraron.
+- Límites conocidos: la tienda y la mesa caliente siguen funcionando con el monedero local (invitado), no con el saldo de la cuenta.
+
 ## Cambios de la ronda 10 (5 juegos web, entradas propias, tienda grande, mesa caliente)
 - **5 juegos nuevos de los casinos web**: **Rueda** (30 casillas, 3 riesgos, 99 %), **Torre del Dragón** (8 pisos, 4 dificultades, 99 %), **Diamantes** (5 gemas de 7 colores; retorno exacto 99,0 % contando las 16 807 combinaciones), **Globo/Pump** (4 dificultades, 99 %) y **Dragon Tiger** (reglas reales con 8 barajas: Dragón/Tigre 96,27 %, Empate 11:1 89,64 %). Motores con 13 tests, protocolo y servidor sincronizados, logos, reglas, tutoriales, Academy y simulador. Ahora hay 20 juegos en el menú.
 - **Entrada propia para cada juego** (en lugar del logo girando): la ruleta gira con su bola, la tragaperras aterriza los tres rodillos en 7-7-7 mientras hace zoom, se reparte A+K con «21» en blackjack, escalera real en Video Póker, ases y fichas en póker, 9 natural en bacará, dragón contra tigre, dados que caen en 6-6, cohete despegando, aguja del limbo, tablero de minas que se voltea, bolas de plinko, moneda girando, pollito cruzando entre coches, velas de bolsa subiendo, rueda girando, torre que se apila con su dragón, diamantes cayendo y globo inflándose.
@@ -146,6 +155,5 @@ Sin estas cuentas los botones se ven pero avisan de que el servidor no está con
 - En la versión web del iPhone no hay vibración (Safari no lo permite).
 
 ## Próximos pasos
-1. Crear proyecto Supabase, `db push`, desplegar funciones y probar online con dos dispositivos.
 3. Build EAS de desarrollo en tu iPhone; perfilar animaciones y revisar VoiceOver.
 4. Apuestas interiores completas en ruleta, Sign in with Apple nativo (`expo-apple-authentication`), push, torneos semanales con ranking (necesitan Supabase).
