@@ -1,47 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, useWindowDimensions } from 'react-native';
-import Svg, { Circle, Defs, LinearGradient as SvgLinear, Path, Rect, Stop } from 'react-native-svg';
-import { RED_NUMBERS, WHEEL_ORDER } from '@/engine/games/roulette.ts';
 import Animated, { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withSequence, withTiming } from 'react-native-reanimated';
 import { Aurora, ChipLogo, T } from '@/design/components';
 import { useTheme } from '@/design/theme';
+import { RouletteWheelArt } from '@/games/roulette/WheelArt';
 import { brand, motion } from '@/design/tokens';
 
 const EASE_ENTER = Easing.bezier(...motion.easeEnter);
 const EASE = Easing.bezier(...motion.ease);
 
-const SEG = 360 / 37;
 /** Roulette wheel drawn for the intro (European order, gold rim, chip-logo hub). */
 export function IntroWheel({ size }: { size: number }) {
-  const r = size / 2;
-  const wedge = (i: number) => {
-    const a0 = ((i * SEG - SEG / 2 - 90) * Math.PI) / 180, a1 = ((i * SEG + SEG / 2 - 90) * Math.PI) / 180;
-    const ro = r * 0.9, ri = r * 0.6;
-    const p = (a: number, rr: number) => `${r + rr * Math.cos(a)},${r + rr * Math.sin(a)}`;
-    return `M${p(a0, ro)} A${ro},${ro} 0 0 1 ${p(a1, ro)} L${p(a1, ri)} A${ri},${ri} 0 0 0 ${p(a0, ri)} Z`;
-  };
-  return (
-    <Svg width={size} height={size}>
-      <Defs>
-        <SvgLinear id="rim" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#FFE58A" />
-          <Stop offset="0.5" stopColor="#E0A21C" />
-          <Stop offset="1" stopColor="#8A5300" />
-        </SvgLinear>
-      </Defs>
-      <Circle cx={r} cy={r} r={r} fill="url(#rim)" />
-      <Circle cx={r} cy={r} r={r * 0.93} fill="#2A140A" />
-      {WHEEL_ORDER.map((n, i) => (
-        <Path key={n} d={wedge(i)} fill={n === 0 ? '#16C47F' : RED_NUMBERS.has(n) ? '#E8304F' : '#17111F'} stroke="rgba(255,215,120,0.55)" strokeWidth={0.8} />
-      ))}
-      <Circle cx={r} cy={r} r={r * 0.6} fill="#1A0F08" />
-      <Circle cx={r} cy={r} r={r * 0.52} fill="url(#rim)" opacity={0.9} />
-      {[0, 45, 90, 135].map((a) => (
-        <Rect key={a} x={r - r * 0.04} y={r - r * 0.46} width={r * 0.08} height={r * 0.92} rx={r * 0.04} fill="#8A5300" transform={`rotate(${a} ${r} ${r})`} />
-      ))}
-      <Circle cx={r} cy={r} r={r * 0.14} fill="#FFE58A" />
-    </Svg>
-  );
+  return <RouletteWheelArt size={size} id={`iw${Math.round(size)}`} />;
 }
 
 /**

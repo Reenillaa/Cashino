@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, { Extrapolation, interpolate, runOnJS, useAnimatedReaction, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, type SharedValue } from 'react-native-reanimated';
-import { PressableScale, T } from '@/design/components';
+import { CasinoChip, PressableScale, T } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { haptic } from '@/services/haptics';
@@ -99,12 +99,7 @@ function WheelChip({ v, i, x, color, onPress }: { v: number; i: number; x: Share
   return (
     <PressableScale onPress={onPress} feedback="none" scaleTo={0.9} accessibilityLabel={`${v}`} style={{ width: ITEM, alignItems: 'center' }}>
       <Animated.View style={style}>
-        <View style={[styles.chip, { backgroundColor: color }]}>
-          <View style={styles.edge} />
-          <View style={styles.face}>
-            <T weight="display" style={{ color: '#fff', fontSize: v >= 1000 ? 12 : v >= 100 ? 13 : 15, lineHeight: 18 }}>{short(v)}</T>
-          </View>
-        </View>
+        <CasinoChip size={52} color={color} label={short(v)} />
       </Animated.View>
     </PressableScale>
   );
@@ -112,8 +107,5 @@ function WheelChip({ v, i, x, color, onPress }: { v: number; i: number; x: Share
 
 const styles = StyleSheet.create({
   well: { height: 64, borderRadius: 32, overflow: 'hidden', justifyContent: 'center' },
-  chip: { width: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.4, shadowRadius: 6, shadowOffset: { width: 0, height: 3 } },
-  edge: { position: 'absolute', left: 3, top: 3, right: 3, bottom: 3, borderRadius: 22, borderWidth: 4, borderColor: '#fff', borderStyle: 'dashed', opacity: 0.85 },
-  face: { width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.22)', alignItems: 'center', justifyContent: 'center' },
   notch: { position: 'absolute', top: 0, alignSelf: 'center', width: 0, height: 0, borderLeftWidth: 6, borderRightWidth: 6, borderTopWidth: 7, borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: '#fff' },
 });

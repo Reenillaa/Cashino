@@ -1,11 +1,12 @@
 import React, { useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, FadeIn, ZoomIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import Svg, { Circle, Defs, G, LinearGradient as SvgLinear, Path, Rect, Stop, Text as SvgText } from 'react-native-svg';
+import { Circle } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button, Icon, PressableScale, T, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
+import { RouletteWheelArt } from './WheelArt';
 import { WHEEL_ORDER, pocketColor, betKey, type RouletteBet } from '@/engine/games/roulette.ts';
 import { useGameSession, PlayError } from '@/features/play/session';
 import { tutorialEvent } from '@/features/tutorial/tutorial';
@@ -29,53 +30,9 @@ const numColor = (n: number) => (pocketColor(n) === 'red' ? RED : pocketColor(n)
  * Gold rim, turret in the middle; pockets keep their chips while it spins.
  */
 function Wheel({ size, placed, onPick, disabled }: { size: number; placed: Record<number, number>; onPick: (n: number) => void; disabled: boolean }) {
-  const r = size / 2;
-  const ro = r * 0.9, ri = r * 0.58;
-  const p = (a: number, rr: number) => `${r + rr * Math.cos(a)},${r + rr * Math.sin(a)}`;
-  const wedge = (i: number) => {
-    const a0 = ((i * SEG - SEG / 2 - 90) * Math.PI) / 180, a1 = ((i * SEG + SEG / 2 - 90) * Math.PI) / 180;
-    return `M${p(a0, ro)} A${ro},${ro} 0 0 1 ${p(a1, ro)} L${p(a1, ri)} A${ri},${ri} 0 0 0 ${p(a0, ri)} Z`;
-  };
   return (
-    <Svg width={size} height={size}>
-      <Defs>
-        <SvgLinear id="rlRim" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#FFE58A" />
-          <Stop offset="0.5" stopColor="#D9981C" />
-          <Stop offset="1" stopColor="#7A4E08" />
-        </SvgLinear>
-        <SvgLinear id="rlWood" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#5A2E14" />
-          <Stop offset="1" stopColor="#2A1408" />
-        </SvgLinear>
-      </Defs>
-      <Circle cx={r} cy={r} r={r} fill="url(#rlRim)" />
-      <Circle cx={r} cy={r} r={r * 0.95} fill="url(#rlWood)" />
-      {WHEEL_ORDER.map((n, i) => {
-        const mid = ((i * SEG - 90) * Math.PI) / 180;
-        const chip = placed[n];
-        return (
-          <G key={n} onPress={disabled ? undefined : () => onPick(n)}>
-            <Path d={wedge(i)} fill={numColor(n)} stroke="rgba(255,215,120,0.6)" strokeWidth={0.8} />
-            <SvgText x={r} y={r - ro * 0.86} fontSize={size * 0.04} fontWeight="700" fill="#FFFFFF" textAnchor="middle" rotation={i * SEG} origin={`${r},${r}`}>
-              {n}
-            </SvgText>
-            {chip ? (
-              <G>
-                <Circle cx={r + ri * 1.12 * Math.cos(mid)} cy={r + ri * 1.12 * Math.sin(mid)} r={size * 0.03} fill="#FFB938" stroke="#FFFFFF" strokeWidth={1.4} />
-              </G>
-            ) : null}
-          </G>
-        );
-      })}
-      <Circle cx={r} cy={r} r={ri} fill="#1A0F08" />
-      <Circle cx={r} cy={r} r={ri * 0.86} fill="url(#rlRim)" />
-      <Circle cx={r} cy={r} r={ri * 0.7} fill="url(#rlWood)" />
-      {[0, 45, 90, 135].map((a) => (
-        <Rect key={a} x={r - r * 0.035} y={r - ri * 0.66} width={r * 0.07} height={ri * 1.32} rx={r * 0.035} fill="url(#rlRim)" transform={`rotate(${a} ${r} ${r})`} />
-      ))}
-      <Circle cx={r} cy={r} r={r * 0.09} fill="#FFE58A" stroke="#7A4E08" strokeWidth={2} />
-    </Svg>
+    <RouletteWheelArt size={size} id="rlw" onPocket={disabled ? undefined : onPick}
+      overlay={(n, x, y) => (placed[n] ? <Circle cx={x} cy={y} r={size * 0.03} fill="#FFB938" stroke="#FFFFFF" strokeWidth={1.4} /> : null)} />
   );
 }
 

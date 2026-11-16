@@ -1,6 +1,6 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { PressableScale, T } from '@/design/components';
+import { ScrollView, View } from 'react-native';
+import { CasinoChip, PressableScale } from '@/design/components';
 import { useTheme } from '@/design/theme';
 
 export const CHIP_VALUES = [5, 10, 20, 25, 50, 100, 200, 500, 1000, 2000, 5000];
@@ -16,12 +16,12 @@ export function chipFor(amount: number) {
   return [...CHIP_VALUES].reverse().find((x) => x <= amount) ?? CHIP_VALUES[0];
 }
 
+const CHIP_COLORS = ['#8A90A8', '#3D7BFF', '#12C08A', '#16A34A', '#FFB938', '#E8304F', '#D9741C', '#7B5CFF', '#1A1430', '#00B8D9', '#C9A227'];
 export function ChipToken({ value, size = 34, selected }: { value: number; size?: number; selected?: boolean }) {
-  const col = chipTint(value);
+  const i = CHIP_VALUES.indexOf(value);
   return (
-    <View style={[styles.chip, { width: size, height: size, borderRadius: size / 2, borderColor: col, backgroundColor: '#15171B', transform: [{ scale: selected ? 1.12 : 1 }] }]}>
-      <View style={[StyleSheet.absoluteFill, { borderRadius: size / 2, borderWidth: 3, borderColor: col, borderStyle: 'dashed', opacity: 0.6 }]} />
-      <T style={{ fontFamily: 'Geist_600SemiBold', fontSize: size * (value >= 100 && value < 1000 ? 0.28 : 0.32), color: col }}>{value >= 1000 ? `${value / 1000}k` : value}</T>
+    <View style={{ transform: [{ scale: selected ? 1.12 : 1 }] }}>
+      <CasinoChip size={size} color={CHIP_COLORS[i >= 0 ? i : 0]} label={value >= 1000 ? `${value / 1000}k` : `${value}`} />
     </View>
   );
 }
@@ -42,6 +42,3 @@ export function ChipRack({ value, onChange, balance, values = CHIP_VALUES }: { v
   );
 }
 
-const styles = StyleSheet.create({
-  chip: { alignItems: 'center', justifyContent: 'center', borderWidth: 2 },
-});

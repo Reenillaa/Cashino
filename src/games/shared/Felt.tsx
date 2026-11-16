@@ -1,5 +1,6 @@
 import { useCosmetics } from '@/state/cosmetics';
 import { feltById } from '@/features/shop/items';
+import Svg, { Ellipse, G, Rect } from 'react-native-svg';
 import React from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -34,19 +35,34 @@ export function Felt({ shape = 'arc', colors: given, themed, label, style, child
   );
 }
 
-/** A small stack of chips showing an amount on the felt. */
+/** A small stack of chips showing an amount on the felt (side view: clay edges with white inserts). */
 export function ChipStack({ amount, color = '#FF4FA3' }: { amount: number; color?: string }) {
   if (!amount) return null;
-  const n = Math.min(4, 1 + Math.floor(Math.log10(Math.max(1, amount))));
+  const n = Math.min(5, 1 + Math.floor(Math.log10(Math.max(1, amount))));
+  const h = 22 + n * 5;
   return (
     <View style={{ alignItems: 'center' }}>
-      <View style={{ width: 34, height: 26 + n * 4 }}>
-        {Array.from({ length: n }, (_, i) => (
-          <View key={i} style={[styles.chip, { bottom: i * 4, backgroundColor: i === n - 1 ? color : '#2A1E40' }]}>
-            <View style={styles.chipEdge} />
-          </View>
-        ))}
-      </View>
+      <Svg width={40} height={h} viewBox={`0 0 40 ${h}`}>
+        {Array.from({ length: n }, (_, i) => {
+          const y = h - 8 - i * 5;
+          const c = i === n - 1 ? color : i % 2 ? '#2A1E40' : color;
+          return (
+            <G key={i}>
+              <Ellipse cx={20} cy={y + 2} rx={17} ry={6} fill="rgba(0,0,0,0.35)" />
+              <Rect x={3} y={y - 3} width={34} height={5} fill={c} />
+              {[6, 14, 22, 30].map((x) => <Rect key={x} x={x} y={y - 3} width={3} height={5} fill="#FFFFFF" opacity={0.9} />)}
+              <Ellipse cx={20} cy={y + 2} rx={17} ry={6} fill="none" />
+              <Ellipse cx={20} cy={y - 3} rx={17} ry={6} fill={c} stroke="rgba(255,255,255,0.5)" strokeWidth={0.8} />
+              {i === n - 1 ? (
+                <G>
+                  <Ellipse cx={20} cy={y - 3} rx={12} ry={4} fill="none" stroke="#FFFFFF" strokeWidth={1.3} strokeDasharray="3 2.4" />
+                  <Ellipse cx={20} cy={y - 3} rx={7} ry={2.4} fill="#FFFFFF" opacity={0.9} />
+                </G>
+              ) : null}
+            </G>
+          );
+        })}
+      </Svg>
       <T weight="displaySemi" style={{ color: '#fff', fontSize: 11, marginTop: 2 }}>{amount.toLocaleString('es-ES')}</T>
     </View>
   );
@@ -57,6 +73,4 @@ const styles = StyleSheet.create({
   felt: { flex: 1, overflow: 'hidden' },
   inner: { position: 'absolute', left: 10, top: 10, right: 10, bottom: 10, borderWidth: 1.5, borderColor: 'rgba(255,229,138,0.35)', borderStyle: 'dashed' },
   label: { position: 'absolute', left: 30, right: 30, top: '71%' },
-  chip: { position: 'absolute', left: 0, width: 34, height: 26, borderRadius: 17, borderWidth: 2, borderColor: 'rgba(255,255,255,0.85)', alignItems: 'center', justifyContent: 'center' },
-  chipEdge: { width: 22, height: 14, borderRadius: 11, borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)', borderStyle: 'dashed' },
 });
