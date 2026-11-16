@@ -34,7 +34,7 @@ function cameraAt(splits: number[][], t: number, view: number): number {
 }
 
 /** One runner in its lane: moves with the race clock and swaps gallop frames. */
-function Runner({ i, n, silks, splits, clock, track, view, laneY, size, duration }: { i: number; n: number; silks: [string, string]; splits: number[][]; clock: SharedValue<number>; track: number; view: number; laneY: number; size: number; duration: number }) {
+const Runner = React.memo(function Runner({ i, n, silks, splits, clock, track, view, laneY, size, duration }: { i: number; n: number; silks: [string, string]; splits: number[][]; clock: SharedValue<number>; track: number; view: number; laneY: number; size: number; duration: number }) {
   const move = useAnimatedStyle(() => {
     const t = clock.value;
     const x = (posAt(splits, i, t) - cameraAt(splits, t, view)) * track + NOSE - size * 0.92;
@@ -46,7 +46,7 @@ function Runner({ i, n, silks, splits, clock, track, view, laneY, size, duration
       {[0, 1, 2, 3].map((f) => <GallopFrame key={f} f={f} i={i} n={n} silks={silks} clock={clock} size={size} duration={duration} />)}
     </Animated.View>
   );
-}
+});
 
 /** One of the four gallop frames; only the current one is visible. */
 function GallopFrame({ f, i, n, silks, clock, size, duration }: { f: number; i: number; n: number; silks: [string, string]; clock: SharedValue<number>; size: number; duration: number }) {
@@ -63,10 +63,10 @@ function GallopFrame({ f, i, n, silks, clock, size, duration }: { f: number; i: 
 }
 
 /** Something that sits on the track at race position p (markers, finish post). */
-function TrackThing({ p, splits, clock, track, view, children, style }: { p: number; splits: number[][]; clock: SharedValue<number>; track: number; view: number; children: React.ReactNode; style?: object }) {
+const TrackThing = React.memo(function TrackThing({ p, splits, clock, track, view, children, style }: { p: number; splits: number[][]; clock: SharedValue<number>; track: number; view: number; children: React.ReactNode; style?: object }) {
   const st = useAnimatedStyle(() => ({ transform: [{ translateX: (p - cameraAt(splits, clock.value, view)) * track + NOSE } as const] }));
   return <Animated.View style={[styles.thing, style, st]}>{children}</Animated.View>;
-}
+});
 
 export function RaceView({ card, race, width, height, duration = 16000, startedAt, onEnd }: { card: RaceCard; race: RaceResult; width: number; height: number; duration?: number; startedAt?: number; onEnd: () => void }) {
   const { t } = useT();

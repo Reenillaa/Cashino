@@ -107,10 +107,11 @@ export function useGameSession(game: GameId) {
   }, [active]);
 
   const op = useCallback(
-    async (name: string, params: Record<string, unknown> = {}): Promise<OpOutcome> => {
+    // `quiet`: polling ops (crash 'settle') skip the busy state so they don't re-render the screen twice
+    async (name: string, params: Record<string, unknown> = {}, opts?: { quiet?: boolean }): Promise<OpOutcome> => {
       if (busyRef.current) throw new PlayError('busy');
       busyRef.current = true;
-      setBusy(true);
+      if (!opts?.quiet) setBusy(true);
       try {
         const current = useActiveRounds.getState().rounds[game];
         const roundMode: PlayMode = current?.mode ?? mode;
@@ -156,7 +157,8 @@ export function useGameSession(game: GameId) {
           else wallet.credit(res.payout, 'payout', game);
         }
         const seed = seedRef.current;
-        useActiveRounds.getState().put(game, res.done ? null : { state: res.state, view: res.view, mode: roundMode, seed: seed ? { ...seed, draws: rng.draws() } : undefined });
+        // quiet polls that don't end the round (crash 'settle') leave the saved round as it was
+        if (!(opts?.quiet && !res.done)) useActiveRounds.getState().put(game, res.done ? null : { state: res.state, view: res.view, mode: roundMode, seed: seed ? { ...seed, draws: rng.draws() } : undefined });
         let xp: number | undefined;
         if (res.done && res.summary) {
           xp = afterRound(game, res.summary, roundMode === 'practice', seed ? { hash: seed.hash, clientSeed: seed.clientSeed, nonce: seed.nonce } : undefined);
@@ -170,7 +172,7 @@ export function useGameSession(game: GameId) {
         throw new PlayError(e instanceof Error ? e.message : 'error');
       } finally {
         busyRef.current = false;
-        setBusy(false);
+        if (!opts?.quiet) setBusy(false);
       }
     },
     [game, mode, room.id],

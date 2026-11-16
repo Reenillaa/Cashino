@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
-import Animated, { Easing, FadeIn, FadeInDown, FadeOut, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, FadeIn, FadeInDown, FadeOut, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming, cancelAnimation } from 'react-native-reanimated';
 import type { GameId } from '@/engine/games/types.ts';
 import { Icon, PressableScale, T } from '@/design/components';
 import { useTheme } from '@/design/theme';
@@ -117,10 +117,14 @@ export function TutorialCoach({ game }: { game: GameId }) {
     };
   }, [targetId]);
 
+  // the ring only breathes while the guide is on screen (it used to run forever in every game)
+  const showing = !!cur;
   useEffect(() => {
+    cancelAnimation(pulse);
     pulse.set(0);
-    if (!reduceMotion) pulse.set(withRepeat(withSequence(withTiming(1, { duration: 700, easing: Easing.inOut(Easing.quad) }), withTiming(0, { duration: 700, easing: Easing.inOut(Easing.quad) })), -1));
-  }, [targetId, reduceMotion, pulse]);
+    if (!reduceMotion && showing && targetId) pulse.set(withRepeat(withSequence(withTiming(1, { duration: 700, easing: Easing.inOut(Easing.quad) }), withTiming(0, { duration: 700, easing: Easing.inOut(Easing.quad) })), -1));
+    return () => cancelAnimation(pulse);
+  }, [targetId, reduceMotion, pulse, showing]);
   const ring = useAnimatedStyle(() => ({ transform: [{ scale: 1 + 0.05 * pulse.value }], opacity: 1 - 0.45 * pulse.value }));
 
   if (!cur) return null;

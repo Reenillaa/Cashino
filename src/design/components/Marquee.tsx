@@ -12,12 +12,6 @@ export function Marquee({ children, colors = ['#3A0D3E', '#1A0624'] }: { childre
   const { reduceMotion } = useTheme();
   const focused = useIsFocused();
   const [box, setBox] = useState({ w: 0, h: 0 });
-  const [phase, setPhase] = useState(0);
-  useEffect(() => {
-    if (reduceMotion || !focused) return;
-    const id = setInterval(() => setPhase((p) => (p + 1) % 3), 260);
-    return () => clearInterval(id);
-  }, [reduceMotion, focused]);
   // Bulb positions along the inner edge of the frame.
   const bulbs: { x: number; y: number }[] = [];
   if (box.w > 0) {
@@ -35,18 +29,34 @@ export function Marquee({ children, colors = ['#3A0D3E', '#1A0624'] }: { childre
         <LinearGradient colors={colors} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }} style={StyleSheet.absoluteFill} />
         <LinearGradient colors={['rgba(255,214,120,0.18)', 'rgba(255,214,120,0)']} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.5 }} style={StyleSheet.absoluteFill} />
       </View>
-      {bulbs.map((b, i) => {
-        const on = (i + phase) % 3 === 0;
-        return <View key={i} pointerEvents="none" style={[styles.bulb, { left: b.x - 4, top: b.y - 4, backgroundColor: on ? '#FFF6C8' : '#8A6A2A', shadowOpacity: on ? 0.95 : 0 }]} />;
-      })}
+      <Bulbs bulbs={bulbs} running={!reduceMotion && focused} />
       <View style={styles.content}>{children}</View>
     </View>
   );
 }
 
+/** The chasing lights. Only this small part re-renders on each tick, and lit bulbs change colour only
+ * (animating glow shadows on ~40 bulbs was costly to repaint on phones). */
+const Bulbs = React.memo(function Bulbs({ bulbs, running }: { bulbs: { x: number; y: number }[]; running: boolean }) {
+  const [phase, setPhase] = useState(0);
+  useEffect(() => {
+    if (!running) return;
+    const id = setInterval(() => setPhase((p) => (p + 1) % 3), 300);
+    return () => clearInterval(id);
+  }, [running]);
+  return (
+    <>
+      {bulbs.map((b, i) => {
+        const on = (i + phase) % 3 === 0;
+        return <View key={i} pointerEvents="none" style={[styles.bulb, { left: b.x - 4, top: b.y - 4, backgroundColor: on ? '#FFF6C8' : '#8A6A2A', borderColor: on ? '#FFE58A' : '#6A4E1A' }]} />;
+      })}
+    </>
+  );
+}, (a, b) => a.running === b.running && a.bulbs.length === b.bulbs.length && a.bulbs[0]?.x === b.bulbs[0]?.x && a.bulbs[a.bulbs.length - 1]?.y === b.bulbs[b.bulbs.length - 1]?.y);
+
 const styles = StyleSheet.create({
   frame: { borderRadius: 26, padding: 5, shadowColor: '#FFB938', shadowOpacity: 0.35, shadowRadius: 22, shadowOffset: { width: 0, height: 6 } },
   inner: { position: 'absolute', left: 5, top: 5, right: 5, bottom: 5, borderRadius: 21, overflow: 'hidden' },
-  bulb: { position: 'absolute', width: 8, height: 8, borderRadius: 4, shadowColor: '#FFE58A', shadowRadius: 6, shadowOffset: { width: 0, height: 0 } },
+  bulb: { position: 'absolute', width: 8, height: 8, borderRadius: 4, borderWidth: 1 },
   content: { paddingHorizontal: 22, paddingVertical: 20 },
 });

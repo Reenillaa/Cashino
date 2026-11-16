@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
-import { useColorScheme } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 import { useSettings } from '@/state/settings';
-import { dark, light, type ColorScheme } from './tokens';
+import { dark, type ColorScheme } from './tokens';
 
 export interface Theme {
   c: ColorScheme;
@@ -15,17 +14,17 @@ export interface Theme {
 }
 
 export function useTheme(): Theme {
-  const pref = useSettings((s) => s.theme);
   const animations = useSettings((s) => s.animations);
   const rm = useSettings((s) => s.reduceMotion);
   const re = useSettings((s) => s.reduceEffects);
   const quality = useSettings((s) => s.quality);
-  const scheme = useColorScheme();
   const systemReduced = useReducedMotion();
-  const isDark = pref === 'system' ? scheme !== 'light' : pref === 'dark';
+  // Cashino is a dark casino: every table, stage and card is designed on dark surfaces, so the app stays
+  // dark whatever the phone's appearance (a light background made white text unreadable).
+  const isDark = true;
   return useMemo(
     () => ({
-      c: isDark ? dark : light,
+      c: dark,
       isDark,
       reduceMotion: !animations || rm || systemReduced,
       reduceEffects: re || quality === 'low',

@@ -47,7 +47,6 @@ export default function Settings() {
     <Screen title={t('settings.title')} back tabBar={false}>
       <Section title={t('settings.appearance')}>
         <View style={{ paddingHorizontal: SCREEN_PAD, gap: 12 }}>
-          <Segmented value={s.theme} onChange={(theme) => s.set({ theme })} options={[{ value: 'dark', label: t('settings.dark') }, { value: 'light', label: t('settings.light') }, { value: 'system', label: t('settings.system') }]} />
           <Segmented value={s.language} onChange={(language) => s.set({ language })} options={[{ value: 'es', label: t('settings.spanish') }, { value: 'en', label: t('settings.english') }, { value: 'system', label: t('settings.system') }]} />
         </View>
       </Section>

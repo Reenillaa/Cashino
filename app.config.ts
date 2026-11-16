@@ -11,7 +11,7 @@ const config: ExpoConfig = {
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   scheme: 'cashino',
-  userInterfaceStyle: 'automatic',
+  userInterfaceStyle: 'dark',
   backgroundColor: '#000000',
   ios: {
     bundleIdentifier: BUNDLE_ID,

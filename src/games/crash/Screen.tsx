@@ -103,9 +103,14 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
       setMult(1);
       sfx('rocket', 0.6);
       tutorialEvent('crash', 'crash:start');
-      const loop = () => {
+      let lastPaint = 0;
+      const loop = (now: number) => {
         const m = multiplierAt(Date.now() - t0.current);
-        setMult(m);
+        // ~30 updates a second look just as smooth and halve the work of redrawing the scene
+        if (now - lastPaint >= 32) {
+          lastPaint = now;
+          setMult(m);
+        }
         if (Math.floor(m) > Math.floor(lastTick.current)) {
           sfx('tick', 0.5);
           haptic.select();
@@ -117,12 +122,12 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
       // Ask the authority (local engine or server) whether the rocket has crashed yet.
       poll.current = setInterval(async () => {
         try {
-          const st = await s.op('settle');
+          const st = await s.op('settle', {}, { quiet: true });
           if (st.done) finish(st);
         } catch {
           // busy or transient: try again next tick
         }
-      }, s.mode === 'online' ? 400 : 90);
+      }, s.mode === 'online' ? 400 : 150);
       void r;
     } catch (e) {
       onError(e);

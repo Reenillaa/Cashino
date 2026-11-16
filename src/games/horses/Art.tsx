@@ -9,7 +9,7 @@ export const coatFor = (n: number) => COAT[(n * 5) % COAT.length];
  * Side view of a galloping horse with its jockey in silks. `frame` 0..3 gives the four leg positions of
  * the gallop, so swapping frames fast makes it run.
  */
-export function HorseSprite({ n, silks, frame, size = 64 }: { n: number; silks: [string, string]; frame: number; size?: number }) {
+export const HorseSprite = React.memo(function HorseSprite({ n, silks, frame, size = 64 }: { n: number; silks: [string, string]; frame: number; size?: number }) {
   const coat = coatFor(n);
   const dark = '#24140A';
   // legs: [front-near, front-far, back-near, back-far] as (hip x, hip y, foot x, foot y)
@@ -48,7 +48,7 @@ export function HorseSprite({ n, silks, frame, size = 64 }: { n: number; silks: 
       <Path d="M52 8 Q57 1 62 7 L64 8 L52 9 Z" fill={silks[1]} />
     </Svg>
   );
-}
+});
 
 /** The jockey's silks as a little shirt, for the race card. */
 export function Silks({ colors, size = 30 }: { colors: [string, string]; size?: number }) {

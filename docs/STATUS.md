@@ -97,6 +97,18 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - **Limbo**: eliges el objetivo arrastrando directamente sobre el velocímetro.
 - **Bacará y Sic Bo** apuestan también con la rueda de fichas.
 
+## Cambios de la ronda 13 (siempre oscuro, sin zoom ni desplazamiento, fluidez medida juego a juego)
+- **Siempre en oscuro**: todo el diseño (tapetes, juegos, tienda, apuestas) está pensado sobre fondo oscuro; en móviles en modo claro había textos blancos sobre blanco. La app ignora el modo del sistema (`userInterfaceStyle: 'dark'`) y desaparece el selector de tema.
+- **La página no se mueve ni hace zoom** (versión web/PWA): viewport sin zoom, `html/body` fijos con `overscroll-behavior:none` y `touch-action` (sin zoom por doble toque, sin rebote), y bloqueo de los gestos de pellizco de Safari (iOS ignora `user-scalable=no` por diseño). Las listas siguen desplazándose dentro de la app.
+- **Fluidez, medida en emulación de iPhone 15 Pro con la CPU frenada ×4** (Playwright + perfiles de Chrome) antes y después:
+  - Guardado en lotes: los estados persistentes (monedero, progreso, ronda activa) se escribían enteros en cada cambio; ahora se agrupan cada 0,5 s y se guardan al ir a segundo plano o cerrar. Era la causa de los tirones al jugar.
+  - Animaciones que nunca paraban: el anillo del tutorial latía siempre (aunque no se viera), el brillo de los botones mantenía una animación activa entre destellos, el punto del «?» latía infinito y los logos de Inicio flotaban sin parar. Ahora, con el juego quieto, ningún juego pide fotogramas (antes 1–10 animaciones por fotograma; Inicio 1800 → 76 peticiones en 3 s).
+  - Cohete: el multiplicador se repinta ~30 veces/s y la consulta al motor es silenciosa y sin guardar: 48 → 59 fps.
+  - Plinko: el tablero de ~230 clavos se dibuja una vez; bolas sin sombra: parones 12 → 2.
+  - Marcos de bombillas: solo las bombillas se actualizan y sin sombras animadas. Caballos y elementos de pista memorizados.
+  - Resultado (CPU ×4): todos los juegos 55–60 fps jugando; peores tirones: Video Póker 283 → 117 ms, Diamantes 200 → 100 ms, Torre 167 → 83 ms. Queda un tirón al arrancar la carrera de caballos (se montan los 32 dibujos del galope), puntual.
+  - No probado en un iPhone físico: las cifras son de emulación en Chromium (Safari pinta distinto).
+
 ## Cambios de la ronda 12 (apuestas deportivas reales y botones del blackjack)
 - **Blackjack**: botones de acción al estilo del póker: Pedir (verde, +), Plantarse (oro, ✋), Doblar (violeta, ×2), Dividir (rosa, ⇆); con la pista 💡 el movimiento recomendado brilla.
 - **Apuestas deportivas** (nuevo menú, desde Inicio): partidos, horarios, marcadores en vivo, resultados, forma y balances **reales de ESPN** (datos públicos; no se usa Flashscore porque sus condiciones prohíben extraer datos). LaLiga, Premier, Serie A, Bundesliga, Ligue 1, Champions, Europa League, Nations League (Eurocopa/Mundial cuando haya), F1, ATP/WTA, NFL y NBA. MotoGP no: no hay fuente abierta y la temporada ha terminado.

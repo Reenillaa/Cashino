@@ -91,6 +91,22 @@ function Ball({ spec, geo, onLand, reduceMotion }: { spec: BallSpec; geo: { cx: 
   );
 }
 
+/** The peg board: drawn once per layout (balls landing never redraw its ~230 circles). */
+const Pegs = React.memo(function Pegs({ w, rows, cx, top, dx, dy }: { w: number; rows: number; cx: number; top: number; dx: number; dy: number }) {
+  return (
+    <Svg width={w} height={top + (rows + 1) * dy} style={StyleSheet.absoluteFill}>
+      {Array.from({ length: rows }, (_, r) =>
+        Array.from({ length: r + 3 }, (_, j) => (
+          <React.Fragment key={`${r}-${j}`}>
+            <Circle cx={cx + (j - (r + 2) / 2) * dx} cy={top + r * dy + dy * 0.5} r={Math.max(4, dx * 0.2)} fill="#FF7AC6" opacity={0.18} />
+            <Circle cx={cx + (j - (r + 2) / 2) * dx} cy={top + r * dy + dy * 0.5} r={Math.max(2.2, dx * 0.09)} fill="#FFFFFF" />
+          </React.Fragment>
+        )),
+      )}
+    </Svg>
+  );
+});
+
 export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolean }) {
   const { t } = useT();
   const { reduceMotion } = useTheme();
@@ -160,16 +176,7 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
         <View style={{ flex: 1 }} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
           {box.w > 0 && (
             <>
-              <Svg width={box.w} height={geo.top + (rows + 1) * dy} style={StyleSheet.absoluteFill}>
-                {Array.from({ length: rows }, (_, r) =>
-                  Array.from({ length: r + 3 }, (_, j) => (
-                    <React.Fragment key={`${r}-${j}`}>
-                      <Circle cx={geo.cx + (j - (r + 2) / 2) * dx} cy={geo.top + r * dy + dy * 0.5} r={Math.max(4, dx * 0.2)} fill="#FF7AC6" opacity={0.18} />
-                      <Circle cx={geo.cx + (j - (r + 2) / 2) * dx} cy={geo.top + r * dy + dy * 0.5} r={Math.max(2.2, dx * 0.09)} fill="#FFFFFF" />
-                    </React.Fragment>
-                  )),
-                )}
-              </Svg>
+              <Pegs w={box.w} rows={rows} cx={geo.cx} top={geo.top} dx={dx} dy={dy} />
               {balls.map((b) => <Ball key={b.id} spec={b} geo={{ ...geo, top: geo.top + dy * 0.5 - dy }} onLand={onLand} reduceMotion={reduceMotion} />)}
               <View style={[styles.bins, { top: geo.top + rows * dy + dy * 0.2, left: geo.cx - ((rows + 1) * dx) / 2, width: (rows + 1) * dx }]}>
                 {table.map((m, i) => (
@@ -217,7 +224,8 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
 }
 
 const styles = StyleSheet.create({
-  ball: { position: 'absolute', left: 0, top: 0, backgroundColor: '#FF4F9A', borderWidth: 1.5, borderColor: '#FFD0E6', shadowColor: '#FF4F9A', shadowOpacity: 0.9, shadowRadius: 8 },
+  // no shadow on moving balls: it has to be repainted every frame on phones
+  ball: { position: 'absolute', left: 0, top: 0, backgroundColor: '#FF4F9A', borderWidth: 1.5, borderColor: '#FFD0E6' },
   bins: { position: 'absolute', flexDirection: 'row', justifyContent: 'space-between' },
   bin: { borderRadius: 8, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
 });

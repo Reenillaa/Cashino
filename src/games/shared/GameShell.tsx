@@ -252,7 +252,7 @@ function HelpButton({ onPress, label, hint }: { onPress: () => void; label: stri
   const p = useSharedValue(0);
   useEffect(() => {
     p.set(0);
-    if (hint && !reduceMotion) p.set(withRepeat(withSequence(withTiming(1, { duration: 900 }), withTiming(0, { duration: 900 })), -1));
+    if (hint && !reduceMotion) p.set(withRepeat(withSequence(withTiming(1, { duration: 900 }), withTiming(0, { duration: 900 })), 5));
   }, [hint, reduceMotion, p]);
   const dot = useAnimatedStyle(() => ({ transform: [{ scale: 1 + 0.25 * p.value }], opacity: 1 - 0.3 * p.value }));
   return (

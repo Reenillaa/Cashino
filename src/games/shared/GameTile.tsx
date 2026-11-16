@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { Easing, FadeInDown, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useIsFocused } from 'expo-router';
@@ -26,7 +26,7 @@ export function GameTile({
   const float = useSharedValue(0);
   // Only the big featured cards keep moving (performance: the grid stays still, the press still reacts).
   useEffect(() => {
-    if (reduceMotion || !big || !focused) {
+    if (reduceMotion || !big || !focused || Platform.OS === 'web') {
       cancelAnimation(float);
       return;
     }

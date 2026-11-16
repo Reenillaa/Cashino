@@ -48,9 +48,20 @@ const tags = [
   `<style id="cashino-native">html,body{background:${THEME};overscroll-behavior:none}` +
     'body{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}' +
     'input,textarea{-webkit-user-select:auto;user-select:auto}' +
-    '@media all and (display-mode: standalone){html,body,#root{height:100vh}}</style>',
+    '@media all and (display-mode: standalone){html,body,#root{height:100vh}}' +
+    // A phone app, not a web page: the page itself never moves or zooms (lists scroll inside the app).
+    'html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;touch-action:pan-x pan-y}' +
+    '*{touch-action:manipulation}' +
+    '#root{position:fixed;inset:0;overflow:hidden}' +
+    '*{-webkit-text-size-adjust:100%;text-size-adjust:100%}</style>',
+  // iOS Safari ignores user-scalable=no on purpose, so block pinch zoom ourselves (double-tap zoom is off via
+  // touch-action, which keeps fast repeated taps working).
+  '<script id="cashino-nozoom">(function(){var d=document,stop=function(e){e.preventDefault()};' +
+    "['gesturestart','gesturechange','gestureend'].forEach(function(t){d.addEventListener(t,stop,{passive:false})});" +
+    "d.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});" +
+    "d.addEventListener('dblclick',stop,{passive:false});})();</script>",
 ].join('');
-html = html.replace(/<meta name="viewport"[^>]*>/, '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no">');
+html = html.replace(/<meta name="viewport"[^>]*>/, '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">');
 if (!html.includes('rel="manifest"')) html = html.replace('</head>', `${tags}</head>`);
 html = html.replace('<body', `<body style="background:${THEME}"`);
 writeFileSync(dist + 'index.html', html);

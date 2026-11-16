@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useState } from 'react';
 import { Platform, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
-import Animated, { Easing, cancelAnimation, useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { useIsFocused } from 'expo-router';
@@ -17,8 +17,19 @@ export function Shine({ every = 4200, delay = 0, opacity = 0.32 }: { every?: num
       cancelAnimation(x);
       return;
     }
-    x.set(0);
-    x.set(withDelay(delay, withRepeat(withSequence(withTiming(1, { duration: 900, easing: Easing.inOut(Easing.cubic) }), withTiming(1, { duration: Math.max(0, every - 900) }), withTiming(0, { duration: 0 })), -1)));
+    // Only the 0.9 s sweep is animated; the pause in between is a plain timer, so an idle screen does
+    // no per-frame work at all (a looping 'hold' animation kept the phone busy every frame).
+    let id: ReturnType<typeof setTimeout>;
+    const sweep = () => {
+      x.set(0);
+      x.set(withTiming(1, { duration: 900, easing: Easing.inOut(Easing.cubic) }));
+      id = setTimeout(sweep, every);
+    };
+    id = setTimeout(sweep, delay);
+    return () => {
+      clearTimeout(id);
+      cancelAnimation(x);
+    };
   }, [w, reduceMotion, every, delay, x, focused]);
   const style = useAnimatedStyle(() => ({ transform: [{ translateX: -w * 0.6 + x.value * w * 1.8 }, { skewX: '-20deg' }] }));
   if (reduceMotion) return null;
