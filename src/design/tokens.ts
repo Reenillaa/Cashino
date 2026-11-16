@@ -113,6 +113,7 @@ export const gameTint: Record<GameId, string> = {
   sicbo: '#FF8AC4',
   slots: '#FFD06B',
   trader: '#5BE3B0',
+  videopoker: '#A996FF',
 };
 
 /**
@@ -136,6 +137,7 @@ export const gameArt: Record<GameId, { emoji: string; colors: [string, string] }
   sicbo: { emoji: '🏮', colors: ['#FFD3E6', '#FBB6D6'] },
   slots: { emoji: '🎰', colors: ['#FFE9B0', '#FFD38A'] },
   trader: { emoji: '💹', colors: ['#C8F5DF', '#A6DCEF'] },
+  videopoker: { emoji: '🃏', colors: ['#DCD3FF', '#BFAEFF'] },
 };
 
 /** Room cards: a "place" per stake level (Offsuit names its tables after places too). */
@@ -174,6 +176,7 @@ export const gameVivid: Record<GameId, [string, string]> = {
   sicbo: ['#FF4FA3', '#B3127A'],
   slots: ['#FFB938', '#D9741C'],
   trader: ['#12C08A', '#0B6E6E'],
+  videopoker: ['#7B5CFF', '#4B2BD6'],
 };
 
 /** Ink used on pastel art. */

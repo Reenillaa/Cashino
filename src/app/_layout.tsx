@@ -47,6 +47,7 @@ export default function RootLayout() {
           <Stack.Screen name="game/[id]" options={{ gestureEnabled: true }} />
           <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
           <Stack.Screen name="settings" />
+          <Stack.Screen name="shop" />
           <Stack.Screen name="rules/[id]" options={{ presentation: 'modal' }} />
         </Stack>
         <Toasts />

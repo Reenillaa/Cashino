@@ -25,3 +25,4 @@ export * as Economy from './meta/economy.ts';
 export * as Progression from './meta/progression.ts';
 export * as Achievements from './meta/achievements.ts';
 export * as Ranking from './meta/ranking.ts';
+export * as VideoPoker from './games/videopoker.ts';

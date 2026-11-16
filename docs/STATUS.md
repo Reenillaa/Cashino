@@ -97,6 +97,12 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - **Limbo**: eliges el objetivo arrastrando directamente sobre el velocímetro.
 - **Bacará y Sic Bo** apuestan también con la rueda de fichas.
 
+## Cambios de la ronda 9 (repaso de juegos, tienda, Video Póker, retos semanales)
+- **Video Póker** (nuevo, «Jacks or Better» 9/6): 5 cartas, tocas las que quieres guardar (suben y se marcan «GUARDADA»), cambias el resto de la misma baraja y la tabla de premios ilumina tu jugada. Botón 💡 *Pista* con la estrategia simplificada conocida para esta tabla. Retorno publicado con juego perfecto: 99,54 %; con la pista, simulación propia de 1,2 M de manos ≈ 99,5–100 % (margen de ±0,4 % por lo rara que es la escalera real) y 45,5 % de manos con premio. Motor con 5 tests, Academy con frecuencias simuladas y simulador Monte Carlo («con pista» vs «sin guardar nada»).
+- **Tienda** (solo estética, con fichas de juego): 6 dorsos de cartas, 5 tapetes y 6 avatares especiales. Se compra con dos toques (para no gastar sin querer); lo equipado se aplica de verdad: el dorso en todas las cartas, el tapete en blackjack y póker, y el avatar en Inicio, Perfil y la mesa de póker. Tests del almacén (cobra una vez, no deja comprar sin fichas ni equipar lo que no tienes). Acceso desde Inicio y Perfil.
+- **Retos de la semana**: ya existían en el motor pero no se veían; ahora salen en Inicio con cuenta atrás («Quedan N días») y hay retos nuevos de Tragaperras, Video Póker y Bolsa.
+- **Repaso visual**: moneda de Cara o cruz (en web se veía como un círculo liso por un SVG tapado: arreglado), Cohete con ciudad y plataforma de lanzamiento que se hunden al despegar, planeta con anillo, estela de humo y explosión, Minas con tablero tipo cámara acorazada, casillas con diamante grabado, gema tallada y chispazo al reventar, Bacará con huecos de cartas, «VS», totales grandes y apuestas principales ovaladas, Blackjack con huecos de cartas y círculo de apuesta cuando la mesa está vacía, Cruza la calle con coches circulando ya antes de apostar, y **lluvia de monedas + «¡GRAN PREMIO!»** en cualquier juego al ganar ×5 o más.
+
 ## Cambios de la ronda 8 (juegos nuevos, menos colores, inicio de sesión)
 - **Tragaperras** (nuevo): máquina «CASHINO 777» con marquesina de bombillas, 3 rodillos que bajan y frenan uno detrás de otro con rebote, línea de premio que brilla al ganar y palanca que puedes tocar. Símbolos propios en SVG (cereza, limón, campana, BAR, 7, diamante). Tabla de premios fija y **RTP exacto 97,4 %** calculado en `slotsStats()` y comprobado en tests (hit rate ≈ 46,7 %).
 - **Bolsa** (nuevo, juego de invertir): eliges **Sube** o **Baja**; el precio de «CSH/EUR» hace 40 ticks (paseo aleatorio lognormal decidido antes de animar) y se dibuja en directo con área de color. Paga ×1,98 (RTP 99 %).
@@ -128,7 +134,7 @@ Sin estas cuentas los botones se ven pero avisan de que el servidor no está con
 - Apple y Google tienen botón y código, pero no funcionan hasta configurar Supabase y las cuentas de Apple Developer / Google Cloud. En la PWA instalada en iPhone el login con Google/Apple puede abrirse en Safari y no volver a la app instalada (limitación de las PWA de iOS); el correo funciona siempre.
 - La fluidez con muchas bolas de Plinko se ha medido en Chromium de escritorio, no en un iPhone real.
 - En ruleta, la UI permite plenos y apuestas exteriores; caballos/calles/cuadros/seisenas están en el motor y el servidor pero no en el tapete móvil.
-- Saldo casual inflacionario (sin sumideros cosméticos aún).
+- La tienda gasta las fichas del monedero local (invitado). Con cuenta online habría que mover compras y objetos al servidor.
 - REA no aplica a diseño (es ingeniería inversa); Taste sí se aplica a movimiento.
 - Los emojis se ven con el estilo del sistema (Apple en iPhone, Google/Noto en Android/Chrome).
 - En la versión web del iPhone no hay vibración (Safari no lo permite).
@@ -136,4 +142,4 @@ Sin estas cuentas los botones se ven pero avisan de que el servidor no está con
 ## Próximos pasos
 1. Crear proyecto Supabase, `db push`, desplegar funciones y probar online con dos dispositivos.
 3. Build EAS de desarrollo en tu iPhone; perfilar animaciones y revisar VoiceOver.
-4. Tienda cosmética con fichas, apuestas interiores completas en ruleta, Sign in with Apple nativo (`expo-apple-authentication`), push.
+4. Apuestas interiores completas en ruleta, Sign in with Apple nativo (`expo-apple-authentication`), push, torneos semanales con ranking (necesitan Supabase).

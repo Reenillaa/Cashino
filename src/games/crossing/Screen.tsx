@@ -163,7 +163,7 @@ export default function CrossingScreen({ forceTutorial }: { forceTutorial?: bool
                 return (
                   <View key={n} style={[styles.lane, { width: LANE_W, borderLeftColor: 'rgba(255,255,255,0.55)', backgroundColor: passed ? 'rgba(59,227,154,0.12)' : 'transparent' }]} accessibilityLabel={`${t('play.lane', { n })} · ${formatMult(crossingMultiplier(diff, n))}`}>
                     {/* traffic in the next lanes ahead (just scenery: the outcome is already decided) */}
-                    {active && n > lane && n <= lane + 3 && !moving ? <Traffic seed={n} /> : null}
+                    {(active ? n > lane && n <= lane + 3 && !moving : n >= 1 && n <= 3) ? <Traffic seed={n} /> : null}
                     <View style={[styles.mult, { backgroundColor: passed ? alpha(tint, 0.25) : c.surface2, borderColor: n === lane + 1 && active ? tint : 'transparent' }]}>
                       <T style={{ fontFamily: 'Geist_600SemiBold', fontSize: 11, color: passed ? tint : c.text2 }} numberOfLines={1} adjustsFontSizeToFit>{formatMult(crossingMultiplier(diff, n))}</T>
                     </View>

@@ -35,6 +35,9 @@ function Rocket({ angle, flame }: { angle: number; flame: number }) {
 /** Fixed pseudo-random stars (x, y in 0..1, size). */
 const STARS = Array.from({ length: 34 }, (_, i) => [((i * 73) % 100) / 100, ((i * 41 + 17) % 100) / 100, 0.6 + ((i * 7) % 3) * 0.6] as const);
 
+ /** City silhouette: x (0..1 of width), width px, height px. */
+const SKYLINE = [[0.0, 34, 70], [0.2, 28, 110], [0.31, 40, 60], [0.45, 30, 140], [0.56, 44, 90], [0.7, 26, 120], [0.79, 38, 75], [0.9, 40, 100]] as const;
+
 type Phase = 'idle' | 'flying' | 'crashed' | 'cashed';
 
 export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean }) {
@@ -173,6 +176,47 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
               ))}
             </Svg>
           )}
+          {box.w > 0 && (
+            <Svg width={box.w} height={box.h} style={StyleSheet.absoluteFill}>
+              <Defs>
+                <LinearGradient id="crashPlanet" x1="0" y1="0" x2="1" y2="1">
+                  <Stop offset="0" stopColor="#B9A6FF" />
+                  <Stop offset="1" stopColor="#3B2399" />
+                </LinearGradient>
+                <LinearGradient id="crashHorizon" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0" stopColor={tint} stopOpacity={0} />
+                  <Stop offset="1" stopColor={tint} stopOpacity={0.28} />
+                </LinearGradient>
+              </Defs>
+              {/* ringed planet, slowly coming closer as you climb */}
+              <G x={box.w - 58} y={70 + Math.min(40, drift * 0.05)} scale={1 + Math.min(0.5, Math.log(Math.max(1, mult)) * 0.12)}>
+                <Circle r={30} fill="url(#crashPlanet)" />
+                <Path d="M-30 -6 Q-6 6 30 -6" stroke="rgba(255,255,255,0.18)" strokeWidth={4} fill="none" />
+                <Path d="M-50 8 Q0 -14 50 -6" stroke="#FFD06B" strokeWidth={3} fill="none" opacity={0.8} />
+              </G>
+              {/* city and launch pad: they sink out of view once the rocket takes off */}
+              <G y={phase === 'idle' ? 0 : Math.min(box.h * 0.5, drift * 0.9)}>
+                <Path d={`M0 ${box.h - 90} H${box.w} V${box.h} H0 Z`} fill="url(#crashHorizon)" />
+                {SKYLINE.map(([x, w, h], i) => (
+                  <G key={i}>
+                    <Path d={`M${x * box.w} ${box.h} V${box.h - h} H${x * box.w + w} V${box.h} Z`} fill="#140F2C" />
+                    {Array.from({ length: Math.floor(h / 14) }, (_, k) => (
+                      <Path key={k} d={`M${x * box.w + 4} ${box.h - h + 8 + k * 14} h${w - 8}`} stroke={(i + k) % 3 ? 'rgba(255,208,107,0.35)' : 'rgba(255,255,255,0.06)'} strokeWidth={3} strokeDasharray="3 4" />
+                    ))}
+                  </G>
+                ))}
+                <Path d={`M${pad - 14} ${pad + H + 6} H${pad + 44} V${box.h} H${pad - 14} Z`} fill="#2A2350" />
+                <Path d={`M${pad - 14} ${pad + H + 6} H${pad + 44}`} stroke="#FFD06B" strokeWidth={3} strokeDasharray="6 4" />
+              </G>
+            </Svg>
+          )}
+          {box.w > 0 && phase === 'idle' && (
+            <Svg width={box.w} height={box.h} style={StyleSheet.absoluteFill}>
+              <G x={pad + W * 0.1} y={pad + H - H * 0.1}>
+                <Rocket angle={angle} flame={0} />
+              </G>
+            </Svg>
+          )}
           {box.w > 0 && phase !== 'idle' && (
             <Svg width={box.w} height={box.h} style={StyleSheet.absoluteFill}>
               <Defs>
@@ -184,6 +228,11 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
               <Path d={`${d} L${tx},${pad + H} L${pad},${pad + H} Z`} fill="url(#crashFill)" />
               <Path d={d} stroke={phase === 'crashed' ? c.loss : tint} strokeWidth={12} strokeOpacity={0.25} fill="none" strokeLinecap="round" />
               <Path d={d} stroke={phase === 'crashed' ? c.loss : '#FFFFFF'} strokeWidth={4} fill="none" strokeLinecap="round" />
+              {!reduceEffects && phase === 'flying' ? Array.from({ length: 9 }, (_, k) => {
+                const fr = 1 - (k + 1) / 10;
+                const wob = Math.sin(elapsed / 140 + k * 1.7) * (3 + k);
+                return <Circle key={k} cx={pad + (tx - pad) * fr - 18 * Math.cos((angle * Math.PI) / 180) + wob} cy={pad + H + (ty - pad - H) * fr + wob * 0.6} r={4 + k * 2.2} fill="#FFFFFF" opacity={0.16 - k * 0.014} />;
+              }) : null}
               {phase !== 'crashed' ? (
                 <G x={tx} y={ty}>
                   {!reduceEffects && flying && <Circle cx={-22} cy={0} r={5 + ((mult * 37) % 3)} fill={alpha('#FFB45C', 0.5)} />}
@@ -191,8 +240,11 @@ export default function CrashScreen({ forceTutorial }: { forceTutorial?: boolean
                 </G>
               ) : (
                 <G x={tx} y={ty}>
-                  {[0, 60, 120, 180, 240, 300].map((a) => (
-                    <Path key={a} d="M0 0 L14 0" stroke={c.loss} strokeWidth={3} strokeLinecap="round" rotation={a} origin="0,0" />
+                  <Circle r={30} fill="#FF5C7A" opacity={0.25} />
+                  <Circle r={18} fill="#FFB938" opacity={0.85} />
+                  <Circle r={9} fill="#FFF3C4" />
+                  {[0, 45, 90, 135, 180, 225, 270, 315].map((a, i) => (
+                    <Path key={a} d={`M${12 + (i % 2) * 4} 0 L${30 + (i % 3) * 8} 0`} stroke={i % 2 ? '#FFB938' : c.loss} strokeWidth={4} strokeLinecap="round" rotation={a + 10} origin="0,0" />
                   ))}
                 </G>
               )}

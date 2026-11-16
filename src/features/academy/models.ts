@@ -20,6 +20,7 @@ import { guessProbability } from '@/engine/games/hilo.ts';
 import { parseCard } from '@/engine/cards/cards.ts';
 import { SLOT_ONE_CHERRY, SLOT_THREE, SLOT_TWO_CHERRIES, SLOT_WEIGHTS, slotsStats } from '@/engine/games/slots.ts';
 import { TRADER_MULTIPLIER } from '@/engine/games/trader.ts';
+import { VP_PAYS, VP_REFERENCE_RTP } from '@/engine/games/videopoker.ts';
 
 export type Lang = 'es' | 'en';
 export interface ModelRow { label: string; p: number; mult: number | null }
@@ -206,6 +207,23 @@ const MODELS: Record<GameId, Builder> = {
       example: L(lang, `Con 20 fichas, casi la mitad de las tiradas te devuelven algo (${fmtPct(lang, st.hit)}), pero los premios gordos son muy raros: tres diamantes, 1 vez de cada ${Math.round(1 / three('diamond')).toLocaleString('es-ES')}.`, `With 20 chips almost half the spins return something (${fmtPct(lang, st.hit)}), but big prizes are very rare: three diamonds, 1 time in ${Math.round(1 / three('diamond')).toLocaleString('en-US')}.`),
     };
   },
+  videopoker: (lang) => ({
+    idea: L(lang, 'Juegas contra una tabla de premios fija, no contra otros jugadores. Elegir bien qué cartas guardas sí cambia lo que te devuelve la máquina.', 'You play against a fixed pay table, not other players. Choosing well what to hold really changes what the machine returns.'),
+    rowsTitle: L(lang, 'Jugando con la pista, la mano final es…', 'Playing the hint, the final hand is…'),
+    rows: [
+      { label: L(lang, 'Pareja de J o más', 'Jacks or better'), p: 0.2141, mult: VP_PAYS.jacks },
+      { label: L(lang, 'Doble pareja', 'Two pair'), p: 0.1301, mult: VP_PAYS.twoPair },
+      { label: L(lang, 'Trío', 'Three of a kind'), p: 0.07434, mult: VP_PAYS.trips },
+      { label: L(lang, 'Escalera', 'Straight'), p: 0.01072, mult: VP_PAYS.straight },
+      { label: L(lang, 'Color', 'Flush'), p: 0.01104, mult: VP_PAYS.flush },
+      { label: L(lang, 'Full', 'Full house'), p: 0.01149, mult: VP_PAYS.fullHouse },
+      { label: L(lang, 'Póker', 'Four of a kind'), p: 0.002321, mult: VP_PAYS.quads },
+      { label: L(lang, 'Escalera real', 'Royal flush'), p: 0.00002333, mult: VP_PAYS.royal },
+    ],
+    rtp: VP_REFERENCE_RTP,
+    formula: L(lang, 'Frecuencias de una simulación de 1,5 millones de manos con la estrategia de la pista 💡. Con juego perfecto, el retorno publicado para esta tabla (9/6) es 99,54 %; si guardas mal, baja varios puntos.', 'Frequencies from a 1.5-million-hand simulation using the 💡 hint strategy. With perfect play the published return for this 9/6 table is 99.54 %; holding badly costs several points.'),
+    example: L(lang, 'Casi 1 de cada 2 manos paga algo, pero la mayoría solo te devuelve la apuesta. La escalera real sale 1 vez cada ~40 000 manos.', 'Almost 1 hand in 2 pays something, but most just give your bet back. A royal flush lands about once every 40,000 hands.'),
+  }),
   trader: (lang) => ({
     idea: L(lang, 'Apuestas a si un precio acabará más alto o más bajo. Se mueve al azar: igual de fácil que suba que que baje.', 'You bet on whether a price ends higher or lower. It moves at random: up is as likely as down.'),
     rowsTitle: L(lang, 'Elijas lo que elijas…', 'Whatever you pick…'),

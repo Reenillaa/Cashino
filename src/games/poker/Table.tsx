@@ -1,3 +1,4 @@
+import { useSession } from '@/state/session';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -5,7 +6,7 @@ import type { TableState, PokerAction } from '@/engine/poker/table.ts';
 import { legalActions, potTotal } from '@/engine/poker/table.ts';
 import { evaluate, CATEGORY_KEYS } from '@/engine/poker/evaluator.ts';
 import { cardCode } from '@/engine/cards/cards.ts';
-import { Avatar, Glass, Icon, PlayingCard, PressableScale, T, Tag, formatCoins } from '@/design/components';
+import { Avatar, useMyAvatar, Glass, Icon, PlayingCard, PressableScale, T, Tag, formatCoins } from '@/design/components';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BetInput } from '../shared/BetInput';
 import { Felt } from '../shared/Felt';
@@ -31,6 +32,7 @@ export function PokerTableView({
   reactions?: Record<number, string>;
 }) {
   const { t } = useT();
+  const myAvatar = useMyAvatar(useSession((st) => st.profile?.avatar));
   const { c } = useTheme();
   const h = table.hand;
   const legal = h && !h.complete && h.toAct === heroSeat ? legalActions(table) : null;
@@ -77,7 +79,7 @@ export function PokerTableView({
       </View>
       {/* Board on an oval felt */}
       <View style={styles.board}>
-        <Felt shape="oval" colors={['#2E7D5B', '#0E3B2C']} style={styles.felt} />
+        <Felt shape="oval" themed colors={['#2E7D5B', '#0E3B2C']} style={styles.felt} />
         <View style={{ flexDirection: 'row', gap: 6 }}>
           {Array.from({ length: 5 }, (_, k) => {
             const card = h?.board[k];
@@ -119,7 +121,7 @@ export function PokerTableView({
           {legal?.canFold ? <T variant="caption" color="text3" style={{ marginTop: 6 }}>{t('poker.swipeFold')}</T> : null}
         </View>
         <Glass radius={20} style={styles.heroCard}>
-          <Avatar id="a3" size={34} ring={h?.toAct === heroSeat ? c.text : undefined} />
+          <Avatar id={myAvatar} size={34} ring={h?.toAct === heroSeat ? c.text : undefined} />
           {h?.button === heroSeat && <Tag label="D" />}
           <T variant="footnote" color="text3">{heroRank ? t(`poker.hands.${CATEGORY_KEYS[heroRank.category]}`) : t('common.you')}</T>
           <T variant="callout" weight="semibold" tabular>{formatCoins(table.seats[heroSeat]?.stack ?? 0)}</T>

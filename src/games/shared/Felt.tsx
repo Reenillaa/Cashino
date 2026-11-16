@@ -1,3 +1,5 @@
+import { useCosmetics } from '@/state/cosmetics';
+import { feltById } from '@/features/shop/items';
 import React from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,7 +11,10 @@ const RIM = ['#FFE58A', '#C98B12', '#7A4E08'] as const;
  * Card-table felt with a gold rim. `arc` is the blackjack/baccarat half-moon (flat edge at the top,
  * round edge towards the player); `oval` is the poker table. A printed line of text sits on the felt.
  */
-export function Felt({ shape = 'arc', colors = ['#14905F', '#075239'], label, style, children }: { shape?: 'arc' | 'oval' | 'table'; colors?: [string, string]; label?: string; style?: StyleProp<ViewStyle>; children?: React.ReactNode }) {
+/** Table felt. Without `colors` (or with `themed`) it uses the felt equipped in the shop. */
+export function Felt({ shape = 'arc', colors: given, themed, label, style, children }: { shape?: 'arc' | 'oval' | 'table'; colors?: [string, string]; themed?: boolean; label?: string; style?: StyleProp<ViewStyle>; children?: React.ReactNode }) {
+  const feltId = useCosmetics((st) => st.equipped.felt);
+  const colors: [string, string] = (themed || !given) && feltId !== 'green' ? feltById(feltId).colors : given ?? ['#14905F', '#075239'];
   const round = shape === 'oval' ? { borderRadius: 999 } : shape === 'table' ? { borderTopLeftRadius: 28, borderTopRightRadius: 28, borderBottomLeftRadius: 90, borderBottomRightRadius: 90 } : { borderTopLeftRadius: 28, borderTopRightRadius: 28, borderBottomLeftRadius: 999, borderBottomRightRadius: 999 };
   return (
     <View style={[{ padding: 5 }, round, styles.shadow, style]}>

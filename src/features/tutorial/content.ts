@@ -104,4 +104,9 @@ export const TUTORIALS: Record<GameId, TutorialStep[]> = {
     doIt('trader:play', ['Haz tu apuesta', 'Make your call'], ['Pulsa Sube o Baja.', 'Tap Up or Down.']),
     quiz(['¿Se puede adivinar?', 'Can you predict it?'], ['Si ha subido 5 veces seguidas, ¿es más probable que baje?', 'If it went up 5 times in a row, is down now more likely?'], [['Sí', 'Yes'], ['No, sigue siendo 50 %', 'No, still 50 %']], 1, ['Cada movimiento es independiente: lo anterior no cambia lo siguiente.', 'Each move is independent: the past does not change the next one.']),
   ],
+  videopoker: [
+    info(['El video póker', 'Video poker'], ['Te dan 5 cartas. Guardas las buenas, cambias las demás una sola vez y cobras según la jugada.', 'You get 5 cards. Keep the good ones, swap the rest once, and get paid for the hand.']),
+    doIt('vp:deal', ['Reparte', 'Deal'], ['Elige tu ficha y pulsa Repartir.', 'Pick your chip and tap Deal.']),
+    doIt('vp:draw', ['Guarda y cambia', 'Hold and draw'], ['Toca las cartas que quieras guardar (o pulsa 💡 para ver la pista) y luego Cambiar.', 'Tap the cards to keep (or 💡 for a hint), then Draw.']),
+  ],
 };

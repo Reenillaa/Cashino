@@ -107,11 +107,12 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
                   {view.holeHidden && <View style={{ marginLeft: -26 }}><PlayingCard card={null} faceDown size={cardSize} delay={120} /></View>}
                 </>
               ) : (
-                <View style={{ height: 84 }} />
+                <CardSlots size={cardSize} />
               )}
             </View>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 18, flexWrap: 'wrap' }}>
+            {!view ? <CardSlots size={cardSize} /> : null}
             {view?.hands.map((h, hi) => {
               const cards = h.cards.map(parseCard);
               const v = handValue(cards);
@@ -135,7 +136,11 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
               );
             })}
           </View>
-          {view ? <ChipStack amount={view.hands.reduce((n, h) => n + h.bet, 0)} color={tint} /> : null}
+          {view ? <ChipStack amount={view.hands.reduce((n, h) => n + h.bet, 0)} color={tint} /> : (
+            <View style={styles.betCircle}>
+              <ChipStack amount={bet} color={tint} />
+            </View>
+          )}
         </View>
         </Felt>
           <ResultBanner result={result} />
@@ -177,9 +182,20 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
 }
 
 const styles = StyleSheet.create({
+  betCircle: { alignSelf: 'center', width: 86, height: 86, borderRadius: 43, borderWidth: 2, borderColor: 'rgba(255,229,138,0.55)', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.12)' },
   total: { paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 6 },
   stage: { flex: 1, justifyContent: 'space-between', paddingTop: 16, paddingBottom: 18 },
 });
+
+/** Dashed outlines where the cards will land, so the empty table already reads as blackjack. */
+function CardSlots({ size }: { size: 'sm' | 'md' }) {
+  const w = size === 'sm' ? 46 : 60, h = size === 'sm' ? 64 : 84;
+  return (
+    <View style={{ flexDirection: 'row', gap: 8 }}>
+      {[0, 1].map((i) => <View key={i} style={{ width: w, height: h, borderRadius: 9, borderWidth: 1.5, borderStyle: 'dashed', borderColor: 'rgba(255,229,138,0.4)' }} />)}
+    </View>
+  );
+}
 
 /** The hand total, big and impossible to miss: green while you're fine, gold at 21, red when you bust. */
 function TotalBadge({ total, soft, blackjack, active, tint, pending, small }: { total: number; soft?: boolean; blackjack?: boolean; active?: boolean; tint?: string; pending?: boolean; small?: boolean }) {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AVATAR_COUNT, Avatar, Button, Chip, GameGlyph, Icon, IconButton, ListGroup, ListRow, PressableScale, ProgressBar, Screen, Segmented, Sheet, Surface, T, formatCoins, formatMult } from '@/design/components';
+import { AVATAR_COUNT, Avatar, useMyAvatar, Button, Chip, GameGlyph, Icon, IconButton, ListGroup, ListRow, PressableScale, ProgressBar, Screen, Segmented, Sheet, Surface, T, formatCoins, formatMult } from '@/design/components';
 import { useTheme, alpha } from '@/design/theme';
 import { SCREEN_PAD, radius } from '@/design/tokens';
 import { useT } from '@/i18n';
@@ -18,6 +18,7 @@ type Tab = 'stats' | 'achievements' | 'history';
 
 export default function Profile() {
   const { t } = useT();
+  const myAvatar = useMyAvatar(useSession((st) => st.profile?.avatar));
   const { c } = useTheme();
   const router = useRouter();
   const profile = useSession((s) => s.profile);
@@ -41,7 +42,7 @@ export default function Profile() {
     <Screen title={t('profile.title')} right={<IconButton icon="settings" label={t('settings.title')} onPress={() => router.push('/settings')} />}>
       <View style={{ alignItems: 'center', paddingHorizontal: SCREEN_PAD, gap: 8 }}>
         <PressableScale onPress={() => setEdit(true)} accessibilityLabel={t('profile.editProfile')}>
-          <Avatar id={profile?.avatar ?? 'a3'} size={88} />
+          <Avatar id={myAvatar} size={88} />
           <View style={[styles.editBadge, { backgroundColor: c.surface3, borderColor: c.bg }]}><Icon name="edit" size={14} color={c.text} /></View>
         </PressableScale>
         <T variant="title">{profile?.display_name || profile?.username || t('profile.guestName')}</T>
@@ -54,13 +55,14 @@ export default function Profile() {
           <ProgressBar value={lvl.needed ? lvl.into / lvl.needed : 1} style={{ marginTop: 6 }} />
         </View>
         <View style={{ flexDirection: 'row', alignSelf: 'stretch', marginTop: 12, paddingVertical: 14, borderRadius: 22, backgroundColor: c.surface1 }}>
-          {[[t('profile.roundsPlayed'), formatCoins(all.rounds)], [t('profile.lessons'), `${lessons}`], [t('profile.tutorials'), `${tutorials}/14`], [t('profile.achievements'), `${Object.keys(unlocked).length}/${ACHIEVEMENTS.length}`]].map(([k, v], i) => (
+          {[[t('profile.roundsPlayed'), formatCoins(all.rounds)], [t('profile.lessons'), `${lessons}`], [t('profile.tutorials'), `${tutorials}/15`], [t('profile.achievements'), `${Object.keys(unlocked).length}/${ACHIEVEMENTS.length}`]].map(([k, v], i) => (
             <View key={k} style={[{ flex: 1, alignItems: 'center', paddingHorizontal: 4 }, i > 0 && { borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: c.hairline }]}>
               <T variant="headline" weight="medium" tabular>{v}</T>
               <T variant="footnote" color="text3" style={{ fontSize: 11, textAlign: 'center' }} numberOfLines={2}>{k}</T>
             </View>
           ))}
         </View>
+        <Button title={`🛍️  ${t('shop.open')}`} subtitle={t('shop.openBody')} kind="secondary" onPress={() => router.push('/shop')} full style={{ marginTop: 12 }} />
         {!signedIn && <Button title={t('profile.createAccount')} subtitle={t('profile.accountBenefits')} onPress={() => router.push('/auth')} full style={{ marginTop: 8 }} />}
       </View>
       <View style={{ paddingHorizontal: SCREEN_PAD, marginTop: 28 }}>

@@ -22,6 +22,7 @@ import * as SicBo from './games/sicbo.ts';
 import * as BJ from './games/blackjack.ts';
 import * as Slots from './games/slots.ts';
 import * as Trader from './games/trader.ts';
+import * as VP from './games/videopoker.ts';
 import { cardCode } from './cards/cards.ts';
 import { roomById, stakeAllowed } from './meta/rooms.ts';
 
@@ -91,6 +92,29 @@ const handlers: Record<Exclude<GameId, 'poker'>, Handler> = {
     const b = bet(p.bet);
     const r = Slots.playSlots(rng, b);
     return single(b, r.payout, r.line.map((x) => ({ cherry: '🍒', lemon: '🍋', bell: '🔔', bar: 'BAR', seven: '7', diamond: '💎' })[x]).join(' '), { line: r.line, multiplier: r.multiplier });
+  },
+  videopoker: (s, op, p, { rng }) => {
+    const st = s as VP.VPState | null;
+    if (op === 'deal') {
+      if (st) fail('round_active');
+      const b = bet(p.bet);
+      const ns = VP.dealVP(rng, b);
+      return { state: ns, view: { hand: ns.hand.map(cardCode), bet: b, made: VP.classify(ns.hand) }, stake: b, payout: 0, done: false };
+    }
+    if (!st) fail('no_round');
+    if (op === 'draw') {
+      const hold = Array.isArray(p.hold) && p.hold.length === 5 && p.hold.every((h) => typeof h === 'boolean') ? (p.hold as boolean[]) : fail('invalid_hold');
+      const r = VP.drawVP(st!, hold);
+      return {
+        state: null,
+        view: { hand: r.hand.map(cardCode), held: r.held, result: r.result, multiplier: r.multiplier, bet: r.bet, payout: r.payout },
+        stake: 0,
+        payout: r.payout,
+        done: true,
+        summary: { bet: r.bet, payout: r.payout, detail: r.result, multiStep: true },
+      };
+    }
+    return fail('invalid_op');
   },
   trader: (_s, op, p, { rng }) => {
     if (op !== 'play') fail('invalid_op');

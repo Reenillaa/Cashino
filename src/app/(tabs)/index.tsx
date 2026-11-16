@@ -2,14 +2,14 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useIsFocused, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AnimatedNumber, Aurora, Avatar, Button, ChipLogo, GameGlyph, Icon, Marquee, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
+import { AnimatedNumber, Aurora, Avatar, useMyAvatar, Button, ChipLogo, GameGlyph, Icon, Marquee, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD, brand, onPastel, radius } from '@/design/tokens';
 import { useT } from '@/i18n';
 import { useWallet } from '@/state/wallet';
 import { levelBonus, useProgress } from '@/state/progress';
 import { useSession } from '@/state/session';
-import { levelFromXp, dailyMissions } from '@/engine/meta/progression.ts';
+import { levelFromXp, dailyMissions, weeklyMissions, weeklyDaysLeft } from '@/engine/meta/progression.ts';
 import { ECONOMY, dailyRewardAmount, nextStreak, utcDay } from '@/engine/meta/economy.ts';
 import { VISIBLE_GAMES } from '@/games/catalog';
 import { GameTile } from '@/games/shared/GameTile';
@@ -27,12 +27,12 @@ const TOP = ['slots', 'roulette', 'blackjack', 'poker', 'trader'] as const;
  */
 export default function Home() {
   const { t } = useT();
+  const myAvatar = useMyAvatar(useSession((st) => st.profile?.avatar));
   const { c } = useTheme();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const focused = useIsFocused();
   const signedIn = useSession((s) => !!s.userId);
-  const profile = useSession((s) => s.profile);
   const serverBalance = useSession((s) => s.balance);
   const wallet = useWallet();
   const xp = useProgress((s) => s.xp);
@@ -47,6 +47,7 @@ export default function Home() {
   const canClaim = wallet.canClaimDaily();
   const streak = canClaim ? nextStreak(wallet.daily, today) : wallet.daily.streak;
   const missions = dailyMissions(today);
+  const weekly = weeklyMissions(today);
   const low = signedIn ? (serverBalance ?? 0) < ECONOMY.refillThreshold : wallet.canRefill();
   const tileW = (Math.min(width, 640) - SCREEN_PAD * 2 - 12) / 2;
   // 7 stamps per row: screen − page padding − card padding − 6 gaps.
@@ -79,7 +80,7 @@ export default function Home() {
           <Icon name="settings" size={20} color={c.text} />
         </PressableScale>
         <PressableScale onPress={() => router.push('/(tabs)/profile')} accessibilityLabel={t('tabs.profile')}>
-          <Avatar id={profile?.avatar ?? 'a3'} size={42} />
+          <Avatar id={myAvatar} size={42} />
         </PressableScale>
       </View>
 
@@ -158,6 +159,17 @@ export default function Home() {
         </View>
       </Section>
 
+      {/* Shop: something to spend chips on (looks only) */}
+      <PressableScale onPress={() => router.push('/shop')} scaleTo={0.97} feedback="select" accessibilityLabel={t('shop.open')} style={[styles.shopCard, { marginHorizontal: SCREEN_PAD }]}>
+        <LinearGradient colors={['#7B5CFF', '#4B2BD6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+        <T style={{ fontSize: 34 }}>🛍️</T>
+        <View style={{ flex: 1 }}>
+          <T weight="display" style={{ color: '#fff', fontSize: 20 }}>{t('shop.open')}</T>
+          <T variant="footnote" style={{ color: 'rgba(255,255,255,0.85)' }}>{t('shop.openBody')}</T>
+        </View>
+        <T weight="display" style={{ color: '#FFD06B', fontSize: 22 }}>›</T>
+      </PressableScale>
+
       {/* Collection: try every game (an honest exploration goal, no luck involved) */}
       <Section title={t('home.album')} action={<T variant="footnote" weight="semibold" color={tried.length === VISIBLE_GAMES.length ? 'win' : 'text2'}>{tried.length}/{VISIBLE_GAMES.length}</T>}>
         <View style={[styles.album, { backgroundColor: c.surface1, marginHorizontal: SCREEN_PAD }]}>
@@ -199,12 +211,24 @@ export default function Home() {
           ))}
         </View>
       </Section>
+      {/* This week's challenges: bigger goals, bigger gifts */}
+      <Section title={`🏆 ${t('home.weekly')}`} action={<T variant="footnote" color="text2">{t('home.daysLeft', { count: weeklyDaysLeft(today) })}</T>}>
+        <View style={{ marginHorizontal: SCREEN_PAD, borderRadius: radius.lg, overflow: 'hidden', paddingHorizontal: 16 }}>
+          <LinearGradient colors={['rgba(255,185,56,0.16)', 'rgba(255,185,56,0.04)']} style={StyleSheet.absoluteFill} />
+          {weekly.map((m, i) => (
+            <View key={m.id} style={i > 0 ? { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.hairline } : null}>
+              <MissionRow mission={m} progress={missionProgress[m.id] ?? 0} claimed={!!missionClaimed[m.id]} />
+            </View>
+          ))}
+        </View>
+      </Section>
       <T variant="footnote" color="text3" align="center" style={{ marginTop: 28, paddingHorizontal: 40 }}>{t('common.noMoneyDisclaimer')}</T>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  shopCard: { marginTop: 28, height: 84, borderRadius: 24, overflow: 'hidden', flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 18 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: 10 },
   round: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
   levelRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2, alignSelf: 'flex-start' },

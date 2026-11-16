@@ -185,4 +185,17 @@ export const RULES: Record<GameId, RulesDoc> = {
       { label: b('Pago', 'Payout'), value: '×1.98' },
     ],
   },
+  videopoker: {
+    summary: b('Video Póker «Jacks or Better», la máquina clásica de Las Vegas. Te dan 5 cartas, guardas las que quieras, cambias el resto y cobras según la jugada final.', 'Video Poker “Jacks or Better”, the classic Las Vegas machine. You get 5 cards, hold the ones you like, swap the rest and get paid for the final hand.'),
+    rules: [
+      b('Toca las cartas que quieres guardar (salen marcadas «GUARDADA») y pulsa Cambiar.', 'Tap the cards you want to keep (they show “HELD”) and tap Draw.'),
+      b('Pagos por cada ficha: Escalera real ×800 · Escalera de color ×50 · Póker ×25 · Full ×9 · Color ×6 · Escalera ×4 · Trío ×3 · Doble pareja ×2 · Pareja de J o más ×1 (recuperas la apuesta).', 'Pays per chip: Royal flush ×800 · Straight flush ×50 · Four of a kind ×25 · Full house ×9 · Flush ×6 · Straight ×4 · Three of a kind ×3 · Two pair ×2 · Jacks or better ×1 (bet back).'),
+      b('Las cartas nuevas salen de la misma baraja de 52, ya barajada antes de repartir.', 'New cards come from the same 52-card deck, shuffled before the deal.'),
+    ],
+    odds: [
+      { label: b('Retorno con juego perfecto (dato publicado de la tabla 9/6)', 'Return with perfect play (published figure for the 9/6 table)'), value: '99.54 %' },
+      { label: b('Manos con premio (simulado con la pista)', 'Hands that pay (simulated with the hint)'), value: '45.5 %' },
+      { label: b('Escalera real', 'Royal flush'), value: '1 / 40 000' },
+    ],
+  },
 };

@@ -67,7 +67,7 @@ export default function PokerScreen({ forceTutorial }: { forceTutorial?: boolean
           </View>
         ) : (
           <ScrollView contentContainerStyle={{ paddingHorizontal: 20, gap: 14, paddingBottom: 20 }}>
-            <Felt shape="oval" colors={['#2E7D5B', '#0E3B2C']} style={{ height: 210, marginTop: 6 }}>
+            <Felt shape="oval" themed colors={['#2E7D5B', '#0E3B2C']} style={{ height: 210, marginTop: 6 }}>
               <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <GameLogo game="poker" size={96} />
                 <T weight="display" style={{ color: '#fff', fontSize: 22, marginTop: 6 }}>{t('poker.vsBots')}</T>

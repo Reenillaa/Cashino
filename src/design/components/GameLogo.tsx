@@ -198,6 +198,20 @@ const ART: Record<GameId, (id: string) => React.ReactNode> = {
       <Circle cx={86.5} cy={32} r={6} fill="#FF3B5C" stroke="#FFF6D0" strokeWidth={1.5} />
     </>
   ),
+  videopoker: (id) => (
+    <>
+      <Rect x={10} y={22} width={80} height={62} rx={10} fill={SH} transform="translate(2 4)" />
+      <Rect x={10} y={22} width={80} height={62} rx={10} fill="#231A3A" stroke={`url(#${id}-gold)`} strokeWidth={3} />
+      {[0, 1, 2, 3, 4].map((k) => (
+        <G key={k}>
+          <Rect x={15 + k * 14.4} y={32} width={12.5} height={18} rx={2.5} fill="#FFFFFF" />
+          <SvgText x={21.25 + k * 14.4} y={45} fontSize={10} fontWeight="900" fill={k % 2 ? '#231A3A' : '#FF3B5C'} textAnchor="middle">{['A', 'K', 'Q', 'J', '10'][k]}</SvgText>
+        </G>
+      ))}
+      {[0, 1, 2, 3, 4].map((k) => <Rect key={k} x={15 + k * 14.4} y={55} width={12.5} height={6} rx={2} fill={k < 4 ? '#FFD06B' : 'rgba(255,255,255,0.25)'} />)}
+      <Rect x={22} y={68} width={56} height={9} rx={4.5} fill={`url(#${id}-gold)`} />
+    </>
+  ),
   trader: () => (
     <>
       {[[16, 60, 22, 70, '#FF5C7A'], [30, 52, 20, 62, '#3BE39A'], [44, 56, 18, 66, '#FF5C7A'], [58, 40, 26, 54, '#3BE39A'], [72, 26, 30, 44, '#3BE39A']].map(([x, top, h, wick, col], i) => (

@@ -171,7 +171,8 @@ export default function CoinflipScreen({ forceTutorial }: { forceTutorial?: bool
             <Animated.View style={coinStyle} accessible accessibilityLabel={face === 'heads' ? t('play.heads') : t('play.tails')}>
               {/* thickness: a darker coin just under the face */}
               <View style={[styles.edge, { backgroundColor: face === 'heads' ? '#8A5300' : '#5E646E' }]} />
-              <CoinFace side={face} size={190} label={face === 'heads' ? t('play.heads') : t('play.tails')} />
+              {/* wrapped: on web an <svg> right after an absolute view paints under it */}
+              <View><CoinFace side={face} size={190} label={face === 'heads' ? t('play.heads') : t('play.tails')} /></View>
             </Animated.View>
             <Animated.View style={[styles.floor, shadowStyle]} />
           </View>

@@ -15,6 +15,7 @@ export const GAME_IDS = [
   'sicbo',
   'slots',
   'trader',
+  'videopoker',
 ] as const;
 export type GameId = (typeof GAME_IDS)[number];
 

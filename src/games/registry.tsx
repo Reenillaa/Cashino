@@ -16,6 +16,7 @@ import KenoScreen from './keno/Screen';
 import SicBoScreen from './sicbo/Screen';
 import SlotsScreen from './slots/Screen';
 import TraderScreen from './trader/Screen';
+import VideoPokerScreen from './videopoker/Screen';
 
 type GameScreen = React.ComponentType<{ forceTutorial?: boolean }>;
 
@@ -36,4 +37,5 @@ export const GAME_SCREENS: Record<GameId, GameScreen> = {
   sicbo: SicBoScreen,
   slots: SlotsScreen,
   trader: TraderScreen,
+  videopoker: VideoPokerScreen,
 };

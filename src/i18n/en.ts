@@ -27,7 +27,7 @@ const en: Dictionary = {
     welcome: 'WELCOME TO',
     tapToPlay: 'Tap a game to start',
     streak: '🔥 {{n}} days in a row', nextLevel: '{{xp}} XP to level {{level}} and its {{bonus}}-chip gift',
-    album: 'Your collection', albumBody: 'You have tried {{n}} of 14 games. Tap a new one to try it.', albumDone: 'Collection complete! You have tried all 14 games.',
+    daysLeft_one: '{{count}} day left', daysLeft_other: '{{count}} days left', album: 'Your collection', albumBody: 'You have tried {{n}} of 15 games. Tap a new one to try it.', albumDone: 'Collection complete! You have tried all 15 games.',
     levelUp: 'Level {{n}}!', levelGift: '+{{n}} chips gift', levelUpBody: 'Keep going: every level brings a bigger gift.',
   },
   games: {
@@ -35,14 +35,14 @@ const en: Dictionary = {
     openRules: 'Rules', openTutorial: 'Tutorial', openAcademy: 'Academy', houseEdge: 'House edge', rtp: 'RTP',
     names: {
       poker: 'Poker', blackjack: 'Blackjack', crash: 'Crash', dice: 'Dice', mines: 'Mines', plinko: 'Plinko', crossing: 'Crossing',
-      roulette: 'Roulette', limbo: 'Limbo', coinflip: 'Coinflip', baccarat: 'Baccarat', hilo: 'Hi-Lo', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Slots', trader: 'Stocks',
+      roulette: 'Roulette', limbo: 'Limbo', coinflip: 'Coinflip', baccarat: 'Baccarat', hilo: 'Hi-Lo', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Slots', trader: 'Stocks', videopoker: 'Video Poker',
     },
     blurbs: {
       poker: "No-Limit Texas Hold'em against bots or friends.", blackjack: 'Get to 21 without busting and beat the dealer.',
       crash: 'Cash out before the rocket blows.', dice: 'Pick your odds and roll.', mines: 'Uncover gems, dodge mines.',
       plinko: 'Drop the ball and watch it land.', crossing: 'Cross lane by lane and stop in time.', roulette: 'European roulette, 37 pockets.',
       limbo: 'Set a target and beat it.', coinflip: 'Heads or tails, double or nothing.', baccarat: 'Player, Banker or Tie.',
-      hilo: 'Will the next card be higher or lower?', keno: 'Pick numbers and wait for the draw.', sicbo: 'Three dice, many bets.', slots: 'Three reels, three of a kind, win.', trader: 'Up or down? Invest and watch the chart.',
+      hilo: 'Will the next card be higher or lower?', keno: 'Pick numbers and wait for the draw.', sicbo: 'Three dice, many bets.', slots: 'Three reels, three of a kind, win.', trader: 'Up or down? Invest and watch the chart.', videopoker: 'The Las Vegas poker machine.',
     },
   },
   play: {
@@ -51,10 +51,13 @@ const en: Dictionary = {
     tapNumber: 'Tap a number on the wheel or a bet below', noMoreBets: 'No more bets…', repeat: 'Repeat', chipValue: 'Chip',
     moreBets: 'More bets',
     slotsCherries: '🍒 Two cherries ×2 · one cherry gives your bet back',
+    vpHeld: 'HELD', vpDraw: 'Draw', vpTapHold: 'Tap the cards you want to keep', vpHint: 'Hint', vpPays: 'Pay table',
+    vpShort: { royal: 'ROYAL FLUSH', straightFlush: 'STR. FLUSH', quads: '4 OF A KIND', fullHouse: 'FULL HOUSE', flush: 'FLUSH', straight: 'STRAIGHT', trips: '3 OF A KIND', twoPair: 'TWO PAIR', jacks: 'JACKS+' },
+    vpHands: { royal: 'Royal flush', straightFlush: 'Straight flush', quads: 'Four of a kind', fullHouse: 'Full house', flush: 'Flush', straight: 'Straight', trips: 'Three of a kind', twoPair: 'Two pair', jacks: 'Jacks or better', nothing: 'Nothing' },
     up: 'Up', down: 'Down', traderHint: 'Will the price end higher or lower? Pick your chip and tap Up or Down.',
     tip: 'Tip', showTip: 'What would an expert do?', hideTip: 'Hide tip',
     bjTableNote: 'Blackjack pays 3 to 2 · dealer stands on soft 17',
-    amount: 'Amount', placeBet: 'Bet', playPractice: 'Play practice', again: 'Again', youWon: 'You won', youLost: 'Not this time',
+    amount: 'Amount', placeBet: 'Bet', playPractice: 'Play practice', again: 'Again', bigWin: 'BIG WIN!', bacRule: 'CLOSEST TO 9 WINS', youWon: 'You won', youLost: 'Not this time',
     pushResult: 'Push', autoCashout: 'Auto cash out', target: 'Target', winChance: 'Win chance', rollOver: 'Roll over',
     rollUnder: 'Roll under', roll: 'Roll', mines: 'Mines', gems: 'Gems', pick: 'Pick a tile', random: 'Random',
     rows: 'Rows', risk: 'Risk', low: 'Low', medium: 'Medium', high: 'High', drop: 'Drop ball', difficulty: 'Difficulty',
@@ -126,6 +129,11 @@ const en: Dictionary = {
     responsible: 'Responsible play', responsibleBody: 'Everything is entertainment with virtual currency. If you feel you are playing more than you want, take a break.',
     sessionReminder: 'Break reminder', every: 'Every {{n}} min', never: 'Never', fairness: 'Provably fair', licenses: 'Licenses',
   },
+  shop: {
+    title: 'Shop', subtitle: 'Style your table with your chips.', yourChips: 'Your chips', backs: 'Cards', felts: 'Felts', avatars: 'Avatars',
+    equip: 'Use', equipped: 'In use', free: 'Free', confirm: '✓ Yes, buy', notEnough: 'Not enough chips for this one yet. Keep playing!',
+    disclaimer: 'Looks only: no advantage in any game. Everything is paid with play chips; there are no real-money purchases.', open: 'Shop', openBody: 'Card backs, felts and avatars',
+  },
   auth: {
     title: 'Your account', subtitle: 'Only needed for online features.', email: 'Email', password: 'Password', username: 'Username',
     signIn: 'Sign in', signUp: 'Create account', haveAccount: 'Already have an account?', noAccount: "Don't have an account?", magicLink: 'Send magic link',
@@ -152,8 +160,8 @@ const en: Dictionary = {
   tutorial: { title: 'First game', skip: 'Exit', gotIt: 'Next', finish: "Let's play!", step: 'Step {{n}} of {{total}}', replay: 'Show me how to play', tapHere: 'Tap here', help: 'How to play', guided: 'Guide me step by step', guidedBody: 'I point at what to tap. It is free: you play in the practice room.', rulesTitle: 'Rules', fairness: 'Check it is fair' },
   achievements: {
     'first-round': ['First step', 'Play your first round'], 'rounds-100': ['Steady', 'Play 100 rounds'], 'rounds-1000': ['Veteran', 'Play 1,000 rounds'],
-    explorer: ['Explorer', 'Try 7 different games'], completionist: ['Collector', 'Play all 14 games'], student: ['Student', 'Complete 5 lessons'],
-    scholar: ['Scholar', 'Complete 30 lessons'], 'tutorials-all': ['Well prepared', 'Complete all 14 tutorials'], 'level-10': ['Level 10', 'Reach level 10'],
+    explorer: ['Explorer', 'Try 7 different games'], completionist: ['Collector', 'Play all 15 games'], student: ['Student', 'Complete 5 lessons'],
+    scholar: ['Scholar', 'Complete 30 lessons'], 'tutorials-all': ['Well prepared', 'Complete all 15 tutorials'], 'level-10': ['Level 10', 'Reach level 10'],
     'level-25': ['Level 25', 'Reach level 25'], 'crash-10x': ['Lift-off', 'Cash out at 10× in Crash'], 'limbo-100x': ['No limits', 'Win at 100× in Limbo'],
     'mines-5x': ['Bomb squad', 'Cash out at 5× in Mines'], 'plinko-edge': ['On the edge', 'Hit an edge bin in Plinko'], 'coin-streak-5': ['Streak of 5', 'Call 5 flips in a row'],
     'hilo-10x': ['Card reader', 'Cash out at 10× in Hi-Lo'], 'crossing-far': ['Other side', 'Cash out at 5× in Crossing'], 'roulette-straight': ['Straight up', 'Hit a single number in roulette'],

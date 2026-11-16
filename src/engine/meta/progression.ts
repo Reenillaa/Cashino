@@ -76,6 +76,9 @@ const DAILY_POOL: MissionDef[] = [
   { id: 'd-roulette-5', kind: 'playGame', game: 'roulette', target: 5, coins: 25, xp: 50, sp: 30 },
   { id: 'd-plinko-10', kind: 'playGame', game: 'plinko', target: 10, coins: 25, xp: 50, sp: 30 },
   { id: 'd-baccarat-5', kind: 'playGame', game: 'baccarat', target: 5, coins: 25, xp: 50, sp: 30 },
+  { id: 'd-slots-10', kind: 'playGame', game: 'slots', target: 10, coins: 25, xp: 50, sp: 30 },
+  { id: 'd-vp-5', kind: 'playGame', game: 'videopoker', target: 5, coins: 25, xp: 50, sp: 30 },
+  { id: 'd-trader-5', kind: 'playGame', game: 'trader', target: 5, coins: 25, xp: 50, sp: 30 },
 ];
 
 const WEEKLY_POOL: MissionDef[] = [
@@ -84,6 +87,10 @@ const WEEKLY_POOL: MissionDef[] = [
   { id: 'w-lesson-5', kind: 'lesson', target: 5, coins: 250, xp: 500, sp: 400 },
   { id: 'w-poker-40', kind: 'pokerHands', target: 40, coins: 200, xp: 400, sp: 300 },
   { id: 'w-mult-10', kind: 'multiplier', target: 10, coins: 150, xp: 300, sp: 250 },
+  { id: 'w-slots-60', kind: 'playGame', game: 'slots', target: 60, coins: 200, xp: 400, sp: 300 },
+  { id: 'w-vp-30', kind: 'playGame', game: 'videopoker', target: 30, coins: 200, xp: 400, sp: 300 },
+  { id: 'w-trader-30', kind: 'playGame', game: 'trader', target: 30, coins: 150, xp: 300, sp: 250 },
+  { id: 'w-win-40', kind: 'winRounds', target: 40, coins: 200, xp: 400, sp: 300 },
 ];
 
 function pick<T>(pool: T[], seed: number, n: number): T[] {
@@ -100,6 +107,10 @@ function pick<T>(pool: T[], seed: number, n: number): T[] {
 /** Deterministic mission sets: everyone gets the same missions on the same UTC day / week. */
 export function dailyMissions(day: number): MissionDef[] {
   return pick(DAILY_POOL, day * 2654435761, 3);
+}
+/** Days left until the weekly challenges change (weeks start on Monday, UTC). */
+export function weeklyDaysLeft(day: number): number {
+  return 7 - ((day + 3) % 7);
 }
 export function weeklyMissions(day: number): MissionDef[] {
   return pick(WEEKLY_POOL, Math.floor((day + 3) / 7) * 40503, 3);

@@ -6,6 +6,8 @@ import type { GameId } from '@/engine/games/types.ts';
 import { runOp } from '@/engine/protocol.ts';
 import { seededRng, type Rng } from '@/engine/rng/rng.ts';
 import type { Lang } from './models';
+import { parseCard } from '@/engine/cards/cards.ts';
+import { suggestHold } from '@/engine/games/videopoker.ts';
 
 type Round = (rng: Rng, bet: number) => { stake: number; payout: number };
 export interface SimOption { label: (lang: Lang) => string; round: Round; rtp: number }
@@ -82,6 +84,10 @@ export const SIM_OPTIONS: Partial<Record<GameId, SimOption[]>> = {
   ],
   slots: [
     { label: L('Tirada normal', 'Normal spin'), round: one('slots', {}), rtp: 0.974 },
+  ],
+  videopoker: [
+    { label: L('Siguiendo la pista 💡', 'Following the 💡 hint'), round: (rng, bet) => { const a = runOp('videopoker', null, 'deal', { bet }, { rng, now: 0 }); const hand = (a.view.hand as string[]).map(parseCard); const b = runOp('videopoker', a.state, 'draw', { hold: suggestHold(hand) }, { rng, now: 0 }); return { stake: a.stake, payout: b.payout }; }, rtp: 0.995 },
+    { label: L('Sin guardar nada', 'Holding nothing'), round: (rng, bet) => { const a = runOp('videopoker', null, 'deal', { bet }, { rng, now: 0 }); const b = runOp('videopoker', a.state, 'draw', { hold: [false, false, false, false, false] }, { rng, now: 0 }); return { stake: a.stake, payout: b.payout }; }, rtp: 0.34 },
   ],
   trader: [
     { label: L('Siempre Sube', 'Always Up'), round: one('trader', { side: 'up' }), rtp: 0.99 },

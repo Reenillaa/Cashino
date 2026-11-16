@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, PlayingCard, PressableScale, T, formatCoins } from '@/design/components';
-import { useTheme, alpha } from '@/design/theme';
+import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { parseCard } from '@/engine/cards/cards.ts';
 import { BACCARAT_PAYS, type BaccaratBetKind } from '@/engine/games/baccarat.ts';
@@ -17,6 +17,7 @@ import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 import { Felt } from '../shared/Felt';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface BView { player: string[]; banker: string[]; playerTotal: number; bankerTotal: number; winner: 'player' | 'banker' | 'tie'; order: ('player' | 'banker')[] }
 
@@ -77,7 +78,7 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
     return <BacHand key={side} label={side === 'player' ? t('play.player') : t('play.banker')} cards={cards.slice(0, n)} total={total} winner={winner} />;
   };
   const spot = (k: BaccaratBetKind, label: string, pays: string) => (
-    <BacSpot key={k} label={label} pays={pays} amount={bets[k]} highlight={!!coup && coup.winner === k && !busy} onPress={() => place(k)} />
+    <BacSpot key={k} big={k === 'player' || k === 'banker'} label={label} pays={pays} amount={bets[k]} highlight={!!coup && coup.winner === k && !busy} onPress={() => place(k)} />
   );
   return (
     <GameShell
@@ -89,13 +90,15 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
       history={<HistoryStrip items={history} />}
       stage={
         <View style={{ flex: 1, paddingHorizontal: 10, paddingBottom: 8 }}>
-        <Felt shape="table" colors={['#8A2346', '#3A0C24']} label="Punto Banco" style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 18 }}>
+        <Felt shape="table" colors={['#6E1A3C', '#2A0718']} style={{ flex: 1 }}>
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 22, paddingBottom: 34, paddingTop: 6 }}>
           <View style={{ flexDirection: 'row', gap: 12 }}>
             {hand('player')}
+            <View style={styles.vs}><T weight="display" style={{ color: 'rgba(255,229,138,0.7)', fontSize: 13 }}>VS</T></View>
             {hand('banker')}
           </View>
-          <View style={{ flexDirection: 'row', gap: 8, marginTop: 22 }}>
+          <T weight="displaySemi" align="center" style={styles.brand}>PUNTO BANCO · {t('play.bacRule')}</T>
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
             {spot('playerPair', t('play.playerPair'), '11:1')}
             {spot('tie', t('play.tie'), `${BACCARAT_PAYS.tie}:1`)}
             {spot('bankerPair', t('play.bankerPair'), '11:1')}
@@ -128,36 +131,47 @@ export default function BaccaratScreen({ forceTutorial }: { forceTutorial?: bool
 }
 
 function BacHand({ label, cards, total, winner }: { label: string; cards: string[]; total: number | null; winner: boolean }) {
-  const { c } = useTheme();
   return (
     <View style={{ flex: 1, alignItems: 'center', gap: 10 }}>
-      <T variant="caption" color={winner ? 'win' : 'text3'}>{label}</T>
-      <View style={{ flexDirection: 'row', minHeight: 84 }}>
-        {cards.map((code, i) => (
-          <View key={i} style={{ marginLeft: i ? 4 : 0, marginTop: i === 2 ? 10 : 0 }}>
-            <PlayingCard card={parseCard(code)} size="sm" />
-          </View>
-        ))}
+      <T weight="displaySemi" style={{ color: winner ? '#FFE58A' : 'rgba(255,255,255,0.75)', fontSize: 13, letterSpacing: 1.5 }}>{label.toUpperCase()}</T>
+      <View style={{ flexDirection: 'row', minHeight: 70 }}>
+        {cards.length === 0
+          ? [0, 1].map((i) => <View key={i} style={[styles.slot, { marginLeft: i ? 6 : 0 }]} />)
+          : cards.map((code, i) => (
+            <View key={i} style={{ marginLeft: i ? 4 : 0, marginTop: i === 2 ? 10 : 0, transform: i === 2 ? [{ rotate: '90deg' }, { translateX: 6 }] : undefined }}>
+              <PlayingCard card={parseCard(code)} size="sm" highlight={winner ? '#FFE58A' : undefined} />
+            </View>
+          ))}
       </View>
-      <View style={[styles.total, { backgroundColor: winner ? alpha(c.win, 0.3) : 'rgba(0,0,0,0.3)' }]}>
-        <T variant="headline" tabular color={winner ? 'win' : 'text'}>{total ?? '–'}</T>
+      <View style={[styles.total, { borderColor: winner ? '#FFE58A' : 'rgba(255,255,255,0.3)' }]}>
+        <LinearGradient colors={winner ? ['#FFD06B', '#D9741C'] : ['#FFFFFF', '#E9E4F5']} style={StyleSheet.absoluteFill} />
+        <T weight="display" tabular style={{ color: winner ? '#fff' : '#1A1530', fontSize: 24, lineHeight: 30 }}>{total ?? '·'}</T>
       </View>
     </View>
   );
 }
 
-function BacSpot({ label, pays, amount, highlight, onPress }: { label: string; pays: string; amount?: number; highlight: boolean; onPress: () => void }) {
+function BacSpot({ label, pays, amount, highlight, big, onPress }: { label: string; pays: string; amount?: number; highlight: boolean; big?: boolean; onPress: () => void }) {
   return (
-    <PressableScale onPress={onPress} feedback="none" scaleTo={0.96} accessibilityLabel={`${label} ${pays}${amount ? `, ${amount}` : ''}`} style={[styles.spot, { flex: 1, backgroundColor: 'rgba(0,0,0,0.28)', borderColor: highlight ? '#FFE58A' : 'rgba(255,229,138,0.35)' }]}>
-      <T variant="callout" weight="semibold">{label}</T>
-      <T variant="caption" color="text3" style={{ fontSize: 10 }}>{pays}</T>
-      {amount ? <View style={styles.placed}><ChipToken value={chipFor(amount)} size={22} /></View> : null}
+    <PressableScale onPress={onPress} feedback="none" scaleTo={0.96} accessibilityLabel={`${label} ${pays}${amount ? `, ${amount}` : ''}`}
+      style={[styles.spot, { flex: 1, height: big ? 74 : 52, borderRadius: big ? 37 : 18, backgroundColor: highlight ? 'rgba(255,229,138,0.22)' : 'rgba(0,0,0,0.28)', borderColor: highlight ? '#FFE58A' : 'rgba(255,229,138,0.4)', borderWidth: big ? 2 : 1.5 }]}>
+      <T weight={big ? 'display' : 'displaySemi'} style={{ color: '#fff', fontSize: big ? 18 : 13 }}>{label}</T>
+      <T variant="caption" style={{ fontSize: 10, color: 'rgba(255,229,138,0.8)' }}>{pays}</T>
+      {amount ? (
+        <View style={[styles.placed, big ? { right: 18, top: -12 } : null]}>
+          <ChipToken value={chipFor(amount)} size={big ? 30 : 22} />
+          <T weight="displaySemi" style={{ color: '#fff', fontSize: 10, backgroundColor: 'rgba(0,0,0,0.55)', paddingHorizontal: 4, borderRadius: 6, overflow: 'hidden' }}>{amount}</T>
+        </View>
+      ) : null}
     </PressableScale>
   );
 }
 
 const styles = StyleSheet.create({
-  total: { minWidth: 48, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
-  spot: { height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5 },
-  placed: { position: 'absolute', right: 6, top: 6 },
+  total: { minWidth: 50, height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, overflow: 'hidden', borderWidth: 2 },
+  spot: { alignItems: 'center', justifyContent: 'center' },
+  placed: { position: 'absolute', right: -6, top: -18, alignItems: 'center', flexDirection: 'row', gap: 3 },
+  slot: { width: 46, height: 64, borderRadius: 8, borderWidth: 1.5, borderColor: 'rgba(255,229,138,0.35)', borderStyle: 'dashed' },
+  vs: { alignSelf: 'center', marginTop: 10, width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: 'rgba(255,229,138,0.4)', alignItems: 'center', justifyContent: 'center' },
+  brand: { color: 'rgba(255,229,138,0.5)', fontSize: 9.5, letterSpacing: 1.2, marginTop: 16 },
 });

@@ -28,12 +28,25 @@ import { gameVivid } from '@/design/tokens';
 const tint = META.mines.tint;
 const MV = gameVivid.mines;
 
+/** Brilliant-cut gem: crown, table and pavilion facets with a sparkle. */
 function Gem({ size }: { size: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24">
-      <Path d="M12 3 20 9.5 12 21 4 9.5z" fill={tint} />
-      <Path d="M4 9.5h16L12 3z" fill="#B8F0CC" opacity={0.9} />
-      <Path d="M12 3 9 9.5 12 21z" fill="#ffffff" opacity={0.25} />
+      <Path d="M7 4h10l4 5.5L12 21 3 9.5z" fill="#0FA878" />
+      <Path d="M3 9.5h18L12 21z" fill="#12C08A" />
+      <Path d="M8 9.5 12 21 16 9.5z" fill="#5BE3B0" />
+      <Path d="M7 4h10l4 5.5H3z" fill="#7FF0C6" />
+      <Path d="M9.5 4 8 9.5h8L14.5 4z" fill="#D4FFEE" />
+      <Path d="M3 9.5 7 4l1 5.5zM21 9.5 17 4l-1 5.5z" fill="#3FD9A0" />
+      <Path d="M19.5 2.5v3M18 4h3" stroke="#fff" strokeWidth={1.1} strokeLinecap="round" />
+    </Svg>
+  );
+}
+/** Faint diamond engraved on closed tiles. */
+function Emblem({ size }: { size: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path d="M7 5h10l4 5L12 20 3 10z M3 10h18" stroke="rgba(255,255,255,0.28)" strokeWidth={1.4} fill="none" strokeLinejoin="round" />
     </Svg>
   );
 }
@@ -66,7 +79,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
   const k = view?.revealed.length ?? 0;
   const m = active ? view!.mines : mines;
   const [stageH, setStageH] = useState(0);
-  const size = Math.max(36, Math.min(68, (Math.min(width, 440) - 40 - 4 * 8) / 5, stageH ? (stageH - 16 - 4 * 8) / 5 : 68));
+  const size = Math.max(34, Math.min(66, (Math.min(width, 440) - 68 - 4 * 8) / 5, stageH ? (stageH - 44 - 4 * 8) / 5 : 66));
 
   const start = async () => {
     try {
@@ -135,6 +148,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
       stage={
         <View style={styles.stage} onLayout={(e) => setStageH(e.nativeEvent.layout.height)}>
           <TutorialTarget id="mines:reveal">
+          <View style={[styles.board, { borderColor: alpha(MV[0], active ? 0.9 : 0.45), shadowColor: MV[0], shadowOpacity: active ? 0.5 : 0.2 }]}>
           <Animated.View style={[styles.grid, { width: size * 5 + 32 }, gridStyle]} accessibilityLabel={t('play.pick')}>
             {Array.from({ length: MINES_TILES }, (_, i) => {
               const revealed = view?.revealed.includes(i);
@@ -163,6 +177,16 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
                   ]}
                 >
                   {!show ? <LinearGradient pointerEvents="none" colors={['rgba(255,255,255,0.28)', 'rgba(255,255,255,0.02)']} end={{ x: 0, y: 0.8 }} style={[StyleSheet.absoluteFill, { borderRadius: 14 }]} /> : null}
+                  {!show && busyTile !== i ? <View style={{ position: 'absolute' }}><Emblem size={size * 0.42} /></View> : null}
+                  {show && isMine && view!.hitMine === i && !reduceMotion ? (
+                    <Animated.View entering={ZoomIn.duration(260)} style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
+                      <Svg width={size} height={size} viewBox="0 0 40 40">
+                        {[0, 40, 80, 120, 160, 200, 240, 280, 320].map((ang, j) => (
+                          <Path key={ang} d={`M20 ${j % 2 ? 6 : 3} V10`} stroke={j % 2 ? '#FFB938' : '#FF5C7A'} strokeWidth={2.4} strokeLinecap="round" transform={`rotate(${ang} 20 20)`} />
+                        ))}
+                      </Svg>
+                    </Animated.View>
+                  ) : null}
                   {show ? (
                     <Animated.View entering={reduceMotion ? undefined : ZoomIn.springify().damping(12)}>
                       {isMine ? <Mine size={size * 0.55} color={c.loss} /> : <Gem size={size * 0.55} />}
@@ -174,6 +198,7 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
               );
             })}
           </Animated.View>
+          </View>
           </TutorialTarget>
           <ResultBanner result={result} />
         </View>
@@ -221,5 +246,6 @@ export default function MinesScreen({ forceTutorial }: { forceTutorial?: boolean
 const styles = StyleSheet.create({
   stage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  board: { padding: 12, borderRadius: 26, borderWidth: 2, backgroundColor: 'rgba(3,26,24,0.72)', shadowRadius: 22, shadowOffset: { width: 0, height: 0 } },
   tile: { borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
 });
