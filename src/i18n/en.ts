@@ -157,7 +157,7 @@ const en: Dictionary = {
     banner: 'Sports betting', bannerBody: 'Real football, F1, tennis, NFL and NBA',
   },
   live: {
-    title: 'Live', horses: 'Live racing', roulette: 'Live roulette', open: 'Bets open', closed: 'Bets closed…', running: 'In play!', next: 'Next round in',
+    title: 'Live', horses: 'Live racing', roulette: 'Live roulette', crash: 'Live rocket', board: 'Board', aboard: 'Aboard', boardNow: 'Get on board', takeoff: 'Taking off…', landed: 'Landed at ×50!', pilots: 'Pilots', open: 'Bets open', closed: 'Bets closed…', running: 'In play!', next: 'Next round in',
     signIn: 'Live play needs an account', signInBody: 'Create your free account to play the same races and spins as everyone else, at the same time.',
     bets: 'Bets this round', noBets: 'Nobody has bet yet. Be the first!', place: 'Bet', winners: 'Winners this round', noWinners: 'Nobody won this time', toStalls: 'The horses are going into the stalls…', noMoreBets: 'No more bets',
     number: 'Number', dozen: 'dozen', banner: 'Live', bannerBody: 'Races every 2 min and roulette every 45 s, with everyone at once',

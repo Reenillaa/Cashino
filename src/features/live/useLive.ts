@@ -13,7 +13,9 @@ export type LivePhase = 'betting' | 'waiting' | 'show' | 'results';
  * (read straight from the database, refreshed every few seconds) and the timeline. When betting closes it
  * asks the server to draw the result; when the slot ends it moves to the next round.
  */
-export function useLive(game: LiveGame) {
+export function useLive(game: LiveGame, opts: { askEvery?: number; betsEvery?: number } = {}) {
+  const askEvery = opts.askEvery ?? 1500;
+  const betsEvery = opts.betsEvery ?? 3000;
   const [now, setNow] = useState(() => Date.now());
   const [round, setRound] = useState<LiveRound | null>(null);
   const [bets, setBets] = useState<LiveBetRow[]>([]);
@@ -61,7 +63,7 @@ export function useLive(game: LiveGame) {
       const n = Date.now() + skew.current;
       setNow(n);
       const r = roundRef.current;
-      if (!r || n - lastAsk.current < 1500) return;
+      if (!r || n - lastAsk.current < askEvery) return;
       const needResult = n >= new Date(r.closes_at).getTime() + 400 && !r.result;
       if (needResult || n >= new Date(r.ends_at).getTime()) {
         lastAsk.current = n;
@@ -69,7 +71,7 @@ export function useLive(game: LiveGame) {
       }
     }, 250);
     return () => clearInterval(id);
-  }, [fetchState]);
+  }, [fetchState, askEvery]);
   // first load
   useEffect(() => {
     const id = setTimeout(() => void fetchState(), 0);
@@ -80,12 +82,12 @@ export function useLive(game: LiveGame) {
   useEffect(() => {
     if (slot === undefined) return;
     const first = setTimeout(() => void fetchBets(slot), 0);
-    const id = setInterval(() => void fetchBets(slot), 3000);
+    const id = setInterval(() => void fetchBets(slot), betsEvery);
     return () => {
       clearTimeout(first);
       clearInterval(id);
     };
-  }, [slot, fetchBets]);
+  }, [slot, fetchBets, betsEvery]);
 
   const s = slotAt(game, now);
   const closesAt = round ? new Date(round.closes_at).getTime() : s.closesAt;
@@ -104,7 +106,14 @@ export function useLive(game: LiveGame) {
     [game, round, fetchBets],
   );
 
-  return { now, round, bets, history, phase, closesAt, startsAt, endsAt, error, placeBet, myId: useSession.getState().userId };
+  /** Server time (device clock corrected by the measured skew), for smooth animations. */
+  const clock = useCallback(() => Date.now() + skew.current, []);
+  const refresh = useCallback(async () => {
+    await fetchState();
+    if (round) await fetchBets(round.slot);
+  }, [fetchState, fetchBets, round]);
+
+  return { now, round, bets, history, phase, closesAt, startsAt, endsAt, error, placeBet, clock, refresh, myId: useSession.getState().userId };
 }
 
 export const mmss = (ms: number) => {

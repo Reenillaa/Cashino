@@ -6,8 +6,9 @@ import { onlineConfigured } from '@/services/supabase';
 import { useSession } from '@/state/session';
 import LiveHorses from '@/features/live/LiveHorses';
 import LiveRoulette from '@/features/live/LiveRoulette';
+import LiveCrash from '@/features/live/LiveCrash';
 
-/** Live, shared multiplayer rounds: /live/horses and /live/roulette. Needs an account. */
+/** Live, shared multiplayer rounds: /live/horses, /live/roulette and /live/crash. Needs an account. */
 export default function LiveGameRoute() {
   const { game } = useLocalSearchParams<{ game: string }>();
   const { t } = useT();
@@ -20,5 +21,5 @@ export default function LiveGameRoute() {
       </Screen>
     );
   }
-  return game === 'roulette' ? <LiveRoulette /> : <LiveHorses />;
+  return game === 'roulette' ? <LiveRoulette /> : game === 'crash' ? <LiveCrash /> : <LiveHorses />;
 }

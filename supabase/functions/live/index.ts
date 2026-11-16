@@ -2,10 +2,12 @@
  * `live` Edge Function — shared, timed multiplayer rounds (live horse racing, live roulette).
  *   { action: 'state', game }                     → creates the current round if needed, resolves and pays closed rounds
  *   { action: 'bet', game, slot, bet, requestId } → places a bet while betting is open
- * The result of a round is drawn with a fresh crypto seed only after its betting has closed.
+ *   { action: 'cashout', game: 'crash', slot }     → cashes out the caller's bets on the flying rocket
+ * The result of a round is drawn with a fresh crypto seed only after its betting has closed. For the rocket
+ * the crash point stays in live_secrets (never readable by players) until the rocket has exploded.
  */
 import { admin, handler, HttpError, json, requireUser, rpcError } from '../_shared/http.ts';
-import { LIVE_GAMES, slotAt, liveCard, liveResult, checkLiveBet, livePayout, type LiveGame, type LiveBet } from '../_shared/engine/meta/live.ts';
+import { LIVE_GAMES, LIVE_LEAD, LIVE_CRASH_CAP, slotAt, liveCard, liveResult, checkLiveBet, livePayout, liveCashout, liveCrashMult, liveCrashTime, type LiveGame, type LiveBet, type CrashBet } from '../_shared/engine/meta/live.ts';
 import type { RaceCard } from '../_shared/engine/games/horses.ts';
 
 const seed31 = () => crypto.getRandomValues(new Uint32Array(1))[0] >>> 1;
@@ -24,8 +26,40 @@ async function ensureRound(db: ReturnType<typeof admin>, game: LiveGame, now: nu
   return data;
 }
 
+/** The rocket's hidden crash point for a closed round (drawn once, first caller wins). */
+async function crashSecret(db: ReturnType<typeof admin>, slot: number): Promise<number> {
+  const { data: have } = await db.from('live_secrets').select('result').eq('game', 'crash').eq('slot', slot).maybeSingle();
+  if (have?.result) return (have.result as { crash: number }).crash;
+  const seed = seed31();
+  await db.from('live_secrets').upsert({ game: 'crash', slot, seed: String(seed), result: liveResult('crash', null, seed) }, { onConflict: 'game,slot', ignoreDuplicates: true });
+  const { data } = await db.from('live_secrets').select('result').eq('game', 'crash').eq('slot', slot).single();
+  return (data!.result as { crash: number }).crash;
+}
+
+/** Rocket rounds: pays auto cash-outs as the rocket passes them, reveals and settles once it has exploded. */
+async function resolveCrash(db: ReturnType<typeof admin>, now: number) {
+  const { data: open } = await db.from('live_rounds').select('*').eq('game', 'crash').eq('settled', false).lte('closes_at', new Date(now).toISOString()).order('slot', { ascending: true }).limit(5);
+  for (const round of open ?? []) {
+    const crash = await crashSecret(db, round.slot);
+    const startsAt = new Date(round.closes_at).getTime() + LIVE_LEAD;
+    const flown = now - startsAt;
+    const over = flown >= liveCrashTime(Math.min(crash, LIVE_CRASH_CAP)) + 300;
+    const { data: bets } = await db.from('live_bets').select('id, bet').eq('game', 'crash').eq('slot', round.slot).is('payout', null);
+    for (const b of bets ?? []) {
+      const bet = b.bet as CrashBet;
+      if (over) {
+        rpcError((await db.rpc('live_pay_bet', { p_bet: b.id, p_payout: livePayout('crash', null, { crash }, bet) })).error);
+      } else if (bet.auto && bet.auto <= crash && bet.auto <= liveCrashMult(flown)) {
+        rpcError((await db.rpc('live_pay_bet', { p_bet: b.id, p_payout: Math.floor(bet.amount * bet.auto + 1e-9) })).error);
+      }
+    }
+    if (over) await db.from('live_rounds').update({ result: { crash }, settled: true }).eq('game', 'crash').eq('slot', round.slot);
+  }
+}
+
 /** Draws the result of closed rounds (once) and pays every bet (idempotent). */
 async function resolveClosed(db: ReturnType<typeof admin>, game: LiveGame, now: number) {
+  if (game === 'crash') return resolveCrash(db, now);
   const { data: open } = await db.from('live_rounds').select('*').eq('game', game).eq('settled', false).lte('closes_at', new Date(now).toISOString()).order('slot', { ascending: true }).limit(5);
   for (const round of open ?? []) {
     let result = round.result;
@@ -82,6 +116,25 @@ Deno.serve(
       if (error?.message.includes('betting_closed')) throw new HttpError('betting_closed', 409);
       rpcError(error);
       return json({ ok: true, balance });
+    }
+    if (action === 'cashout' && game === 'crash') {
+      const slot = Number(body.slot);
+      const { data: round } = await db.from('live_rounds').select('closes_at, settled').eq('game', 'crash').eq('slot', slot).maybeSingle();
+      if (!round) throw new HttpError('no_round', 404);
+      const startsAt = new Date(round.closes_at).getTime() + LIVE_LEAD;
+      if (now < startsAt) throw new HttpError('not_started', 409);
+      const crash = await crashSecret(db, slot);
+      const { data: mine } = await db.from('live_bets').select('id, bet').eq('game', 'crash').eq('slot', slot).eq('user_id', userId).is('payout', null);
+      if (!mine?.length) throw new HttpError('nothing_to_cash', 409);
+      let paid = 0;
+      for (const b of mine) {
+        const payout = liveCashout(crash, b.bet as CrashBet, now - startsAt);
+        if (payout === null) throw new HttpError('crashed', 409);
+        rpcError((await db.rpc('live_pay_bet', { p_bet: b.id, p_payout: payout })).error);
+        paid += payout;
+      }
+      const { data: w } = await db.from('wallets').select('balance').eq('user_id', userId).single();
+      return json({ ok: true, paid, multiplier: liveCrashMult(now - startsAt), balance: w?.balance ?? 0 });
     }
     throw new HttpError('invalid_action');
   }),

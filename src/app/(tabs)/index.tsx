@@ -185,6 +185,9 @@ export default function Home() {
         <PressableScale onPress={() => router.push('/live/roulette')} feedback="select" accessibilityLabel={t('live.roulette')} style={styles.liveRou}>
           <T style={{ fontSize: 22 }}>🎡</T>
         </PressableScale>
+        <PressableScale onPress={() => router.push('/live/crash')} feedback="select" accessibilityLabel={t('live.crash')} style={styles.liveRou}>
+          <T style={{ fontSize: 22 }}>🚀</T>
+        </PressableScale>
       </PressableScale>
 
       {/* Shop: something to spend chips on (looks only) */}

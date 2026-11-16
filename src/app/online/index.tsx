@@ -76,6 +76,7 @@ export default function OnlineLobby() {
           <ListGroup>
             <ListRow icon="users" title={`🏇 ${t('live.horses')}`} subtitle={t('live.bannerBody')} onPress={() => router.push('/live/horses')} />
             <ListRow icon="users" title={`🎡 ${t('live.roulette')}`} onPress={() => router.push('/live/roulette')} />
+            <ListRow icon="users" title={`🚀 ${t('live.crash')}`} onPress={() => router.push('/live/crash')} />
           </ListGroup>
         </View>
       </Section>

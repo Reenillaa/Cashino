@@ -155,7 +155,7 @@ const es = {
     banner: 'Apuestas deportivas', bannerBody: 'Fútbol, F1, tenis, NFL y NBA reales',
   },
   live: {
-    title: 'En directo', horses: 'Carreras en directo', roulette: 'Ruleta en directo', open: 'Apuestas abiertas', closed: 'Apuestas cerradas…', running: '¡En juego!', next: 'Siguiente ronda en',
+    title: 'En directo', horses: 'Carreras en directo', roulette: 'Ruleta en directo', crash: 'Cohete en directo', board: 'Subir', aboard: 'A bordo', boardNow: 'Sube al cohete', takeoff: 'Despegando…', landed: '¡Aterrizaje en ×50!', pilots: 'Pilotos', open: 'Apuestas abiertas', closed: 'Apuestas cerradas…', running: '¡En juego!', next: 'Siguiente ronda en',
     signIn: 'El directo es con cuenta', signInBody: 'Crea tu cuenta gratis para jugar las mismas carreras y tiradas que el resto de jugadores, a la vez.',
     bets: 'Apuestas de la ronda', noBets: 'Aún no ha apostado nadie. ¡Sé el primero!', place: 'Apostar', winners: 'Ganadores de la ronda', noWinners: 'Esta vez no ha ganado nadie', toStalls: 'Los caballos entran en los cajones…', noMoreBets: 'No va más',
     number: 'Número', dozen: 'docena', banner: 'En directo', bannerBody: 'Carreras cada 2 min y ruleta cada 45 s, con todos a la vez',
