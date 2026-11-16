@@ -1,3 +1,5 @@
+import { useHotTable, hotRoom } from '@/state/hotTable';
+import { utcDay } from '@/engine/meta/economy.ts';
 import React, { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useIsFocused, useRouter } from 'expo-router';
@@ -19,7 +21,7 @@ import { RoomPicker } from './RoomPicker';
 import { TutorialCoach, useTutorialAutostart } from '@/features/tutorial/TutorialCoach';
 import { useTutorialRuntime } from '@/features/tutorial/tutorial';
 import { FairnessPanel } from './FairnessPanel';
-import { GameIntro } from '@/features/brand/Splash';
+import { GameIntro } from '@/features/brand/GameIntro';
 import { useWallet } from '@/state/wallet';
 
 /**
@@ -60,7 +62,9 @@ export function GameShell({
   const vivid = gameVivid[game];
   const [sheet, setSheet] = useState<null | 'rules' | 'fair'>(null);
   const tutorialActive = useTutorialRuntime((s) => s.game === game);
-  const room = useRoom(game);
+  const baseRoom = useRoom(game);
+  const hot = useHotTable((h) => h.day === utcDay(Date.now()) && !!h.hot[game]) && !baseRoom.practice;
+  const room = hot ? hotRoom(baseRoom) : baseRoom;
   const chooseRoom = useRooms((s) => s.choose);
   // Every visit opens on the room carousel, unless a round is still running or a guide was requested.
   const [picked, setPicked] = useState(() => !!locked || !!forceTutorial);
@@ -129,6 +133,12 @@ export function GameShell({
               {!locked && !tutorialActive ? <Icon name="chevronDown" size={14} color={c.text3} /> : null}
             </PressableScale>
           </View>
+          {hot && mode !== 'practice' ? (
+            <Animated.View entering={FadeIn} style={[styles.hot, { alignSelf: 'center' }]} accessibilityLiveRegion="polite">
+              <Text style={{ fontSize: 14 }} accessible={false}>🔥</Text>
+              <T variant="footnote" weight="semibold" style={{ color: '#FFD06B', flexShrink: 1 }}>{t('play.hotTable')}</T>
+            </Animated.View>
+          ) : null}
           {mode === 'practice' && !tutorialActive && (
             <PressableScale onPress={() => useWallet.getState().resetPractice()} feedback="select" style={{ alignSelf: 'center', marginTop: 6 }} accessibilityLabel={t('common.reset')}>
               <T variant="footnote" color="text3">{t('common.practiceBanner')} · {t('common.reset')}</T>
@@ -224,6 +234,7 @@ export function ControlRow({ children }: { children: React.ReactNode }) {
 }
 
 const styles = StyleSheet.create({
+  hot: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, backgroundColor: 'rgba(255,120,40,0.16)', borderWidth: 1, borderColor: 'rgba(255,185,56,0.45)', maxWidth: '92%' },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 12 },
   roomChip: { height: 36, borderRadius: 18, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 7 },
   panel: { borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: 16, paddingTop: 14, overflow: 'hidden' },

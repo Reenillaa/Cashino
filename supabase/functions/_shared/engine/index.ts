@@ -26,3 +26,8 @@ export * as Progression from './meta/progression.ts';
 export * as Achievements from './meta/achievements.ts';
 export * as Ranking from './meta/ranking.ts';
 export * as VideoPoker from './games/videopoker.ts';
+export * as Wheel from './games/wheel.ts';
+export * as Towers from './games/towers.ts';
+export * as Diamonds from './games/diamonds.ts';
+export * as Pump from './games/pump.ts';
+export * as DragonTiger from './games/dragontiger.ts';

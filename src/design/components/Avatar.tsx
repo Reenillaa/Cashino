@@ -1,4 +1,4 @@
-import { premiumAvatar } from '@/features/shop/items';
+import { frameById, premiumAvatar, titleById } from '@/features/shop/items';
 import { useCosmetics } from '@/state/cosmetics';
 import React from 'react';
 import { Text, View } from 'react-native';
@@ -10,7 +10,17 @@ const FACES = ['😎', '🤠', '🦊', '🐼', '🐯', '🦁', '🐸', '🐵', '
 const BACKS = Object.values(gameArt).map((a) => a.colors);
 export const AVATAR_COUNT = FACES.length;
 
-export function Avatar({ id = 'a0', size = 44, bot, ring }: { id?: string; size?: number; bot?: boolean; ring?: string }) {
+export function Avatar({ id = 'a0', size = 44, bot, ring, frame }: { id?: string; size?: number; bot?: boolean; ring?: string; frame?: string | null }) {
+  const f = frameById(frame ?? null);
+  if (f) {
+    const pad = Math.max(3, size * 0.07);
+    return (
+      <View style={{ width: size + pad * 2, height: size + pad * 2, borderRadius: size, padding: pad, shadowColor: f.glow, shadowOpacity: 1, shadowRadius: size * 0.18, shadowOffset: { width: 0, height: 0 } }}>
+        <LinearGradient colors={f.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, borderRadius: size }} />
+        <Avatar id={id} size={size} bot={bot} ring={ring} />
+      </View>
+    );
+  }
   const premium = !bot ? premiumAvatar(id) : undefined;
   if (premium) {
     return (
@@ -37,4 +47,22 @@ export function Avatar({ id = 'a0', size = 44, bot, ring }: { id?: string; size?
 export function useMyAvatar(profileAvatar?: string | null): string {
   const premium = useCosmetics((st) => st.equipped.avatar);
   return premium ?? profileAvatar ?? 'a3';
+}
+
+export function useMyFrame(): string | null {
+  return useCosmetics((st) => st.equipped.frame);
+}
+export function useMyTitle(lang: 'es' | 'en'): { text: string; color: string } | null {
+  const id = useCosmetics((st) => st.equipped.title);
+  const item = titleById(id);
+  return item ? { text: item.name[lang], color: item.color } : null;
+}
+
+/** A title pill like "High Roller". */
+export function TitleBadge({ title, color }: { title: string; color: string }) {
+  return (
+    <View style={{ paddingHorizontal: 12, height: 28, borderRadius: 14, borderWidth: 1.5, borderColor: color, backgroundColor: 'rgba(0,0,0,0.25)', alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ color, fontWeight: '800', fontSize: 12, letterSpacing: 0.6 }}>{title.toUpperCase()}</Text>
+    </View>
+  );
 }

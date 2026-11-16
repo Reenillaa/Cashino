@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Avatar, CardBackArt, PressableScale, Screen, Segmented, T, formatCoins } from '@/design/components';
+import { Avatar, CardBackArt, Chip, PressableScale, Screen, T, TitleBadge, formatCoins, useMyAvatar } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD } from '@/design/tokens';
 import { useT } from '@/i18n';
 import { useWallet } from '@/state/wallet';
 import { useCosmetics, type Slot } from '@/state/cosmetics';
-import { CARD_BACKS, FELTS, PREMIUM_AVATARS } from '@/features/shop/items';
+import { CARD_BACKS, FELTS, FRAMES, PREMIUM_AVATARS, TITLES } from '@/features/shop/items';
+import { useSession } from '@/state/session';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
@@ -23,13 +24,15 @@ export default function Shop() {
   const balance = useWallet((s) => s.balance);
   const owned = useCosmetics((s) => s.owned);
   const equipped = useCosmetics((s) => s.equipped);
+  const myAvatar = useMyAvatar(useSession((st) => st.profile?.avatar));
   const colW = (Math.min(width, 560) - SCREEN_PAD * 2 - 12) / 2;
 
   const act = (slot: Slot, id: string, price: number) => {
     setMsg(null);
     const key = `${slot}:${id}`;
     if (owned.includes(key)) {
-      useCosmetics.getState().equip(slot, slot === 'avatar' && equipped.avatar === id ? null : id);
+      const optional = slot === 'avatar' || slot === 'frame' || slot === 'title';
+      useCosmetics.getState().equip(slot, optional && equipped[slot] === id ? null : id);
       sfx('chip', 0.6);
       haptic.select();
       return;
@@ -55,7 +58,9 @@ export default function Shop() {
   const items =
     tab === 'back' ? CARD_BACKS.map((b) => ({ id: b.id, name: b.name, price: b.price, preview: <CardBackArt item={b} dim={{ w: 64, h: 90, r: 10 }} />, w: 64, h: 90 }))
       : tab === 'felt' ? FELTS.map((f) => ({ id: f.id, name: f.name, price: f.price, preview: <FeltSwatch colors={f.colors} />, w: 120, h: 80 }))
-        : PREMIUM_AVATARS.map((a) => ({ id: a.id, name: a.name, price: a.price, preview: <Avatar id={a.id} size={76} />, w: 76, h: 76 }));
+        : tab === 'avatar' ? PREMIUM_AVATARS.map((a) => ({ id: a.id, name: a.name, price: a.price, preview: <Avatar id={a.id} size={76} />, w: 76, h: 76 }))
+          : tab === 'frame' ? FRAMES.map((f) => ({ id: f.id, name: f.name, price: f.price, preview: <Avatar id={myAvatar} size={70} frame={f.id} />, w: 84, h: 84 }))
+            : TITLES.map((x) => ({ id: x.id, name: x.name, price: x.price, preview: <TitleBadge title={x.name[lang]} color={x.color} />, w: 150, h: 40 }));
 
   return (
     <Screen title={t('shop.title')} subtitle={t('shop.subtitle')} back tabBar={false}>
@@ -64,13 +69,17 @@ export default function Shop() {
           <T variant="footnote" color="text2">{t('shop.yourChips')}</T>
           <T weight="display" tabular style={{ color: c.win, fontSize: 30, lineHeight: 36 }}>{formatCoins(balance)}</T>
         </View>
-        <Segmented value={tab} onChange={(v) => { setTab(v); setConfirm(null); setMsg(null); }} options={[{ value: 'back', label: t('shop.backs') }, { value: 'felt', label: t('shop.felts') }, { value: 'avatar', label: t('shop.avatars') }]} />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          {(['back', 'felt', 'avatar', 'frame', 'title'] as Slot[]).map((k) => (
+            <Chip key={k} label={t(`shop.tabs.${k}`)} selected={tab === k} onPress={() => { setTab(k); setConfirm(null); setMsg(null); }} />
+          ))}
+        </ScrollView>
         {msg ? <Animated.View entering={FadeIn}><T variant="footnote" color="warn" align="center">{msg}</T></Animated.View> : null}
         <View style={styles.grid}>
           {items.map((it, i) => {
             const key = `${tab}:${it.id}`;
             const has = owned.includes(key);
-            const on = tab === 'avatar' ? equipped.avatar === it.id : equipped[tab] === it.id;
+            const on = equipped[tab] === it.id;
             const asking = confirm === key;
             return (
               <Animated.View key={key} entering={ZoomIn.delay(i * 40)} style={{ width: colW }}>

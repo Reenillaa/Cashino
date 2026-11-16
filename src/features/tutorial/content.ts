@@ -109,4 +109,27 @@ export const TUTORIALS: Record<GameId, TutorialStep[]> = {
     doIt('vp:deal', ['Reparte', 'Deal'], ['Elige tu ficha y pulsa Repartir.', 'Pick your chip and tap Deal.']),
     doIt('vp:draw', ['Guarda y cambia', 'Hold and draw'], ['Toca las cartas que quieras guardar (o pulsa 💡 para ver la pista) y luego Cambiar.', 'Tap the cards to keep (or 💡 for a hint), then Draw.']),
   ],
+  wheel: [
+    info(['La rueda', 'The wheel'], ['Eliges riesgo y giras. Donde pare la flecha, eso cobras.', 'Pick a risk and spin. Wherever the arrow stops, that is your prize.']),
+    doIt('wheel:spin', ['Gira', 'Spin'], ['Elige tu ficha y pulsa Girar.', 'Pick your chip and tap Spin.']),
+  ],
+  towers: [
+    info(['La torre', 'The tower'], ['En cada piso eliges una puerta. Si no hay huevo, subes y tu premio crece.', 'On each floor you pick a door. No egg, you go up and your prize grows.']),
+    doIt('towers:start', ['Empieza', 'Start'], ['Elige tu ficha y pulsa Apostar.', 'Pick your chip and tap Bet.']),
+    doIt('towers:pick', ['Elige puerta', 'Pick a door'], ['Toca una puerta del piso iluminado.', 'Tap a door on the lit floor.']),
+  ],
+  diamonds: [
+    info(['Los diamantes', 'Diamonds'], ['Salen 5 gemas. Cuantas más del mismo color, mejor premio.', '5 gems come out. The more of one colour, the bigger the prize.']),
+    doIt('diamonds:play', ['Juega', 'Play'], ['Elige tu ficha y pulsa Jugar.', 'Pick your chip and tap Play.']),
+  ],
+  pump: [
+    info(['El globo', 'The balloon'], ['Cada bombeo sube el premio, pero el globo puede explotar. Cobra a tiempo.', 'Every pump raises the prize, but the balloon may pop. Cash out in time.']),
+    doIt('pump:start', ['Empieza', 'Start'], ['Elige tu ficha y pulsa Apostar.', 'Pick your chip and tap Bet.']),
+    doIt('pump:pump', ['Bombea', 'Pump'], ['Pulsa Bombear (o toca el globo).', 'Tap Pump (or the balloon).']),
+  ],
+  dragontiger: [
+    info(['Dragon Tiger', 'Dragon Tiger'], ['Una carta para cada lado. Gana la más alta. Así de fácil.', 'One card each side. Highest wins. That simple.']),
+    doIt('dt:place', ['Apuesta', 'Bet'], ['Toca Dragón, Tigre o Empate para poner tu ficha.', 'Tap Dragon, Tiger or Tie to place your chip.']),
+    doIt('dt:deal', ['Reparte', 'Deal'], ['Pulsa Repartir.', 'Tap Deal.']),
+  ],
 };

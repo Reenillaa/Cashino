@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AVATAR_COUNT, Avatar, useMyAvatar, Button, Chip, GameGlyph, Icon, IconButton, ListGroup, ListRow, PressableScale, ProgressBar, Screen, Segmented, Sheet, Surface, T, formatCoins, formatMult } from '@/design/components';
+import { AVATAR_COUNT, Avatar, useMyAvatar, useMyFrame, useMyTitle, TitleBadge, Button, Chip, GameGlyph, Icon, IconButton, ListGroup, ListRow, PressableScale, ProgressBar, Screen, Segmented, Sheet, Surface, T, formatCoins, formatMult } from '@/design/components';
 import { useTheme, alpha } from '@/design/theme';
 import { SCREEN_PAD, radius } from '@/design/tokens';
 import { useT } from '@/i18n';
@@ -17,7 +17,9 @@ import { META, VISIBLE_GAMES } from '@/games/catalog';
 type Tab = 'stats' | 'achievements' | 'history';
 
 export default function Profile() {
-  const { t } = useT();
+  const { t, lang } = useT();
+  const myFrame = useMyFrame();
+  const myTitle = useMyTitle(lang);
   const myAvatar = useMyAvatar(useSession((st) => st.profile?.avatar));
   const { c } = useTheme();
   const router = useRouter();
@@ -42,10 +44,11 @@ export default function Profile() {
     <Screen title={t('profile.title')} right={<IconButton icon="settings" label={t('settings.title')} onPress={() => router.push('/settings')} />}>
       <View style={{ alignItems: 'center', paddingHorizontal: SCREEN_PAD, gap: 8 }}>
         <PressableScale onPress={() => setEdit(true)} accessibilityLabel={t('profile.editProfile')}>
-          <Avatar id={myAvatar} size={88} />
+          <Avatar id={myAvatar} size={88} frame={myFrame} />
           <View style={[styles.editBadge, { backgroundColor: c.surface3, borderColor: c.bg }]}><Icon name="edit" size={14} color={c.text} /></View>
         </PressableScale>
         <T variant="title">{profile?.display_name || profile?.username || t('profile.guestName')}</T>
+        {myTitle ? <TitleBadge title={myTitle.text} color={myTitle.color} /> : null}
         {profile ? <T variant="footnote" color="text3">@{profile.username} · {t('profile.memberSince', { date: new Date(profile.created_at).toLocaleDateString() })}</T> : null}
         <View style={{ alignSelf: 'stretch', marginTop: 8 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -55,7 +58,7 @@ export default function Profile() {
           <ProgressBar value={lvl.needed ? lvl.into / lvl.needed : 1} style={{ marginTop: 6 }} />
         </View>
         <View style={{ flexDirection: 'row', alignSelf: 'stretch', marginTop: 12, paddingVertical: 14, borderRadius: 22, backgroundColor: c.surface1 }}>
-          {[[t('profile.roundsPlayed'), formatCoins(all.rounds)], [t('profile.lessons'), `${lessons}`], [t('profile.tutorials'), `${tutorials}/15`], [t('profile.achievements'), `${Object.keys(unlocked).length}/${ACHIEVEMENTS.length}`]].map(([k, v], i) => (
+          {[[t('profile.roundsPlayed'), formatCoins(all.rounds)], [t('profile.lessons'), `${lessons}`], [t('profile.tutorials'), `${tutorials}/20`], [t('profile.achievements'), `${Object.keys(unlocked).length}/${ACHIEVEMENTS.length}`]].map(([k, v], i) => (
             <View key={k} style={[{ flex: 1, alignItems: 'center', paddingHorizontal: 4 }, i > 0 && { borderLeftWidth: StyleSheet.hairlineWidth, borderLeftColor: c.hairline }]}>
               <T variant="headline" weight="medium" tabular>{v}</T>
               <T variant="footnote" color="text3" style={{ fontSize: 11, textAlign: 'center' }} numberOfLines={2}>{k}</T>

@@ -10,7 +10,7 @@ describe('cosmetics shop', () => {
   it('starts with the free items equipped', () => {
     const s = useCosmetics.getState();
     expect(s.owned).toEqual(['back:classic', 'felt:green']);
-    expect(s.equipped).toEqual({ back: 'classic', felt: 'green', avatar: null });
+    expect(s.equipped).toEqual({ back: 'classic', felt: 'green', avatar: null, frame: null, title: null });
   });
 
   it('buying spends chips once, records it and equips the item', () => {

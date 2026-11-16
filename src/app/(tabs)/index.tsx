@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useIsFocused, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AnimatedNumber, Aurora, Avatar, useMyAvatar, Button, ChipLogo, GameGlyph, Icon, Marquee, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
+import { AnimatedNumber, Aurora, Avatar, useMyAvatar, useMyFrame, Button, ChipLogo, GameGlyph, Icon, Marquee, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD, brand, onPastel, radius } from '@/design/tokens';
 import { useT } from '@/i18n';
@@ -27,6 +27,7 @@ const TOP = ['slots', 'roulette', 'blackjack', 'poker', 'trader'] as const;
  */
 export default function Home() {
   const { t } = useT();
+  const myFrame = useMyFrame();
   const myAvatar = useMyAvatar(useSession((st) => st.profile?.avatar));
   const { c } = useTheme();
   const router = useRouter();
@@ -80,7 +81,7 @@ export default function Home() {
           <Icon name="settings" size={20} color={c.text} />
         </PressableScale>
         <PressableScale onPress={() => router.push('/(tabs)/profile')} accessibilityLabel={t('tabs.profile')}>
-          <Avatar id={myAvatar} size={42} />
+          <Avatar id={myAvatar} size={42} frame={myFrame} />
         </PressableScale>
       </View>
 

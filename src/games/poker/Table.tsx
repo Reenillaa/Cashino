@@ -6,7 +6,7 @@ import type { TableState, PokerAction } from '@/engine/poker/table.ts';
 import { legalActions, potTotal } from '@/engine/poker/table.ts';
 import { evaluate, CATEGORY_KEYS } from '@/engine/poker/evaluator.ts';
 import { cardCode } from '@/engine/cards/cards.ts';
-import { Avatar, useMyAvatar, Glass, Icon, PlayingCard, PressableScale, T, Tag, formatCoins } from '@/design/components';
+import { Avatar, useMyAvatar, useMyFrame, Glass, Icon, PlayingCard, PressableScale, T, Tag, formatCoins } from '@/design/components';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BetInput } from '../shared/BetInput';
 import { Felt } from '../shared/Felt';
@@ -32,6 +32,7 @@ export function PokerTableView({
   reactions?: Record<number, string>;
 }) {
   const { t } = useT();
+  const myFrame = useMyFrame();
   const myAvatar = useMyAvatar(useSession((st) => st.profile?.avatar));
   const { c } = useTheme();
   const h = table.hand;
@@ -121,7 +122,7 @@ export function PokerTableView({
           {legal?.canFold ? <T variant="caption" color="text3" style={{ marginTop: 6 }}>{t('poker.swipeFold')}</T> : null}
         </View>
         <Glass radius={20} style={styles.heroCard}>
-          <Avatar id={myAvatar} size={34} ring={h?.toAct === heroSeat ? c.text : undefined} />
+          <Avatar id={myAvatar} frame={myFrame} size={34} ring={h?.toAct === heroSeat ? c.text : undefined} />
           {h?.button === heroSeat && <Tag label="D" />}
           <T variant="footnote" color="text3">{heroRank ? t(`poker.hands.${CATEGORY_KEYS[heroRank.category]}`) : t('common.you')}</T>
           <T variant="callout" weight="semibold" tabular>{formatCoins(table.seats[heroSeat]?.stack ?? 0)}</T>

@@ -3,18 +3,16 @@ import { Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient as SvgLinear, Path, Rect, Stop } from 'react-native-svg';
 import { RED_NUMBERS, WHEEL_ORDER } from '@/engine/games/roulette.ts';
 import Animated, { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withSequence, withTiming } from 'react-native-reanimated';
-import { Aurora, ChipLogo, GameLogo, T } from '@/design/components';
-import { LinearGradient } from 'expo-linear-gradient';
-import type { GameId } from '@/engine/games/types.ts';
+import { Aurora, ChipLogo, T } from '@/design/components';
 import { useTheme } from '@/design/theme';
-import { brand, gameVivid, motion } from '@/design/tokens';
+import { brand, motion } from '@/design/tokens';
 
 const EASE_ENTER = Easing.bezier(...motion.easeEnter);
 const EASE = Easing.bezier(...motion.ease);
 
 const SEG = 360 / 37;
 /** Roulette wheel drawn for the intro (European order, gold rim, chip-logo hub). */
-function IntroWheel({ size }: { size: number }) {
+export function IntroWheel({ size }: { size: number }) {
   const r = size / 2;
   const wedge = (i: number) => {
     const a0 = ((i * SEG - SEG / 2 - 90) * Math.PI) / 180, a1 = ((i * SEG + SEG / 2 - 90) * Math.PI) / 180;
@@ -137,57 +135,6 @@ export function LogoCurtain() {
   );
 }
 
-/**
- * Entrance of every game: its gradient fills the screen, light rays turn behind the game's logo, which
- * spins in with its name; then the whole card zooms towards you and dissolves into the table (~1.1 s).
- */
-export function GameIntro({ game, name }: { game: GameId; name: string }) {
-  const { reduceMotion } = useTheme();
-  const { width } = useWindowDimensions();
-  const [done, setDone] = useState(reduceMotion);
-  const p = useSharedValue(0);
-  const rays = useSharedValue(0);
-  useEffect(() => {
-    if (reduceMotion) return;
-    rays.set(withTiming(1, { duration: 1150, easing: Easing.linear }));
-    p.set(withTiming(1, { duration: 1150, easing: Easing.linear }, (f) => {
-      if (f) runOnJS(setDone)(true);
-    }));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const wrap = useAnimatedStyle(() => ({
-    opacity: interpolate(p.value, [0, 0.62, 1], [1, 1, 0]),
-    transform: [{ scale: interpolate(p.value, [0, 0.6, 1], [1, 1, 1.7]) }],
-  }));
-  const logo = useAnimatedStyle(() => ({
-    transform: [
-      { rotate: `${interpolate(p.value, [0, 0.38], [-200, 0], 'clamp')}deg` },
-      { scale: interpolate(p.value, [0, 0.3, 0.42], [0.15, 1.12, 1], 'clamp') },
-    ],
-  }));
-  const label = useAnimatedStyle(() => ({ opacity: interpolate(p.value, [0.2, 0.42], [0, 1], 'clamp'), transform: [{ translateY: interpolate(p.value, [0.2, 0.42], [16, 0], 'clamp') }] }));
-  const ray = useAnimatedStyle(() => ({ transform: [{ rotate: `${rays.value * 70}deg` }], opacity: interpolate(p.value, [0, 0.2], [0, 1], 'clamp') }));
-  if (done) return null;
-  const R = width * 1.4;
-  return (
-    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { zIndex: 60, alignItems: 'center', justifyContent: 'center' }, wrap]}>
-      <LinearGradient colors={gameVivid[game]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-      <Animated.View style={[{ position: 'absolute', width: R, height: R }, ray]}>
-        <Svg width={R} height={R} viewBox="-50 -50 100 100">
-          {Array.from({ length: 14 }, (_, i) => (
-            <Path key={i} d="M0 0 L-4 -50 L4 -50 Z" fill="#FFFFFF" opacity={0.1} transform={`rotate(${(i * 360) / 14})`} />
-          ))}
-        </Svg>
-      </Animated.View>
-      <Animated.View style={logo}>
-        <GameLogo game={game} size={Math.min(190, width * 0.48)} />
-      </Animated.View>
-      <Animated.View style={label}>
-        <T style={styles.gameName}>{name}</T>
-      </Animated.View>
-    </Animated.View>
-  );
-}
-
 /** Tab switch flourish: the chip pops in the middle with a quick spin and dissolves (~0.55 s, no blocking). */
 export function TabFlash() {
   const { reduceMotion } = useTheme();
@@ -220,6 +167,5 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18 },
   word: { color: '#fff', fontFamily: 'Unbounded_800ExtraBold', fontSize: 34, lineHeight: 42, letterSpacing: -1.2 },
   ball: { position: 'absolute', backgroundColor: '#FFFFFF', shadowColor: '#fff', shadowOpacity: 0.8, shadowRadius: 8 },
-  gameName: { color: '#fff', fontFamily: 'Unbounded_800ExtraBold', fontSize: 30, lineHeight: 38, letterSpacing: -1, marginTop: 18, textShadowColor: 'rgba(0,0,0,0.25)', textShadowRadius: 12 },
   curtain: { backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', zIndex: 50 },
 });

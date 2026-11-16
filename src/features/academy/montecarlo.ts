@@ -85,6 +85,23 @@ export const SIM_OPTIONS: Partial<Record<GameId, SimOption[]>> = {
   slots: [
     { label: L('Tirada normal', 'Normal spin'), round: one('slots', {}), rtp: 0.974 },
   ],
+  wheel: [
+    { label: L('Riesgo bajo', 'Low risk'), round: one('wheel', { risk: 'low' }), rtp: 0.99 },
+    { label: L('Riesgo alto', 'High risk'), round: one('wheel', { risk: 'high' }), rtp: 0.99 },
+  ],
+  diamonds: [{ label: L('Partida normal', 'Normal play'), round: one('diamonds', {}), rtp: 0.99 }],
+  towers: [
+    { label: L('Medio · 2 pisos y cobrar', 'Medium · 2 floors then collect'), round: steps('towers', { level: 'medium' }, () => ['pick', { door: 0 }], 2), rtp: 0.99 },
+    { label: L('Difícil · 4 pisos y cobrar', 'Hard · 4 floors then collect'), round: steps('towers', { level: 'hard' }, () => ['pick', { door: 0 }], 4), rtp: 0.99 },
+  ],
+  pump: [
+    { label: L('Medio · 3 bombeos', 'Medium · 3 pumps'), round: steps('pump', { level: 'medium' }, () => ['pump', {}], 3), rtp: 0.99 },
+    { label: L('Experto · 4 bombeos', 'Expert · 4 pumps'), round: steps('pump', { level: 'expert' }, () => ['pump', {}], 4), rtp: 0.99 },
+  ],
+  dragontiger: [
+    { label: L('Siempre al Dragón', 'Always Dragon'), round: (rng, bet) => one('dragontiger', { bets: { dragon: bet } })(rng, bet), rtp: 0.9627 },
+    { label: L('Siempre al Empate', 'Always Tie'), round: (rng, bet) => one('dragontiger', { bets: { tie: bet } })(rng, bet), rtp: 0.8964 },
+  ],
   videopoker: [
     { label: L('Siguiendo la pista 💡', 'Following the 💡 hint'), round: (rng, bet) => { const a = runOp('videopoker', null, 'deal', { bet }, { rng, now: 0 }); const hand = (a.view.hand as string[]).map(parseCard); const b = runOp('videopoker', a.state, 'draw', { hold: suggestHold(hand) }, { rng, now: 0 }); return { stake: a.stake, payout: b.payout }; }, rtp: 0.995 },
     { label: L('Sin guardar nada', 'Holding nothing'), round: (rng, bet) => { const a = runOp('videopoker', null, 'deal', { bet }, { rng, now: 0 }); const b = runOp('videopoker', a.state, 'draw', { hold: [false, false, false, false, false] }, { rng, now: 0 }); return { stake: a.stake, payout: b.payout }; }, rtp: 0.34 },

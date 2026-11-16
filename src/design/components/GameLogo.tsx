@@ -212,6 +212,71 @@ const ART: Record<GameId, (id: string) => React.ReactNode> = {
       <Rect x={22} y={68} width={56} height={9} rx={4.5} fill={`url(#${id}-gold)`} />
     </>
   ),
+  wheel: (id) => {
+    const cols = ['#FF4FA3', '#FFD06B', '#7B5CFF', '#12C08A', '#FF4FA3', '#FFD06B', '#7B5CFF', '#12C08A'];
+    return (
+      <>
+        <Circle cx={52} cy={54} r={40} fill={SH} />
+        <Circle cx={50} cy={50} r={40} fill={`url(#${id}-gold)`} />
+        {cols.map((col, i) => {
+          const a0 = (i * 45 - 90) * (Math.PI / 180), a1 = ((i + 1) * 45 - 90) * (Math.PI / 180);
+          return <Path key={i} d={`M50 50 L${50 + 34 * Math.cos(a0)} ${50 + 34 * Math.sin(a0)} A34 34 0 0 1 ${50 + 34 * Math.cos(a1)} ${50 + 34 * Math.sin(a1)} Z`} fill={col} stroke="#FFF6D0" strokeWidth={1.2} />;
+        })}
+        <Circle cx={50} cy={50} r={8} fill="#FFF6D0" stroke="#8A5300" strokeWidth={2} />
+        <Polygon points="50,4 43,-6 57,-6" fill="#FF3B5C" transform="translate(0 10)" />
+      </>
+    );
+  },
+  towers: (id) => (
+    <>
+      {[0, 1, 2, 3].map((r) => (
+        <G key={r}>
+          {[0, 1, 2].map((k) => (
+            <Rect key={k} x={18 + k * 22} y={74 - r * 18} width={18} height={14} rx={3} fill={r === 3 && k === 1 ? '#FF3B5C' : r < 3 && k === (r % 3) ? `url(#${id}-gold)` : 'rgba(255,255,255,0.88)'} />
+          ))}
+        </G>
+      ))}
+      <Path d="M30 22 Q50 2 70 22 Q60 16 50 20 Q40 16 30 22 Z" fill="#12C08A" />
+      <Circle cx={44} cy={14} r={2} fill="#231A3A" />
+      <Circle cx={56} cy={14} r={2} fill="#231A3A" />
+    </>
+  ),
+  diamonds: () => (
+    <>
+      {[[20, 56, '#5BE3B0'], [38, 40, '#FF4FA3'], [56, 56, '#5BE3B0'], [74, 40, '#FFD06B'], [47, 72, '#5BE3B0']].map(([x, y, col], i) => (
+        <G key={i} transform={`translate(${x as number} ${y as number})`}>
+          <Path d="M-11 -6 L-6 -12 L6 -12 L11 -6 L0 12 Z" fill={SH} transform="translate(1.5 3)" />
+          <Path d="M-11 -6 L-6 -12 L6 -12 L11 -6 L0 12 Z" fill={col as string} />
+          <Path d="M-11 -6 L11 -6 L0 12 Z" fill="rgba(0,0,0,0.12)" />
+          <Path d="M-6 -12 L-3 -6 L3 -6 L6 -12 Z" fill="rgba(255,255,255,0.55)" />
+        </G>
+      ))}
+    </>
+  ),
+  pump: (id) => (
+    <>
+      <Ellipse cx={52} cy={44} rx={28} ry={32} fill={SH} />
+      <Ellipse cx={50} cy={40} rx={28} ry={32} fill="#FF4FA3" />
+      <Ellipse cx={40} cy={28} rx={7} ry={10} fill="rgba(255,255,255,0.45)" />
+      <Path d="M46 72 L54 72 L50 78 Z" fill="#B3127A" />
+      <Path d="M50 78 Q44 86 52 92" stroke="#FFFFFF" strokeWidth={2} fill="none" />
+      <Rect x={70} y={70} width={14} height={22} rx={3} fill={`url(#${id}-gold)`} />
+      <Rect x={74} y={58} width={6} height={14} rx={2} fill="#C9C4DA" />
+      <Rect x={68} y={54} width={18} height={5} rx={2.5} fill="#231A3A" />
+    </>
+  ),
+  dragontiger: (id) => (
+    <>
+      <Rect x={10} y={22} width={38} height={54} rx={7} fill={SH} transform="translate(2 4) rotate(-8 29 49)" />
+      <Rect x={10} y={22} width={38} height={54} rx={7} fill="#12C08A" transform="rotate(-8 29 49)" />
+      <SvgText x={29} y={58} fontSize={26} textAnchor="middle" transform="rotate(-8 29 49)">🐉</SvgText>
+      <Rect x={52} y={22} width={38} height={54} rx={7} fill={SH} transform="translate(2 4) rotate(8 71 49)" />
+      <Rect x={52} y={22} width={38} height={54} rx={7} fill="#FFB938" transform="rotate(8 71 49)" />
+      <SvgText x={71} y={58} fontSize={26} textAnchor="middle" transform="rotate(8 71 49)">🐯</SvgText>
+      <Circle cx={50} cy={84} r={9} fill={`url(#${id}-gold)`} />
+      <SvgText x={50} y={88} fontSize={9} fontWeight="900" fill="#5A3200" textAnchor="middle">VS</SvgText>
+    </>
+  ),
   trader: () => (
     <>
       {[[16, 60, 22, 70, '#FF5C7A'], [30, 52, 20, 62, '#3BE39A'], [44, 56, 18, 66, '#FF5C7A'], [58, 40, 26, 54, '#3BE39A'], [72, 26, 30, 44, '#3BE39A']].map(([x, top, h, wick, col], i) => (

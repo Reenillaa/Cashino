@@ -198,4 +198,62 @@ export const RULES: Record<GameId, RulesDoc> = {
       { label: b('Escalera real', 'Royal flush'), value: '1 / 40 000' },
     ],
   },
+  wheel: {
+    summary: b('Rueda de la fortuna: eliges el riesgo, la rueda gira y paga lo que marque la flecha.', 'Fortune wheel: pick the risk, the wheel spins and pays what the arrow points at.'),
+    rules: [
+      b('30 casillas iguales; la rueda para en una al azar, decidida antes de girar.', '30 equal segments; the wheel stops on one at random, decided before it spins.'),
+      b('Riesgo bajo: muchas casillas pagan poco (×1,2 a ×2,4). Medio: hasta ×4,7. Alto: una sola casilla paga ×29,7.', 'Low risk: many segments pay a little (×1.2 to ×2.4). Medium: up to ×4.7. High: one single segment pays ×29.7.'),
+      b('Los tres riesgos devuelven lo mismo de media: el 99 %.', 'All three risks return the same on average: 99 %.'),
+    ],
+    odds: [
+      { label: b('Ganar algo (bajo / medio / alto)', 'Win something (low / medium / high)'), value: '70 % / 47 % / 3.3 %' },
+      { label: b('Retorno', 'Return'), value: '99 %' },
+    ],
+  },
+  towers: {
+    summary: b('Torre del Dragón: sube pisos eligiendo una puerta en cada uno. Detrás de algunas hay huevos de dragón. Retírate cuando quieras.', 'Dragon Tower: climb floors by picking a door on each. Some hide dragon eggs. Cash out whenever you like.'),
+    rules: [
+      b('Fácil: 4 puertas, 1 huevo. Medio: 3 y 1. Difícil: 2 y 1. Experto: 3 puertas y 2 huevos.', 'Easy: 4 doors, 1 egg. Medium: 3 and 1. Hard: 2 and 1. Expert: 3 doors and 2 eggs.'),
+      b('Cada piso superado multiplica tu premio; si abres un huevo, pierdes la apuesta.', 'Each floor cleared grows your prize; open an egg and you lose the bet.'),
+      b('Dónde están los huevos se decide al empezar. Son 8 pisos; al llegar arriba cobras solo.', 'Where the eggs are is decided at the start. There are 8 floors; reach the top and you get paid automatically.'),
+    ],
+    odds: [
+      { label: b('Superar un piso (fácil / medio / difícil / experto)', 'Clear a floor (easy / medium / hard / expert)'), value: '75 / 67 / 50 / 33 %' },
+      { label: b('Retorno', 'Return'), value: '99 %' },
+    ],
+  },
+  diamonds: {
+    summary: b('Diamantes: salen 5 gemas de 7 colores. Cuantas más del mismo color, más cobras, como en el póker.', 'Diamonds: 5 gems of 7 colours come out. The more of one colour, the more you win, like poker.'),
+    rules: [
+      b('Cinco iguales ×67 · Cuatro ×5 · Full (3+2) ×4 · Trío ×3 · Doble pareja ×2 · Pareja ×0,1.', 'Five alike ×67 · Four ×5 · Full (3+2) ×4 · Three ×3 · Two pair ×2 · Pair ×0.1.'),
+      b('Cada gema es independiente y sale al azar entre los 7 colores.', 'Each gem is independent and random among 7 colours.'),
+    ],
+    odds: [
+      { label: b('Cinco iguales', 'Five alike'), value: '1 / 2 401' },
+      { label: b('Pareja (la más común)', 'Pair (the most common)'), value: '50 %' },
+      { label: b('Retorno exacto', 'Exact return'), value: '99.0 %' },
+    ],
+  },
+  pump: {
+    summary: b('Globo: infla el globo bombeo a bombeo. Cada bombeo sube el premio… y puede reventarlo. Cobra antes de que explote.', 'Pump: inflate the balloon one pump at a time. Each pump raises the prize… and may pop it. Cash out before it bursts.'),
+    rules: [
+      b('Probabilidad de reventar en cada bombeo: fácil 4 %, medio 10 %, difícil 20 %, experto 33 %.', 'Chance to pop on each pump: easy 4 %, medium 10 %, hard 20 %, expert 33 %.'),
+      b('El bombeo que lo revienta se decide al empezar; el globo no «avisa».', 'The pump that pops it is decided at the start; the balloon gives no warning.'),
+      b('Si llegas al máximo de bombeos cobras automáticamente.', 'Reach the maximum pumps and you get paid automatically.'),
+    ],
+    odds: [{ label: b('Retorno', 'Return'), value: '99 %' }],
+  },
+  dragontiger: {
+    summary: b('Dragon Tiger: una carta para el Dragón y otra para el Tigre. Gana la más alta. El juego de cartas más rápido del casino.', 'Dragon Tiger: one card for the Dragon, one for the Tiger. Highest wins. The fastest card game in the casino.'),
+    rules: [
+      b('El as vale 1 (la más baja) y el rey 13. Los palos no cuentan.', 'Ace counts 1 (lowest) and king 13. Suits don’t matter.'),
+      b('Dragón o Tigre pagan 1 a 1. Si empatan, pierdes la mitad de esas apuestas.', 'Dragon or Tiger pay 1 to 1. On a tie you lose half of those bets.'),
+      b('Empate paga 11 a 1. Se juega con 8 barajas.', 'Tie pays 11 to 1. Played with 8 decks.'),
+    ],
+    odds: [
+      { label: b('Empate', 'Tie'), value: '7.47 %' },
+      { label: b('Retorno Dragón / Tigre', 'Return Dragon / Tiger'), value: '96.27 %' },
+      { label: b('Retorno Empate', 'Return Tie'), value: '89.64 %' },
+    ],
+  },
 };

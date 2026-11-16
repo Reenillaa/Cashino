@@ -21,6 +21,11 @@ import { parseCard } from '@/engine/cards/cards.ts';
 import { SLOT_ONE_CHERRY, SLOT_THREE, SLOT_TWO_CHERRIES, SLOT_WEIGHTS, slotsStats } from '@/engine/games/slots.ts';
 import { TRADER_MULTIPLIER } from '@/engine/games/trader.ts';
 import { VP_PAYS, VP_REFERENCE_RTP } from '@/engine/games/videopoker.ts';
+import { wheelRtp } from '@/engine/games/wheel.ts';
+import { towerMultiplier } from '@/engine/games/towers.ts';
+import { diamondStats, DIAMOND_PAYS } from '@/engine/games/diamonds.ts';
+import { pumpMultiplier } from '@/engine/games/pump.ts';
+import { dtStats } from '@/engine/games/dragontiger.ts';
 
 export type Lang = 'es' | 'en';
 export interface ModelRow { label: string; p: number; mult: number | null }
@@ -205,6 +210,62 @@ const MODELS: Record<GameId, Builder> = {
       rtp: st.rtp,
       formula: L(lang, `Cada rodillo tiene ${T} paradas: 4 cerezas, 7 limones, 6 campanas, 4 BAR, 2 sietes y 1 diamante. Probabilidad de tres iguales = (paradas ÷ ${T})³.`, `Each reel has ${T} stops: 4 cherries, 7 lemons, 6 bells, 4 BARs, 2 sevens and 1 diamond. Three of a kind = (stops ÷ ${T})³.`),
       example: L(lang, `Con 20 fichas, casi la mitad de las tiradas te devuelven algo (${fmtPct(lang, st.hit)}), pero los premios gordos son muy raros: tres diamantes, 1 vez de cada ${Math.round(1 / three('diamond')).toLocaleString('es-ES')}.`, `With 20 chips almost half the spins return something (${fmtPct(lang, st.hit)}), but big prizes are very rare: three diamonds, 1 time in ${Math.round(1 / three('diamond')).toLocaleString('en-US')}.`),
+    };
+  },
+  wheel: (lang) => ({
+    idea: L(lang, 'Mismo retorno en los tres riesgos (99 %): cambia cómo llega el dinero, no cuánto pierdes de media.', 'Same return on all three risks (99 %): only how the money arrives changes, not how much you lose on average.'),
+    rowsTitle: L(lang, 'En riesgo medio, de 30 casillas…', 'On medium risk, of 30 segments…'),
+    rows: [
+      { label: '×1,5', p: 6 / 30, mult: 1.5 },
+      { label: '×2', p: 5 / 30, mult: 2 },
+      { label: '×3', p: 2 / 30, mult: 3 },
+      { label: '×4,7', p: 1 / 30, mult: 4.7 },
+      { label: L(lang, 'Nada', 'Nothing'), p: 16 / 30, mult: 0 },
+    ],
+    rtp: wheelRtp('medium'),
+    formula: L(lang, 'Retorno = suma de todos los multiplicadores ÷ 30 casillas = 29,7 ÷ 30 = 0,99.', 'Return = sum of all multipliers ÷ 30 segments = 29.7 ÷ 30 = 0.99.'),
+    example: L(lang, 'En riesgo alto solo 1 casilla de 30 paga (×29,7): ganarás 1 de cada 30 giros de media, pero mucho de golpe.', 'On high risk only 1 segment in 30 pays (×29.7): you win 1 spin in 30 on average, but big.'),
+  }),
+  towers: (lang) => ({
+    idea: L(lang, 'Cada piso es una apuesta nueva con las mismas probabilidades. Subir más alto multiplica el premio porque cada vez es más difícil llegar.', 'Each floor is a fresh bet with the same odds. Climbing higher multiplies the prize because getting there is harder and harder.'),
+    rowsTitle: L(lang, 'En medio (3 puertas, 1 huevo), llegar a…', 'On medium (3 doors, 1 egg), reaching…'),
+    rows: [1, 2, 4, 8].map((k) => ({ label: L(lang, `Piso ${k}`, `Floor ${k}`), p: (2 / 3) ** k, mult: towerMultiplier('medium', k) })),
+    rtp: 0.99,
+    formula: L(lang, 'Premio en el piso k = 0,99 ÷ (2/3)^k. Por eso el piso 8 paga ×25 pero solo llegas un 3,9 % de las veces.', 'Prize at floor k = 0.99 ÷ (2/3)^k. That is why floor 8 pays ×25 but you only get there 3.9 % of the time.'),
+    example: L(lang, 'Retirarte pronto no cambia el retorno medio (99 %), solo hace los resultados menos extremos.', 'Cashing out early doesn’t change the average return (99 %), it just makes results less extreme.'),
+  }),
+  diamonds: (lang) => {
+    const st = diamondStats();
+    return {
+      idea: L(lang, 'Como el póker pero con colores. Lo más normal es sacar una pareja, que solo te devuelve una décima parte.', 'Like poker but with colours. The most common result is a pair, which only gives you a tenth back.'),
+      rowsTitle: L(lang, 'Al sacar 5 gemas…', 'Drawing 5 gems…'),
+      rows: (['pair', 'twoPair', 'three', 'full', 'four', 'five'] as const).map((h) => ({ label: L(lang, { pair: 'Pareja', twoPair: 'Doble pareja', three: 'Trío', full: 'Full', four: 'Cuatro', five: 'Cinco iguales' }[h], { pair: 'Pair', twoPair: 'Two pair', three: 'Three', full: 'Full house', four: 'Four', five: 'Five alike' }[h]), p: st.probs[h], mult: DIAMOND_PAYS[h] })),
+      rtp: st.rtp,
+      formula: L(lang, 'Calculado contando las 16 807 combinaciones posibles (7 colores elevado a 5 gemas).', 'Computed by counting all 16,807 possible combinations (7 colours to the power of 5 gems).'),
+      example: L(lang, 'Cinco iguales sale 1 vez cada 2 401 jugadas: paga ×67, pero no lo esperes pronto.', 'Five alike comes once every 2,401 plays: it pays ×67, but don’t expect it soon.'),
+    };
+  },
+  pump: (lang) => ({
+    idea: L(lang, 'El globo no se «cansa»: cada bombeo tiene la misma probabilidad de reventar que el anterior.', 'The balloon doesn’t “get tired”: every pump has the same chance to pop as the last.'),
+    rowsTitle: L(lang, 'En medio (10 % por bombeo), sobrevivir a…', 'On medium (10 % per pump), surviving…'),
+    rows: [1, 3, 5, 10].map((k) => ({ label: L(lang, `${k} bombeos`, `${k} pumps`), p: 0.9 ** k, mult: pumpMultiplier('medium', k) })),
+    rtp: 0.99,
+    formula: L(lang, 'Premio tras k bombeos = 0,99 ÷ 0,9^k.', 'Prize after k pumps = 0.99 ÷ 0.9^k.'),
+    example: L(lang, 'Si siempre cobras a los 5 bombeos ganas el 59 % de las veces ×1,67: a la larga, 99 % de retorno.', 'Always cashing out at 5 pumps wins 59 % of the time ×1.67: in the long run, 99 % return.'),
+  }),
+  dragontiger: (lang) => {
+    const s = dtStats();
+    return {
+      idea: L(lang, 'Parece 50/50, pero el empate (7,5 %) se come la mitad de tu apuesta: esa es la ventaja de la casa.', 'It looks 50/50, but the tie (7.5 %) eats half your bet: that is the house edge.'),
+      rowsTitle: L(lang, 'Apostando al Dragón…', 'Betting on Dragon…'),
+      rows: [
+        { label: L(lang, 'Gana el Dragón', 'Dragon wins'), p: s.side, mult: 2 },
+        { label: L(lang, 'Empate (recuperas la mitad)', 'Tie (half back)'), p: s.tie, mult: 0.5 },
+        { label: L(lang, 'Gana el Tigre', 'Tiger wins'), p: s.side, mult: 0 },
+      ],
+      rtp: s.rtpSide,
+      formula: L(lang, 'Con 8 barajas: P(empate) = 13 × 32 × 31 ÷ (416 × 415) = 7,47 %.', 'With 8 decks: P(tie) = 13 × 32 × 31 ÷ (416 × 415) = 7.47 %.'),
+      example: L(lang, 'El empate paga 11 a 1 pero sale 1 de cada 13 veces: devuelve solo el 89,6 %. La peor apuesta de la mesa.', 'Tie pays 11 to 1 but lands 1 time in 13: it returns only 89.6 %. The worst bet on the table.'),
     };
   },
   videopoker: (lang) => ({

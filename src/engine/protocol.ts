@@ -23,6 +23,11 @@ import * as BJ from './games/blackjack.ts';
 import * as Slots from './games/slots.ts';
 import * as Trader from './games/trader.ts';
 import * as VP from './games/videopoker.ts';
+import * as Wheel from './games/wheel.ts';
+import * as Towers from './games/towers.ts';
+import * as Diamonds from './games/diamonds.ts';
+import * as Pump from './games/pump.ts';
+import * as DT from './games/dragontiger.ts';
 import { cardCode } from './cards/cards.ts';
 import { roomById, stakeAllowed } from './meta/rooms.ts';
 
@@ -92,6 +97,81 @@ const handlers: Record<Exclude<GameId, 'poker'>, Handler> = {
     const b = bet(p.bet);
     const r = Slots.playSlots(rng, b);
     return single(b, r.payout, r.line.map((x) => ({ cherry: '🍒', lemon: '🍋', bell: '🔔', bar: 'BAR', seven: '7', diamond: '💎' })[x]).join(' '), { line: r.line, multiplier: r.multiplier });
+  },
+  wheel: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const b = bet(p.bet);
+    const r = Wheel.playWheel(rng, b, oneOf(p.risk, ['low', 'medium', 'high'] as const, 'risk'));
+    return single(b, r.payout, `${r.multiplier}×`, { segment: r.segment, risk: r.risk, multiplier: r.layout[r.segment] });
+  },
+  diamonds: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const b = bet(p.bet);
+    const r = Diamonds.playDiamonds(rng, b);
+    return single(b, r.payout, r.hand, { gems: r.gems, hand: r.hand, multiplier: Diamonds.DIAMOND_PAYS[r.hand] });
+  },
+  dragontiger: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const raw = (p.bets ?? {}) as Record<string, unknown>;
+    const bets: DT.DTBets = {};
+    for (const k of Object.keys(raw)) {
+      const key = oneOf(k, ['dragon', 'tiger', 'tie'] as const, 'bet');
+      const v = bet(raw[k]);
+      if (v > 0) bets[key] = v;
+    }
+    const r = guard(() => DT.playDragonTiger(rng, bets));
+    if (r.totalBet > MAX_BET) fail('invalid_bet');
+    return single(r.totalBet, r.payout, `${cardCode(r.dragon)} ${cardCode(r.tiger)}`, { dragon: cardCode(r.dragon), tiger: cardCode(r.tiger), winner: r.winner });
+  },
+  towers: (s, op, p, { rng }) => {
+    const st = s as Towers.TowerState | null;
+    const view = (x: Towers.TowerState, reveal: boolean) => ({ level: x.level, picks: x.picks, status: x.status, bet: x.bet, multiplier: Towers.towerMultiplier(x.level, x.status === 'lost' ? x.picks.length - 1 : x.picks.length), bad: reveal ? x.bad : null });
+    if (op === 'start') {
+      if (st) fail('round_active');
+      const b = bet(p.bet);
+      const ns = Towers.startTower(rng, b, oneOf(p.level, ['easy', 'medium', 'hard', 'expert'] as const, 'level'));
+      return { state: ns, view: view(ns, false), stake: b, payout: 0, done: false };
+    }
+    if (!st) fail('no_round');
+    if (op === 'pick') {
+      const ns = guard(() => Towers.pickTower(st!, num(p.door, 'door')));
+      if (ns.status === 'lost') return { state: null, view: view(ns, true), stake: 0, payout: 0, done: true, summary: { bet: ns.bet, payout: 0, detail: `✗ ${ns.picks.length}`, multiStep: true } };
+      if (ns.picks.length === Towers.TOWER_FLOORS) {
+        const r = Towers.cashoutTower(ns);
+        return { state: null, view: view(r, true), stake: 0, payout: r.payout, done: true, summary: { bet: r.bet, payout: r.payout, detail: `${r.multiplier}×`, multiStep: true } };
+      }
+      return { state: ns, view: view(ns, false), stake: 0, payout: 0, done: false };
+    }
+    if (op === 'cashout') {
+      const r = guard(() => Towers.cashoutTower(st!));
+      return { state: null, view: view(r, true), stake: 0, payout: r.payout, done: true, summary: { bet: r.bet, payout: r.payout, detail: `${r.multiplier}×`, multiStep: true } };
+    }
+    return fail('invalid_op');
+  },
+  pump: (s, op, p, { rng }) => {
+    const st = s as Pump.PumpState | null;
+    const view = (x: Pump.PumpState) => ({ level: x.level, pumps: x.pumps, status: x.status, bet: x.bet, multiplier: Pump.pumpMultiplier(x.level, x.status === 'popped' ? x.pumps - 1 : x.pumps), next: Pump.pumpMultiplier(x.level, x.pumps + 1), max: Pump.PUMP_MAX[x.level] });
+    if (op === 'start') {
+      if (st) fail('round_active');
+      const b = bet(p.bet);
+      const ns = Pump.startPump(rng, b, oneOf(p.level, ['easy', 'medium', 'hard', 'expert'] as const, 'level'));
+      return { state: ns, view: view(ns), stake: b, payout: 0, done: false };
+    }
+    if (!st) fail('no_round');
+    if (op === 'pump') {
+      const ns = guard(() => Pump.pump(st!));
+      if (ns.status === 'popped') return { state: null, view: view(ns), stake: 0, payout: 0, done: true, summary: { bet: ns.bet, payout: 0, detail: '💥', multiStep: true } };
+      if (ns.pumps === Pump.PUMP_MAX[ns.level]) {
+        const r = Pump.cashoutPump(ns);
+        return { state: null, view: view(r), stake: 0, payout: r.payout, done: true, summary: { bet: r.bet, payout: r.payout, detail: `${r.multiplier}×`, multiStep: true } };
+      }
+      return { state: ns, view: view(ns), stake: 0, payout: 0, done: false };
+    }
+    if (op === 'cashout') {
+      const r = guard(() => Pump.cashoutPump(st!));
+      return { state: null, view: view(r), stake: 0, payout: r.payout, done: true, summary: { bet: r.bet, payout: r.payout, detail: `${r.multiplier}×`, multiStep: true } };
+    }
+    return fail('invalid_op');
   },
   videopoker: (s, op, p, { rng }) => {
     const st = s as VP.VPState | null;

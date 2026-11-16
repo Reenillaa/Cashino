@@ -31,6 +31,11 @@ export const CATALOG: GameMeta[] = [
   { id: 'hilo', category: 'cards', tint: gameTint.hilo, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
   { id: 'keno', category: 'originals', tint: gameTint.keno, rtp: '98.5–99.3 %', edge: '0.7–1.5 %', multiStep: false, online: true },
   { id: 'slots', category: 'originals', tint: gameTint.slots, rtp: '97.4 %', edge: '2.6 %', multiStep: false, online: true },
+  { id: 'wheel', category: 'originals', tint: gameTint.wheel, rtp: '99 %', edge: '1 %', multiStep: false, online: true },
+  { id: 'towers', category: 'originals', tint: gameTint.towers, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
+  { id: 'diamonds', category: 'originals', tint: gameTint.diamonds, rtp: '99 %', edge: '1 %', multiStep: false, online: true },
+  { id: 'pump', category: 'originals', tint: gameTint.pump, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
+  { id: 'dragontiger', category: 'cards', tint: gameTint.dragontiger, rtp: '96.3 %', edge: '3.7–10.4 %', multiStep: false, online: true },
   { id: 'videopoker', category: 'cards', tint: gameTint.videopoker, rtp: '99.5 %', edge: '0.5 %', multiStep: true, online: true },
   { id: 'trader', category: 'originals', tint: gameTint.trader, rtp: '99 %', edge: '1 %', multiStep: false, online: true },
   { id: 'sicbo', category: 'table', tint: gameTint.sicbo, rtp: '97.2 % (Small/Big)', edge: '2.8–30 %', multiStep: false, online: true },
@@ -42,5 +47,5 @@ export const META: Record<GameId, GameMeta> = Object.fromEntries(CATALOG.map((g)
 export const HIDDEN_GAMES: GameId[] = ['keno', 'sicbo'];
 /** What the lobby, the collection and the Academy show, in order (most famous first). */
 export const VISIBLE_GAMES: GameMeta[] = [
-  ...(['slots', 'roulette', 'blackjack', 'poker', 'videopoker', 'crash', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing'] as GameId[]).map((id) => META[id]),
+  ...(['slots', 'roulette', 'blackjack', 'poker', 'videopoker', 'crash', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing'] as GameId[]).map((id) => META[id]),
 ];

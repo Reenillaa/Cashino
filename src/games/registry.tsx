@@ -17,6 +17,11 @@ import SicBoScreen from './sicbo/Screen';
 import SlotsScreen from './slots/Screen';
 import TraderScreen from './trader/Screen';
 import VideoPokerScreen from './videopoker/Screen';
+import WheelScreen from './wheel/Screen';
+import TowersScreen from './towers/Screen';
+import DiamondsScreen from './diamonds/Screen';
+import PumpScreen from './pump/Screen';
+import DragonTigerScreen from './dragontiger/Screen';
 
 type GameScreen = React.ComponentType<{ forceTutorial?: boolean }>;
 
@@ -38,4 +43,9 @@ export const GAME_SCREENS: Record<GameId, GameScreen> = {
   slots: SlotsScreen,
   trader: TraderScreen,
   videopoker: VideoPokerScreen,
+  wheel: WheelScreen,
+  towers: TowersScreen,
+  diamonds: DiamondsScreen,
+  pump: PumpScreen,
+  dragontiger: DragonTigerScreen,
 };

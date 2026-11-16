@@ -1,3 +1,5 @@
+import { useHotTable, hotRoom } from '@/state/hotTable';
+import { utcDay } from '@/engine/meta/economy.ts';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -78,7 +80,9 @@ export interface OpOutcome extends OpResult {
  *  - online: Edge Function `game` (server RNG, server wallet, hidden state on the server)
  */
 export function useGameSession(game: GameId) {
-  const room = useRoom(game);
+  const baseRoom = useRoom(game);
+  const hot = useHotTable((h) => h.day === utcDay(Date.now()) && !!h.hot[game]);
+  const room = hot && !baseRoom.practice ? hotRoom(baseRoom) : baseRoom;
   const practicePref = room.practice;
   const signedIn = useSession((s) => !!s.userId);
   const connected = useSession((s) => s.connected);
@@ -172,7 +176,7 @@ export function useGameSession(game: GameId) {
     [game, mode, room.id],
   );
 
-  return { mode, balance, op, busy, active, practice: practicePref, room };
+  return { mode, balance, op, busy, active, practice: practicePref, room, hot: hot && !baseRoom.practice };
 }
 
 function afterRound(
@@ -182,6 +186,7 @@ function afterRound(
   fair?: { hash: string; clientSeed: string; nonce: number },
 ): number {
   const p = useProgress.getState();
+  if (!practice) useHotTable.getState().record(game, s.bet, s.payout);
   const { xp } = p.recordRound({ game, ts: Date.now(), bet: s.bet, payout: s.payout, practice, detail: s.detail, fair }, { multiStep: s.multiStep });
   if (!practice) {
     const l = useLearning.getState();
