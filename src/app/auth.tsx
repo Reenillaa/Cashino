@@ -24,7 +24,7 @@ export default function Auth() {
   const { c } = useTheme();
   const router = useRouter();
   const [mode, setMode] = useState<'signIn' | 'signUp'>('signUp');
-  const [email, setEmail] = useState('');
+  const [email] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [busy, setBusy] = useState(false);
@@ -63,21 +63,25 @@ export default function Auth() {
   );
   const submit = async () => {
     setMsg(null);
-    if (!/^\S+@\S+\.\S+$/.test(email)) return setMsg(t('auth.invalid'));
+    const login = username.trim().toLowerCase();
+    // sign-up: username only; sign-in: username (or the email of an older account)
+    const address = mode === 'signIn' && login.includes('@') ? login : `${login}@cashino.invalid`;
+    if (mode === 'signUp' && !/^[a-z0-9_.]{3,20}$/.test(login)) return setMsg(t('auth.badUsername'));
+    if (mode === 'signIn' && !login) return setMsg(t('auth.badUsername'));
     if (password.length < 8) return setMsg(t('auth.weakPassword'));
     if (!supabase) return setMsg(t('auth.notConfigured'));
     setBusy(true);
     try {
       if (mode === 'signUp') {
-        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { username: username.trim() || undefined } } });
-        if (error) throw error;
+        const { data, error } = await supabase.auth.signUp({ email: address, password, options: { data: { username: login, login } } });
+        if (error) throw new Error(/registered|exists/i.test(error.message) ? t('auth.taken') : error.message);
         if (!data.session) {
           setMsg(t('auth.checkEmail'));
           return;
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        const { error } = await supabase.auth.signInWithPassword({ email: address, password });
+        if (error) throw new Error(/invalid/i.test(error.message) ? t('auth.wrongLogin') : error.message);
       }
       await afterSignIn();
     } catch (e) {
@@ -119,9 +123,9 @@ export default function Auth() {
             </>
           ) : null}
           <Segmented value={mode} onChange={setMode} options={[{ value: 'signUp', label: t('auth.signUp') }, { value: 'signIn', label: t('auth.signIn') }]} />
-          {mode === 'signUp' && input({ value: username, onChangeText: (v) => setUsername(v.replace(/[^A-Za-z0-9_.]/g, '').slice(0, 20)), placeholder: t('auth.username'), accessibilityLabel: t('auth.username'), textContentType: 'username' })}
-          {input({ value: email, onChangeText: setEmail, placeholder: t('auth.email'), keyboardType: 'email-address', accessibilityLabel: t('auth.email'), textContentType: 'emailAddress', autoComplete: 'email' })}
+          {input({ value: username, onChangeText: (v) => setUsername(mode === 'signIn' ? v.replace(/\s/g, '').slice(0, 80) : v.replace(/[^A-Za-z0-9_.]/g, '').slice(0, 20)), placeholder: t('auth.username'), autoCapitalize: 'none', autoCorrect: false, accessibilityLabel: t('auth.username'), textContentType: 'username', autoComplete: 'username' })}
           {input({ value: password, onChangeText: setPassword, placeholder: t('auth.password'), secureTextEntry: true, accessibilityLabel: t('auth.password'), textContentType: mode === 'signUp' ? 'newPassword' : 'password' })}
+          {mode === 'signUp' ? <T variant="caption" color="text3">{t('auth.usernameHelp')}</T> : null}
           {msg ? <T variant="footnote" color="warn">{msg}</T> : null}
           <Button title={mode === 'signUp' ? t('auth.signUp') : t('auth.signIn')} onPress={() => void submit()} loading={busy} />
           {MAGIC_LINK ? <Button

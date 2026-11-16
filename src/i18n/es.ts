@@ -182,7 +182,7 @@ const es = {
     disclaimer: 'Solo cambia el aspecto: no da ventaja en ningún juego. Todo se paga con fichas de juego; no hay compras con dinero real.', open: 'Tienda', openBody: 'Dorsos de cartas, tapetes y avatares',
   },
   auth: {
-    title: 'Tu cuenta', subtitle: 'Necesaria solo para funciones online.', email: 'Email', password: 'Contraseña', username: 'Usuario',
+    badUsername: 'El usuario debe tener de 3 a 20 letras, números, punto o guion bajo', taken: 'Ese usuario ya existe, elige otro', wrongLogin: 'Usuario o contraseña incorrectos', usernameHelp: 'Solo usuario y contraseña, sin correo. Apunta bien la contraseña: sin correo no se puede recuperar. ', title: 'Tu cuenta', subtitle: 'Necesaria solo para funciones online.', email: 'Email', password: 'Contraseña', username: 'Usuario',
     signIn: 'Entrar', signUp: 'Crear cuenta', haveAccount: '¿Ya tienes cuenta?', noAccount: '¿No tienes cuenta?', magicLink: 'Enviar enlace mágico',
     checkEmail: 'Revisa tu correo para confirmar.', notConfigured: 'El servidor online no está configurado en esta compilación.',
     migrateTitle: 'Traer tu progreso de invitado', migrateBody: 'Se transferirán {{amount}} fichas (máx. {{cap}}), logros, tutoriales y lecciones. Solo puede hacerse una vez.',

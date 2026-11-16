@@ -184,6 +184,7 @@ const en: Dictionary = {
     disclaimer: 'Looks only: no advantage in any game. Everything is paid with play chips; there are no real-money purchases.', open: 'Shop', openBody: 'Card backs, felts and avatars',
   },
   auth: {
+    badUsername: 'Username: 3 to 20 letters, numbers, dot or underscore', taken: 'That username is taken, pick another', wrongLogin: 'Wrong username or password', usernameHelp: 'Just a username and password, no email. Keep your password safe: without an email it cannot be recovered. ', 
     title: 'Your account', subtitle: 'Only needed for online features.', email: 'Email', password: 'Password', username: 'Username',
     signIn: 'Sign in', signUp: 'Create account', haveAccount: 'Already have an account?', noAccount: "Don't have an account?", magicLink: 'Send magic link',
     checkEmail: 'Check your email to confirm.', notConfigured: 'The online server is not configured in this build.',
