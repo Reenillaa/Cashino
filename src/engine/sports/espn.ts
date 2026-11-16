@@ -6,7 +6,7 @@ import { fitPoisson, impliedFromAmerican, setProbFromMatch, type Entrant, type E
  */
 type Json = any;
 
-export const LEAGUES: { sport: 'soccer' | 'nfl' | 'nba' | 'tennis' | 'f1'; path: string; key: string; name: string; standings?: boolean }[] = [
+export const LEAGUES: { sport: 'soccer' | 'nfl' | 'nba' | 'nhl' | 'tennis' | 'ufc' | 'f1'; path: string; key: string; name: string; standings?: boolean }[] = [
   { sport: 'soccer', path: 'soccer/esp.1', key: 'esp.1', name: 'LaLiga', standings: true },
   { sport: 'soccer', path: 'soccer/eng.1', key: 'eng.1', name: 'Premier League', standings: true },
   { sport: 'soccer', path: 'soccer/ita.1', key: 'ita.1', name: 'Serie A', standings: true },
@@ -19,6 +19,8 @@ export const LEAGUES: { sport: 'soccer' | 'nfl' | 'nba' | 'tennis' | 'f1'; path:
   { sport: 'soccer', path: 'soccer/fifa.world', key: 'fifa.world', name: 'Mundial' },
   { sport: 'nfl', path: 'football/nfl', key: 'nfl', name: 'NFL' },
   { sport: 'nba', path: 'basketball/nba', key: 'nba', name: 'NBA' },
+  { sport: 'nhl', path: 'hockey/nhl', key: 'nhl', name: 'NHL' },
+  { sport: 'ufc', path: 'mma/ufc', key: 'ufc', name: 'UFC' },
   { sport: 'tennis', path: 'tennis/atp', key: 'atp', name: 'ATP' },
   { sport: 'tennis', path: 'tennis/wta', key: 'wta', name: 'WTA' },
   { sport: 'f1', path: 'racing/f1', key: 'f1', name: 'Fórmula 1' },
@@ -99,6 +101,14 @@ export function parseTeamScoreboard(json: Json, league: (typeof LEAGUES)[number]
         const def = (t: typeof h) => (t.gp ? t.ga / t.gp / avg : 1);
         ev.model = { kind: 'poisson', lh: Math.max(0.2, avg * att(h) * def(a) * 1.12), la: Math.max(0.2, avg * att(a) * def(h) * 0.9), source: 'table' };
       }
+    } else if (league.sport === 'nhl') {
+      // hockey: the moneyline (overtime included) sets the expected goal margin; the puck line is always ±1.5
+      const sd = 2.3;
+      const ph = two(ml('home'), ml('away'));
+      const total = Number(o?.overUnder);
+      const mu = ph ? sd * Math.SQRT2 * erfInv(Math.max(-0.98, Math.min(0.98, 2 * ph[0] - 1))) : 0.2;
+      const t = Number.isFinite(total) && total > 0 ? total : 6;
+      ev.model = { kind: 'normal', mu, sd, total: t, sdTotal: 2.3, line: mu >= 0 ? -1.5 : 1.5, ouLine: t, source: ph ? 'market' : 'default' };
     } else {
       const sd = league.sport === 'nfl' ? 13.5 : 12;
       const sdTotal = league.sport === 'nfl' ? 10 : 16;
@@ -182,6 +192,43 @@ export function parseF1(json: Json, standings: Json): SportEvent[] {
       // strength grows faster than points: the leader is a clear favourite but anyone can win
       model: { kind: 'race', w: drivers.map((d) => Math.pow(0.05 + d.points / maxPts, 2.4)), source: 'standings' },
     });
+  }
+  return out;
+}
+
+/**
+ * UFC: every fight of the cards on the board. ESPN gives no prices for fights, so the model uses the
+ * fighters' professional records (wins and losses, shrunk towards 50 %) — shown as such in the app.
+ */
+export function parseUfc(json: Json, league: (typeof LEAGUES)[number]): SportEvent[] {
+  const out: SportEvent[] = [];
+  for (const card of json?.events ?? []) {
+    for (const f of card.competitions ?? []) {
+      const [P, Q] = [...(f.competitors ?? [])].sort((x: Json, y: Json) => Number(x.order ?? 0) - Number(y.order ?? 0));
+      if (!P?.athlete || !Q?.athlete) continue;
+      const status = statusOf(f.status ?? card.status);
+      const rec = (c: Json) => {
+        const m = String(c.records?.[0]?.summary ?? '').match(/^(\d+)-(\d+)/);
+        return m ? (Number(m[1]) + 2) / (Number(m[1]) + Number(m[2]) + 4) : 0.5;
+      };
+      const rp = rec(P), rq = rec(Q);
+      const p = 0.5 + 0.5 * (rp / (rp + rq) - 0.5) * 2 * 0.6;
+      const won = (c: Json) => (c.winner ? 1 : 0);
+      out.push({
+        id: `${league.key}:${f.id}`,
+        sport: 'ufc',
+        league: league.key,
+        leagueName: `${league.name} · ${String(card.shortName ?? card.name ?? '').replace(/^UFC (Fight Night: )?/, '')}`,
+        name: `${P.athlete.displayName} - ${Q.athlete.displayName}`,
+        startsAt: f.date ?? card.date,
+        status,
+        clock: status === 'live' ? f.status?.type?.shortDetail : undefined,
+        home: side(P),
+        away: side(Q),
+        score: status === 'final' ? { home: won(P), away: won(Q) } : undefined,
+        model: { kind: 'duel', p: Math.min(0.85, Math.max(0.15, p)), source: rp === 0.5 && rq === 0.5 ? 'default' : 'record' },
+      });
+    }
   }
   return out;
 }

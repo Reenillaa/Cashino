@@ -8,12 +8,16 @@ import { SCREEN_PAD } from '@/design/tokens';
 import { useT } from '@/i18n';
 import { onlineConfigured } from '@/services/supabase';
 import { useSession } from '@/state/session';
-import { buildMarkets, type SportEvent } from '@/engine/sports/sports.ts';
+import { buildMarkets, cashOutValue, pricedLegs, type SportEvent } from '@/engine/sports/sports.ts';
+import { useProgress } from '@/state/progress';
+import { usePlayErrors } from '@/games/shared/hooks';
+import { sfx } from '@/services/audio';
+import { haptic } from '@/services/haptics';
 import { useSports, type SportsBet } from '@/features/sports/store';
 import { EventRow, GREEN, OddsButton, RaceCard, SlipDock, SPORT_EMOJI, StatusPill, TeamLogo, fmtOdds, timeLabel, useNow } from '@/features/sports/ui';
 
 type Tab = 'sports' | 'live' | 'mine';
-type SportKey = 'top' | 'soccer' | 'nba' | 'nfl' | 'tennis' | 'f1';
+type SportKey = 'top' | 'soccer' | 'nba' | 'nfl' | 'nhl' | 'tennis' | 'ufc' | 'f1';
 const TOP_LEAGUES = ['esp.1', 'eng.1', 'uefa.champions', 'ita.1', 'ger.1', 'fra.1', 'uefa.nations', 'uefa.euro', 'nfl', 'f1'];
 const dayKey = (iso: string) => new Date(iso).toDateString();
 
@@ -62,7 +66,7 @@ export default function Sportsbook() {
         {tab === 'sports' ? (
           <>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: SCREEN_PAD, paddingVertical: 12 }}>
-              {(['top', 'soccer', 'nba', 'nfl', 'tennis', 'f1'] as SportKey[]).map((k) => (
+              {(['top', 'soccer', 'nba', 'nfl', 'nhl', 'tennis', 'ufc', 'f1'] as SportKey[]).map((k) => (
                 <PressableScale key={k} onPress={() => { setSport(k); setDay(null); }} feedback="select" scaleTo={0.95} accessibilityLabel={t(`sports.sport.${k}`)} style={[styles.sport, sport === k && styles.sportOn]}>
                   <T style={{ fontSize: 20 }}>{k === 'top' ? '⭐' : SPORT_EMOJI[k]}</T>
                   <T weight="displaySemi" style={{ color: sport === k ? '#04201A' : '#fff', fontSize: 12 }}>{t(`sports.sport.${k}`)}</T>
@@ -178,7 +182,27 @@ function Featured({ ev, index }: { ev: SportEvent; index: number }) {
 
 function MyBet({ b }: { b: SportsBet }) {
   const { t } = useT();
-  const color = b.status === 'won' ? GREEN : b.status === 'lost' ? '#FF5C7A' : b.status === 'void' ? '#8A8A9A' : '#FFD06B';
+  const events = useSports((s) => s.events);
+  const cashOut = useSports((s) => s.cashOut);
+  const now = useNow();
+  const [busy, setBusy] = useState(false);
+  const onError = usePlayErrors();
+  const quote = b.status === 'pending' ? cashOutValue(Number(b.stake), pricedLegs(b.legs, (id) => events.find((e) => e.id === id), now)) : null;
+  const doCash = async () => {
+    if (!quote || busy) return;
+    try {
+      setBusy(true);
+      const v = await cashOut(b.id, quote);
+      sfx('cashout');
+      haptic.success();
+      useProgress.getState().pushToast({ kind: 'info', title: t('sports.cashoutDone', { v: formatCoins(v) }) });
+    } catch (e) {
+      onError(e);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const color = b.status === 'won' ? GREEN : b.status === 'lost' ? '#FF5C7A' : b.status === 'void' ? '#8A8A9A' : b.status === 'cashout' ? '#A996FF' : '#FFD06B';
   return (
     <View style={[styles.bet, { borderColor: color }]}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -196,6 +220,11 @@ function MyBet({ b }: { b: SportsBet }) {
         <T variant="footnote" color="text2">{t('sports.stake')}: {formatCoins(Number(b.stake))}</T>
         <T variant="footnote" weight="semibold" style={{ color }}>{b.status === 'pending' ? `${t('sports.return')} ${formatCoins(Math.floor(Number(b.stake) * Number(b.odds)))}` : `${formatCoins(Number(b.payout ?? 0))}`}</T>
       </View>
+      {quote ? (
+        <PressableScale onPress={() => void doCash()} disabled={busy} feedback="none" scaleTo={0.97} accessibilityLabel={t('sports.cashoutFor', { v: formatCoins(quote) })} accessibilityHint={t('sports.cashoutHelp')} style={styles.cashout}>
+          <T weight="display" style={{ color: '#231A3A' }}>💸 {busy ? '…' : t('sports.cashoutFor', { v: formatCoins(quote) })}</T>
+        </PressableScale>
+      ) : null}
     </View>
   );
 }
@@ -215,6 +244,7 @@ function dayLabel(d: string, lang: 'es' | 'en', t: (k: string) => string) {
 }
 
 const styles = StyleSheet.create({
+  cashout: { marginTop: 10, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFD06B' },
   sport: { alignItems: 'center', justifyContent: 'center', width: 74, height: 70, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.06)', gap: 1 },
   sportOn: { backgroundColor: GREEN },
   h: { color: '#fff', fontSize: 18, paddingHorizontal: SCREEN_PAD, marginTop: 8, marginBottom: 10 },

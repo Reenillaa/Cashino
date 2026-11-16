@@ -11,7 +11,7 @@ import { seededRng } from '../rng/rng.ts';
  * Every selection is a predicate on the final result, so pricing and settlement can never disagree.
  */
 
-export type Sport = 'soccer' | 'nfl' | 'nba' | 'tennis' | 'f1';
+export type Sport = 'soccer' | 'nfl' | 'nba' | 'nhl' | 'tennis' | 'ufc' | 'f1';
 export type EventStatus = 'pre' | 'live' | 'final' | 'void';
 
 export interface Side { id: string; name: string; short: string; logo?: string; record?: string; form?: string; rank?: number }
@@ -21,7 +21,8 @@ export type Model =
   | { kind: 'poisson'; lh: number; la: number; source: 'market' | 'table' | 'default' }
   | { kind: 'normal'; mu: number; sd: number; total: number; sdTotal: number; line?: number; ouLine?: number; source: 'market' | 'default' }
   | { kind: 'sets'; pSet: number; bestOf: 3 | 5; source: 'ranking' | 'default' }
-  | { kind: 'race'; w: number[]; source: 'standings' };
+  | { kind: 'race'; w: number[]; source: 'standings' }
+  | { kind: 'duel'; p: number; source: 'record' | 'default' };
 
 export interface SportEvent {
   id: string;
@@ -160,13 +161,14 @@ const fmtLine = (x: number) => (x > 0 ? `+${x}` : `${x}`).replace('.', ',');
 function pointsDefs(ev: SportEvent, lang: Lang): Def<{ h: number; a: number }>[] {
   const m = ev.model as Extract<Model, { kind: 'normal' }>;
   const H = ev.home?.short ?? 'H', A = ev.away?.short ?? 'A';
-  const g = { main: L(lang, 'Principales', 'Main'), spread: L(lang, 'Hándicap', 'Spread'), total: L(lang, 'Puntos', 'Points') };
+  const hockey = ev.sport === 'nhl';
+  const g = { main: L(lang, 'Principales', 'Main'), spread: L(lang, 'Hándicap', 'Spread'), total: hockey ? L(lang, 'Goles', 'Goals') : L(lang, 'Puntos', 'Points') };
   const half = (x: number) => Math.floor(x) + 0.5; // lines always end in ,5 (no pushes)
   const line = m.line !== undefined && !Number.isInteger(m.line) ? m.line : half(-m.mu);
-  const spreads = [-6, -3, 0, 3, 6].map((d) => half(line + d));
+  const spreads = (hockey ? [-1, 0, 1] : [-6, -3, 0, 3, 6]).map((d) => half(line + d));
   const tl = half(m.ouLine ?? m.total);
-  const totals = (ev.sport === 'nba' ? [-10, -5, 0, 5, 10] : [-7, -3, 0, 3, 7]).map((d) => half(tl + d));
-  const band = ev.sport === 'nba' ? [5, 10, 15] : [3, 7, 14];
+  const totals = (ev.sport === 'nba' ? [-10, -5, 0, 5, 10] : hockey ? [-1, 0, 1] : [-7, -3, 0, 3, 7]).map((d) => half(tl + d));
+  const band = ev.sport === 'nba' ? [5, 10, 15] : hockey ? [1, 2, 3] : [3, 7, 14];
   return [
     { key: 'ml', group: g.main, name: L(lang, 'Ganador del partido', 'Moneyline'), margin: MARGIN.main, sels: [
       { key: 'h', label: H, win: (r) => (r.h === r.a ? null : r.h > r.a) }, { key: 'a', label: A, win: (r) => (r.h === r.a ? null : r.a > r.h) }] },
@@ -290,8 +292,17 @@ function settleRace(ev: SportEvent, market: string, sel: string): Outcome {
   return 'void';
 }
 
+/* ─────────────────────────────── UFC (one fight, two fighters) ─────────────────────────────── */
+function duelDefs(ev: SportEvent, lang: Lang): Def<{ h: number; a: number }>[] {
+  const H = ev.home?.short ?? '1', A = ev.away?.short ?? '2';
+  // a draw or no contest leaves both at 0 → void (stake back)
+  return [{ key: 'ml', group: L(lang, 'Principales', 'Main'), name: L(lang, 'Ganador del combate', 'Fight winner'), margin: MARGIN.main, sels: [
+    { key: 'h', label: H, win: (r) => (r.h === r.a ? null : r.h > r.a) }, { key: 'a', label: A, win: (r) => (r.h === r.a ? null : r.a > r.h) }] }];
+}
+
 /* ─────────────────────────────── public API ─────────────────────────────── */
 function defsFor(ev: SportEvent, lang: Lang): Def<{ h: number; a: number }>[] {
+  if (ev.model.kind === 'duel') return duelDefs(ev, lang);
   if (ev.sport === 'soccer') return soccerDefs(ev, lang);
   if (ev.sport === 'tennis') return tennisDefs(ev, lang);
   return pointsDefs(ev, lang);
@@ -303,6 +314,7 @@ function probOf(ev: SportEvent, f: Pred<{ h: number; a: number }>): number {
     return sumWhere(mat, (h, a) => f({ h, a }) === true);
   }
   if (m.kind === 'sets') return tennisOutcomes(m.pSet).reduce((s, o) => s + (f(o) ? o.p : 0), 0);
+  if (m.kind === 'duel') return (f({ h: 1, a: 0 }) ? m.p : 0) + (f({ h: 0, a: 1 }) ? 1 - m.p : 0);
   if (m.kind === 'normal') {
     const r = pointsProb(m, f);
     return r.p / Math.max(1e-9, 1 - r.pVoid); // a push (void) returns the stake, so price on the other outcomes
@@ -353,4 +365,36 @@ export function settleSlip(stake: number, legs: SlipSel[]): { status: 'pending' 
   if (legs.every((l) => l.status === 'void')) return { status: 'void', payout: stake };
   const odds = legs.reduce((o, l) => o * (l.status === 'void' ? 1 : l.odds), 1);
   return { status: 'won', payout: Math.floor(stake * Math.min(odds, SLIP.maxOdds) + 1e-9) };
+}
+
+/**
+ * Cash out: close a pending bet now for a fixed amount. Fair value = stake × (odds taken ÷ odds now) for the
+ * legs still to play, minus a small 3 % fee. Won legs count as settled (odds now = 1), void legs drop out.
+ * Only offered while every leg still to play is pre-match and priced (no in-play prices here): returns null
+ * otherwise, or if a leg already lost.
+ */
+export const CASHOUT_FEE = 0.03;
+export function cashOutValue(stake: number, legs: (SlipSel & { now?: number | null })[]): number | null {
+  if (legs.some((l) => l.status === 'lost')) return null;
+  let taken = 1;
+  let current = 1;
+  for (const l of legs) {
+    if (l.status === 'void') continue;
+    taken *= l.odds;
+    if (l.status === 'won') continue;
+    if (!l.now || l.now < 1) return null;
+    current *= l.now;
+  }
+  const value = Math.floor(stake * Math.min(taken, SLIP.maxOdds) / current * (1 - CASHOUT_FEE) + 1e-9);
+  return value >= 1 ? value : null;
+}
+
+/** Current price of every leg of a bet (null when it cannot be priced: started, finished or missing). */
+export function pricedLegs(legs: SlipSel[], find: (id: string) => SportEvent | undefined, now: number): (SlipSel & { now: number | null })[] {
+  return legs.map((l) => {
+    const ev = find(l.eventId);
+    const status = ev ? settleSelection(ev, l.market, l.sel) : l.status ?? 'pending';
+    const open = ev && ev.status === 'pre' && new Date(ev.startsAt).getTime() > now;
+    return { ...l, status, now: status === 'pending' && open ? findSelection(ev!, l.market, l.sel)?.odds ?? null : null };
+  });
 }

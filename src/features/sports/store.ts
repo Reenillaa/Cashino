@@ -3,7 +3,7 @@ import { callFn, OnlineError, supabase } from '@/services/supabase';
 import { useSession } from '@/state/session';
 import { SLIP, type SlipSel, type SportEvent } from '@/engine/sports/sports.ts';
 
-export interface SportsBet { id: string; stake: number; odds: number; legs: SlipSel[]; status: 'pending' | 'won' | 'lost' | 'void'; payout: number | null; created_at: string }
+export interface SportsBet { id: string; stake: number; odds: number; legs: SlipSel[]; status: 'pending' | 'won' | 'lost' | 'void' | 'cashout'; payout: number | null; created_at: string }
 
 interface SportsState {
   events: SportEvent[];
@@ -19,6 +19,7 @@ interface SportsState {
   clear: () => void;
   setMode: (m: 'single' | 'combo') => void;
   place: (stake: number) => Promise<{ ok: true } | { ok: false; code: string }>;
+  cashOut: (betId: string, expect: number) => Promise<number>;
 }
 
 /** Real fixtures + our prices (read straight from the database, refreshed by the server), the bet slip and my bets. */
@@ -59,6 +60,18 @@ export const useSports = create<SportsState>()((set, get) => ({
   remove: (eventId, market) => set((st) => ({ slip: st.slip.filter((x) => !(x.eventId === eventId && x.market === market)) })),
   clear: () => set({ slip: [] }),
   setMode: (mode) => set({ mode }),
+  cashOut: async (betId, expect) => {
+    try {
+      const r = await callFn<{ ok: boolean; value: number; balance: number }>('sports', { action: 'cashout', betId, expect });
+      useSession.getState().setBalance(Number(r.balance));
+      await get().loadBets();
+      return r.value;
+    } catch (e) {
+      // prices moved or the event started: refresh so the card shows the new quote (or none)
+      await Promise.all([get().load(), get().loadBets()]);
+      throw e;
+    }
+  },
   place: async (stake) => {
     const { slip, mode } = get();
     try {

@@ -2,11 +2,12 @@
  * `sports` Edge Function — real fixtures from ESPN's public scoreboards, our prices, bets and settlement.
  *   { action: 'refresh' }  → (throttled) pulls fixtures/scores, stores events, settles finished bets
  *   { action: 'bet', mode: 'single' | 'combo', stake, legs: [{ eventId, market, sel, odds }], requestId }
+ *   { action: 'cashout', betId, expect }  → closes a pending pre-match bet now at its cash-out value
  * Prices are always recomputed here from the stored event; if they moved, the bet is refused with the new odds.
  */
 import { admin, handler, HttpError, json, requireUser, rpcError } from '../_shared/http.ts';
-import { LEAGUES, parseF1, parseStandings, parseTeamScoreboard, parseTennis, type Table } from '../_shared/engine/sports/espn.ts';
-import { findSelection, settleSelection, settleSlip, SLIP, type SlipSel, type SportEvent } from '../_shared/engine/sports/sports.ts';
+import { LEAGUES, parseF1, parseStandings, parseTeamScoreboard, parseTennis, parseUfc, type Table } from '../_shared/engine/sports/espn.ts';
+import { cashOutValue, findSelection, pricedLegs, settleSelection, settleSlip, SLIP, type SlipSel, type SportEvent } from '../_shared/engine/sports/sports.ts';
 
 const ESPN = 'https://site.api.espn.com/apis';
 const REFRESH_MS = 90_000;
@@ -38,6 +39,9 @@ async function refresh(db: DB, extraDates: Record<string, string[]>) {
   for (const lg of LEAGUES) {
     if (lg.sport === 'tennis') {
       jobs.push(get(`${ESPN}/site/v2/sports/${lg.path}/scoreboard`).then((j) => { if (j) events.push(...parseTennis(j, lg)); }));
+    } else if (lg.sport === 'ufc') {
+      const dates = [...new Set([...days, ...(extraDates[lg.key] ?? [])])];
+      jobs.push(Promise.all(dates.map((d) => get(`${ESPN}/site/v2/sports/${lg.path}/scoreboard?dates=${d}`))).then((boards) => { for (const j of boards) if (j) events.push(...parseUfc(j, lg)); }));
     } else if (lg.sport === 'f1') {
       jobs.push(Promise.all([get(`${ESPN}/site/v2/sports/${lg.path}/scoreboard`), get(`${ESPN}/v2/sports/racing/f1/standings`)]).then(([j, s]) => { if (j && s) events.push(...parseF1(j, s)); }));
     } else {
@@ -139,6 +143,23 @@ Deno.serve(
         balance = Number(data);
       }
       return json({ ok: true, balance });
+    }
+    if (action === 'cashout') {
+      const userId = await requireUser(req);
+      const { data: bet } = await db.from('sports_bets').select('id, user_id, stake, legs, status').eq('id', String(body.betId ?? '')).maybeSingle();
+      if (!bet || bet.user_id !== userId) throw new HttpError('unknown_bet', 404);
+      if (bet.status !== 'pending') throw new HttpError('cashout_unavailable', 409);
+      const legs = bet.legs as SlipSel[];
+      const { data: evRows } = await db.from('sports_events').select('id, data').in('id', legs.map((l) => l.eventId));
+      const evs = new Map((evRows ?? []).map((r) => [r.id, r.data as SportEvent]));
+      const value = cashOutValue(Number(bet.stake), pricedLegs(legs, (id) => evs.get(id), Date.now()));
+      if (value === null) throw new HttpError('cashout_unavailable', 409);
+      // the player confirmed a quote: if prices moved against them, show the new one first
+      const expect = Number(body.expect);
+      if (Number.isFinite(expect) && value < expect) return json({ error: 'odds_changed', value }, 409);
+      const { data: balance, error } = await db.rpc('sports_cashout', { p_bet: bet.id, p_amount: value });
+      rpcError(error);
+      return json({ ok: true, value, balance });
     }
     throw new HttpError('invalid_action');
   }),

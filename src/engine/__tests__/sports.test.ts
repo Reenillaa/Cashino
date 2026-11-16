@@ -1,5 +1,5 @@
-import { buildMarkets, settleSelection, settleSlip, findSelection, impliedFromAmerican, oddsFrom, MARGIN, type SportEvent } from '../sports/sports.ts';
-import { LEAGUES, parseTeamScoreboard, parseTennis, parseF1, parseStandings } from '../sports/espn.ts';
+import { buildMarkets, cashOutValue, settleSelection, settleSlip, findSelection, impliedFromAmerican, oddsFrom, MARGIN, type SportEvent } from '../sports/sports.ts';
+import { LEAGUES, parseTeamScoreboard, parseTennis, parseF1, parseStandings, parseUfc } from '../sports/espn.ts';
 /* eslint-disable @typescript-eslint/no-require-imports */
 const fx = (n: string) => require(`./fixtures/espn_${n}.json`);
 const league = (k: string) => LEAGUES.find((l) => l.key === k)!;
@@ -114,5 +114,49 @@ describe('sports: real ESPN data → events', () => {
     const ev = parseTeamScoreboard(fx('nations_pre'), league('uefa.nations'))[0];
     expect(findSelection(ev, '1x2', 'X')?.odds).toBeGreaterThan(1);
     expect(findSelection(ev, '1x2', 'nope')).toBeNull();
+  });
+});
+
+describe('cash out', () => {
+  const leg = (odds: number, status: 'pending' | 'won' | 'void' | 'lost', now: number | null) => ({ eventId: 'e', market: 'ml', sel: 'h', odds, label: '', marketName: '', eventName: '', status, now });
+  it('pays stake × taken ÷ now minus 3 %, ignoring void legs and counting won legs as settled', () => {
+    expect(cashOutValue(100, [leg(2, 'pending', 2)])).toBe(97);
+    expect(cashOutValue(100, [leg(2, 'pending', 1.5)])).toBe(Math.floor(100 * 2 / 1.5 * 0.97));
+    expect(cashOutValue(100, [leg(2, 'won', null), leg(3, 'pending', 3)])).toBe(Math.floor(200 * 0.97));
+    expect(cashOutValue(100, [leg(2, 'void', null), leg(3, 'pending', 3)])).toBe(97);
+    expect(cashOutValue(100, [leg(2, 'lost', null), leg(3, 'pending', 3)])).toBeNull();
+    expect(cashOutValue(100, [leg(2, 'pending', null)])).toBeNull();
+  });
+});
+
+describe('NHL and UFC (real ESPN boards)', () => {
+  it('prices NHL games from the moneyline with a ±1.5 puck line and 50/50-free markets', () => {
+    const lg = LEAGUES.find((l) => l.key === 'nhl')!;
+    const evs = parseTeamScoreboard(fx('nhl'), lg);
+    expect(evs.length).toBeGreaterThan(0);
+    for (const ev of evs) {
+      expect(ev.sport).toBe('nhl');
+      const ms = buildMarkets(ev);
+      const ml = ms.find((m) => m.key === 'ml')!;
+      const book = ml.sels.reduce((a, s) => a + 1 / s.odds, 0);
+      expect(book).toBeGreaterThan(1.02); // our margin is on top
+      expect(book).toBeLessThan(1.12);
+      expect(ms.some((m) => m.key === 'sp-1.5' || m.key === 'sp1.5')).toBe(true);
+      expect(ms.every((m) => m.sels.every((s) => s.odds >= 1.01))).toBe(true);
+    }
+  });
+  it('lists every UFC fight with a record-based winner market that settles on the winner flag', () => {
+    const lg = LEAGUES.find((l) => l.key === 'ufc')!;
+    const evs = parseUfc(fx('ufc'), lg);
+    expect(evs.length).toBeGreaterThan(3);
+    const ev = evs[0];
+    expect(ev.model.kind).toBe('duel');
+    const ms = buildMarkets(ev);
+    expect(ms).toHaveLength(1);
+    expect(ms[0].sels.map((s) => s.key)).toEqual(['h', 'a']);
+    const fin = { ...ev, status: 'final' as const, score: { home: 0, away: 1 } };
+    expect(settleSelection(fin, 'ml', 'a')).toBe('won');
+    expect(settleSelection(fin, 'ml', 'h')).toBe('lost');
+    expect(settleSelection({ ...fin, score: { home: 0, away: 0 } }, 'ml', 'h')).toBe('void');
   });
 });

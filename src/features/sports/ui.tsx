@@ -25,7 +25,7 @@ export function useNow(every = 30_000) {
   return now;
 }
 export const fmtOdds = (x: number) => x.toFixed(2).replace('.', ',');
-export const SPORT_EMOJI: Record<string, string> = { soccer: '⚽', nba: '🏀', nfl: '🏈', tennis: '🎾', f1: '🏎️' };
+export const SPORT_EMOJI: Record<string, string> = { soccer: '⚽', nba: '🏀', nfl: '🏈', nhl: '🏒', tennis: '🎾', ufc: '🥊', f1: '🏎️' };
 
 export function timeLabel(ev: SportEvent, lang: 'es' | 'en') {
   const d = new Date(ev.startsAt);
