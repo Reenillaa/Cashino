@@ -48,11 +48,13 @@ const tags = [
   `<style id="cashino-native">html,body{background:${THEME};overscroll-behavior:none}` +
     'body{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}' +
     'input,textarea{-webkit-user-select:auto;user-select:auto}' +
-    '@media all and (display-mode: standalone){html,body,#root{height:100vh}}' +
-    // A phone app, not a web page: the page itself never moves or zooms (lists scroll inside the app).
-    'html,body{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;touch-action:pan-x pan-y}' +
+    // A phone app, not a web page: the page itself never scrolls, bounces or zooms (lists scroll inside the
+    // app). Not position:fixed: on iPhone Safari that sized the page behind the bottom toolbar and cut it off;
+    // 100dvh is the height you actually see, toolbars excluded.
+    'html,body{height:100%;overflow:hidden;overscroll-behavior:none;touch-action:pan-x pan-y}' +
     '*{touch-action:manipulation}' +
-    '#root{position:fixed;inset:0;overflow:hidden}' +
+    '#root{height:100%;height:100dvh;overflow:hidden}' +
+    '@media all and (display-mode: standalone){html,body,#root{height:100vh}}' +
     '*{-webkit-text-size-adjust:100%;text-size-adjust:100%}</style>',
   // iOS Safari ignores user-scalable=no on purpose, so block pinch zoom ourselves (double-tap zoom is off via
   // touch-action, which keeps fast repeated taps working).
