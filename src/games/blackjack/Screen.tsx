@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, { ZoomIn } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Button, PlayingCard, T } from '@/design/components';
-import { useTheme, alpha } from '@/design/theme';
+import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { parseCard } from '@/engine/cards/cards.ts';
 import { basicStrategy, handValue, type BJAction, type BJDecision } from '@/engine/games/blackjack.ts';
@@ -94,7 +96,10 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
         <Felt label={t('play.bjTableNote')} style={{ flex: 1 }}>
         <View style={styles.stage} onLayout={(e) => setStageH(e.nativeEvent.layout.height)}>
           <View style={{ alignItems: 'center', gap: 8 }}>
-            <T variant="caption" color="text3">{t('play.dealer')} {dealerTotal !== null ? `· ${dealerTotal}` : ''}</T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <T variant="caption" color="text2" weight="semibold" style={{ letterSpacing: 1 }}>{t('play.dealer').toUpperCase()}</T>
+              {dealerTotal !== null ? <TotalBadge total={dealerTotal} pending={view?.holeHidden} small /> : null}
+            </View>
             <View style={{ flexDirection: 'row', minHeight: 84 }}>
               {view ? (
                 <>
@@ -113,13 +118,18 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
               const isActive = playing && hi === view.active;
               return (
                 <View key={hi} style={{ alignItems: 'center', gap: 8, opacity: playing && !isActive ? 0.55 : 1 }}>
-                  <View style={{ flexDirection: 'row' }}>
-                    {cards.map((card, i) => <View key={i} style={{ marginLeft: i ? -26 : 0 }}><PlayingCard card={card} size={view.hands.length > 2 ? 'sm' : cardSize} delay={i < 2 ? i * 120 : 0} highlight={isActive && i === cards.length - 1 ? tint : undefined} /></View>)}
-                  </View>
-                  <View style={[styles.badge, { backgroundColor: isActive ? alpha(tint, 0.2) : c.surface2 }]}>
-                    <T variant="footnote" weight="semibold" tabular style={{ color: h.outcome ? outcomeTint(h.outcome) : c.text }}>
-                      {v.soft && v.total < 21 ? `${v.total - 10}/${v.total}` : v.total}{h.outcome ? ` · ${h.outcome === 'blackjack' ? 'BJ' : t(h.outcome === 'win' ? 'common.win' : h.outcome === 'push' ? 'common.push' : 'common.lose')}` : ''}
-                    </T>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <View style={{ flexDirection: 'row' }}>
+                      {cards.map((card, i) => <View key={i} style={{ marginLeft: i ? -26 : 0 }}><PlayingCard card={card} size={view.hands.length > 2 ? 'sm' : cardSize} delay={i < 2 ? i * 120 : 0} highlight={isActive && i === cards.length - 1 ? tint : undefined} /></View>)}
+                    </View>
+                    <View style={{ alignItems: 'center', gap: 4 }}>
+                      <TotalBadge total={v.total} soft={v.soft && v.total < 21} blackjack={h.outcome === 'blackjack' || (cards.length === 2 && v.total === 21 && view.hands.length === 1)} active={isActive} tint={tint} />
+                      {h.outcome ? (
+                        <T variant="footnote" weight="displaySemi" style={{ color: outcomeTint(h.outcome), letterSpacing: 1 }}>
+                          {(h.outcome === 'blackjack' ? 'BLACKJACK' : t(h.outcome === 'win' ? 'common.win' : h.outcome === 'push' ? 'common.push' : 'common.lose')).toUpperCase()}
+                        </T>
+                      ) : null}
+                    </View>
                   </View>
                 </View>
               );
@@ -167,6 +177,24 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
 }
 
 const styles = StyleSheet.create({
+  total: { paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 6 },
   stage: { flex: 1, justifyContent: 'space-between', paddingTop: 16, paddingBottom: 18 },
-  badge: { minWidth: 44, height: 30, borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
 });
+
+/** The hand total, big and impossible to miss: green while you're fine, gold at 21, red when you bust. */
+function TotalBadge({ total, soft, blackjack, active, tint, pending, small }: { total: number; soft?: boolean; blackjack?: boolean; active?: boolean; tint?: string; pending?: boolean; small?: boolean }) {
+  const bust = total > 21;
+  const top = total === 21 || blackjack;
+  const colors: [string, string] = bust ? ['#FF5C7A', '#B3123C'] : top ? ['#FFD06B', '#D9741C'] : small ? ['#3A3350', '#221D33'] : ['#FFFFFF', '#E9E4F5'];
+  const ink = bust || top || small ? '#FFFFFF' : '#1A1530';
+  const size = small ? 34 : 58;
+  return (
+    <Animated.View key={`${total}-${pending ? 1 : 0}`} entering={ZoomIn.springify().damping(12)} style={[styles.total, { minWidth: size, height: size, borderRadius: size / 2, borderColor: active ? tint ?? '#fff' : 'rgba(255,255,255,0.35)', borderWidth: active ? 3 : 2 }]}>
+      <LinearGradient colors={colors} style={StyleSheet.absoluteFill} />
+      <T weight="display" tabular style={{ color: ink, fontSize: small ? 17 : soft ? 22 : 30, lineHeight: small ? 22 : soft ? 26 : 36 }}>
+        {soft ? `${total - 10}/${total}` : total}{pending ? '+' : ''}
+      </T>
+      {!small && bust ? <T weight="displaySemi" style={{ color: '#fff', fontSize: 9, letterSpacing: 1, marginTop: -4 }}>{'>21'}</T> : null}
+    </Animated.View>
+  );
+}

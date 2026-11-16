@@ -30,7 +30,16 @@ export const CATALOG: GameMeta[] = [
   { id: 'baccarat', category: 'cards', tint: gameTint.baccarat, rtp: '98.8 % (B)', edge: '1.06–14.4 %', multiStep: false, online: true },
   { id: 'hilo', category: 'cards', tint: gameTint.hilo, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
   { id: 'keno', category: 'originals', tint: gameTint.keno, rtp: '98.5–99.3 %', edge: '0.7–1.5 %', multiStep: false, online: true },
+  { id: 'slots', category: 'originals', tint: gameTint.slots, rtp: '97.4 %', edge: '2.6 %', multiStep: false, online: true },
+  { id: 'trader', category: 'originals', tint: gameTint.trader, rtp: '99 %', edge: '1 %', multiStep: false, online: true },
   { id: 'sicbo', category: 'table', tint: gameTint.sicbo, rtp: '97.2 % (Small/Big)', edge: '2.8–30 %', multiStep: false, online: true },
 ];
 
 export const META: Record<GameId, GameMeta> = Object.fromEntries(CATALOG.map((g) => [g.id, g])) as Record<GameId, GameMeta>;
+
+/** Games kept working (deep links, history) but no longer shown in the lobby. */
+export const HIDDEN_GAMES: GameId[] = ['keno', 'sicbo'];
+/** What the lobby, the collection and the Academy show, in order (most famous first). */
+export const VISIBLE_GAMES: GameMeta[] = [
+  ...(['slots', 'roulette', 'blackjack', 'poker', 'crash', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing'] as GameId[]).map((id) => META[id]),
+];

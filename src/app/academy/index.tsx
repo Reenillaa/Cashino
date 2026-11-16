@@ -5,7 +5,7 @@ import { GameGlyph, Icon, PressableScale, ProgressBar, ProgressRing, Screen, Sec
 import { useTheme, alpha } from '@/design/theme';
 import { SCREEN_PAD, radius } from '@/design/tokens';
 import { tr, useT } from '@/i18n';
-import { CATALOG, META } from '@/games/catalog';
+import { META, VISIBLE_GAMES } from '@/games/catalog';
 import { SIMULATORS } from '@/features/academy/content';
 import { useAcademyProgress } from '@/features/academy/progress';
 
@@ -29,7 +29,7 @@ export default function AcademyHome() {
       <T variant="footnote" color="text3" style={{ marginHorizontal: SCREEN_PAD, marginTop: 12 }}>{t('academy.noGuarantee')}</T>
       <Section title={t('academy.allGames')}>
         <View style={[styles.grid, { paddingHorizontal: SCREEN_PAD }]}>
-          {CATALOG.map((g) => {
+          {VISIBLE_GAMES.map((g) => {
             const pg = p.perGame(g.id);
             return (
               <PressableScale key={g.id} onPress={() => router.push(`/academy/${g.id}`)} accessibilityLabel={`${t(`games.names.${g.id}`)} ${pg.done}/${pg.total}`} style={[styles.cell, { backgroundColor: c.surface1, borderColor: c.hairline }]}>

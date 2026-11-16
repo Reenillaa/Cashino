@@ -9,11 +9,11 @@ import { supabase, onlineConfigured } from '@/services/supabase';
 import { useSession } from '@/state/session';
 import { useProgress } from '@/state/progress';
 import { useLearning, tutorialKey } from '@/state/learning';
-import { GAME_IDS, type GameId } from '@/engine/games/types.ts';
+import type { GameId } from '@/engine/games/types.ts';
 import { seasonAt, seasonTier, SEASON_TIERS, SEASON_TIER_POINTS } from '@/engine/meta/progression.ts';
 import { masteryScore, blackjackSkill } from '@/engine/meta/ranking.ts';
 import { ACHIEVEMENTS } from '@/engine/meta/achievements.ts';
-import { META } from '@/games/catalog';
+import { META, VISIBLE_GAMES } from '@/games/catalog';
 import { LESSONS } from '@/features/academy/content';
 import { useNow } from '@/features/time/useNow';
 
@@ -95,7 +95,7 @@ export default function Ranking() {
       </View>
       {scope === 'game' && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: SCREEN_PAD, paddingTop: 12 }}>
-          {GAME_IDS.map((g) => <Chip key={g} label={t(`games.names.${g}`)} selected={game === g} tint={META[g].tint} onPress={() => setGame(g)} />)}
+          {VISIBLE_GAMES.map(({ id: g }) => <Chip key={g} label={t(`games.names.${g}`)} selected={game === g} tint={META[g].tint} onPress={() => setGame(g)} />)}
         </ScrollView>
       )}
       {/* "You" card floats (glass) like the user's row in Offsuit's leaderboard, but in titanium. */}

@@ -113,7 +113,7 @@ export default function Settings() {
               <ListRow icon="trash" destructive title={t('settings.deleteAccount')} onPress={() => confirm(t('settings.deleteAccount'), t('settings.deleteConfirm'), () => void callFn('account', { action: 'delete', confirm: 'DELETE' }).then(() => supabase?.auth.signOut()))} />
             </>
           ) : (
-            <ListRow icon="profile" title={t('profile.createAccount')} subtitle={onlineConfigured ? t('profile.accountBenefits') : t('auth.notConfigured')} onPress={onlineConfigured ? () => router.push('/auth') : undefined} />
+            <ListRow icon="profile" title={t('profile.createAccount')} subtitle={onlineConfigured ? t('profile.accountBenefits') : t('auth.notConfigured')} onPress={() => router.push('/auth')} />
           )}
         </ListGroup>
       </Section>

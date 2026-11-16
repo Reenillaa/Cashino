@@ -161,4 +161,28 @@ export const RULES: Record<GameId, RulesDoc> = {
       { label: b('Ventaja trío concreto', 'Edge specific triple'), value: '16.2 %' },
     ],
   },
+  slots: {
+    summary: b('Tragaperras clásica de 3 rodillos y 1 línea. Tira y mira qué sale en la línea del centro.', 'Classic 3-reel, 1-line slot machine. Spin and see what lands on the middle line.'),
+    rules: [
+      b('Tres iguales: 💎 ×500 · 7 ×80 · BAR ×20 · 🍒 ×10 · 🔔 ×9 · 🍋 ×5.', 'Three of a kind: 💎 ×500 · 7 ×80 · BAR ×20 · 🍒 ×10 · 🔔 ×9 · 🍋 ×5.'),
+      b('Dos cerezas en cualquier sitio ×2; una cereza te devuelve la apuesta.', 'Two cherries anywhere ×2; one cherry gives your bet back.'),
+      b('Cada rodillo es independiente y el resultado se decide antes de que giren.', 'Each reel is independent and the result is decided before they spin.'),
+    ],
+    odds: [
+      { label: b('Alguna ganancia (incluye recuperar la apuesta)', 'Any return (incl. getting your bet back)'), value: '46.7 %' },
+      { label: b('Tres diamantes', 'Three diamonds'), value: '0.007 %' },
+    ],
+  },
+  trader: {
+    summary: b('Bolsa: ¿el precio acabará más alto o más bajo que ahora? Eliges Sube o Baja y miras la gráfica.', 'Stock market: will the price end higher or lower than now? Pick Up or Down and watch the chart.'),
+    rules: [
+      b('El precio se mueve al azar durante unos segundos, igual de probable hacia arriba que hacia abajo.', 'The price moves at random for a few seconds, as likely up as down.'),
+      b('Si aciertas el sentido final cobras ×1,98 tu apuesta.', 'Call the final direction right and you get ×1.98 your bet.'),
+      b('No hay forma de adivinar el movimiento: cada recorrido se decide antes de mostrarse.', 'There is no way to predict the move: each path is decided before it is shown.'),
+    ],
+    odds: [
+      { label: b('Probabilidad de acertar', 'Chance to be right'), value: '50 %' },
+      { label: b('Pago', 'Payout'), value: '×1.98' },
+    ],
+  },
 };

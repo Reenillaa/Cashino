@@ -6,7 +6,7 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 |---|---|---|---|
 | 1 | App React Native ejecutable | ✅ | Expo SDK 58 / RN 0.88; typecheck y build web OK |
 | 2 | Identidad Titanium | ✅ | `docs/02`, tokens, icono provisional “Split” |
-| 3 | 5 pestañas funcionales | ✅ | Inicio, Juegos, Ranking, Social, Perfil |
+| 3 | Pestañas funcionales | ✅ | Juegos (inicio), Ranking, Perfil (Social retirado en la ronda 8 a petición) |
 | 4 | 14 juegos implementados | ✅ | Todos jugables (verificado en navegador) |
 | 5 | Reglas correctas | ✅ | 98 pruebas de motor |
 | 6 | Tutorial propio por juego | ✅ | 14 tutoriales interactivos |
@@ -97,6 +97,24 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - **Limbo**: eliges el objetivo arrastrando directamente sobre el velocímetro.
 - **Bacará y Sic Bo** apuestan también con la rueda de fichas.
 
+## Cambios de la ronda 8 (juegos nuevos, menos colores, inicio de sesión)
+- **Tragaperras** (nuevo): máquina «CASHINO 777» con marquesina de bombillas, 3 rodillos que bajan y frenan uno detrás de otro con rebote, línea de premio que brilla al ganar y palanca que puedes tocar. Símbolos propios en SVG (cereza, limón, campana, BAR, 7, diamante). Tabla de premios fija y **RTP exacto 97,4 %** calculado en `slotsStats()` y comprobado en tests (hit rate ≈ 46,7 %).
+- **Bolsa** (nuevo, juego de invertir): eliges **Sube** o **Baja**; el precio de «CSH/EUR» hace 40 ticks (paseo aleatorio lognormal decidido antes de animar) y se dibuja en directo con área de color. Paga ×1,98 (RTP 99 %).
+- **Keno y Sic Bo** retirados de menús, ranking, perfil, Academy y colección (siguen en el motor por si alguien tenía historial). Los logros «coleccionista/explorador» ya no los cuentan; sus dos logros se sustituyen por «Triple siete» y «Inversor».
+- **Paleta**: solo 4 familias de color (violeta, rosa, oro y verde) para todos los juegos, en lugar de un color distinto por juego.
+- **Social eliminado**: quedan 3 pestañas (Juegos, Ranking, Perfil).
+- **Blackjack**: el total de cada mano es una ficha grande junto a las cartas (blanca normal, dorada al 21, roja si te pasas, «7/17» con as blando) y el de la banca se ve arriba («10+» mientras la carta tapada no se muestra).
+- **Póker**: **desliza tus cartas hacia arriba para retirarte** (con aviso debajo de las cartas); un deslizamiento corto vuelve a su sitio.
+- **Inicio de sesión**: botones «Continuar con Apple» y «Continuar con Google» (Supabase OAuth; redirección en web, `expo-web-browser` en nativo) y correo + contraseña / enlace mágico. Ver «Activar Apple y Google» abajo.
+- **Fluidez**: sonidos en web con Web Audio API (el `<audio>` de iOS era pesado y bloqueaba con muchas bolas de Plinko), limitación de sonidos repetidos (clavos, ticks) y fondo aurora estático en web.
+
+### Activar Apple y Google (lo tiene que hacer el dueño del proyecto)
+Sin estas cuentas los botones se ven pero avisan de que el servidor no está configurado; **no hay claves en el repositorio**.
+1. Supabase → *Authentication → URL Configuration*: añadir `https://reenillaa.github.io/Cashino/` y `cashino://auth` a *Redirect URLs*.
+2. Google: Google Cloud Console → credenciales OAuth (tipo *Web*), redirect `https://<proyecto>.supabase.co/auth/v1/callback`; pegar Client ID y Secret en Supabase → *Providers → Google*.
+3. Apple: cuenta Apple Developer (de pago) → *Services ID* + clave *Sign in with Apple*, return URL la misma callback de Supabase; rellenar Supabase → *Providers → Apple*.
+4. Rellenar `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (ver `.env.example`) en el build.
+
 ## Decisiones técnicas registradas
 - Motor puro compartido app ↔ Edge Functions (`npm run sync:engine`).
 - Sin Skia en v1 (SVG + Reanimated bastan y funcionan en web/CI).
@@ -107,7 +125,8 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 
 ## Limitaciones conocidas
 - Push remotas no configuradas (requiere clave APNs); hay notificaciones locales opcionales e in-app.
-- Sign in with Apple no activado (requiere cuenta Apple Developer); email + contraseña y enlace mágico sí.
+- Apple y Google tienen botón y código, pero no funcionan hasta configurar Supabase y las cuentas de Apple Developer / Google Cloud. En la PWA instalada en iPhone el login con Google/Apple puede abrirse en Safari y no volver a la app instalada (limitación de las PWA de iOS); el correo funciona siempre.
+- La fluidez con muchas bolas de Plinko se ha medido en Chromium de escritorio, no en un iPhone real.
 - En ruleta, la UI permite plenos y apuestas exteriores; caballos/calles/cuadros/seisenas están en el motor y el servidor pero no en el tapete móvil.
 - Saldo casual inflacionario (sin sumideros cosméticos aún).
 - REA no aplica a diseño (es ingeniería inversa); Taste sí se aplica a movimiento.
@@ -117,4 +136,4 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 ## Próximos pasos
 1. Crear proyecto Supabase, `db push`, desplegar funciones y probar online con dos dispositivos.
 3. Build EAS de desarrollo en tu iPhone; perfilar animaciones y revisar VoiceOver.
-4. Tienda cosmética con fichas, apuestas interiores completas en ruleta, Sign in with Apple, push.
+4. Tienda cosmética con fichas, apuestas interiores completas en ruleta, Sign in with Apple nativo (`expo-apple-authentication`), push.

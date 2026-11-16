@@ -8,11 +8,11 @@ import { useT } from '@/i18n';
 import { useProgress } from '@/state/progress';
 import { useLearning } from '@/state/learning';
 import { useSession } from '@/state/session';
-import { supabase, onlineConfigured } from '@/services/supabase';
+import { supabase } from '@/services/supabase';
 import { levelFromXp } from '@/engine/meta/progression.ts';
 import { ACHIEVEMENTS, emptyStats } from '@/engine/meta/achievements.ts';
 import { GAME_IDS, type GameId } from '@/engine/games/types.ts';
-import { META } from '@/games/catalog';
+import { META, VISIBLE_GAMES } from '@/games/catalog';
 
 type Tab = 'stats' | 'achievements' | 'history';
 
@@ -61,7 +61,7 @@ export default function Profile() {
             </View>
           ))}
         </View>
-        {!signedIn && onlineConfigured && <Button title={t('profile.createAccount')} subtitle={t('profile.accountBenefits')} onPress={() => router.push('/auth')} full style={{ marginTop: 8 }} />}
+        {!signedIn && <Button title={t('profile.createAccount')} subtitle={t('profile.accountBenefits')} onPress={() => router.push('/auth')} full style={{ marginTop: 8 }} />}
       </View>
       <View style={{ paddingHorizontal: SCREEN_PAD, marginTop: 28 }}>
         <Segmented value={tab} onChange={setTab} options={[{ value: 'stats', label: t('profile.stats') }, { value: 'achievements', label: t('profile.achievements') }, { value: 'history', label: t('profile.history') }]} />
@@ -70,7 +70,7 @@ export default function Profile() {
         <>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: SCREEN_PAD, paddingTop: 14 }}>
             <Chip label={t('profile.overall')} selected={game === 'all'} onPress={() => setGame('all')} />
-            {GAME_IDS.map((g) => <Chip key={g} label={t(`games.names.${g}`)} selected={game === g} tint={META[g].tint} onPress={() => setGame(g)} />)}
+            {VISIBLE_GAMES.map(({ id: g }) => <Chip key={g} label={t(`games.names.${g}`)} selected={game === g} tint={META[g].tint} onPress={() => setGame(g)} />)}
           </ScrollView>
           <ListGroup style={{ marginTop: 12 }}>
             <ListRow title={t('profile.roundsPlayed')} value={formatCoins(sel.rounds)} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useState } from 'react';
-import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { Platform, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated, { Easing, cancelAnimation, useAnimatedStyle, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
@@ -34,8 +34,9 @@ export function Shine({ every = 4200, delay = 0, opacity = 0.32 }: { every?: num
 function Blob({ color, size, x, y, dx, dy, period, alpha, active }: { color: string; size: number; x: number; y: number; dx: number; dy: number; period: number; alpha: number; active: boolean }) {
   const { reduceMotion } = useTheme();
   const t = useSharedValue(0);
+  // Kept still on purpose: repainting large SVG gradients every frame made iPhones stutter.
   useEffect(() => {
-    if (reduceMotion || !active) {
+    if (reduceMotion || !active || Platform.OS === 'web') {
       cancelAnimation(t);
       return;
     }

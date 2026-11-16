@@ -1,4 +1,6 @@
 import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
+import { Platform } from 'react-native';
+import { Asset } from 'expo-asset';
 import { useSettings } from '@/state/settings';
 
 const SOURCES = {
@@ -63,10 +65,59 @@ function player(id: SoundId): AudioPlayer | null {
   }
 }
 
-/** Plays a sound effect if effects are enabled. Never throws. */
+// ---------- Web: Web Audio API (decoded buffers, cheap overlapping playback, real volume on iOS) ----------
+type WebCtx = { ctx: AudioContext; buffers: Map<SoundId, AudioBuffer | 'loading'> };
+let web: WebCtx | null = null;
+const lastPlayed = new Map<SoundId, number>();
+function webAudio(): WebCtx | null {
+  if (Platform.OS !== 'web') return null;
+  if (web) return web;
+  const Ctor = (globalThis as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext }).AudioContext ?? (globalThis as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctor) return null;
+  web = { ctx: new Ctor(), buffers: new Map() };
+  return web;
+}
+function webPlay(id: SoundId, volume: number) {
+  const w = webAudio();
+  if (!w) return false;
+  if (w.ctx.state === 'suspended') void w.ctx.resume(); // iOS unlocks audio inside a tap
+  const buf = w.buffers.get(id);
+  if (buf === 'loading') return true;
+  if (!buf) {
+    w.buffers.set(id, 'loading');
+    const uri = Asset.fromModule(SOURCES[id]).uri;
+    void fetch(uri)
+      .then((r) => r.arrayBuffer())
+      .then((ab) => w.ctx.decodeAudioData(ab))
+      .then((b) => {
+        w.buffers.set(id, b);
+        webPlay(id, volume);
+      })
+      .catch(() => w.buffers.delete(id));
+    return true;
+  }
+  const src = w.ctx.createBufferSource();
+  const gain = w.ctx.createGain();
+  gain.gain.value = volume;
+  src.buffer = buf;
+  src.connect(gain).connect(w.ctx.destination);
+  src.start();
+  return true;
+}
+
+/** Plays a sound effect if effects are enabled. Never throws. Rapid repeats of one sound are thinned out. */
 export function sfx(id: SoundId, volume = 1) {
   const s = useSettings.getState();
   if (!s.sound) return;
+  const now = Date.now();
+  const minGap = id === 'peg' || id === 'tick' ? 90 : id === 'chip' ? 50 : 0;
+  if (minGap && now - (lastPlayed.get(id) ?? 0) < minGap) return;
+  lastPlayed.set(id, now);
+  try {
+    if (webPlay(id, Math.max(0, Math.min(1, volume * s.soundVolume)))) return;
+  } catch {
+    // fall back to expo-audio
+  }
   void init();
   const p = player(id);
   if (!p) return;
@@ -80,6 +131,7 @@ export function sfx(id: SoundId, volume = 1) {
 }
 
 export function preloadSounds(ids: SoundId[]) {
+  if (Platform.OS === 'web') return;
   ids.forEach((id) => player(id));
 }
 

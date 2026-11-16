@@ -35,14 +35,14 @@ const en: Dictionary = {
     openRules: 'Rules', openTutorial: 'Tutorial', openAcademy: 'Academy', houseEdge: 'House edge', rtp: 'RTP',
     names: {
       poker: 'Poker', blackjack: 'Blackjack', crash: 'Crash', dice: 'Dice', mines: 'Mines', plinko: 'Plinko', crossing: 'Crossing',
-      roulette: 'Roulette', limbo: 'Limbo', coinflip: 'Coinflip', baccarat: 'Baccarat', hilo: 'Hi-Lo', keno: 'Keno', sicbo: 'Sic Bo',
+      roulette: 'Roulette', limbo: 'Limbo', coinflip: 'Coinflip', baccarat: 'Baccarat', hilo: 'Hi-Lo', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Slots', trader: 'Stocks',
     },
     blurbs: {
       poker: "No-Limit Texas Hold'em against bots or friends.", blackjack: 'Get to 21 without busting and beat the dealer.',
       crash: 'Cash out before the rocket blows.', dice: 'Pick your odds and roll.', mines: 'Uncover gems, dodge mines.',
       plinko: 'Drop the ball and watch it land.', crossing: 'Cross lane by lane and stop in time.', roulette: 'European roulette, 37 pockets.',
       limbo: 'Set a target and beat it.', coinflip: 'Heads or tails, double or nothing.', baccarat: 'Player, Banker or Tie.',
-      hilo: 'Will the next card be higher or lower?', keno: 'Pick numbers and wait for the draw.', sicbo: 'Three dice, many bets.',
+      hilo: 'Will the next card be higher or lower?', keno: 'Pick numbers and wait for the draw.', sicbo: 'Three dice, many bets.', slots: 'Three reels, three of a kind, win.', trader: 'Up or down? Invest and watch the chart.',
     },
   },
   play: {
@@ -50,6 +50,8 @@ const en: Dictionary = {
     dragTarget: '👆 Drag the white dot to pick your target',
     tapNumber: 'Tap a number on the wheel or a bet below', noMoreBets: 'No more bets…', repeat: 'Repeat', chipValue: 'Chip',
     moreBets: 'More bets',
+    slotsCherries: '🍒 Two cherries ×2 · one cherry gives your bet back',
+    up: 'Up', down: 'Down', traderHint: 'Will the price end higher or lower? Pick your chip and tap Up or Down.',
     tip: 'Tip', showTip: 'What would an expert do?', hideTip: 'Hide tip',
     bjTableNote: 'Blackjack pays 3 to 2 · dealer stands on soft 17',
     amount: 'Amount', placeBet: 'Bet', playPractice: 'Play practice', again: 'Again', youWon: 'You won', youLost: 'Not this time',
@@ -77,6 +79,7 @@ const en: Dictionary = {
   },
   poker: {
     lobby: 'Poker', vsBots: 'Against bots', online: 'Online tables', private: 'Private table', tournament: 'Sit & Go', cash: 'Cash table',
+    swipeFold: '↑ Swipe your cards up to fold',
     fold: 'Fold', check: 'Check', call: 'Call {{amount}}', bet: 'Bet', raise: 'Raise', allIn: 'All-in', pot: 'Pot',
     halfPot: '½ pot', fullPot: 'Pot', blinds: 'Blinds {{sb}}/{{bb}}', buyIn: 'Buy-in', seats: 'Seats', difficulty: 'Bot difficulty',
     easy: 'Easy', medium: 'Medium', advanced: 'Advanced', sitOut: 'Sitting out', waiting: 'Waiting for players…', yourTurn: 'Your turn',
@@ -128,6 +131,7 @@ const en: Dictionary = {
     signIn: 'Sign in', signUp: 'Create account', haveAccount: 'Already have an account?', noAccount: "Don't have an account?", magicLink: 'Send magic link',
     checkEmail: 'Check your email to confirm.', notConfigured: 'The online server is not configured in this build.',
     migrateTitle: 'Bring your guest progress', migrateBody: '{{amount}} chips (max {{cap}}), achievements, tutorials and lessons will be transferred. This can only happen once.',
+    withApple: 'Continue with Apple', withGoogle: 'Continue with Google', orEmail: 'or with your email', offlineOk: 'You can keep playing without an account.',
     migrate: 'Transfer', invalid: 'Check your details', weakPassword: 'At least 8 characters',
   },
   academy: {
@@ -153,7 +157,7 @@ const en: Dictionary = {
     'level-25': ['Level 25', 'Reach level 25'], 'crash-10x': ['Lift-off', 'Cash out at 10× in Crash'], 'limbo-100x': ['No limits', 'Win at 100× in Limbo'],
     'mines-5x': ['Bomb squad', 'Cash out at 5× in Mines'], 'plinko-edge': ['On the edge', 'Hit an edge bin in Plinko'], 'coin-streak-5': ['Streak of 5', 'Call 5 flips in a row'],
     'hilo-10x': ['Card reader', 'Cash out at 10× in Hi-Lo'], 'crossing-far': ['Other side', 'Cash out at 5× in Crossing'], 'roulette-straight': ['Straight up', 'Hit a single number in roulette'],
-    'keno-hunter': ['Hunter', 'Win 20× in Keno'], 'sicbo-triple': ['Triple', 'Win a triple in Sic Bo'], 'baccarat-tie': ['Tie', 'Win a tie bet'],
+    'slots-777': ['Triple seven', 'Hit 7 7 7 on the slots'], 'trader-50': ['Investor', 'Play 50 rounds of Stocks'], 'baccarat-tie': ['Tie', 'Win a tie bet'],
     'blackjack-21': ['Natural', 'Get a blackjack'], 'poker-100': ['Regular', 'Play 100 poker hands'], 'dice-rounds-50': ['Roller', 'Play 50 Dice rounds'],
   },
   missions: {

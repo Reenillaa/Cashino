@@ -18,6 +18,8 @@ import { SICBO_PAYS, TOTAL_PAYS, sicBoExpectedReturn, sicBoWinProbability } from
 import { BACCARAT_PAYS } from '@/engine/games/baccarat.ts';
 import { guessProbability } from '@/engine/games/hilo.ts';
 import { parseCard } from '@/engine/cards/cards.ts';
+import { SLOT_ONE_CHERRY, SLOT_THREE, SLOT_TWO_CHERRIES, SLOT_WEIGHTS, slotsStats } from '@/engine/games/slots.ts';
+import { TRADER_MULTIPLIER } from '@/engine/games/trader.ts';
 
 export type Lang = 'es' | 'en';
 export interface ModelRow { label: string; p: number; mult: number | null }
@@ -183,6 +185,37 @@ const MODELS: Record<GameId, Builder> = {
     rtp: 0.995,
     formula: L(lang, 'Pierdes más manos de las que ganas, pero el blackjack paga 3 a 2 y puedes doblar cuando te conviene. Con la estrategia básica la casa solo gana un 0,5 %; jugando «a ojo», entre un 2 % y un 5 %.', 'You lose more hands than you win, but blackjack pays 3 to 2 and you can double when it helps. With basic strategy the house keeps only 0.5 %; playing by feel, 2 % to 5 %.'),
     example: L(lang, 'Con 20 fichas: ganar te devuelve 40, un blackjack 50 y un empate tus 20.', 'With 20 chips: a win returns 40, a blackjack 50 and a push your 20.'),
+  }),
+  slots: (lang) => {
+    const st = slotsStats();
+    const T = Object.values(SLOT_WEIGHTS).reduce((x, y) => x + y, 0);
+    const three = (k: keyof typeof SLOT_WEIGHTS) => (SLOT_WEIGHTS[k] / T) ** 3;
+    return {
+      idea: L(lang, 'Tres rodillos giran y se paran. Si en la línea del centro salen tres iguales, cobras. Las cerezas siempre ayudan.', 'Three reels spin and stop. Three of a kind on the middle line pays. Cherries always help.'),
+      rowsTitle: L(lang, 'En la línea del centro…', 'On the middle line…'),
+      rows: [
+        { label: L(lang, 'Una cereza', 'One cherry'), p: 3 * (4 / T) * (1 - 4 / T) ** 2, mult: SLOT_ONE_CHERRY },
+        { label: L(lang, 'Dos cerezas', 'Two cherries'), p: 3 * (4 / T) ** 2 * (1 - 4 / T), mult: SLOT_TWO_CHERRIES },
+        { label: L(lang, 'Tres limones', 'Three lemons'), p: three('lemon'), mult: SLOT_THREE.lemon },
+        { label: L(lang, 'Tres BAR', 'Three BARs'), p: three('bar'), mult: SLOT_THREE.bar },
+        { label: L(lang, 'Tres 7', 'Three 7s'), p: three('seven'), mult: SLOT_THREE.seven },
+        { label: L(lang, 'Tres diamantes', 'Three diamonds'), p: three('diamond'), mult: SLOT_THREE.diamond },
+      ],
+      rtp: st.rtp,
+      formula: L(lang, `Cada rodillo tiene ${T} paradas: 4 cerezas, 7 limones, 6 campanas, 4 BAR, 2 sietes y 1 diamante. Probabilidad de tres iguales = (paradas ÷ ${T})³.`, `Each reel has ${T} stops: 4 cherries, 7 lemons, 6 bells, 4 BARs, 2 sevens and 1 diamond. Three of a kind = (stops ÷ ${T})³.`),
+      example: L(lang, `Con 20 fichas, casi la mitad de las tiradas te devuelven algo (${fmtPct(lang, st.hit)}), pero los premios gordos son muy raros: tres diamantes, 1 vez de cada ${Math.round(1 / three('diamond')).toLocaleString('es-ES')}.`, `With 20 chips almost half the spins return something (${fmtPct(lang, st.hit)}), but big prizes are very rare: three diamonds, 1 time in ${Math.round(1 / three('diamond')).toLocaleString('en-US')}.`),
+    };
+  },
+  trader: (lang) => ({
+    idea: L(lang, 'Apuestas a si un precio acabará más alto o más bajo. Se mueve al azar: igual de fácil que suba que que baje.', 'You bet on whether a price ends higher or lower. It moves at random: up is as likely as down.'),
+    rowsTitle: L(lang, 'Elijas lo que elijas…', 'Whatever you pick…'),
+    rows: [
+      { label: L(lang, 'Aciertas el sentido', 'You call it right'), p: 0.5, mult: TRADER_MULTIPLIER },
+      { label: L(lang, 'Fallas', 'You call it wrong'), p: 0.5, mult: 0 },
+    ],
+    rtp: 0.99,
+    formula: L(lang, 'Pago = 0,99 ÷ 0,5 = ×1,98. Que haya subido antes no cambia nada: cada movimiento es independiente.', 'Payout = 0.99 ÷ 0.5 = ×1.98. Past rises change nothing: each move is independent.'),
+    example: L(lang, 'Con 20 fichas: aciertas y te devuelven 39; fallas y pierdes 20. Como en la bolsa de verdad a corto plazo, es una moneda al aire.', 'With 20 chips: right and you get 39 back; wrong and you lose 20. Like the real market in the very short term, it is a coin toss.'),
   }),
   poker: (lang) => ({
     idea: L(lang, 'Aquí no juegas contra la casa sino contra otros jugadores. Gana la mejor jugada de 5 cartas… o quien consigue que los demás se retiren.', 'Here you do not play against the house but against other players. The best 5-card hand wins… or whoever makes the others fold.'),

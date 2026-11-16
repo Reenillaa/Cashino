@@ -9,6 +9,7 @@ import { Avatar, Glass, Icon, PlayingCard, PressableScale, T, Tag, formatCoins }
 import { LinearGradient } from 'expo-linear-gradient';
 import { BetInput } from '../shared/BetInput';
 import { Felt } from '../shared/Felt';
+import { SwipeFold } from './SwipeFold';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
@@ -105,12 +106,17 @@ export function PokerTableView({
       </View>
       {/* Hero */}
       <View style={styles.hero}>
-        <View style={{ flexDirection: 'row' }}>
-          {(hero?.hole ?? []).map((card, k) => (
-            <View key={`${h?.number}-${k}`} style={{ marginLeft: k ? -18 : 0, transform: [{ rotate: k ? '6deg' : '-4deg' }] }}>
-              <PlayingCard card={card} size="lg" delay={k * 140} dim={hero?.folded} highlight={bestCodes.has(cardCode(card)) ? c.win : undefined} />
+        <View style={{ alignItems: 'center' }}>
+          <SwipeFold key={h?.number} enabled={!!legal?.canFold} onFold={() => { setRaising(false); onAction({ type: 'fold' }); }} style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'row' }}>
+              {(hero?.hole ?? []).map((card, k) => (
+                <View key={`${h?.number}-${k}`} style={{ marginLeft: k ? -18 : 0, transform: [{ rotate: k ? '6deg' : '-4deg' }] }}>
+                  <PlayingCard card={card} size="lg" delay={k * 140} dim={hero?.folded} highlight={bestCodes.has(cardCode(card)) ? c.win : undefined} />
+                </View>
+              ))}
             </View>
-          ))}
+          </SwipeFold>
+          {legal?.canFold ? <T variant="caption" color="text3" style={{ marginTop: 6 }}>{t('poker.swipeFold')}</T> : null}
         </View>
         <Glass radius={20} style={styles.heroCard}>
           <Avatar id="a3" size={34} ring={h?.toAct === heroSeat ? c.text : undefined} />

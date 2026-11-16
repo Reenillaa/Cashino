@@ -13,6 +13,8 @@ export const GAME_IDS = [
   'hilo',
   'keno',
   'sicbo',
+  'slots',
+  'trader',
 ] as const;
 export type GameId = (typeof GAME_IDS)[number];
 

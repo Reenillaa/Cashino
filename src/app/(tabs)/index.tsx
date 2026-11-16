@@ -11,7 +11,7 @@ import { levelBonus, useProgress } from '@/state/progress';
 import { useSession } from '@/state/session';
 import { levelFromXp, dailyMissions } from '@/engine/meta/progression.ts';
 import { ECONOMY, dailyRewardAmount, nextStreak, utcDay } from '@/engine/meta/economy.ts';
-import { CATALOG } from '@/games/catalog';
+import { VISIBLE_GAMES } from '@/games/catalog';
 import { GameTile } from '@/games/shared/GameTile';
 import { MissionRow } from '@/features/progression/MissionRow';
 import { claimDailyReward, claimRefill } from '@/features/economy/rewards';
@@ -19,7 +19,7 @@ import { useNow } from '@/features/time/useNow';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
-const TOP = ['poker', 'blackjack', 'roulette', 'crash'] as const;
+const TOP = ['slots', 'roulette', 'blackjack', 'poker', 'trader'] as const;
 
 /**
  * Home is also the lobby (Offsuit-style): the balance is the hero, then big pastel game cards.
@@ -52,7 +52,7 @@ export default function Home() {
   // 7 stamps per row: screen − page padding − card padding − 6 gaps.
   const stampW = Math.floor((Math.min(width, 640) - SCREEN_PAD * 2 - 32 - 6 * 8) / 7);
   const open = (id: string) => router.push(`/game/${id}`);
-  const tried = CATALOG.filter((g) => (stats[g.id]?.rounds ?? 0) + (practiceStats[g.id]?.rounds ?? 0) > 0).map((g) => g.id);
+  const tried = VISIBLE_GAMES.filter((g) => (stats[g.id]?.rounds ?? 0) + (practiceStats[g.id]?.rounds ?? 0) > 0).map((g) => g.id);
   const runStreak = wallet.daily.streak > 0 && wallet.daily.lastClaimDay !== null && today - wallet.daily.lastClaimDay <= 1 ? wallet.daily.streak : 0;
 
   const claim = async () => {
@@ -152,17 +152,17 @@ export default function Home() {
       {/* Every game, two per row */}
       <Section title={t('home.allGames')}>
         <View style={[styles.grid, { paddingHorizontal: SCREEN_PAD }]}>
-          {CATALOG.map((g, i) => (
+          {VISIBLE_GAMES.map((g, i) => (
             <GameTile key={g.id} id={g.id} index={i + 2} style={{ width: tileW }} onPress={() => open(g.id)} />
           ))}
         </View>
       </Section>
 
       {/* Collection: try every game (an honest exploration goal, no luck involved) */}
-      <Section title={t('home.album')} action={<T variant="footnote" weight="semibold" color={tried.length === 14 ? 'win' : 'text2'}>{tried.length}/14</T>}>
+      <Section title={t('home.album')} action={<T variant="footnote" weight="semibold" color={tried.length === VISIBLE_GAMES.length ? 'win' : 'text2'}>{tried.length}/{VISIBLE_GAMES.length}</T>}>
         <View style={[styles.album, { backgroundColor: c.surface1, marginHorizontal: SCREEN_PAD }]}>
           <View style={styles.albumGrid}>
-            {CATALOG.map((g) => {
+            {VISIBLE_GAMES.map((g) => {
               const got = tried.includes(g.id);
               return (
                 <PressableScale key={g.id} onPress={() => open(g.id)} scaleTo={0.9} feedback="select" accessibilityLabel={`${t(`games.names.${g.id}`)}${got ? ' ✓' : ''}`} style={[styles.stamp, { width: stampW, backgroundColor: got ? c.surface3 : c.surface2 }]}>
@@ -172,8 +172,8 @@ export default function Home() {
               );
             })}
           </View>
-          <ProgressBar value={tried.length / 14} height={5} tint={c.win} style={{ marginTop: 14 }} />
-          <T variant="footnote" color="text2" style={{ marginTop: 8 }}>{tried.length === 14 ? t('home.albumDone') : t('home.albumBody', { n: tried.length })}</T>
+          <ProgressBar value={tried.length / VISIBLE_GAMES.length} height={5} tint={c.win} style={{ marginTop: 14 }} />
+          <T variant="footnote" color="text2" style={{ marginTop: 8 }}>{tried.length === VISIBLE_GAMES.length ? t('home.albumDone') : t('home.albumBody', { n: tried.length })}</T>
         </View>
       </Section>
 

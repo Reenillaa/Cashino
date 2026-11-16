@@ -80,6 +80,12 @@ export const SIM_OPTIONS: Partial<Record<GameId, SimOption[]>> = {
   sicbo: [
     { label: L('Siempre «pequeño»', 'Always “small”'), round: (rng, bet) => one('sicbo', { bets: [{ bet: { kind: 'small' }, amount: bet }] })(rng, bet), rtp: 0.9722 },
   ],
+  slots: [
+    { label: L('Tirada normal', 'Normal spin'), round: one('slots', {}), rtp: 0.974 },
+  ],
+  trader: [
+    { label: L('Siempre Sube', 'Always Up'), round: one('trader', { side: 'up' }), rtp: 0.99 },
+  ],
   baccarat: [
     { label: L('Siempre a la Banca', 'Always Banker'), round: (rng, bet) => one('baccarat', { bets: { banker: bet } })(rng, bet), rtp: 0.9894 },
     { label: L('Siempre al empate', 'Always Tie'), round: (rng, bet) => one('baccarat', { bets: { tie: bet } })(rng, bet), rtp: 0.8564 },

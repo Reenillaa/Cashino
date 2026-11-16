@@ -94,4 +94,14 @@ export const TUTORIALS: Record<GameId, TutorialStep[]> = {
     doIt('sicbo:roll', ['Lanza', 'Roll'], ['Pulsa Tirar.', 'Tap Roll.']),
     quiz(['Ojo con los tríos', 'Watch the triples'], ['Sale 2-2-2 (suma 6). ¿Gana “Pequeño”?', '2-2-2 hits (total 6). Does “Small” win?'], [['Sí', 'Yes'], ['No', 'No']], 1, ['Pequeño y Grande pierden con cualquier trío: de ahí sale su 2,78 % de ventaja de la casa.', 'Small and Big lose on any triple — that is their 2.78 % house edge.']),
   ],
+  slots: [
+    info(['La tragaperras', 'The slot machine'], ['Tres rodillos. Lo que cuenta es la línea del centro: tres iguales pagan, y las cerezas siempre ayudan.', 'Three reels. Only the middle line counts: three of a kind pays, and cherries always help.']),
+    doIt('slots:spin', ['Tira', 'Spin'], ['Elige tu ficha y pulsa Tirar (o baja la palanca).', 'Pick your chip and tap Spin (or pull the lever).']),
+    quiz(['¿Qué paga más?', 'What pays more?'], ['¿Tres 7 o tres campanas?', 'Three 7s or three bells?'], [['Tres 7', 'Three 7s'], ['Tres campanas', 'Three bells']], 0, ['Los 7 son más raros, por eso pagan ×80 frente a ×9.', '7s are rarer, so they pay ×80 against ×9.']),
+  ],
+  trader: [
+    info(['La bolsa', 'The market'], ['Eliges si el precio acabará más alto (Sube) o más bajo (Baja). Luego miras cómo se mueve la gráfica.', 'Pick whether the price will end higher (Up) or lower (Down). Then watch the chart move.']),
+    doIt('trader:play', ['Haz tu apuesta', 'Make your call'], ['Pulsa Sube o Baja.', 'Tap Up or Down.']),
+    quiz(['¿Se puede adivinar?', 'Can you predict it?'], ['Si ha subido 5 veces seguidas, ¿es más probable que baje?', 'If it went up 5 times in a row, is down now more likely?'], [['Sí', 'Yes'], ['No, sigue siendo 50 %', 'No, still 50 %']], 1, ['Cada movimiento es independiente: lo anterior no cambia lo siguiente.', 'Each move is independent: the past does not change the next one.']),
+  ],
 };

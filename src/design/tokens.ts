@@ -95,22 +95,24 @@ export const light: ColorScheme = {
   cardRed: '#D7373F',
 };
 
-/** In-game accent for each game: the saturated tone of its pastel card. */
+/** In-game accent: one of the 4 brand families (violet, pink, gold, emerald) — never a rainbow. */
 export const gameTint: Record<GameId, string> = {
-  poker: '#C7B9FF',
-  blackjack: '#8EE3C0',
-  crash: '#9DBBFF',
-  dice: '#FFD38A',
-  mines: '#7FE3C4',
-  plinko: '#E2B8FF',
-  crossing: '#F3E37A',
-  roulette: '#FF9F94',
-  limbo: '#8FDDF7',
-  coinflip: '#F7D67E',
-  baccarat: '#F0B8A0',
-  hilo: '#AEB6FF',
-  keno: '#86E6EE',
-  sicbo: '#FFA9C0',
+  poker: '#A996FF',
+  blackjack: '#5BE3B0',
+  crash: '#A996FF',
+  dice: '#FFD06B',
+  mines: '#5BE3B0',
+  plinko: '#FF8AC4',
+  crossing: '#FFD06B',
+  roulette: '#FF8AC4',
+  limbo: '#A996FF',
+  coinflip: '#FFD06B',
+  baccarat: '#FF8AC4',
+  hilo: '#A996FF',
+  keno: '#5BE3B0',
+  sicbo: '#FF8AC4',
+  slots: '#FFD06B',
+  trader: '#5BE3B0',
 };
 
 /**
@@ -118,20 +120,22 @@ export const gameTint: Record<GameId, string> = {
  * Emoji render as the platform's colour emoji (Apple's on iPhone).
  */
 export const gameArt: Record<GameId, { emoji: string; colors: [string, string] }> = {
-  poker: { emoji: '🃏', colors: ['#FBD3E9', '#C7B9FF'] },
+  poker: { emoji: '🃏', colors: ['#E3DBFF', '#C7B9FF'] },
   blackjack: { emoji: '♦️', colors: ['#C8F5DF', '#A6DCEF'] },
-  crash: { emoji: '🚀', colors: ['#BFD7FF', '#D8C8FF'] },
-  dice: { emoji: '🎲', colors: ['#FFE6A7', '#FFC9A9'] },
-  mines: { emoji: '💎', colors: ['#C9F2E7', '#B8D8FF'] },
-  plinko: { emoji: '🪩', colors: ['#E7C9FF', '#FFC6E1'] },
-  crossing: { emoji: '🐔', colors: ['#FFF1A8', '#C6F2B0'] },
-  roulette: { emoji: '🎡', colors: ['#FFC8C2', '#FFD9A8'] },
-  limbo: { emoji: '📈', colors: ['#C6F0FF', '#C8FFE6'] },
-  coinflip: { emoji: '🪙', colors: ['#FFE9B0', '#F6D3A0'] },
-  baccarat: { emoji: '👑', colors: ['#F2D5C4', '#E6C3F0'] },
-  hilo: { emoji: '🎴', colors: ['#D3D8FF', '#C6E9FF'] },
-  keno: { emoji: '🎱', colors: ['#C2F3F6', '#D6E6FF'] },
-  sicbo: { emoji: '🏮', colors: ['#FFCFD9', '#E4CCFF'] },
+  crash: { emoji: '🚀', colors: ['#E3DBFF', '#C7B9FF'] },
+  dice: { emoji: '🎲', colors: ['#FFE9B0', '#FFD38A'] },
+  mines: { emoji: '💎', colors: ['#C8F5DF', '#A6DCEF'] },
+  plinko: { emoji: '🪩', colors: ['#FFD3E6', '#FBB6D6'] },
+  crossing: { emoji: '🐔', colors: ['#FFE9B0', '#FFD38A'] },
+  roulette: { emoji: '🎡', colors: ['#FFD3E6', '#FBB6D6'] },
+  limbo: { emoji: '📈', colors: ['#E3DBFF', '#C7B9FF'] },
+  coinflip: { emoji: '🪙', colors: ['#FFE9B0', '#FFD38A'] },
+  baccarat: { emoji: '👑', colors: ['#FFD3E6', '#FBB6D6'] },
+  hilo: { emoji: '🎴', colors: ['#E3DBFF', '#C7B9FF'] },
+  keno: { emoji: '🎱', colors: ['#C8F5DF', '#A6DCEF'] },
+  sicbo: { emoji: '🏮', colors: ['#FFD3E6', '#FBB6D6'] },
+  slots: { emoji: '🎰', colors: ['#FFE9B0', '#FFD38A'] },
+  trader: { emoji: '💹', colors: ['#C8F5DF', '#A6DCEF'] },
 };
 
 /** Room cards: a "place" per stake level (Offsuit names its tables after places too). */
@@ -154,20 +158,22 @@ export const brand = {
 
 /** Vivid gradient per game: cards, primary buttons and the in-game aurora. White text on top. */
 export const gameVivid: Record<GameId, [string, string]> = {
-  poker: ['#6A5CFF', '#C04BFF'],
+  poker: ['#7B5CFF', '#4B2BD6'],
   blackjack: ['#12C08A', '#0B6E6E'],
-  crash: ['#3D7BFF', '#8A4DFF'],
-  dice: ['#FF9F1C', '#FF4F6E'],
-  mines: ['#00C2A8', '#1F7BFF'],
-  plinko: ['#E040FB', '#FF4F9A'],
-  crossing: ['#F7B500', '#3DBE5C'],
-  roulette: ['#FF3B5C', '#9B1239'],
-  limbo: ['#21C8FD', '#2F55FF'],
-  coinflip: ['#FFB938', '#F2672E'],
-  baccarat: ['#B8862B', '#5E2E8C'],
-  hilo: ['#5B6CFF', '#00A8E8'],
-  keno: ['#00C6E0', '#7A5CFF'],
-  sicbo: ['#FF6A3D', '#D9217F'],
+  crash: ['#7B5CFF', '#4B2BD6'],
+  dice: ['#FFB938', '#D9741C'],
+  mines: ['#12C08A', '#0B6E6E'],
+  plinko: ['#FF4FA3', '#B3127A'],
+  crossing: ['#FFB938', '#D9741C'],
+  roulette: ['#FF4FA3', '#B3127A'],
+  limbo: ['#7B5CFF', '#4B2BD6'],
+  coinflip: ['#FFB938', '#D9741C'],
+  baccarat: ['#FF4FA3', '#B3127A'],
+  hilo: ['#7B5CFF', '#4B2BD6'],
+  keno: ['#12C08A', '#0B6E6E'],
+  sicbo: ['#FF4FA3', '#B3127A'],
+  slots: ['#FFB938', '#D9741C'],
+  trader: ['#12C08A', '#0B6E6E'],
 };
 
 /** Ink used on pastel art. */

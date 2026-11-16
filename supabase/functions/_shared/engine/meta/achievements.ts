@@ -55,14 +55,18 @@ export interface AchievementDef {
   test: (ctx: { byGame: Partial<Record<GameId, GameStats>>; totalRounds: number; lessons: number; tutorials: number; level: number }) => boolean;
 }
 
+/** Games retired from the menus (still playable by link); they don't count towards collection goals. */
+const RETIRED: string[] = ['keno', 'sicbo'];
+const played = (c: { byGame: Partial<Record<GameId, GameStats>> }) => Object.entries(c.byGame).filter(([id, s]) => !RETIRED.includes(id) && s && s.rounds > 0).length;
+
 const g = (ctx: Parameters<AchievementDef['test']>[0], id: GameId) => ctx.byGame[id] ?? emptyStats();
 
 export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'first-round', icon: 'spark', xp: 50, test: (c) => c.totalRounds >= 1 },
   { id: 'rounds-100', icon: 'stack', xp: 150, test: (c) => c.totalRounds >= 100 },
   { id: 'rounds-1000', icon: 'stack', xp: 400, test: (c) => c.totalRounds >= 1000 },
-  { id: 'explorer', icon: 'compass', xp: 200, test: (c) => Object.values(c.byGame).filter((s) => s && s.rounds > 0).length >= 7 },
-  { id: 'completionist', icon: 'grid', xp: 500, test: (c) => Object.values(c.byGame).filter((s) => s && s.rounds > 0).length >= 14 },
+  { id: 'explorer', icon: 'compass', xp: 200, test: (c) => played(c) >= 7 },
+  { id: 'completionist', icon: 'grid', xp: 500, test: (c) => played(c) >= 14 },
   { id: 'student', icon: 'book', xp: 150, test: (c) => c.lessons >= 5 },
   { id: 'scholar', icon: 'book', xp: 500, test: (c) => c.lessons >= 30 },
   { id: 'tutorials-all', icon: 'check', xp: 300, test: (c) => c.tutorials >= 14 },
@@ -76,8 +80,8 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'hilo-10x', icon: 'cards', xp: 150, test: (c) => g(c, 'hilo').bestMultiplier >= 10 },
   { id: 'crossing-far', icon: 'road', xp: 150, test: (c) => g(c, 'crossing').bestMultiplier >= 5 },
   { id: 'roulette-straight', icon: 'wheel', xp: 200, test: (c) => g(c, 'roulette').bestMultiplier >= 36 },
-  { id: 'keno-hunter', icon: 'grid', xp: 200, test: (c) => g(c, 'keno').bestMultiplier >= 20 },
-  { id: 'sicbo-triple', icon: 'dice', xp: 300, test: (c) => g(c, 'sicbo').bestMultiplier >= 31 },
+  { id: 'slots-777', icon: 'spark', xp: 300, test: (c) => g(c, 'slots').bestMultiplier >= 80 },
+  { id: 'trader-50', icon: 'rise', xp: 150, test: (c) => g(c, 'trader').rounds >= 50 },
   { id: 'baccarat-tie', icon: 'cards', xp: 150, test: (c) => g(c, 'baccarat').bestMultiplier >= 9 },
   { id: 'blackjack-21', icon: 'cards', xp: 100, test: (c) => g(c, 'blackjack').bestMultiplier >= 2.5 },
   { id: 'poker-100', icon: 'chip', xp: 200, test: (c) => g(c, 'poker').rounds >= 100 },

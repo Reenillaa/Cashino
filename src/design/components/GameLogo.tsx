@@ -180,6 +180,37 @@ const ART: Record<GameId, (id: string) => React.ReactNode> = {
       }))}
     </>
   ),
+  slots: (id) => (
+    <>
+      <Rect x={20} y={22} width={60} height={70} rx={10} fill={SH} transform="translate(2 4)" />
+      <Path d="M24 26 Q50 2 76 26 Z" fill="#FF3B5C" />
+      <Circle cx={50} cy={14} r={4} fill="#FFF6D0" />
+      <Rect x={18} y={24} width={64} height={66} rx={10} fill={`url(#${id}-gold)`} />
+      <Rect x={24} y={34} width={52} height={28} rx={6} fill="#231A3A" />
+      {[0, 1, 2].map((k) => (
+        <G key={k}>
+          <Rect x={27 + k * 16.3} y={37} width={14} height={22} rx={3} fill="#FFFFFF" />
+          <SvgText x={34 + k * 16.3} y={54} fontSize={17} fontWeight="900" fill="#FF3B5C" textAnchor="middle">7</SvgText>
+        </G>
+      ))}
+      <Rect x={30} y={70} width={40} height={8} rx={4} fill="#8A5300" />
+      <Rect x={84} y={34} width={5} height={30} rx={2.5} fill="#C9C4DA" />
+      <Circle cx={86.5} cy={32} r={6} fill="#FF3B5C" stroke="#FFF6D0" strokeWidth={1.5} />
+    </>
+  ),
+  trader: () => (
+    <>
+      {[[16, 60, 22, 70, '#FF5C7A'], [30, 52, 20, 62, '#3BE39A'], [44, 56, 18, 66, '#FF5C7A'], [58, 40, 26, 54, '#3BE39A'], [72, 26, 30, 44, '#3BE39A']].map(([x, top, h, wick, col], i) => (
+        <G key={i}>
+          <Rect x={(x as number) + 4.5} y={(top as number) - 6} width={2} height={(wick as number) - (top as number) + 16} fill={col as string} opacity={0.8} />
+          <Rect x={x as number} y={top as number} width={11} height={h as number} rx={2.5} fill={col as string} />
+        </G>
+      ))}
+      <Path d="M10 84 L36 64 L52 70 L86 30" stroke={SH} strokeWidth={8} fill="none" strokeLinecap="round" strokeLinejoin="round" transform="translate(2 3)" />
+      <Path d="M10 84 L36 64 L52 70 L86 30" stroke="#FFFFFF" strokeWidth={6} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <Polygon points="74,26 92,20 88,38" fill="#FFFFFF" />
+    </>
+  ),
   sicbo: (id) => (
     <>
       {die(id, 28, 12, 30, -8, [[0.5, 0.5]])}

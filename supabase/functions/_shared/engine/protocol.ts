@@ -20,6 +20,8 @@ import * as Roulette from './games/roulette.ts';
 import * as Bac from './games/baccarat.ts';
 import * as SicBo from './games/sicbo.ts';
 import * as BJ from './games/blackjack.ts';
+import * as Slots from './games/slots.ts';
+import * as Trader from './games/trader.ts';
 import { cardCode } from './cards/cards.ts';
 import { roomById, stakeAllowed } from './meta/rooms.ts';
 
@@ -83,6 +85,18 @@ const handlers: Record<Exclude<GameId, 'poker'>, Handler> = {
     const b = bet(p.bet);
     const r = guard(() => Dice.playDice(rng, b, oneOf(p.mode, ['over', 'under'] as const, 'mode'), num(p.target, 'target')));
     return single(b, r.payout, `${r.roll.toFixed(2)}`, { roll: r.roll, won: r.won, chance: r.chance, multiplier: Dice.diceMultiplier(p.mode as Dice.DiceMode, p.target as number) });
+  },
+  slots: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const b = bet(p.bet);
+    const r = Slots.playSlots(rng, b);
+    return single(b, r.payout, r.line.map((x) => ({ cherry: '🍒', lemon: '🍋', bell: '🔔', bar: 'BAR', seven: '7', diamond: '💎' })[x]).join(' '), { line: r.line, multiplier: r.multiplier });
+  },
+  trader: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const b = bet(p.bet);
+    const r = guard(() => Trader.playTrader(rng, b, oneOf(p.side, ['up', 'down'] as const, 'side')));
+    return single(b, r.payout, `${r.side === 'up' ? '▲' : '▼'} ${r.path[r.path.length - 1].toFixed(2)}`, { path: r.path, side: r.side, won: r.won });
   },
   limbo: (_s, op, p, { rng }) => {
     if (op !== 'play') fail('invalid_op');
