@@ -63,12 +63,12 @@ export function desktopShell(dist, base, entrySrc) {
 #cx-desk .phone:before,#cx-desk .phone:after{content:'';position:absolute;width:4px;border-radius:2px;background:#2a2638}
 #cx-desk .phone:before{left:-4px;top:18%;height:10%;box-shadow:0 calc(var(--h) * .13) 0 #2a2638}
 #cx-desk .phone:after{right:-4px;top:24%;height:14%}
-#cx-desk .screen{position:relative;width:100%;height:100%;border-radius:calc(var(--h) * .056);overflow:hidden;background:#000;display:flex;flex-direction:column}
+#cx-desk .screen{position:relative;width:100%;height:100%;border-radius:calc(var(--h) * .056);overflow:hidden;clip-path:inset(0 round calc(var(--h) * .056));isolation:isolate;background:#000;display:flex;flex-direction:column}
 #cx-desk .status{flex:none;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 28px 0 32px;font:600 15px CxText,system-ui;position:relative}
 #cx-desk .island{position:absolute;left:50%;top:10px;width:30%;height:28px;transform:translateX(-50%);border-radius:20px;background:#000;box-shadow:0 0 0 1px #111}
 #cx-desk .icons{display:flex;gap:6px;align-items:center}
 #cx-desk .icons span{display:block;background:#fff;border-radius:2px}
-#cx-desk iframe{flex:1;width:100%;border:0;display:block;background:#000}
+#cx-desk iframe{flex:1 1 0;min-height:0;height:0;width:100%;border:0;display:block;background:#000}
 #cx-desk .home{position:absolute;bottom:20px;left:50%;width:34%;height:5px;border-radius:3px;background:rgba(255,255,255,.55);transform:translateX(-50%);pointer-events:none}
 @media (max-width:1180px){#cx-desk .side{max-width:360px}#cx-desk h1{font-size:34px}#cx-desk ul{display:none}}
 @media (max-width:980px){#cx-desk .side{display:none}}
@@ -76,7 +76,7 @@ export function desktopShell(dist, base, entrySrc) {
   const body = `
 <div id="cx-desk">
   <div class="bg"></div><div class="felt"></div><div class="grain"></div>
-  ${chip('#7B5CFF', 120, 6, 12, -12, 7)}${chip('#FF4FA3', 90, 44, 6, 18, 9)}${chip('#12C08A', 140, 86, 18, 8, 8)}${chip('#FFB938', 80, 10, 72, 24, 10)}${chip('#E8304F', 110, 90, 70, -20, 7.5)}${chip('#1A1430', 70, 60, 86, 30, 11)}
+  ${chip('#7B5CFF', 120, 6, 12, -12, 7)}${chip('#FF4FA3', 90, 44, 6, 18, 9)}${chip('#12C08A', 140, 86, 18, 8, 8)}${chip('#FFB938', 80, 10, 72, 24, 10)}${chip('#E8304F', 110, 90, 70, -20, 7.5)}
   ${card('A', '♠', false, 2, 88, -16, 9)}${card('K', '♥', true, 75, 6, 14, 8)}${card('7', '♦', true, 2, 40, 10, 10)}
   <div class="wrap">
     <div class="side">
