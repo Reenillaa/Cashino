@@ -6,7 +6,7 @@ import { ECONOMY, applyRefill, canRefill, claimDaily, canClaimDaily, utcDay, typ
 export interface LedgerEntry {
   id: string;
   ts: number;
-  kind: 'bet' | 'payout' | 'daily' | 'refill' | 'mission' | 'level' | 'achievement' | 'migration' | 'adjust' | 'shop';
+  kind: 'bet' | 'payout' | 'daily' | 'refill' | 'mission' | 'level' | 'achievement' | 'migration' | 'adjust' | 'shop' | 'pass';
   amount: number; // signed
   game?: string;
   balance: number;

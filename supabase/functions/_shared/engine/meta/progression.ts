@@ -50,6 +50,13 @@ export const SEASON_TIERS = 30;
 export function seasonTier(points: number): number {
   return Math.min(SEASON_TIERS, Math.floor(points / SEASON_TIER_POINTS));
 }
+/** Chips for reaching a pass tier (1…30): every 5th tier is a big one. Free for everybody, no paid track. */
+export function passReward(tier: number): number {
+  if (!Number.isInteger(tier) || tier < 1 || tier > SEASON_TIERS) return 0;
+  return tier % 5 === 0 ? 150 + tier * 20 : 40 + tier * 8;
+}
+/** Week number used by the friend leagues (weeks start on Monday 00:00 UTC). */
+export const weekAt = (ts: number) => Math.floor((ts - SEASON_EPOCH) / (7 * DAY_MS)) + 1;
 
 // ─────────────────────────────── Missions ───────────────────────────────
 export type MissionKind = 'playRounds' | 'playGame' | 'winRounds' | 'lesson' | 'quiz' | 'multiplier' | 'pokerHands' | 'variety';

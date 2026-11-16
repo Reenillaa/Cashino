@@ -65,9 +65,11 @@ export function usePlayErrors() {
   return useCallback(
     (e: unknown) => {
       haptic.error();
-      const code = e instanceof PlayError || e instanceof OnlineError ? (e instanceof OnlineError ? e.code : e.message) : 'error';
+      let code = e instanceof PlayError || e instanceof OnlineError ? (e instanceof OnlineError ? e.code : e.message) : 'error';
+      if (code === 'error' && e instanceof Error && /^[a-z_]+$/.test(e.message)) code = e.message;
       if (code === 'busy') return;
-      const msg = code.startsWith('hot_table') ? t('play.hotTableError', { max: code.split(':')[1] ?? '' }) : code.startsWith('room_max:') ? t('rooms.maxReached', { max: code.split(':')[1] }) : code === 'stake_outside_room' ? t('rooms.limits') : code === 'insufficient' ? t('common.insufficient') : code === 'not_configured' ? t('auth.notConfigured') : code === 'network' ? t('common.offline') : `${t('common.error')} (${code})`;
+      const known = t(`errors.${code}`);
+      const msg = code.startsWith('hot_table') ? t('play.hotTableError', { max: code.split(':')[1] ?? '' }) : code.startsWith('room_max:') ? t('rooms.maxReached', { max: code.split(':')[1] }) : code === 'stake_outside_room' ? t('rooms.limits') : code === 'insufficient' ? t('common.insufficient') : code === 'not_configured' ? t('auth.notConfigured') : code === 'network' ? t('common.offline') : known !== `errors.${code}` ? known : `${t('common.error')} (${code})`;
       useProgress.getState().pushToast({ kind: 'info', title: msg });
     },
     [t],

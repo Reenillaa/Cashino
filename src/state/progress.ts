@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { persistStorage, STORAGE_PREFIX } from '@/services/storage';
 import { GAME_IDS, type GameId } from '@/engine/games/types.ts';
 import { applyRound, emptyStats, newlyUnlocked, type GameStats } from '@/engine/meta/achievements.ts';
-import { levelFromXp, roundXp, dailyMissions, weeklyMissions, missionIncrement, type MissionDef, type MissionEvent } from '@/engine/meta/progression.ts';
+import { levelFromXp, roundXp, seasonAt, seasonTier, passReward, dailyMissions, weeklyMissions, missionIncrement, type MissionDef, type MissionEvent } from '@/engine/meta/progression.ts';
 import { utcDay, ECONOMY } from '@/engine/meta/economy.ts';
 import { SP } from '@/engine/meta/ranking.ts';
 import { useWallet } from './wallet';
@@ -36,6 +36,9 @@ interface ProgressState {
   spDay: number;
   spRoundsToday: number;
   seasonPoints: number;
+  /** Season the local season points belong to (they restart with every season). */
+  pointsSeason: number | null;
+  passClaimed: string[];
   stats: Partial<Record<GameId, GameStats>>;
   practiceStats: Partial<Record<GameId, GameStats>>;
   history: RoundLog[];
@@ -52,6 +55,9 @@ interface ProgressState {
   recordRound: (r: Omit<RoundLog, 'id'>, opts?: { multiStep?: boolean }) => { xp: number; levelUp: number | null };
   addXp: (xp: number, reason?: string) => number | null;
   addSeasonPoints: (n: number) => void;
+  syncSeason: () => void;
+  /** Marks a pass tier as claimed if it is reached; returns its chips (or null). */
+  claimPass: (tier: number, force?: boolean) => number | null;
   missionEvent: (e: MissionEvent) => void;
   claimMission: (m: MissionDef) => { coins: number; xp: number } | null;
   toggleFavorite: (g: GameId) => void;
@@ -69,6 +75,8 @@ const initial = () => ({
   spDay: 0,
   spRoundsToday: 0,
   seasonPoints: 0,
+  pointsSeason: null as number | null,
+  passClaimed: [] as string[],
   stats: {},
   practiceStats: {},
   history: [] as RoundLog[],
@@ -128,6 +136,21 @@ export const useProgress = create<ProgressState>()(
         return null;
       },
       addSeasonPoints: (n) => set((s) => ({ seasonPoints: s.seasonPoints + Math.max(0, n) })),
+      syncSeason: () => {
+        const n = seasonAt(Date.now()).number;
+        const s = get();
+        if (s.pointsSeason === null) set({ pointsSeason: n });
+        else if (s.pointsSeason !== n) set({ pointsSeason: n, seasonPoints: 0 });
+      },
+      claimPass: (tier, force) => {
+        get().syncSeason();
+        const s = get();
+        const key = `s${s.pointsSeason}-t${tier}`;
+        const amount = passReward(tier);
+        if (!amount || s.passClaimed.includes(key) || (!force && seasonTier(s.seasonPoints) < tier)) return null;
+        set({ passClaimed: [...s.passClaimed, key].slice(-120) });
+        return amount;
+      },
       missionEvent: (e) => {
         const today = utcDay(Date.now());
         const week = Math.floor((today + 3) / 7);

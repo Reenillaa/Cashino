@@ -1,10 +1,10 @@
 /**
- * `rewards` Edge Function — daily gift, balance refill and mission rewards, decided by server rules
+ * `rewards` Edge Function — daily gift, balance refill, mission and season-pass rewards, decided by server rules
  * (same constants as src/engine/meta/economy.ts) and recorded once per period via `claim_reward`.
  */
 import { admin, handler, HttpError, json, requireUser, rpcError } from '../_shared/http.ts';
 import { ECONOMY, dailyRewardAmount, nextStreak, utcDay } from '../_shared/engine/meta/economy.ts';
-import { dailyMissions, weeklyMissions, type MissionDef } from '../_shared/engine/meta/progression.ts';
+import { dailyMissions, weeklyMissions, passReward, seasonAt, seasonTier, type MissionDef } from '../_shared/engine/meta/progression.ts';
 
 const dayKey = (d: number) => new Date(d * 86_400_000).toISOString().slice(0, 10);
 
@@ -71,6 +71,17 @@ Deno.serve(
       rpcError(error);
       await db.rpc('award_progress', { p_user: userId, p_xp: m.xp, p_sp: m.sp, p_round: false });
       return json({ amount: m.coins, balance });
+    }
+    if (action === 'pass') {
+      const tier = Number(body.tier);
+      const season = seasonAt(Date.now()).number;
+      const amount = passReward(tier);
+      if (!amount) throw new HttpError('unknown_tier', 404);
+      const { data: sc } = await db.from('season_scores').select('points').eq('user_id', userId).eq('season', season).maybeSingle();
+      if (seasonTier(sc?.points ?? 0) < tier) throw new HttpError('not_completed', 409);
+      const { data: balance, error } = await db.rpc('claim_reward', { p_user: userId, p_kind: 'pass', p_period: `s${season}-t${tier}`, p_amount: amount });
+      rpcError(error);
+      return json({ amount, balance });
     }
     throw new HttpError('unknown_action');
   }),

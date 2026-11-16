@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Avatar, Chip, GameGlyph, Glass, ListGroup, ListRow, Screen, Section, Segmented, Sheet, Surface, T } from '@/design/components';
+import { Avatar, Chip, GameGlyph, Glass, ListGroup, ListRow, PressableScale, ProgressBar, Screen, Section, Segmented, Sheet, Surface, T } from '@/design/components';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD, radius } from '@/design/tokens';
 import { tr, useT } from '@/i18n';
@@ -107,11 +108,22 @@ export default function Ranking() {
         </View>
         {scope === 'game' ? <GameGlyph game={game} size={28} color={META[game].tint} /> : null}
       </Glass>
-      {scope !== 'game' && (
-        <Surface style={{ marginHorizontal: SCREEN_PAD, marginTop: 10 }}>
-          <T variant="footnote" color="text2">{t('home.seasonTier', { tier: `${seasonTier(seasonPoints)}/${SEASON_TIERS}` })} · {seasonPoints % SEASON_TIER_POINTS}/{SEASON_TIER_POINTS}</T>
-        </Surface>
-      )}
+      {/* season pass and friend leagues */}
+      <View style={{ flexDirection: 'row', gap: 10, marginHorizontal: SCREEN_PAD, marginTop: 10 }}>
+        <PressableScale onPress={() => router.push('/pass')} feedback="select" scaleTo={0.97} accessibilityLabel={t('pass.title')} style={styles.promo}>
+          <LinearGradient colors={['#7B5CFF', '#FF4FA3']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+          <T style={{ fontSize: 24 }}>🎟️</T>
+          <T weight="display" style={{ color: '#fff' }}>{t('pass.title')}</T>
+          <T variant="caption" style={{ color: 'rgba(255,255,255,0.9)' }}>{t('home.seasonTier', { tier: `${seasonTier(seasonPoints)}/${SEASON_TIERS}` })}</T>
+          <ProgressBar value={(seasonPoints % SEASON_TIER_POINTS) / SEASON_TIER_POINTS} tint="#FFD06B" height={5} style={{ marginTop: 6 }} />
+        </PressableScale>
+        <PressableScale onPress={() => router.push('/leagues')} feedback="select" scaleTo={0.97} accessibilityLabel={t('leagues.title')} style={styles.promo}>
+          <LinearGradient colors={['#12C08A', '#0B6E6E']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+          <T style={{ fontSize: 24 }}>🏆</T>
+          <T weight="display" style={{ color: '#fff' }}>{t('leagues.banner')}</T>
+          <T variant="caption" style={{ color: 'rgba(255,255,255,0.9)' }}>{t('leagues.bannerBody')}</T>
+        </PressableScale>
+      </View>
       <Section title={userId ? metricLabel : t('ranking.localPreview')}>
         {!userId ? (
           <T variant="footnote" color="text3" style={{ paddingHorizontal: SCREEN_PAD }}>{onlineConfigured ? t('ranking.offlineNote') : t('auth.notConfigured')}</T>
@@ -151,5 +163,6 @@ export default function Ranking() {
 }
 
 const styles = StyleSheet.create({
+  promo: { flex: 1, minHeight: 112, padding: 12, borderRadius: 20, overflow: 'hidden', gap: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, height: 56 },
 });
