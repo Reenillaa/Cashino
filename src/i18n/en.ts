@@ -58,7 +58,7 @@ const en: Dictionary = {
     riskLow: 'Low', riskMedium: 'Medium', riskHigh: 'High', level: 'Difficulty', levelEasy: 'Easy', levelMedium: 'Medium', levelHard: 'Hard', levelExpert: 'Expert',
     pumpIt: 'Pump', popped: 'POP!', floor: 'Floor {{n}}', dragon: 'Dragon', tiger: 'Tiger',
     dHands: { five: 'Five alike', four: 'Four alike', full: 'Full house', three: 'Three', twoPair: 'Two pair', pair: 'Pair', none: 'Nothing' },
-    runners: 'runners', backHorse: 'Back {{name}}', profile: 'profile', likes: 'Likes', bestTrip: 'Best trip', years: 'yrs', addBet: 'Add', race: 'Race', newRace: 'New race', raceOn: 'They’re running!',
+    runners: 'runners', pickShort: 'Back it', unpick: 'Remove', lastRaces: 'last races', backHorse: 'Back {{name}}', profile: 'profile', likes: 'Likes', bestTrip: 'Best trip', years: 'yrs', addBet: 'Add', race: 'Race', newRace: 'New race', raceOn: 'They’re running!',
     pickHorses_one: 'Tap the number of {{count}} more horse', pickHorses_other: 'Tap the numbers of {{count}} horses',
     raceOff: 'The stalls open… and they’re off!', raceLeads: '{{name}} takes the lead', raceStraight: 'Into the straight: {{a}} and {{b}} fight it out', raceLine: '{{name}} hits the line!', raceWinner: '{{name}} wins!',
     going: { firm: 'Firm', good: 'Good', soft: 'Soft', heavy: 'Heavy' },

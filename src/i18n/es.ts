@@ -56,7 +56,7 @@ const es = {
     riskLow: 'Bajo', riskMedium: 'Medio', riskHigh: 'Alto', level: 'Dificultad', levelEasy: 'Fácil', levelMedium: 'Medio', levelHard: 'Difícil', levelExpert: 'Experto',
     pumpIt: 'Bombear', popped: '¡PUM!', floor: 'Piso {{n}}', dragon: 'Dragón', tiger: 'Tigre',
     dHands: { five: 'Cinco iguales', four: 'Cuatro iguales', full: 'Full', three: 'Trío', twoPair: 'Doble pareja', pair: 'Pareja', none: 'Nada' },
-    runners: 'corredores', backHorse: 'Apostar por {{name}}', profile: 'ficha', likes: 'Le gusta', bestTrip: 'Mejor distancia', years: 'años', addBet: 'Añadir', race: 'Correr', newRace: 'Nueva carrera', raceOn: '¡Están en carrera!',
+    runners: 'corredores', pickShort: 'Apostar', unpick: 'Quitar', lastRaces: 'últimas carreras', backHorse: 'Apostar por {{name}}', profile: 'ficha', likes: 'Le gusta', bestTrip: 'Mejor distancia', years: 'años', addBet: 'Añadir', race: 'Correr', newRace: 'Nueva carrera', raceOn: '¡Están en carrera!',
     pickHorses_one: 'Toca el número de {{count}} caballo más', pickHorses_other: 'Toca el número de {{count}} caballos',
     raceOff: '¡Se abren los cajones y salen!', raceLeads: '{{name}} toma la delantera', raceStraight: 'Entran en la recta: {{a}} y {{b}} se lo juegan', raceLine: '¡{{name}} llega a la meta!', raceWinner: '¡Gana {{name}}!',
     going: { firm: 'Firme', good: 'Bueno', soft: 'Blando', heavy: 'Pesado' },
