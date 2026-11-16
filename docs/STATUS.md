@@ -97,6 +97,10 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - **Limbo**: eliges el objetivo arrastrando directamente sobre el velocímetro.
 - **Bacará y Sic Bo** apuestan también con la rueda de fichas.
 
+## Cuentas de desarrollador (admin)
+- Una cuenta marcada como admin lo tiene **todo desbloqueado** y ve un botón 👑 en el perfil con el **panel de admin**: buscar cualquier jugador y regalarle fichas en un toque (+1.000, +10.000, +100.000, +1M o la cantidad que quieras, con mensaje opcional). Al jugador le sale un aviso «🎁 ¡Te han regalado X fichas!».
+- Ser admin **solo** lo puede poner el dueño del proyecto (tabla `admins` sin acceso para los jugadores). Para hacer admin a una cuenta: `insert into admins (user_id) select id from profiles where username = 'TU_USUARIO';` en el SQL de Supabase. Cada regalo queda registrado en `admin_gifts` y no se paga dos veces aunque se repita la petición (probado contra el servidor real).
+
 ## Cambios de la ronda 15 (todo se desbloquea, 5 pestañas, portadas, perfil, medallas, ranking semanal con premios)
 - **Desbloqueos**: al empezar solo se puede jugar al **blackjack y al póker**. Todo lo demás se compra con fichas: cada juego, cada mesa en directo, la sección de apuestas deportivas y cada deporte dentro (fútbol, NBA, NFL, NHL, tenis, UFC, F1). Precio único para todo: la 1ª compra 2.500, la 2ª 5.000 y a partir de ahí ×1,5 por compra **y nunca menos del 40 % de lo máximo que hayas llegado a tener** (redondeado: 7.500, 12.000, 17.000…). Con cuenta lo decide y lo cobra el servidor (`unlocks`, `unlock_buy`; el servidor rechaza jugar a lo no desbloqueado en `game`, `live` y `sports`). Probado contra el Supabase real: bloqueado → compra 2.500 → 5.000 → 7.500 → 12.000, sin dobles compras, sin comprar un deporte sin la sección, y si el precio cambia te lo enseña antes de cobrar.
 - **Pestañas**: Inicio · Apuestas · Ranking (en medio) · Tienda · Perfil. La tienda sale del perfil y tiene primero la sección «Desbloquear». En Inicio se quitan «Novedades» y «Los más jugados», y «Aprende a jugar» pasa a ser un botón redondo con un libro arriba a la derecha.

@@ -21,6 +21,7 @@ import { UnlockSheet } from '@/features/unlocks/UnlockSheet';
 import { Splash } from '@/features/brand/Splash';
 import { syncMusic } from '@/services/audio';
 import { useAuthListener } from '@/features/auth/useAuthListener';
+import { useAdminAndGifts } from '@/features/admin/useAdmin';
 import { useBreakReminder } from '@/features/wellbeing/useBreakReminder';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
@@ -32,6 +33,7 @@ export default function RootLayout() {
   const musicVolume = useSettings((s) => s.musicVolume);
   const { c, isDark } = useTheme();
   useAuthListener();
+  useAdminAndGifts();
   useBreakReminder();
   useEffect(() => setLanguage(language), [language]);
   useEffect(() => syncMusic(), [music, musicVolume]);

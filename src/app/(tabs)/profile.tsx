@@ -7,6 +7,7 @@ import Svg, { Circle } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useWallet } from '@/state/wallet';
 import { FriendsSheet } from '@/features/social/FriendsSheet';
+import { useAdmin } from '@/features/admin/useAdmin';
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD, radius } from '@/design/tokens';
 import { useT } from '@/i18n';
@@ -42,6 +43,7 @@ export default function Profile() {
   const [game, setGame] = useState<GameId | 'all'>('all');
   const [edit, setEdit] = useState(false);
   const [friends, setFriends] = useState(false);
+  const isAdmin = useAdmin((s) => s.admin);
   const lvl = levelFromXp(xp);
   const balance = signedIn ? serverBalance ?? 0 : guestBalance;
   const all = GAME_IDS.reduce((acc, g) => {
@@ -59,6 +61,11 @@ export default function Profile() {
         <LinearGradient colors={['#7B5CFF', '#B3127A', '#07040F']} locations={[0, 0.55, 1]} style={StyleSheet.absoluteFill} />
         <View style={styles.topRow}>
           <View style={{ flex: 1 }} />
+          {isAdmin ? (
+            <PressableScale onPress={() => router.push('/admin')} accessibilityLabel={t('admin.open')} style={[styles.round, { backgroundColor: '#FFD06B' }]}>
+              <T style={{ fontSize: 18 }}>👑</T>
+            </PressableScale>
+          ) : null}
           <PressableScale onPress={() => setFriends(true)} accessibilityLabel={t('social.friends')} style={styles.round}>
             <Icon name="userPlus" size={20} color="#fff" />
           </PressableScale>
