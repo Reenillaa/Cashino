@@ -160,6 +160,17 @@ export default function Home() {
         </View>
       </Section>
 
+      {/* Sports betting on real events */}
+      <PressableScale onPress={() => router.push('/sports')} scaleTo={0.97} feedback="select" accessibilityLabel={t('sports.banner')} style={[styles.shopCard, { marginHorizontal: SCREEN_PAD }]}>
+        <LinearGradient colors={['#0B6E52', '#062A24']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+        <T style={{ fontSize: 34 }}>⚽</T>
+        <View style={{ flex: 1 }}>
+          <T weight="display" style={{ color: '#fff', fontSize: 20 }}>{t('sports.banner')}</T>
+          <T variant="footnote" style={{ color: 'rgba(255,255,255,0.9)' }}>{t('sports.bannerBody')}</T>
+        </View>
+        <T weight="display" style={{ color: '#5BE3B0', fontSize: 22 }}>›</T>
+      </PressableScale>
+
       {/* Live multiplayer rounds */}
       <PressableScale onPress={() => router.push('/live/horses')} scaleTo={0.97} feedback="select" accessibilityLabel={t('live.banner')} style={[styles.shopCard, { marginHorizontal: SCREEN_PAD }]}>
         <LinearGradient colors={['#12C08A', '#0B6E6E']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />

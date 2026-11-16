@@ -33,3 +33,5 @@ verify_jwt = true
 verify_jwt = true
 [functions.live]
 verify_jwt = true
+[functions.sports]
+verify_jwt = true

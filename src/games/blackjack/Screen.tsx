@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Button, PlayingCard, T } from '@/design/components';
+import { Button, PlayingCard, PressableScale, T } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { parseCard } from '@/engine/cards/cards.ts';
@@ -20,6 +20,7 @@ import { META } from '../catalog';
 import { sfx } from '@/services/audio';
 import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 import { ChipStack, Felt } from '../shared/Felt';
+import { ActionButton } from '../shared/ActionButton';
 
 const tint = META.blackjack.tint;
 interface HandV { cards: string[]; bet: number; done: boolean; outcome?: string; payout?: number }
@@ -155,17 +156,17 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
                   💡 {t('play.tip')}: <T variant="callout" weight="semibold">{t(`play.${suggestion === 'double' ? 'doubleDown' : suggestion}`)}</T>
                 </T>
               ) : null}
-              <TutorialTarget id="bj:end">
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                <Button title={t('play.hit')} kind="secondary" size="md" onPress={() => act('hit')} disabled={busy} style={{ flex: 1 }} />
-                <Button title={t('play.stand')} kind="secondary" size="md" onPress={() => act('stand')} disabled={busy} style={{ flex: 1 }} />
-              </View>
+              <TutorialTarget id="bj:end" style={{ flexDirection: 'row', gap: 8 }}>
+                <ActionButton symbol="+" label={t('play.hit')} colors={['#12C08A', '#0B6E6E']} onPress={() => act('hit')} disabled={busy} glow={(hint || showOdds) && suggestion === 'hit'} />
+                <ActionButton symbol="✋" label={t('play.stand')} colors={['#FFB938', '#D9741C']} onPress={() => act('stand')} disabled={busy} glow={(hint || showOdds) && suggestion === 'stand'} />
+                <ActionButton symbol="×2" label={t('play.doubleDown')} colors={['#7B5CFF', '#4B2BD6']} onPress={() => act('double')} disabled={busy || !view.legal.includes('double') || view.hands[view.active].bet > s.balance} glow={(hint || showOdds) && suggestion === 'double'} />
+                <ActionButton symbol="⇆" label={t('play.split')} colors={['#FF4FA3', '#B3127A']} onPress={() => act('split')} disabled={busy || !view.legal.includes('split') || view.hands[view.active].bet > s.balance} glow={(hint || showOdds) && suggestion === 'split'} />
               </TutorialTarget>
-              <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
-                <Button title={t('play.doubleDown')} kind="tinted" tint={tint} size="md" onPress={() => act('double')} disabled={busy || !view.legal.includes('double') || view.hands[view.active].bet > s.balance} style={{ flex: 1 }} />
-                <Button title={t('play.split')} kind="tinted" tint={tint} size="md" onPress={() => act('split')} disabled={busy || !view.legal.includes('split') || view.hands[view.active].bet > s.balance} style={{ flex: 1 }} />
-                {!showOdds && <Button title="💡" kind="secondary" size="md" onPress={() => setHint((h) => !h)} accessibilityHint={t('play.showTip')} style={{ width: 56, paddingHorizontal: 0 }} />}
-              </View>
+              {!showOdds ? (
+                <PressableScale onPress={() => setHint((h) => !h)} feedback="select" accessibilityLabel={t('play.showTip')} style={styles.hintBtn}>
+                  <T variant="footnote" weight="semibold" style={{ color: hint ? '#FFE58A' : 'rgba(255,255,255,0.7)' }}>💡 {t('play.tip')}{hint ? ' ✓' : ''}</T>
+                </PressableScale>
+              ) : null}
             </>
           ) : (
             <>
@@ -182,6 +183,7 @@ export default function BlackjackScreen({ forceTutorial }: { forceTutorial?: boo
 }
 
 const styles = StyleSheet.create({
+  hintBtn: { alignSelf: 'center', marginTop: 8, paddingHorizontal: 14, height: 30, borderRadius: 15, justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.07)' },
   betCircle: { alignSelf: 'center', width: 86, height: 86, borderRadius: 43, borderWidth: 2, borderColor: 'rgba(255,229,138,0.55)', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.12)' },
   total: { paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 6 },
   stage: { flex: 1, justifyContent: 'space-between', paddingTop: 16, paddingBottom: 18 },
