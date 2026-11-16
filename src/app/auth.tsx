@@ -16,6 +16,9 @@ import { migrateGuest, syncLearning } from '@/features/sync/sync';
 /** Social sign-in buttons appear only for providers enabled in Supabase (EXPO_PUBLIC_OAUTH_PROVIDERS="google,apple"). */
 const OAUTH = (process.env.EXPO_PUBLIC_OAUTH_PROVIDERS ?? '').split(',').map((x: string) => x.trim()).filter((x: string): x is OAuthProvider => x === 'apple' || x === 'google');
 
+/** Magic links need a real email sender (custom SMTP in Supabase); off until one is set up. */
+const MAGIC_LINK = process.env.EXPO_PUBLIC_MAGIC_LINK === '1';
+
 export default function Auth() {
   const { t } = useT();
   const { c } = useTheme();
@@ -121,12 +124,12 @@ export default function Auth() {
           {input({ value: password, onChangeText: setPassword, placeholder: t('auth.password'), secureTextEntry: true, accessibilityLabel: t('auth.password'), textContentType: mode === 'signUp' ? 'newPassword' : 'password' })}
           {msg ? <T variant="footnote" color="warn">{msg}</T> : null}
           <Button title={mode === 'signUp' ? t('auth.signUp') : t('auth.signIn')} onPress={() => void submit()} loading={busy} />
-          <Button
+          {MAGIC_LINK ? <Button
             title={t('auth.magicLink')}
             kind="ghost"
             onPress={() => (supabase ? void supabase.auth.signInWithOtp({ email }).then(({ error }) => setMsg(error ? error.message : t('auth.checkEmail'))) : setMsg(t('auth.notConfigured')))}
             disabled={!/^\S+@\S+\.\S+$/.test(email)}
-          />
+          /> : null}
           <T variant="footnote" color="text3" align="center">{t('common.noMoneyDisclaimer')}</T>
         </View>
       </Screen>
