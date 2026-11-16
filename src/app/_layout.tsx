@@ -18,6 +18,7 @@ import { useSettings } from '@/state/settings';
 import { useTheme } from '@/design/theme';
 import { Toasts } from '@/design/components';
 import { UnlockSheet } from '@/features/unlocks/UnlockSheet';
+import { IslandBalance } from '@/features/brand/IslandBalance';
 import { Splash } from '@/features/brand/Splash';
 import { syncMusic } from '@/services/audio';
 import { useAuthListener } from '@/features/auth/useAuthListener';
@@ -51,6 +52,7 @@ export default function RootLayout() {
           <Stack.Screen name="rules/[id]" options={{ presentation: 'modal' }} />
         </Stack>
         <UnlockSheet />
+        <IslandBalance />
         <Toasts />
         <Splash />
       </SafeAreaProvider>
