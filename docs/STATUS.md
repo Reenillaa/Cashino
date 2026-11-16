@@ -7,7 +7,7 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 | 1 | App React Native ejecutable | ✅ | Expo SDK 58 / RN 0.88; typecheck y build web OK |
 | 2 | Identidad Titanium | ✅ | `docs/02`, tokens, icono provisional “Split” |
 | 3 | Pestañas funcionales | ✅ | Juegos (inicio), Ranking, Perfil (Social retirado en la ronda 8 a petición) |
-| 4 | 14 juegos implementados | ✅ | Todos jugables (verificado en navegador) |
+| 4 | 14 juegos implementados | ✅ | Todos jugables (verificado en navegador); hoy son 23 juegos + 3 mesas en directo + apuestas deportivas |
 | 5 | Reglas correctas | ✅ | 98 pruebas de motor |
 | 6 | Tutorial propio por juego | ✅ | 14 tutoriales interactivos |
 | 7 | Tutoriales recuerdan finalización | ✅ | `<juego>_tutorial_completed`, local + sync |
@@ -97,6 +97,15 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - **Limbo**: eliges el objetivo arrastrando directamente sobre el velocímetro.
 - **Bacará y Sic Bo** apuestan también con la rueda de fichas.
 
+## Cambios de la ronda 14 (juegos nuevos, directo, ligas, pase, cash out y carreras en 3D)
+- **Cohete en directo** (`/live/crash`): un cohete cada 45 s para todos a la vez. 12 s para subir (con retiro automático opcional), despega y el multiplicador sube igual en todos los móviles (reloj del servidor). El punto de explosión se sortea al cerrar las apuestas y se guarda **solo en el servidor** (`live_secrets`) hasta que explota; el botón Retirar lo decide el servidor con su reloj. Si llega a ×50 aterriza y paga ×50 a los que sigan dentro. Probado contra el Supabase real: resultado invisible en pleno vuelo, retiro antes de despegar rechazado, retiro a ×1,73 pagado, retiro tardío rechazado («ya había explotado»).
+- **Dulce Cascada** (juego nuevo, tipo de las tragaperras «de cascada» que arrasan en internet, con diseño propio): 6×5 sin líneas, 8+ dulces iguales en cualquier sitio pagan, los ganadores explotan y caen otros; bombas ×2…×100 que se suman y multiplican la ganancia de la tirada; 4+ piruletas = 10 tiradas gratis con más bombas (+5 con 3 piruletas, máx. 50); premio máximo ×5000. **Retorno ≈96,5 %**, medido con 10 millones de tiradas simuladas (96,3–96,8 % según semilla; no se puede enumerar exacto, como en cualquier tragaperras de cascada); premio ≈30 % de las tiradas; tiradas gratis ≈1/440. Pruebas: coherencia de cada cascada y retorno con 300 000 tiradas. Turbo y «Saltar» para no esperar en las gratis.
+- **Ligas con amigos** (`/leagues`): crea una liga (código de 6 letras sin caracteres confusos), tus amigos se unen con el código y hay clasificación semanal con podio. Cuentan los **puntos de temporada de la semana**, que ya tienen topes diarios: se gana jugando un poco cada día y aprendiendo, nunca apostando más. Máx. 30 por liga y 10 ligas por persona; solo los miembros ven la liga (todo pasa por funciones del servidor). Probado contra el servidor real (crear, nombre inválido, unirse, código inexistente, tabla, salir y traspaso de dueño).
+- **Pase de temporada** (`/pass`): 30 niveles gratis (400 puntos cada uno) con fichas; cada 5 niveles uno gordo. Con cuenta, el servidor comprueba los puntos de la temporada antes de pagar y no deja cobrar dos veces (probado).
+- **Apuestas deportivas**: **cash out** antes de que empiece el evento (apuesta × cuota cogida ÷ cuota actual − 3 %; el servidor lo recalcula y, si las cuotas se han movido en tu contra, te enseña el nuevo valor antes de cerrar). No hay cash out en directo porque no tenemos cuotas en vivo. **NHL** (cuotas de mercado con hándicap ±1,5) y **UFC** (ESPN no da cuotas de combates: se calculan con el récord de victorias y derrotas de cada luchador y la app lo dice). Probado con los datos reales de ESPN (52 partidos de NHL y 11 combates de UFC esta semana) y una apuesta real cerrada con cash out.
+- **Carreras de caballos con cámara de televisión**: la pista es un plano 3D real inclinado en perspectiva (calles, vallas, carteles de distancia y la meta a cuadros encima), y los caballos se colocan con la misma proyección: los de las calles del fondo, más pequeños y arriba; los de delante, más grandes. No son modelos 3D poligonales (eso pediría un motor 3D y pesaría mucho en el móvil): son los mismos dibujos del galope sobre la pista en 3D.
+- **Inicio**: carrusel de «Novedades» y fila «En directo» con las tres mesas y su reloj de ronda; Ranking con accesos al pase y a las ligas.
+
 ## Cambios de la ronda 13 (siempre oscuro, sin zoom ni desplazamiento, fluidez medida juego a juego)
 - **Siempre en oscuro**: todo el diseño (tapetes, juegos, tienda, apuestas) está pensado sobre fondo oscuro; en móviles en modo claro había textos blancos sobre blanco. La app ignora el modo del sistema (`userInterfaceStyle: 'dark'`) y desaparece el selector de tema.
 - **La página no se mueve ni hace zoom** (versión web/PWA): viewport sin zoom, `html/body` fijos con `overscroll-behavior:none` y `touch-action` (sin zoom por doble toque, sin rebote), y bloqueo de los gestos de pellizco de Safari (iOS ignora `user-scalable=no` por diseño). Las listas siguen desplazándose dentro de la app.
@@ -184,5 +193,6 @@ Sin estas cuentas los botones se ven pero avisan de que el servidor no está con
 - En la versión web del iPhone no hay vibración (Safari no lo permite).
 
 ## Próximos pasos
+0. Lo que necesita tus cuentas (no se puede hacer sin ti): build nativa con tu cuenta de Expo/EAS, correo SMTP propio para recuperar contraseña, activar Google/Apple en Supabase. Cuotas en vivo para cash out en directo requieren un proveedor de datos con licencia (de pago).
 3. Build EAS de desarrollo en tu iPhone; perfilar animaciones y revisar VoiceOver.
 4. Apuestas interiores completas en ruleta, Sign in with Apple nativo (`expo-apple-authentication`), push, torneos semanales con ranking (necesitan Supabase).

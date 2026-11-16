@@ -10,9 +10,10 @@ Plataforma móvil premium de **14 juegos de casino y azar con moneda 100 % virtu
 **https://reenillaa.github.io/Cashino/** — en el iPhone ábrelo en Safari → Compartir → *Añadir a pantalla de inicio* y se abre a pantalla completa como una app (se publica sola en cada push a `main`).
 
 ## Qué incluye
-- **21 juegos en el menú**: Carreras de caballos (apuestas de hipódromo), Póker (Texas Hold'em NL vs bots y online), Video Póker (Jacks or Better), Rueda, Torre del Dragón, Diamantes, Globo (Pump), Dragon Tiger, Blackjack, Cohete (crash), Dados, Minas, Plinko, Cruza la calle (estilo chicken-road), Ruleta europea, Limbo, Cara o cruz, Bacará, Mayor o menor, Tragaperras y Bolsa (sube o baja). Keno y Sic Bo siguen en el motor pero fuera del menú.
-- **Apuestas deportivas** con partidos reales (fútbol, F1, tenis, NFL, NBA), cuotas propias, sencillas y combinadas (con cuenta).
-- **Multijugador en directo**: carreras cada 2 min y ruleta cada 45 s, todos a la vez (con cuenta).
+- **22 juegos en el menú**: Dulce Cascada (tragaperras de cascada 6×5 con bombas multiplicadoras y tiradas gratis, retorno ≈96,5 % simulado), Carreras de caballos (apuestas de hipódromo, cámara de TV en 3D), Póker (Texas Hold'em NL vs bots y online), Video Póker (Jacks or Better), Rueda, Torre del Dragón, Diamantes, Globo (Pump), Dragon Tiger, Blackjack, Cohete (crash), Dados, Minas, Plinko, Cruza la calle (estilo chicken-road), Ruleta europea, Limbo, Cara o cruz, Bacará, Mayor o menor, Tragaperras y Bolsa (sube o baja). Keno y Sic Bo siguen en el motor pero fuera del menú.
+- **Apuestas deportivas** con partidos reales (fútbol, F1, tenis, NFL, NBA, NHL, UFC), cuotas propias, sencillas y combinadas, y **cash out** antes de que empiecen (con cuenta).
+- **Multijugador en directo**: carreras cada 2 min, ruleta y **cohete** cada 45 s, todos a la vez (con cuenta).
+- **Ligas con amigos** (código privado, tabla semanal) y **pase de temporada** gratis de 30 niveles; ambos con puntos que se ganan jugando un poco cada día, nunca apostando más.
 - **Tienda estética** (dorsos, tapetes, avatares, marcos, títulos) pagada con fichas de juego y **retos diarios y semanales**.
 - Resultados **calculados antes de animar** y **verificables** (HMAC-SHA256, semillas servidor/cliente/nonce).
 - **Guía opcional** por juego (botón «?»): oscurece la pantalla y señala el botón exacto que tocar, en la sala de práctica; se recuerda (`<juego>_tutorial_completed`).

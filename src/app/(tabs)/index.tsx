@@ -14,6 +14,7 @@ import { ECONOMY, dailyRewardAmount, nextStreak, utcDay } from '@/engine/meta/ec
 import { VISIBLE_GAMES } from '@/games/catalog';
 import { GameTile } from '@/games/shared/GameTile';
 import { MissionRow } from '@/features/progression/MissionRow';
+import { LiveRow, WhatsNew } from '@/features/home/WhatsNew';
 import { claimDailyReward, claimRefill } from '@/features/economy/rewards';
 import { useNow } from '@/features/time/useNow';
 import { sfx } from '@/services/audio';
@@ -142,6 +143,14 @@ export default function Home() {
         </PressableScale>
       )}
 
+      {/* What's new and the live tables */}
+      <Section title={`✨ ${t('news.title')}`}>
+        <WhatsNew />
+      </Section>
+      <Section title={`🔴 ${t('live.title')}`}>
+        <LiveRow />
+      </Section>
+
       {/* Most played: wide cards */}
       <Section title={t('home.top')}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: SCREEN_PAD, gap: 12 }} snapToInterval={282} decelerationRate="fast">
@@ -169,25 +178,6 @@ export default function Home() {
           <T variant="footnote" style={{ color: 'rgba(255,255,255,0.9)' }}>{t('sports.bannerBody')}</T>
         </View>
         <T weight="display" style={{ color: '#5BE3B0', fontSize: 22 }}>›</T>
-      </PressableScale>
-
-      {/* Live multiplayer rounds */}
-      <PressableScale onPress={() => router.push('/live/horses')} scaleTo={0.97} feedback="select" accessibilityLabel={t('live.banner')} style={[styles.shopCard, { marginHorizontal: SCREEN_PAD }]}>
-        <LinearGradient colors={['#12C08A', '#0B6E6E']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-        <T style={{ fontSize: 34 }}>🏇</T>
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: '#FF3B5C' }} />
-            <T weight="display" style={{ color: '#fff', fontSize: 20 }}>{t('live.banner')}</T>
-          </View>
-          <T variant="footnote" style={{ color: 'rgba(255,255,255,0.9)' }}>{t('live.bannerBody')}</T>
-        </View>
-        <PressableScale onPress={() => router.push('/live/roulette')} feedback="select" accessibilityLabel={t('live.roulette')} style={styles.liveRou}>
-          <T style={{ fontSize: 22 }}>🎡</T>
-        </PressableScale>
-        <PressableScale onPress={() => router.push('/live/crash')} feedback="select" accessibilityLabel={t('live.crash')} style={styles.liveRou}>
-          <T style={{ fontSize: 22 }}>🚀</T>
-        </PressableScale>
       </PressableScale>
 
       {/* Shop: something to spend chips on (looks only) */}
