@@ -97,6 +97,10 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - **Limbo**: eliges el objetivo arrastrando directamente sobre el velocímetro.
 - **Bacará y Sic Bo** apuestan también con la rueda de fichas.
 
+## Versión de ordenador
+- En un ordenador (ventana ancha, ratón y no instalada como app) la web enseña un escaparate: fondo de casino con fichas y cartas flotando, la marca, qué tiene Cashino, un botón para copiar el enlace y **la app funcionando dentro de un iPhone** (es la misma app del móvil en un marco, así se ve igual de bonita y se juega con el ratón). La barra de direcciones sigue a la app (recargar o compartir un enlace a un juego funciona). En ventanas bajas el móvil se escala entero en vez de estrecharse.
+- Móviles y tablets no cambian nada: se detecta pantalla táctil y en ese caso la app carga directamente como siempre (comprobado en iPhone 15 Pro, iPad Pro y Pixel 7 emulados).
+
 ## Cuentas de desarrollador (admin)
 - Una cuenta marcada como admin lo tiene **todo desbloqueado** y ve un botón 👑 en el perfil con el **panel de admin**: buscar cualquier jugador y regalarle fichas en un toque (+1.000, +10.000, +100.000, +1M o la cantidad que quieras, con mensaje opcional). Al jugador le sale un aviso «🎁 ¡Te han regalado X fichas!».
 - Ser admin **solo** lo puede poner el dueño del proyecto (tabla `admins` sin acceso para los jugadores). Para hacer admin a una cuenta: `insert into admins (user_id) select id from profiles where username = 'TU_USUARIO';` en el SQL de Supabase. Cada regalo queda registrado en `admin_gifts` y no se paga dos veces aunque se repita la petición (probado contra el servidor real).
