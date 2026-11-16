@@ -35,6 +35,7 @@ export const CATALOG: GameMeta[] = [
   { id: 'wheel', category: 'originals', tint: gameTint.wheel, rtp: '99 %', edge: '1 %', multiStep: false, online: true },
   { id: 'towers', category: 'originals', tint: gameTint.towers, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
   { id: 'diamonds', category: 'originals', tint: gameTint.diamonds, rtp: '99 %', edge: '1 %', multiStep: false, online: true },
+  { id: 'cascade', category: 'originals', tint: gameTint.cascade, rtp: '≈96.5 %', edge: '≈3.5 %', multiStep: false, online: true },
   { id: 'pump', category: 'originals', tint: gameTint.pump, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
   { id: 'dragontiger', category: 'cards', tint: gameTint.dragontiger, rtp: '96.3 %', edge: '3.7–10.4 %', multiStep: false, online: true },
   { id: 'videopoker', category: 'cards', tint: gameTint.videopoker, rtp: '99.5 %', edge: '0.5 %', multiStep: true, online: true },
@@ -48,5 +49,5 @@ export const META: Record<GameId, GameMeta> = Object.fromEntries(CATALOG.map((g)
 export const HIDDEN_GAMES: GameId[] = ['keno', 'sicbo'];
 /** What the lobby, the collection and the Academy show, in order (most famous first). */
 export const VISIBLE_GAMES: GameMeta[] = [
-  ...(['horses', 'slots', 'roulette', 'blackjack', 'poker', 'videopoker', 'crash', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing'] as GameId[]).map((id) => META[id]),
+  ...(['cascade', 'horses', 'slots', 'roulette', 'blackjack', 'poker', 'videopoker', 'crash', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing'] as GameId[]).map((id) => META[id]),
 ];

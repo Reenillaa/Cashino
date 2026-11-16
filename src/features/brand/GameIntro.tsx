@@ -11,6 +11,8 @@ import type { GameId } from '@/engine/games/types.ts';
 import { SlotSymbolArt } from '@/games/slots/Symbols';
 import { IntroWheel } from './Splash';
 import { HorseSprite } from '@/games/horses/Art';
+import { SweetArt } from '@/games/cascade/Sweets';
+import { BOMB } from '@/engine/games/cascade.ts';
 
 /* ------------------------------------------------------------------ */
 /* A tiny keyframe helper: moves/turns/scales a piece between two poses */
@@ -254,6 +256,19 @@ const SCENES: Partial<Record<GameId, Scene>> = {
         <Anim key={i} p={p} at={[i * 0.08, 0.25 + i * 0.08]} from={{ x: (i - 2) * S * 0.2, y: -S, r: 180 }} to={{ x: (i - 2) * S * 0.2, y: 0, r: 0 }} ease="back"><Emoji e={g} size={S * 0.16} /></Anim>
       ))}
       <Anim p={p} at={[0.5, 0.62]} from={{ s: 0, o: 0 }} to={{ s: 1, o: 1, y: S * 0.28 }} ease="back"><Big color="#5BE3B0">×67</Big></Anim>
+    </>
+  ),
+  cascade: (p, S) => (
+    <>
+      {/* a rain of sweets lands in a grid, then a ×10 bomb drops on top */}
+      <View style={{ width: S * 0.9, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
+        {[0, 4, 1, 8, 2, 0, 6, 9, 3, 0, 7, 5].map((code, k) => (
+          <Anim key={k} p={p} at={[(k % 4) * 0.06, 0.3 + (k % 4) * 0.06]} from={{ y: -S * 1.2, o: 0 }} to={{ y: 0, o: 1 }} ease="back">
+            <SweetArt code={code} size={S * 0.21} />
+          </Anim>
+        ))}
+      </View>
+      <Anim p={p} at={[0.42, 0.62]} from={{ s: 0, o: 0 }} to={{ s: 1.25, o: 1 }} ease="back" style={{ position: 'absolute' }}><SweetArt code={BOMB + 10} size={S * 0.36} /></Anim>
     </>
   ),
   pump: (p, S) => (

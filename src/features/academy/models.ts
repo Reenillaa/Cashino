@@ -18,6 +18,7 @@ import { SICBO_PAYS, TOTAL_PAYS, sicBoExpectedReturn, sicBoWinProbability } from
 import { BACCARAT_PAYS } from '@/engine/games/baccarat.ts';
 import { guessProbability } from '@/engine/games/hilo.ts';
 import { parseCard } from '@/engine/cards/cards.ts';
+import { CASCADE_PAYS, SYMBOL_WEIGHTS, SCATTER_CHANCE, BOMB_CHANCE, COLS, ROWS } from '@/engine/games/cascade.ts';
 import { SLOT_ONE_CHERRY, SLOT_THREE, SLOT_TWO_CHERRIES, SLOT_WEIGHTS, slotsStats } from '@/engine/games/slots.ts';
 import { TRADER_MULTIPLIER } from '@/engine/games/trader.ts';
 import { VP_PAYS, VP_REFERENCE_RTP } from '@/engine/games/videopoker.ts';
@@ -210,6 +211,23 @@ const MODELS: Record<GameId, Builder> = {
       rtp: st.rtp,
       formula: L(lang, `Cada rodillo tiene ${T} paradas: 4 cerezas, 7 limones, 6 campanas, 4 BAR, 2 sietes y 1 diamante. Probabilidad de tres iguales = (paradas ÷ ${T})³.`, `Each reel has ${T} stops: 4 cherries, 7 lemons, 6 bells, 4 BARs, 2 sevens and 1 diamond. Three of a kind = (stops ÷ ${T})³.`),
       example: L(lang, `Con 20 fichas, casi la mitad de las tiradas te devuelven algo (${fmtPct(lang, st.hit)}), pero los premios gordos son muy raros: tres diamantes, 1 vez de cada ${Math.round(1 / three('diamond')).toLocaleString('es-ES')}.`, `With 20 chips almost half the spins return something (${fmtPct(lang, st.hit)}), but big prizes are very rare: three diamonds, 1 time in ${Math.round(1 / three('diamond')).toLocaleString('en-US')}.`),
+    };
+  },
+  cascade: (lang) => {
+    // exact chance of 8+ of one sweet on the first drop (binomial over the 30 cells); tumbles add more
+    const n = COLS * ROWS;
+    const W = SYMBOL_WEIGHTS.reduce((a, b) => a + b, 0);
+    const pCell = (s: number) => (SYMBOL_WEIGHTS[s] / W) * (1 - SCATTER_CHANCE - BOMB_CHANCE.base);
+    const choose = (a: number, b: number) => { let r = 1; for (let i = 1; i <= b; i++) r = (r * (a - b + i)) / i; return r; };
+    const atLeast = (p: number, k: number) => { let s = 0; for (let j = k; j <= n; j++) s += choose(n, j) * p ** j * (1 - p) ** (n - j); return s; };
+    const NAMES = [['corazones', 'hearts'], ['estrellas', 'stars'], ['gominolas', 'gumdrops'], ['cubos', 'cubes'], ['ciruelas', 'plums'], ['manzanas', 'apples'], ['sandías', 'melons'], ['uvas', 'grapes'], ['plátanos', 'bananas']];
+    return {
+      idea: L(lang, 'Cada casilla se sortea sola. Ganas si caen 8 o más dulces iguales en cualquier sitio; luego desaparecen y caen otros, así que una tirada puede pagar varias veces.', 'Every cell is drawn on its own. You win if 8 or more matching sweets land anywhere; then they pop and new ones fall, so one spin can pay several times.'),
+      rowsTitle: L(lang, 'En la primera caída, 8 o más…', 'On the first drop, 8 or more…'),
+      rows: [8, 4, 2, 0].map((s) => ({ label: L(lang, NAMES[s][0], NAMES[s][1]), p: atLeast(pCell(s), 8), mult: CASCADE_PAYS[s][0] })),
+      rtp: 0.965,
+      formula: L(lang, 'Probabilidad de 8+ de un dulce = suma binomial sobre 30 casillas. El retorno total (cascadas, bombas y tiradas gratis) se mide simulando 10 millones de tiradas: ≈96,5 %.', 'Chance of 8+ of a sweet = binomial sum over 30 cells. The total return (tumbles, bombs and free spins) is measured by simulating 10 million spins: ≈96.5 %.'),
+      example: L(lang, 'Unas 3 de cada 10 tiradas pagan algo, casi siempre poco. El dinero gordo está en las tiradas gratis con bombas, que salen 1 vez de cada ~440: por eso la banca de una sesión sube y baja tanto.', 'About 3 in 10 spins pay something, usually little. The big money is in the free spins with bombs, about 1 in ~440: that is why a session swings so much.'),
     };
   },
   horses: (lang) => ({

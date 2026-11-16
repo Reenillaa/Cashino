@@ -35,17 +35,18 @@ const en: Dictionary = {
     openRules: 'Rules', openTutorial: 'Tutorial', openAcademy: 'Academy', houseEdge: 'House edge', rtp: 'RTP',
     names: {
       poker: 'Poker', blackjack: 'Blackjack', crash: 'Crash', dice: 'Dice', mines: 'Mines', plinko: 'Plinko', crossing: 'Crossing',
-      roulette: 'Roulette', limbo: 'Limbo', coinflip: 'Coinflip', baccarat: 'Baccarat', hilo: 'Hi-Lo', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Slots', trader: 'Stocks', videopoker: 'Video Poker', wheel: 'Wheel', towers: 'Dragon Tower', diamonds: 'Diamonds', pump: 'Pump', dragontiger: 'Dragon Tiger', horses: 'Horse Racing',
+      roulette: 'Roulette', limbo: 'Limbo', coinflip: 'Coinflip', baccarat: 'Baccarat', hilo: 'Hi-Lo', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Slots', trader: 'Stocks', videopoker: 'Video Poker', wheel: 'Wheel', towers: 'Dragon Tower', diamonds: 'Diamonds', pump: 'Pump', dragontiger: 'Dragon Tiger', horses: 'Horse Racing', cascade: 'Sweet Cascade',
     },
     blurbs: {
       poker: "No-Limit Texas Hold'em against bots or friends.", blackjack: 'Get to 21 without busting and beat the dealer.',
       crash: 'Cash out before the rocket blows.', dice: 'Pick your odds and roll.', mines: 'Uncover gems, dodge mines.',
       plinko: 'Drop the ball and watch it land.', crossing: 'Cross lane by lane and stop in time.', roulette: 'European roulette, 37 pockets.',
       limbo: 'Set a target and beat it.', coinflip: 'Heads or tails, double or nothing.', baccarat: 'Player, Banker or Tie.',
-      hilo: 'Will the next card be higher or lower?', keno: 'Pick numbers and wait for the draw.', sicbo: 'Three dice, many bets.', slots: 'Three reels, three of a kind, win.', trader: 'Up or down? Invest and watch the chart.', videopoker: 'The Las Vegas poker machine.', wheel: 'Spin the wheel, win what it shows.', towers: 'Climb floors without waking the dragon.', diamonds: 'Five gems: match colours.', pump: 'Inflate the balloon… before it pops.', dragontiger: 'One card each: highest wins.', horses: 'Study the card and bet like at the track.',
+      hilo: 'Will the next card be higher or lower?', keno: 'Pick numbers and wait for the draw.', sicbo: 'Three dice, many bets.', slots: 'Three reels, three of a kind, win.', trader: 'Up or down? Invest and watch the chart.', videopoker: 'The Las Vegas poker machine.', wheel: 'Spin the wheel, win what it shows.', towers: 'Climb floors without waking the dragon.', diamonds: 'Five gems: match colours.', pump: 'Inflate the balloon… before it pops.', dragontiger: 'One card each: highest wins.', horses: 'Study the card and bet like at the track.', cascade: '8 matching sweets pay, more tumble in and bombs multiply.',
     },
   },
   play: {
+    freeSpin: 'Free spin', freeSpinsWon: '🍭 {{n}} FREE SPINS!', turbo: 'Turbo',
     change: 'Change', hideOptions: 'Done',
     dragTarget: '👆 Drag the white dot to pick your target',
     tapNumber: 'Tap a number on the wheel or a bet below', noMoreBets: 'No more bets…', repeat: 'Repeat', chipValue: 'Chip',

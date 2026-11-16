@@ -33,17 +33,18 @@ const es = {
     openRules: 'Reglas', openTutorial: 'Tutorial', openAcademy: 'Academy', houseEdge: 'Ventaja de la casa', rtp: 'RTP',
     names: {
       poker: 'Póker', blackjack: 'Blackjack', crash: 'Cohete', dice: 'Dados', mines: 'Minas', plinko: 'Plinko', crossing: 'Cruza la calle',
-      roulette: 'Ruleta', limbo: 'Limbo', coinflip: 'Cara o cruz', baccarat: 'Bacará', hilo: 'Mayor o menor', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Tragaperras', trader: 'Bolsa', videopoker: 'Video Póker', wheel: 'Rueda', towers: 'Torre del Dragón', diamonds: 'Diamantes', pump: 'Globo', dragontiger: 'Dragon Tiger', horses: 'Carreras',
+      roulette: 'Ruleta', limbo: 'Limbo', coinflip: 'Cara o cruz', baccarat: 'Bacará', hilo: 'Mayor o menor', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Tragaperras', trader: 'Bolsa', videopoker: 'Video Póker', wheel: 'Rueda', towers: 'Torre del Dragón', diamonds: 'Diamantes', pump: 'Globo', dragontiger: 'Dragon Tiger', horses: 'Carreras', cascade: 'Dulce Cascada',
     },
     blurbs: {
       poker: 'El de toda la vida, contra bots o amigos.', blackjack: 'Suma 21 sin pasarte.',
       crash: 'Retírate antes de que explote.', dice: 'Elige un número y tira.', mines: 'Busca diamantes, evita bombas.',
       plinko: 'Suelta la bola y mira dónde cae.', crossing: 'Cruza paso a paso sin que te pillen.', roulette: 'Apuesta a un número o a un color.',
       limbo: 'Elige hasta dónde sube.', coinflip: 'Cara o cruz, así de fácil.', baccarat: 'Jugador, banca o empate.',
-      hilo: '¿La siguiente carta es mayor o menor?', keno: 'Elige números, como la lotería.', sicbo: 'Tres dados: adivina qué sale.', slots: 'Tres rodillos, tres iguales y premio.', trader: '¿Sube o baja? Invierte y mira la gráfica.', videopoker: 'La máquina de póker de Las Vegas.', wheel: 'Gira la rueda y cobra lo que marque.', towers: 'Sube pisos sin despertar al dragón.', diamonds: 'Cinco gemas: junta colores.', pump: 'Infla el globo… sin que explote.', dragontiger: 'Una carta cada uno: gana la más alta.', horses: 'Estudia el programa y apuesta como en el hipódromo.',
+      hilo: '¿La siguiente carta es mayor o menor?', keno: 'Elige números, como la lotería.', sicbo: 'Tres dados: adivina qué sale.', slots: 'Tres rodillos, tres iguales y premio.', trader: '¿Sube o baja? Invierte y mira la gráfica.', videopoker: 'La máquina de póker de Las Vegas.', wheel: 'Gira la rueda y cobra lo que marque.', towers: 'Sube pisos sin despertar al dragón.', diamonds: 'Cinco gemas: junta colores.', pump: 'Infla el globo… sin que explote.', dragontiger: 'Una carta cada uno: gana la más alta.', horses: 'Estudia el programa y apuesta como en el hipódromo.', cascade: '8 dulces iguales pagan, caen más y las bombas multiplican.',
     },
   },
   play: {
+    freeSpin: 'Tirada gratis', freeSpinsWon: '🍭 ¡{{n}} TIRADAS GRATIS!', turbo: 'Turbo',
     change: 'Cambiar', hideOptions: 'Listo',
     dragTarget: '👆 Arrastra el punto blanco para elegir tu objetivo',
     tapNumber: 'Toca un número de la rueda o una apuesta de abajo', noMoreBets: 'No va más…', repeat: 'Repetir', chipValue: 'Ficha',

@@ -283,6 +283,18 @@ const ART: Record<GameId, (id: string) => React.ReactNode> = {
       <Rect x={68} y={54} width={18} height={5} rx={2.5} fill="#231A3A" />
     </>
   ),
+  cascade: (id) => (
+    <>
+      {/* lollipop with candies tumbling around it */}
+      <Rect x={47} y={50} width={6} height={40} rx={3} fill={SH} transform="translate(2 3)" />
+      <Rect x={47} y={50} width={6} height={40} rx={3} fill="#F4F2FA" />
+      <Circle cx={52} cy={39} r={25} fill={SH} />
+      <Circle cx={50} cy={36} r={25} fill="#FF4FA3" stroke="#FFFFFF" strokeWidth={3} />
+      <Path d="M50 36 m0 -5 a5 5 0 1 1 -5 5 a10 10 0 1 0 10 -10 a15 15 0 1 1 -15 15 a20 20 0 1 0 20 -20" stroke="#FFFFFF" strokeWidth={3.5} fill="none" strokeLinecap="round" />
+      <Path d="M18 80 C8 72 8 62 15 60 C19 59 21 62 22 64 C23 62 25 59 29 60 C36 62 34 72 18 80 Z" fill="#E8183F" stroke="#FFFFFF" strokeWidth={1.5} />
+      <Path d="M80 58 L84 66 L93 67 L86 73 L88 82 L80 77 L72 82 L74 73 L67 67 L76 66 Z" fill={`url(#${id}-gold)`} stroke="#FFFFFF" strokeWidth={1.5} strokeLinejoin="round" />
+    </>
+  ),
   dragontiger: (id) => (
     <>
       <Rect x={10} y={22} width={38} height={54} rx={7} fill={SH} transform="translate(2 4) rotate(-8 29 49)" />

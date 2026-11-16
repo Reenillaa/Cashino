@@ -1,3 +1,4 @@
+import * as C from '../games/cascade.ts';
 import { wheelLayout, wheelRtp, playWheel, WHEEL_SEGMENTS } from '../games/wheel.ts';
 import { startTower, pickTower, cashoutTower, towerMultiplier, TOWER_SHAPE, TOWER_FLOORS } from '../games/towers.ts';
 import { diamondHand, diamondStats, DIAMOND_PAYS } from '../games/diamonds.ts';
@@ -118,5 +119,41 @@ describe('dragon tiger', () => {
     else expect(r.payout).toBe(20);
     expect(parseCard('Ah').rank).toBe(14);
     expect(() => runOp('dragontiger', null, 'play', { bets: { banker: 10 } }, { rng: seededRng(1), now: 0 })).toThrow();
+  });
+});
+
+describe('Dulce Cascada', () => {
+  it('tumbles consistently: every step pays what is on its grid and the rest falls', () => {
+    const rng = seededRng(42);
+    for (let i = 0; i < 400; i++) {
+      const r = C.playCascade(rng, 100);
+      expect(r.multiplier).toBeLessThanOrEqual(C.CASCADE_MAX_WIN);
+      expect(r.payout).toBe(Math.floor(100 * r.multiplier + 1e-9));
+      for (const sp of r.spins) {
+        for (let k = 0; k < sp.steps.length; k++) {
+          const st = sp.steps[k];
+          const counts = new Array(9).fill(0);
+          for (const col of st.grid) { expect(col).toHaveLength(C.ROWS); for (const c of col) if (c < C.SCATTER) counts[c]++; }
+          expect(st.wins.map((w) => w.sym)).toEqual(counts.map((n, s) => (n >= 8 ? s : -1)).filter((s) => s >= 0));
+          if (st.wins.length) {
+            const gone = new Set(st.wins.map((w) => w.sym));
+            const next = sp.steps[k + 1].grid;
+            st.grid.forEach((col, c) => {
+              const keep = col.filter((x) => !gone.has(x));
+              expect(next[c].slice(C.ROWS - keep.length)).toEqual(keep);
+            });
+          }
+        }
+        expect(sp.total).toBeCloseTo(sp.win > 0 && sp.bombs > 0 ? sp.win * sp.bombs : sp.win, 6);
+      }
+    }
+  });
+  it('returns about 96.5 % over many spins', () => {
+    const s = C.cascadeStats(seededRng(7), 300_000);
+    expect(s.rtp).toBeGreaterThan(0.9);
+    expect(s.rtp).toBeLessThan(1.03);
+    expect(s.hit).toBeGreaterThan(0.27);
+    expect(s.hit).toBeLessThan(0.34);
+    expect(s.bonus).toBeGreaterThan(0.0015);
   });
 });

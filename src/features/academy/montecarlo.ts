@@ -91,6 +91,7 @@ export const SIM_OPTIONS: Partial<Record<GameId, SimOption[]>> = {
     { label: L('Riesgo alto', 'High risk'), round: one('wheel', { risk: 'high' }), rtp: 0.99 },
   ],
   diamonds: [{ label: L('Partida normal', 'Normal play'), round: one('diamonds', {}), rtp: 0.99 }],
+  cascade: [{ label: L('Tirada normal', 'Normal spin'), round: one('cascade', {}), rtp: 0.965 }],
   towers: [
     { label: L('Medio · 2 pisos y cobrar', 'Medium · 2 floors then collect'), round: steps('towers', { level: 'medium' }, () => ['pick', { door: 0 }], 2), rtp: 0.99 },
     { label: L('Difícil · 4 pisos y cobrar', 'Hard · 4 floors then collect'), round: steps('towers', { level: 'hard' }, () => ['pick', { door: 0 }], 4), rtp: 0.99 },

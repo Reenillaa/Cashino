@@ -21,6 +21,7 @@ import * as Bac from './games/baccarat.ts';
 import * as SicBo from './games/sicbo.ts';
 import * as BJ from './games/blackjack.ts';
 import * as Slots from './games/slots.ts';
+import * as Cascade from './games/cascade.ts';
 import * as Trader from './games/trader.ts';
 import * as VP from './games/videopoker.ts';
 import * as Wheel from './games/wheel.ts';
@@ -98,6 +99,13 @@ const handlers: Record<Exclude<GameId, 'poker'>, Handler> = {
     const b = bet(p.bet);
     const r = Slots.playSlots(rng, b);
     return single(b, r.payout, r.line.map((x) => ({ cherry: '🍒', lemon: '🍋', bell: '🔔', bar: 'BAR', seven: '7', diamond: '💎' })[x]).join(' '), { line: r.line, multiplier: r.multiplier });
+  },
+  cascade: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const b = bet(p.bet);
+    const r = Cascade.playCascade(rng, b);
+    const detail = `${r.multiplier}×${r.freeSpins ? ` · 🍭 ${r.spins.length - 1}` : ''}`;
+    return single(b, r.payout, detail, { spins: r.spins, freeSpins: r.freeSpins, scatterWin: r.scatterWin, multiplier: r.multiplier, capped: r.capped });
   },
   horses: (s, op, p, { rng }) => {
     type HState = { card: Horses.RaceCard; min: number; max: number };

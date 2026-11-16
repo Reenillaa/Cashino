@@ -173,6 +173,21 @@ export const RULES: Record<GameId, RulesDoc> = {
       { label: b('Tres diamantes', 'Three diamonds'), value: '0.007 %' },
     ],
   },
+  cascade: {
+    summary: b('Tragaperras de 6×5 sin líneas: 8 o más dulces iguales en cualquier sitio pagan. Los que ganan explotan, caen dulces nuevos y puede volver a pagar en la misma tirada.', '6×5 slot with no lines: 8 or more matching sweets anywhere pay. Winners pop, new sweets fall and it can pay again on the same spin.'),
+    rules: [
+      b('Premios por 8–9 / 10–11 / 12+ iguales: ❤️ ×25/×65/×130 · ⭐ ×6,5/×26/×65 · gominola ×5/×13/×40 … plátano ×0,65/×2/×5.', 'Pays for 8–9 / 10–11 / 12+ of a kind: ❤️ ×25/×65/×130 · ⭐ ×6.5/×26/×65 · gumdrop ×5/×13/×40 … banana ×0.65/×2/×5.'),
+      b('Bombas multiplicadoras (×2 a ×100): cuando acaban las cascadas, si la tirada ganó algo, se suman todas las bombas en pantalla y multiplican esa ganancia.', 'Multiplier bombs (×2 to ×100): when the tumbles end, if the spin won anything, all bombs on screen add up and multiply that win.'),
+      b('4 o más piruletas 🍭 pagan ×3 / ×5 / ×100 y dan 10 tiradas gratis, con muchas más bombas. 3 piruletas durante las gratis suman 5 más (máx. 50).', '4+ lollipops 🍭 pay ×3 / ×5 / ×100 and give 10 free spins, with many more bombs. 3 lollipops during the free spins add 5 more (max 50).'),
+      b('Premio máximo ×5000 la apuesta. Cada casilla se sortea por separado antes de que caiga: lo que ves es el resultado, no hay «casi».', 'Maximum win ×5000 the bet. Each cell is drawn independently before it falls: what you see is the result, there is no “near miss”.'),
+    ],
+    odds: [
+      { label: b('Retorno (simulado, 10 millones de tiradas)', 'Return (simulated, 10 million spins)'), value: '≈96.5 %' },
+      { label: b('Tiradas con premio', 'Spins that pay'), value: '≈30 %' },
+      { label: b('Tiradas gratis', 'Free spins'), value: '≈1 / 440' },
+      { label: b('×100 o más', '×100 or more'), value: '≈1 / 2400' },
+    ],
+  },
   trader: {
     summary: b('Bolsa: ¿el precio acabará más alto o más bajo que ahora? Eliges Sube o Baja y miras la gráfica.', 'Stock market: will the price end higher or lower than now? Pick Up or Down and watch the chart.'),
     rules: [

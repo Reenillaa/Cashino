@@ -99,6 +99,11 @@ export const TUTORIALS: Record<GameId, TutorialStep[]> = {
     doIt('slots:spin', ['Tira', 'Spin'], ['Elige tu ficha y pulsa Tirar (o baja la palanca).', 'Pick your chip and tap Spin (or pull the lever).']),
     quiz(['¿Qué paga más?', 'What pays more?'], ['¿Tres 7 o tres campanas?', 'Three 7s or three bells?'], [['Tres 7', 'Three 7s'], ['Tres campanas', 'Three bells']], 0, ['Los 7 son más raros, por eso pagan ×80 frente a ×9.', '7s are rarer, so they pay ×80 against ×9.']),
   ],
+  cascade: [
+    info(['Dulce Cascada', 'Sweet Cascade'], ['No hay líneas: si hay 8 o más dulces iguales en cualquier sitio, pagan. Desaparecen, caen otros y puede volver a pagar.', 'No lines: 8 or more matching sweets anywhere pay. They pop, new ones fall in and it can pay again.']),
+    doIt('cascade:spin', ['Tira', 'Spin'], ['Elige tu ficha y pulsa Tirar.', 'Pick your chip and tap Spin.']),
+    quiz(['Las bombas', 'The bombs'], ['Ganas ×2 y hay dos bombas ×3 y ×5 en pantalla. ¿Cuánto cobras?', 'You win ×2 and there are ×3 and ×5 bombs on screen. What do you get?'], [['×16', '×16'], ['×30', '×30']], 0, ['Las bombas se suman (3 + 5 = 8) y multiplican la ganancia: ×2 × 8 = ×16. Si no ganas nada, no hacen nada.', 'Bombs add up (3 + 5 = 8) and multiply the win: ×2 × 8 = ×16. With no win they do nothing.']),
+  ],
   trader: [
     info(['La bolsa', 'The market'], ['Eliges si el precio acabará más alto (Sube) o más bajo (Baja). Luego miras cómo se mueve la gráfica.', 'Pick whether the price will end higher (Up) or lower (Down). Then watch the chart move.']),
     doIt('trader:play', ['Haz tu apuesta', 'Make your call'], ['Pulsa Sube o Baja.', 'Tap Up or Down.']),
