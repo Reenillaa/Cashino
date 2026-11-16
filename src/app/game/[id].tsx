@@ -3,6 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { GAME_IDS, type GameId } from '@/engine/games/types.ts';
 import { EmptyState, Screen } from '@/design/components';
 import { GAME_SCREENS } from '@/games/registry';
+import { LockedGate } from '@/features/unlocks/LockedGate';
 
 export default function GameHost() {
   const { id, tutorial } = useLocalSearchParams<{ id: string; tutorial?: string }>();
@@ -14,5 +15,9 @@ export default function GameHost() {
     );
   }
   const Comp = GAME_SCREENS[id as GameId];
-  return <Comp forceTutorial={tutorial === '1'} />;
+  return (
+    <LockedGate id={`game:${id as GameId}`}>
+      <Comp forceTutorial={tutorial === '1'} />
+    </LockedGate>
+  );
 }

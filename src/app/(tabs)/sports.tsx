@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Chip, PressableScale, Screen, Segmented, T, formatCoins } from '@/design/components';
+import { Button, Chip, Icon, PressableScale, Screen, Segmented, T, formatCoins } from '@/design/components';
 import { SCREEN_PAD } from '@/design/tokens';
 import { useT } from '@/i18n';
 import { onlineConfigured } from '@/services/supabase';
@@ -14,6 +14,8 @@ import { usePlayErrors } from '@/games/shared/hooks';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 import { useSports, type SportsBet } from '@/features/sports/store';
+import { useOwnedUnlocks, useNextUnlockPrice, useUnlocks } from '@/state/unlocks';
+import { isUnlocked, type UnlockId } from '@/engine/meta/unlocks.ts';
 import { EventRow, GREEN, OddsButton, RaceCard, SlipDock, SPORT_EMOJI, StatusPill, TeamLogo, fmtOdds, timeLabel, useNow } from '@/features/sports/ui';
 
 type Tab = 'sports' | 'live' | 'mine';
@@ -41,8 +43,13 @@ export default function Sportsbook() {
   }, [load, loadBets]);
 
   const now = useNow();
-  const upcoming = useMemo(() => events.filter((e) => e.status === 'pre' && new Date(e.startsAt).getTime() > now), [events, now]);
-  const live = useMemo(() => events.filter((e) => e.status === 'live'), [events]);
+  const owned = useOwnedUnlocks();
+  const unlockPrice = useNextUnlockPrice();
+  const openUnlock = useUnlocks((s) => s.open);
+  const sportsOpen = isUnlocked(owned, 'sports');
+  const sportOpen = (s: string) => isUnlocked(owned, `sport:${s}` as UnlockId);
+  const upcoming = useMemo(() => events.filter((e) => e.status === 'pre' && new Date(e.startsAt).getTime() > now && isUnlocked(owned, `sport:${e.sport}` as UnlockId)), [events, now, owned]);
+  const live = useMemo(() => events.filter((e) => e.status === 'live' && isUnlocked(owned, `sport:${e.sport}` as UnlockId)), [events, owned]);
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
     for (const e of upcoming) c[e.sport] = (c[e.sport] ?? 0) + 1;
@@ -57,17 +64,26 @@ export default function Sportsbook() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Screen title={t('sports.title')} subtitle={signedIn ? `${formatCoins(balance ?? 0)} ${t('common.coins')}` : t('sports.subtitle')} back tabBar={false} contentStyle={{ paddingBottom: 110 }}>
+      <Screen title={t('sports.title')} subtitle={signedIn ? `${formatCoins(balance ?? 0)} ${t('common.coins')}` : t('sports.subtitle')} contentStyle={{ paddingBottom: 60 }}>
         <View style={{ paddingHorizontal: SCREEN_PAD, gap: 12 }}>
           {!onlineConfigured ? <T color="text2">{t('auth.notConfigured')}</T> : null}
           <Segmented value={tab} onChange={(v) => { setTab(v); if (v === 'mine') void loadBets(); }} options={[{ value: 'sports', label: t('sports.tabSports') }, { value: 'live', label: `${t('sports.tabLive')}${live.length ? ` (${live.length})` : ''}` }, { value: 'mine', label: t('sports.tabMine') }]} />
         </View>
 
-        {tab === 'sports' ? (
+        {!sportsOpen ? (
+          <View style={styles.lockedHero}>
+            <LinearGradient colors={['#0B6E52', '#062A24']} style={StyleSheet.absoluteFill} />
+            <T style={{ fontSize: 56 }}>🏟️</T>
+            <T weight="display" align="center" style={{ color: '#fff', fontSize: 22 }}>🔒 {t('sports.lockedTitle')}</T>
+            <T align="center" style={{ color: 'rgba(255,255,255,0.85)' }}>{t('sports.lockedBody')}</T>
+            <Button title={t('unlock.buy', { price: formatCoins(unlockPrice) })} onPress={() => openUnlock('sports')} />
+          </View>
+        ) : tab === 'sports' ? (
           <>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: SCREEN_PAD, paddingVertical: 12 }}>
               {(['top', 'soccer', 'nba', 'nfl', 'nhl', 'tennis', 'ufc', 'f1'] as SportKey[]).map((k) => (
-                <PressableScale key={k} onPress={() => { setSport(k); setDay(null); }} feedback="select" scaleTo={0.95} accessibilityLabel={t(`sports.sport.${k}`)} style={[styles.sport, sport === k && styles.sportOn]}>
+                <PressableScale key={k} onPress={() => { if (k !== 'top' && !sportOpen(k)) return openUnlock(`sport:${k}` as UnlockId); setSport(k); setDay(null); }} feedback="select" scaleTo={0.95} accessibilityLabel={t(`sports.sport.${k}`)} style={[styles.sport, sport === k && styles.sportOn, k !== 'top' && !sportOpen(k) && { opacity: 0.55 }]}>
+                  {k !== 'top' && !sportOpen(k) ? <View style={styles.sportLock}><Icon name="lock" size={11} color="#231A3A" strokeWidth={2.6} /></View> : null}
                   <T style={{ fontSize: 20 }}>{k === 'top' ? '⭐' : SPORT_EMOJI[k]}</T>
                   <T weight="displaySemi" style={{ color: sport === k ? '#04201A' : '#fff', fontSize: 12 }}>{t(`sports.sport.${k}`)}</T>
                   {k !== 'top' && counts[k] ? <T style={{ color: sport === k ? '#04201A' : 'rgba(255,255,255,0.55)', fontSize: 10 }}>{counts[k]}</T> : null}
@@ -128,7 +144,7 @@ export default function Sportsbook() {
         )}
         <T variant="caption" color="text3" align="center" style={{ marginTop: 24, paddingHorizontal: 30 }}>{t('sports.source')}</T>
       </Screen>
-      <SlipDock />
+      <SlipDock aboveTabs />
     </View>
   );
 }
@@ -244,6 +260,8 @@ function dayLabel(d: string, lang: 'es' | 'en', t: (k: string) => string) {
 }
 
 const styles = StyleSheet.create({
+  lockedHero: { margin: SCREEN_PAD, marginTop: 16, padding: 20, borderRadius: 26, overflow: 'hidden', alignItems: 'center', gap: 10 },
+  sportLock: { position: 'absolute', top: 4, right: 4, width: 18, height: 18, borderRadius: 9, backgroundColor: '#FFD06B', alignItems: 'center', justifyContent: 'center', zIndex: 2 },
   cashout: { marginTop: 10, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFD06B' },
   sport: { alignItems: 'center', justifyContent: 'center', width: 74, height: 70, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.06)', gap: 1 },
   sportOn: { backgroundColor: GREEN },

@@ -47,10 +47,13 @@ export function applyRound(s: GameStats, r: RoundRecord): GameStats {
   };
 }
 
+export type Tier = 'bronze' | 'silver' | 'gold' | 'diamond';
 export interface AchievementDef {
   id: string;
   icon: string;
   xp: number;
+  /** Medal metal: how hard it is. */
+  tier?: Tier;
   /** Evaluated against aggregated stats. */
   test: (ctx: { byGame: Partial<Record<GameId, GameStats>>; totalRounds: number; lessons: number; tutorials: number; level: number }) => boolean;
 }
@@ -86,7 +89,25 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'blackjack-21', icon: 'cards', xp: 100, test: (c) => g(c, 'blackjack').bestMultiplier >= 2.5 },
   { id: 'poker-100', icon: 'chip', xp: 200, test: (c) => g(c, 'poker').rounds >= 100 },
   { id: 'dice-rounds-50', icon: 'dice', xp: 100, test: (c) => g(c, 'dice').rounds >= 50 },
+  // hard ones
+  { id: 'streak-10', icon: 'fire', xp: 600, tier: 'gold', test: (c) => Object.values(c.byGame).some((s) => (s?.bestStreak ?? 0) >= 10) },
+  { id: 'big-win-10k', icon: 'trophy', xp: 500, tier: 'gold', test: (c) => Object.values(c.byGame).some((s) => (s?.biggestWin ?? 0) >= 10_000) },
+  { id: 'big-win-100k', icon: 'crown', xp: 1500, tier: 'diamond', test: (c) => Object.values(c.byGame).some((s) => (s?.biggestWin ?? 0) >= 100_000) },
+  { id: 'crash-100x', icon: 'rocket', xp: 1200, tier: 'diamond', test: (c) => g(c, 'crash').bestMultiplier >= 100 },
+  { id: 'limbo-1000x', icon: 'bolt', xp: 1500, tier: 'diamond', test: (c) => g(c, 'limbo').bestMultiplier >= 1000 },
+  { id: 'cascade-50x', icon: 'candy', xp: 500, tier: 'gold', test: (c) => g(c, 'cascade').bestMultiplier >= 50 },
+  { id: 'cascade-500x', icon: 'candy', xp: 1500, tier: 'diamond', test: (c) => g(c, 'cascade').bestMultiplier >= 500 },
+  { id: 'horses-100x', icon: 'horse', xp: 600, tier: 'gold', test: (c) => g(c, 'horses').bestMultiplier >= 100 },
+  { id: 'videopoker-royal', icon: 'crown', xp: 2000, tier: 'diamond', test: (c) => g(c, 'videopoker').bestMultiplier >= 800 },
+  { id: 'mines-100x', icon: 'gem', xp: 700, tier: 'gold', test: (c) => g(c, 'mines').bestMultiplier >= 100 },
+  { id: 'towers-top', icon: 'castle', xp: 700, tier: 'gold', test: (c) => g(c, 'towers').bestMultiplier >= 50 },
+  { id: 'rounds-10000', icon: 'stack', xp: 1500, tier: 'diamond', test: (c) => c.totalRounds >= 10_000 },
+  { id: 'level-50', icon: 'rise', xp: 2000, tier: 'diamond', test: (c) => c.level >= 50 },
+  { id: 'high-roller', icon: 'chip', xp: 1500, tier: 'diamond', test: (c) => Object.values(c.byGame).reduce((a, s) => a + (s?.wagered ?? 0), 0) >= 1_000_000 },
 ];
+
+/** Medal metal of an achievement (explicit, or from how much XP it gives). */
+export const tierOf = (a: AchievementDef): Tier => a.tier ?? (a.xp <= 100 ? 'bronze' : a.xp <= 200 ? 'silver' : a.xp <= 400 ? 'gold' : 'diamond');
 
 export function newlyUnlocked(ctx: Parameters<AchievementDef['test']>[0], unlocked: Set<string>): AchievementDef[] {
   return ACHIEVEMENTS.filter((a) => !unlocked.has(a.id) && a.test(ctx));

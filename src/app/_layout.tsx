@@ -17,6 +17,7 @@ import { setLanguage } from '@/i18n';
 import { useSettings } from '@/state/settings';
 import { useTheme } from '@/design/theme';
 import { Toasts } from '@/design/components';
+import { UnlockSheet } from '@/features/unlocks/UnlockSheet';
 import { Splash } from '@/features/brand/Splash';
 import { syncMusic } from '@/services/audio';
 import { useAuthListener } from '@/features/auth/useAuthListener';
@@ -47,9 +48,9 @@ export default function RootLayout() {
           <Stack.Screen name="game/[id]" options={{ gestureEnabled: true }} />
           <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
           <Stack.Screen name="settings" />
-          <Stack.Screen name="shop" />
           <Stack.Screen name="rules/[id]" options={{ presentation: 'modal' }} />
         </Stack>
+        <UnlockSheet />
         <Toasts />
         <Splash />
       </SafeAreaProvider>

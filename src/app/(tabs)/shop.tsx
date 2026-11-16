@@ -12,6 +12,7 @@ import { CARD_BACKS, FELTS, FRAMES, PREMIUM_AVATARS, TITLES } from '@/features/s
 import { useSession } from '@/state/session';
 import { accountShop } from '@/features/shop/accountShop';
 import { sfx } from '@/services/audio';
+import { UnlockList } from '@/features/unlocks/UnlockList';
 import { haptic } from '@/services/haptics';
 
 /** Cosmetic shop: spend play chips on looks. Nothing here changes any game's odds. */
@@ -19,7 +20,7 @@ export default function Shop() {
   const { t, lang } = useT();
   const { c } = useTheme();
   const { width } = useWindowDimensions();
-  const [tab, setTab] = useState<Slot>('back');
+  const [tab, setTab] = useState<Slot | 'unlock'>('unlock');
   const [confirm, setConfirm] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const guestBalance = useWallet((s) => s.balance);
@@ -76,27 +77,30 @@ export default function Shop() {
   };
 
   const items =
-    tab === 'back' ? CARD_BACKS.map((b) => ({ id: b.id, name: b.name, price: b.price, preview: <CardBackArt item={b} dim={{ w: 64, h: 90, r: 10 }} />, w: 64, h: 90 }))
+    tab === 'unlock' ? []
+    : tab === 'back' ? CARD_BACKS.map((b) => ({ id: b.id, name: b.name, price: b.price, preview: <CardBackArt item={b} dim={{ w: 64, h: 90, r: 10 }} />, w: 64, h: 90 }))
       : tab === 'felt' ? FELTS.map((f) => ({ id: f.id, name: f.name, price: f.price, preview: <FeltSwatch colors={f.colors} />, w: 120, h: 80 }))
         : tab === 'avatar' ? PREMIUM_AVATARS.map((a) => ({ id: a.id, name: a.name, price: a.price, preview: <Avatar id={a.id} size={76} />, w: 76, h: 76 }))
           : tab === 'frame' ? FRAMES.map((f) => ({ id: f.id, name: f.name, price: f.price, preview: <Avatar id={myAvatar} size={70} frame={f.id} />, w: 84, h: 84 }))
             : TITLES.map((x) => ({ id: x.id, name: x.name, price: x.price, preview: <TitleBadge title={x.name[lang]} color={x.color} />, w: 150, h: 40 }));
 
   return (
-    <Screen title={t('shop.title')} subtitle={t('shop.subtitle')} back tabBar={false}>
+    <Screen title={t('shop.title')} subtitle={t('shop.subtitle')}>
       <View style={{ paddingHorizontal: SCREEN_PAD, gap: 14 }}>
         <View style={[styles.wallet, { backgroundColor: c.surface1 }]}>
           <T variant="footnote" color="text2">{t('shop.yourChips')}</T>
           <T weight="display" tabular style={{ color: c.win, fontSize: 30, lineHeight: 36 }}>{formatCoins(balance)}</T>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          <Chip label={`🔓 ${t('unlock.title')}`} selected={tab === 'unlock'} onPress={() => { setTab('unlock'); setConfirm(null); setMsg(null); }} />
           {(['back', 'felt', 'avatar', 'frame', 'title'] as Slot[]).map((k) => (
             <Chip key={k} label={t(`shop.tabs.${k}`)} selected={tab === k} onPress={() => { setTab(k); setConfirm(null); setMsg(null); }} />
           ))}
         </ScrollView>
         {msg ? <Animated.View entering={FadeIn}><T variant="footnote" color="warn" align="center">{msg}</T></Animated.View> : null}
+        {tab === 'unlock' ? <UnlockList /> : null}
         <View style={styles.grid}>
-          {items.map((it, i) => {
+          {tab !== 'unlock' && items.map((it, i) => {
             const key = `${tab}:${it.id}`;
             const has = owned.includes(key);
             const on = equipped[tab] === it.id;

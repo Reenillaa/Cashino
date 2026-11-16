@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Avatar, Chip, GameGlyph, Glass, ListGroup, ListRow, PressableScale, ProgressBar, Screen, Section, Segmented, Sheet, Surface, T } from '@/design/components';
+import { Avatar, Chip, GameGlyph, GameLogo, Glass, ListGroup, ListRow, PressableScale, ProgressBar, Screen, Section, Segmented, Sheet, Surface, T } from '@/design/components';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD, radius } from '@/design/tokens';
@@ -16,6 +16,7 @@ import { masteryScore, blackjackSkill } from '@/engine/meta/ranking.ts';
 import { ACHIEVEMENTS } from '@/engine/meta/achievements.ts';
 import { META, VISIBLE_GAMES } from '@/games/catalog';
 import { LESSONS } from '@/features/academy/content';
+import { WeeklyBoard } from '@/features/ranking/WeeklyBoard';
 import { useNow } from '@/features/time/useNow';
 
 const HOW: [string, { es: string; en: string }][] = [
@@ -26,14 +27,14 @@ const HOW: [string, { es: string; en: string }][] = [
 ];
 
 interface Entry { user_id: string; username: string; avatar: string; value: number; rank: number }
-type Scope = 'global' | 'game' | 'friends';
+type Scope = 'week' | 'global' | 'game' | 'friends';
 
 export default function Ranking() {
   const { t, lang } = useT();
   const { c } = useTheme();
   const router = useRouter();
   const userId = useSession((s) => s.userId);
-  const [scope, setScope] = useState<Scope>('global');
+  const [scope, setScope] = useState<Scope>('week');
   const [game, setGame] = useState<GameId>('poker');
   const [entries, setEntries] = useState<Entry[]>([]);
   const [how, setHow] = useState(false);
@@ -92,13 +93,19 @@ export default function Ranking() {
   return (
     <Screen title={t('ranking.title')} subtitle={`${t('home.season', { n: season.number })} · ${new Date(season.end).toLocaleDateString()}`} right={<Chip label={t('ranking.how')} icon="info" onPress={() => setHow(true)} />}>
       <View style={{ paddingHorizontal: SCREEN_PAD }}>
-        <Segmented value={scope} onChange={setScope} options={[{ value: 'global', label: t('ranking.global') }, { value: 'game', label: t('ranking.perGame') }, { value: 'friends', label: t('ranking.friends') }]} />
+        <Segmented value={scope} onChange={setScope} options={[{ value: 'week', label: t('ranking.weekly') }, { value: 'global', label: t('ranking.seasonShort') }, { value: 'game', label: t('ranking.perGame') }, { value: 'friends', label: t('ranking.friends') }]} />
       </View>
       {scope === 'game' && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: SCREEN_PAD, paddingTop: 12 }}>
-          {VISIBLE_GAMES.map(({ id: g }) => <Chip key={g} label={t(`games.names.${g}`)} selected={game === g} tint={META[g].tint} onPress={() => setGame(g)} />)}
+          {VISIBLE_GAMES.map(({ id: g }) => (
+            <PressableScale key={g} onPress={() => setGame(g)} feedback="select" accessibilityLabel={t(`games.names.${g}`)} style={[styles.gameBtn, game === g && styles.gameOn]}>
+              <GameLogo game={g} size={36} />
+            </PressableScale>
+          ))}
         </ScrollView>
       )}
+      {scope === 'week' ? <View style={{ marginTop: 16 }}><WeeklyBoard /></View> : null}
+      {scope !== 'week' ? (<>
       {/* "You" card floats (glass) like the user's row in Offsuit's leaderboard, but in titanium. */}
       <Glass radius={radius.lg} style={{ marginHorizontal: SCREEN_PAD, marginTop: 16, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
         <T variant="display" tabular style={{ minWidth: 56 }}>{me ? `#${me.rank}` : '—'}</T>
@@ -142,7 +149,8 @@ export default function Ranking() {
           </View>
         )}
       </Section>
-      {!userId && onlineConfigured && (
+      </>) : null}
+      {!userId && onlineConfigured && scope !== 'week' && (
         <ListGroup style={{ marginTop: 16 }}>
           <ListRow icon="profile" title={t('profile.createAccount')} subtitle={t('profile.accountBenefits')} onPress={() => router.push('/auth')} />
         </ListGroup>
@@ -165,4 +173,6 @@ export default function Ranking() {
 const styles = StyleSheet.create({
   promo: { flex: 1, minHeight: 112, padding: 12, borderRadius: 20, overflow: 'hidden', gap: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, height: 56 },
+  gameBtn: { width: 52, height: 52, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 2, borderColor: 'transparent' },
+  gameOn: { borderColor: '#FFD06B', backgroundColor: 'rgba(255,208,107,0.15)' },
 });

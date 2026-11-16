@@ -5,6 +5,8 @@
  *   { action: 'cashout', betId, expect }  → closes a pending pre-match bet now at its cash-out value
  * Prices are always recomputed here from the stored event; if they moved, the bet is refused with the new odds.
  */
+import { requireUnlocked } from '../_shared/unlocks.ts';
+import { weekAt } from '../_shared/engine/meta/progression.ts';
 import { admin, handler, HttpError, json, requireUser, rpcError } from '../_shared/http.ts';
 import { LEAGUES, parseF1, parseStandings, parseTeamScoreboard, parseTennis, parseUfc, type Table } from '../_shared/engine/sports/espn.ts';
 import { cashOutValue, findSelection, pricedLegs, settleSelection, settleSlip, SLIP, type SlipSel, type SportEvent } from '../_shared/engine/sports/sports.ts';
@@ -107,6 +109,8 @@ Deno.serve(
       await db.from('sports_meta').upsert({ key: 'refreshed', value: null, updated_at: new Date().toISOString() });
       const count = await refresh(db, await pendingDates(db));
       const settled = await settle(db);
+      // the same 15-minute schedule pays last week's leaderboard prizes as soon as the week ends (idempotent)
+      await db.rpc('settle_weekly', { p_week: weekAt(Date.now()) - 1 });
       return json({ ok: true, events: count, settled });
     }
 
@@ -118,8 +122,9 @@ Deno.serve(
       const legsIn = Array.isArray(body.legs) ? (body.legs as { eventId: string; market: string; sel: string; odds: number }[]) : [];
       if (!legsIn.length || legsIn.length > SLIP.maxSelections) throw new HttpError('invalid_legs');
       if (mode === 'combo' && new Set(legsIn.map((l) => l.eventId)).size !== legsIn.length) throw new HttpError('same_event_in_combo');
-      const { data: evRows } = await db.from('sports_events').select('id, data, starts_at, status').in('id', legsIn.map((l) => String(l.eventId)));
+      const { data: evRows } = await db.from('sports_events').select('id, sport, data, starts_at, status').in('id', legsIn.map((l) => String(l.eventId)));
       const evs = new Map((evRows ?? []).map((r) => [r.id, r]));
+      await requireUnlocked(db, userId, ['sports', ...[...new Set((evRows ?? []).map((r) => `sport:${r.sport}` as const))]]);
       const changed: { eventId: string; market: string; sel: string; odds: number }[] = [];
       const legs: SlipSel[] = legsIn.map((l) => {
         const row = evs.get(String(l.eventId));

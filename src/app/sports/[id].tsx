@@ -10,6 +10,8 @@ import { buildMarkets, type Market, type SportEvent } from '@/engine/sports/spor
 import { useSports } from '@/features/sports/store';
 import { useNow, FormChips, OddsButton, SlipDock, SPORT_EMOJI, StatusPill, TeamLogo, timeLabel } from '@/features/sports/ui';
 import { haptic } from '@/services/haptics';
+import { LockedGate } from '@/features/unlocks/LockedGate';
+import type { UnlockId } from '@/engine/meta/unlocks.ts';
 
 export default function SportEventPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -26,6 +28,17 @@ export default function SportEventPage() {
   }, [ev, load]);
   const markets = useMemo(() => (ev ? buildMarkets(ev, lang) : []), [ev, lang]);
   if (!ev) return <Screen title={t('sports.title')} back tabBar={false}><T color="text2" align="center">{t('sports.loading')}</T></Screen>;
+  return (
+    <LockedGate id="sports">
+      <LockedGate id={`sport:${ev.sport}` as UnlockId}>
+        <EventBody ev={ev} markets={markets} group={group} setGroup={setGroup} now={now} />
+      </LockedGate>
+    </LockedGate>
+  );
+}
+
+function EventBody({ ev, markets, group, setGroup, now }: { ev: SportEvent; markets: Market[]; group: string | null; setGroup: (g: string | null) => void; now: number }) {
+  const { t } = useT();
   const groups = [...new Set(markets.map((m) => m.group))];
   const cur = group && groups.includes(group) ? group : null;
   const shown = cur ? markets.filter((m) => m.group === cur) : markets;

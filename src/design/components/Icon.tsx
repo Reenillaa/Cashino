@@ -59,6 +59,9 @@ const ICONS = {
   edit: (<><Path d="M15.5 5 19 8.5 9 18.5H5.5V15z" /><Path d="M13 7.5 16.5 11" /></>),
   hourglass: <Path d="M7 3.5h10M7 20.5h10M8 3.5c0 4.5 4 5.5 4 8.5s-4 4-4 8.5M16 3.5c0 4.5-4 5.5-4 8.5s4 4 4 8.5" />,
   dot: <Circle cx="12" cy="12" r="3" />,
+  ball: (<><Circle cx="12" cy="12" r="8.5" /><Path d="m12 8.2 3.4 2.5-1.3 4h-4.2l-1.3-4z" /><Path d="M12 3.5v4.7M20.2 9.4l-4.8 1.3M17.3 18.6l-3.2-3.9M6.7 18.6l3.2-3.9M3.8 9.4l4.8 1.3" /></>),
+  bag: (<><Path d="M5.5 8h13l-1 12h-11z" /><Path d="M9 10V6.5a3 3 0 0 1 6 0V10" /></>),
+  userPlus: (<><Circle cx="10" cy="8.5" r="3.6" /><Path d="M3.5 19.5c.8-3.6 3.4-5.6 6.5-5.6 1.4 0 2.6.4 3.6 1" /><Path d="M18.5 13v6M15.5 16h6" /></>),
 } as const;
 
 export type IconName = keyof typeof ICONS;

@@ -1,10 +1,13 @@
 /**
  * `shop` Edge Function — cosmetic shop for accounts. Prices come from the shared engine catalog;
  * the purchase (ownership + coin debit) is atomic in `shop_buy`.
- * Body: { action: 'state' } | { action: 'buy', item } | { action: 'equip', slot, id | null }
+ * Body: { action: 'state' } | { action: 'buy', item } | { action: 'equip', slot, id | null } | { action: 'unlock', item, price }
+ * Unlocks (games, live tables, sportsbook, sports) are priced with the shared ladder and bought atomically.
  */
 import { admin, handler, HttpError, json, requireUser, rpcError } from '../_shared/http.ts';
 import { FREE_ITEMS, SHOP_PRICES, SHOP_SLOTS, type ShopSlot } from '../_shared/engine/meta/shop.ts';
+import { isUnlockId, unlockRequires } from '../_shared/engine/meta/unlocks.ts';
+import { nextUnlockPrice, ownedUnlocks } from '../_shared/unlocks.ts';
 
 Deno.serve(
   handler(async (req, body) => {
@@ -17,7 +20,9 @@ Deno.serve(
         db.from('profiles').select('cosmetics').eq('id', userId).single(),
         db.from('wallets').select('balance').eq('user_id', userId).single(),
       ]);
-      return { owned: [...FREE_ITEMS, ...(owned ?? []).map((o) => o.item as string)], equipped: profile?.cosmetics ?? {}, balance: wallet?.balance ?? 0 };
+      const unlocks = await ownedUnlocks(db, userId);
+      const next = await nextUnlockPrice(db, userId, unlocks);
+      return { owned: [...FREE_ITEMS, ...(owned ?? []).map((o) => o.item as string)], equipped: profile?.cosmetics ?? {}, balance: wallet?.balance ?? 0, unlocks, nextPrice: next.price, peak: next.peak };
     };
     if (action === 'state') return json(await state());
     if (action === 'buy') {
@@ -31,6 +36,22 @@ Deno.serve(
       const [slot, id] = item.split(':');
       const { data: p } = await db.from('profiles').select('cosmetics').eq('id', userId).single();
       await db.from('profiles').update({ cosmetics: { ...(p?.cosmetics ?? {}), [slot]: id } }).eq('id', userId);
+      return json(await state());
+    }
+    if (action === 'unlock') {
+      const item = String(body.item ?? '');
+      if (!isUnlockId(item)) throw new HttpError('unknown_item');
+      const owned = await ownedUnlocks(db, userId);
+      const req = unlockRequires(item);
+      if (req && !owned.includes(req)) throw new HttpError(`locked:${req}`, 409);
+      const { price, count } = await nextUnlockPrice(db, userId, owned);
+      // the player confirmed a price: never charge more than what they saw
+      if (Number(body.price) !== price) return json({ error: 'price_changed', price }, 409);
+      const { error } = await db.rpc('unlock_buy', { p_user: userId, p_item: item, p_price: price, p_count: count });
+      if (error?.message.includes('already_owned')) throw new HttpError('already_owned', 409);
+      if (error?.message.includes('price_changed')) throw new HttpError('price_changed', 409);
+      if (error?.message.includes('insufficient')) throw new HttpError('insufficient', 409);
+      rpcError(error);
       return json(await state());
     }
     if (action === 'equip') {

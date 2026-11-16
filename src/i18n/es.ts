@@ -12,7 +12,7 @@ const es = {
     reset: 'Restablecer', search: 'Buscar', empty: 'Nada por aquí todavía', minutes: 'min', seconds: 's', today: 'Hoy',
     noMoneyDisclaimer: 'Moneda virtual sin valor monetario. No se puede comprar, vender, transferir ni canjear.',
   },
-  tabs: { home: 'Inicio', games: 'Juegos', ranking: 'Ranking', social: 'Social', profile: 'Perfil' },
+  tabs: { sports: 'Apuestas', shop: 'Tienda', home: 'Inicio', games: 'Juegos', ranking: 'Ranking', social: 'Social', profile: 'Perfil' },
   home: {
     morning: 'Buenos días', afternoon: 'Buenas tardes', evening: 'Buenas noches', guest: 'invitado',
     balance: 'Saldo', featured: 'Destacados', quick: 'Accesos rápidos', challenges: 'Retos de hoy', weekly: 'Retos de la semana',
@@ -103,12 +103,14 @@ const es = {
     createTable: 'Crear mesa', joinByCode: 'Unirse con código', code: 'Código', reconnecting: 'Reconectando…', timeout: 'Tiempo agotado',
   },
   ranking: {
+    weekly: 'Semanal', seasonShort: 'Temporada', 
     title: 'Ranking', global: 'Global', perGame: 'Por juego', friends: 'Amigos', season: 'Temporada', points: 'Puntos de temporada',
     rating: 'Rating', mastery: 'Maestría', skill: 'Precisión', you: 'Tu posición', how: '¿Cómo se calcula?', notRanked: 'Sin clasificar',
     offlineNote: 'Los rankings usan solo partidas verificadas por el servidor. Inicia sesión para aparecer.', localPreview: 'Vista previa local',
     howBody: 'El saldo nunca cuenta. Puntuamos participación (con límite diario), aprendizaje en Academy, logros, torneos y, en póker y blackjack, habilidad real (rating Elo y precisión frente a la estrategia básica).',
   },
   social: {
+    search: 'Buscar', noResults: 'No hay nadie con ese nombre', requestSent: 'Solicitud enviada a {{name}}', alreadyAsked: 'Ya le habías enviado una solicitud', remove: 'Quitar', pendingSent: '{{n}} solicitudes enviadas esperando respuesta', 
     title: 'Social', friends: 'Amigos', requests: 'Solicitudes', invites: 'Invitaciones', rooms: 'Salas privadas', teams: 'Equipos',
     tournaments: 'Torneos', activity: 'Actividad', reactions: 'Reacciones', addFriend: 'Añadir amigo', searchPlaceholder: 'Buscar por usuario',
     accept: 'Aceptar', decline: 'Rechazar', invite: 'Invitar', join: 'Unirse', create: 'Crear', leave: 'Salir', members: '{{n}} miembros',
@@ -119,6 +121,7 @@ const es = {
     registered: 'Inscrito', register: 'Inscribirse', startsIn: 'Empieza en {{time}}', prizesNote: 'Premios solo cosméticos y fichas sin valor monetario.',
   },
   profile: {
+    bestStreak: 'Mejor racha', tier: { bronze: 'Bronce', silver: 'Plata', gold: 'Oro', diamond: 'Diamante' }, 
     title: 'Perfil', achievements: 'Logros', stats: 'Estadísticas', history: 'Historial', favorites: 'Favoritos', progress: 'Progreso',
     editProfile: 'Editar perfil', avatar: 'Avatar', username: 'Usuario', displayName: 'Nombre', guestName: 'Invitado', overall: 'General',
     roundsPlayed: 'Rondas jugadas', winRate: 'Tasa de victorias', biggestWin: 'Mayor ganancia', bestMultiplier: 'Mejor multiplicador',
@@ -140,6 +143,7 @@ const es = {
     sessionReminder: 'Recordatorio de descanso', every: 'Cada {{n}} min', never: 'Nunca', fairness: 'Juego verificable', licenses: 'Licencias',
   },
   sports: {
+    lockedTitle: 'Apuestas deportivas bloqueadas', lockedBody: 'Desbloquea la sección y después cada deporte (fútbol, NBA, NFL, NHL, tenis, UFC, F1) con fichas ganadas jugando.', 
     title: 'Apuestas deportivas', subtitle: 'Partidos reales · fichas de juego', tabSports: 'Deportes', tabLive: 'En vivo', tabMine: 'Mis apuestas',
     sport: { top: 'Destacados', soccer: 'Fútbol', nba: 'NBA', nfl: 'NFL', nhl: 'NHL', tennis: 'Tenis', ufc: 'UFC', f1: 'F1' },
     featured: 'Destacados', soon: 'Empiezan pronto', today: 'Hoy', tomorrow: 'Mañana', all: 'Todos', markets: '{{n}} mercados', drivers: 'pilotos', standingsTop: 'Mundial', record: 'Balance', draw: 'Empate',
@@ -168,6 +172,8 @@ const es = {
   pass: { title: 'Pase de temporada', season: 'Temporada {{n}}', daysLeft: 'quedan {{n}} días', toNext: 'Te faltan {{n}} puntos para el nivel {{tier}}', done: '¡Pase completado! Eres una máquina 🏆', claim: 'Cobrar', claimN: 'Cobrar recompensas ({{n}})', points: 'puntos', howTitle: '¿Cómo se suben puntos?', how: 'Jugando un poco cada día (+2 por ronda, máx. 200 al día), lecciones de Academy (+30), logros (+50), misiones y torneos de póker. Apostar más NO da más puntos. Todo el pase es gratis.' },
   leagues: { title: 'Ligas con amigos', intro: 'Crea una liga, pásale el código a tus colegas y a ver quién suma más puntos esta semana. Cada lunes empieza de cero.', signIn: 'Las ligas son con cuenta', none: 'Aún no estás en ninguna liga. ¡Crea una o únete con un código!', members: 'jugadores', join: 'Unirme con código', code: 'Código de la liga', create: 'Crear una liga', name: 'Nombre de la liga', namePh: 'Los del barrio', createBtn: 'Crear', rules: 'Cuentan los puntos de temporada de esta semana (lunes a domingo, hora UTC). Se ganan jugando un poco cada día y aprendiendo, nunca apostando más. Máx. 30 por liga.', thisWeek: 'Esta semana', lastWeek: 'Semana pasada', endsIn: 'Acaba en {{t}}', level: 'Nivel {{n}}', inviteWith: 'Invita con este código', invite: 'Invitar amigos', copied: 'Código copiado', leave: 'Salir de la liga', shareMsg: '¡Únete a mi liga «{{name}}» en Cashino! Código: {{code}}', banner: 'Ligas con amigos', bannerBody: 'Pique semanal con tu gente' },
   news: { title: 'Novedades', badge: 'NUEVO', cascade: { title: 'Dulce Cascada', body: 'La tragaperras de moda: 8 dulces iguales pagan, caen más y las bombas multiplican hasta ×100.' }, rocket: { title: 'Cohete en directo', body: 'Todos en el mismo cohete a la vez. ¿Te bajas a tiempo o te quedas para el ×50?' }, horses3d: { title: 'Carreras en 3D', body: 'Nueva cámara de televisión: la pista en perspectiva y los caballos en su calle.' }, leagues: { title: 'Ligas con amigos', body: 'Crea una liga, pásales el código y a picarse cada semana.' }, pass: { title: 'Pase de temporada', body: '30 niveles gratis con fichas. Se sube jugando un poco cada día, no apostando más.' }, sports: { title: 'NHL, UFC y cash out', body: 'Nuevos deportes y cierra tus apuestas antes de que empiecen.' } },
+  unlock: { groupGames: 'Juegos', ladderShort: 'Blackjack y póker son gratis. Todo lo demás se compra con fichas: la 1ª compra cuesta 2.500, la 2ª 5.000 y después cada una más (también según lo máximo que hayas llegado a tener). ', done: '¡{{name}} desbloqueado! 🔓', notEnough: 'No te llegan las fichas', notEnoughShort: 'Te faltan {{missing}} fichas', priceChanged: 'El precio ha cambiado, míralo otra vez', price: 'Precio', youHave: 'Tienes', buy: 'Desbloquear por {{price}}', ladder: 'Llevas {{n}} desbloqueos. Cada compra sube el precio de la siguiente (la próxima, desde {{next}}). Blackjack y póker son gratis.', needsFirst: 'Primero tienes que desbloquear {{name}}.', goFirst: 'Ver {{name}}', lockedBody: 'Este juego está bloqueado. Desbloquéalo con fichas que ganes jugando al blackjack o al póker.', title: 'Desbloquear', next: 'Próximo desbloqueo', owned: 'Desbloqueado' },
+  weekly: { title: 'Semana {{n}}', endsIn: 'Acaba en {{t}}', prizesNote: 'Premios para los 3 primeros de cada categoría. Se pagan solos cuando acaba la semana (lunes 00:00 UTC).', youWon: '¡Ganaste {{prize}} fichas en «{{cat}}» la semana pasada!', cat: { points: 'Puntos', winner: 'Máximo ganador' }, catBody: { points: 'Jugar un poco cada día y aprender', winner: 'Quien más fichas netas gana en la semana' }, signIn: 'El ranking semanal y sus premios son con cuenta.', emptyTitle: 'Podio vacío', empty: { points: 'Nadie ha sumado puntos aún esta semana. ¡Juega una ronda y te pones primero!', winner: 'Nadie va ganando todavía esta semana. ¿Serás tú?' }, notYet: { points: 'Aún sin puntos esta semana', winner: 'Aún no vas ganando esta semana' }, lastWeek: 'Campeones de la semana pasada' },
   shop: {
     tabs: { back: '🂠 Cartas', felt: '🟩 Tapetes', avatar: '🙂 Avatares', frame: '⭕ Marcos', title: '🏷️ Títulos' },
     title: 'Tienda', subtitle: 'Dale tu estilo a la mesa con tus fichas.', yourChips: 'Tus fichas', backs: 'Cartas', felts: 'Tapetes', avatars: 'Avatares',
@@ -199,6 +205,11 @@ const es = {
   },
   tutorial: { title: 'Primera partida', skip: 'Salir', gotIt: 'Siguiente', finish: '¡A jugar!', step: 'Paso {{n}} de {{total}}', replay: 'Enséñame a jugar', tapHere: 'Toca aquí', help: '¿Cómo se juega?', guided: 'Enséñame paso a paso', guidedBody: 'Te voy señalando qué tocar. Es gratis: juegas en la sala de práctica.', rulesTitle: 'Reglas', fairness: 'Comprobar que es justo' },
   achievements: {
+    'streak-10': ['Imparable', 'Gana 10 rondas seguidas en el mismo juego'], 'big-win-10k': ['Golpe gordo', 'Gana 10.000 fichas netas en una sola ronda'], 'big-win-100k': ['Leyenda', 'Gana 100.000 fichas netas en una sola ronda'],
+    'crash-100x': ['A la Luna', 'Retírate del Cohete a ×100 o más'], 'limbo-1000x': ['Sin techo', 'Gana en Limbo a ×1.000 o más'], 'cascade-50x': ['Dulce lluvia', 'Gana ×50 o más en Dulce Cascada'],
+    'cascade-500x': ['Diabetes', 'Gana ×500 o más en Dulce Cascada'], 'horses-100x': ['Ojo clínico', 'Cobra ×100 o más en las carreras'], 'videopoker-royal': ['Escalera real', 'Saca una escalera real en Video Póker'],
+    'mines-100x': ['Artificiero', 'Cobra ×100 o más en Minas'], 'towers-top': ['Matadragones', 'Cobra ×50 o más en la Torre del Dragón'], 'rounds-10000': ['Inmortal', 'Juega 10.000 rondas'],
+    'level-50': ['Nivel 50', 'Alcanza el nivel 50'], 'high-roller': ['High roller', 'Apuesta 1.000.000 de fichas en total'],
     'first-round': ['Primer paso', 'Juega tu primera ronda'], 'rounds-100': ['Constante', 'Juega 100 rondas'], 'rounds-1000': ['Veterano', 'Juega 1.000 rondas'],
     explorer: ['Explorador', 'Prueba 7 juegos distintos'], completionist: ['Coleccionista', 'Juega los 21 juegos'], student: ['Estudiante', 'Completa 5 lecciones'],
     scholar: ['Erudito', 'Completa 30 lecciones'], 'tutorials-all': ['Bien preparado', 'Completa los 21 tutoriales'], 'level-10': ['Nivel 10', 'Alcanza el nivel 10'],

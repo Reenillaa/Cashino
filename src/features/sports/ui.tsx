@@ -147,7 +147,7 @@ export function RaceCard({ ev }: { ev: SportEvent }) {
 }
 
 /** Floating slip bar + the slip sheet (singles or a combo, stake, potential return, place). */
-export function SlipDock() {
+export function SlipDock({ aboveTabs }: { aboveTabs?: boolean } = {}) {
   const { t } = useT();
   const router = useRouter();
   const slip = useSports((s) => s.slip);
@@ -183,7 +183,7 @@ export function SlipDock() {
   };
   return (
     <>
-      <Animated.View entering={FadeInUp} style={styles.dock}>
+      <Animated.View entering={FadeInUp} style={[styles.dock, aboveTabs && { bottom: 104 }]}>
         <PressableScale onPress={() => setOpen(true)} feedback="medium" scaleTo={0.97} accessibilityLabel={t('sports.slip')} style={styles.dockBtn}>
           <View style={styles.count}><T weight="display" style={{ color: '#04201A', fontSize: 13 }}>{slip.length}</T></View>
           <T weight="display" style={{ color: '#fff', fontSize: 16, flex: 1 }}>{t('sports.slip')}</T>

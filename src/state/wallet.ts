@@ -6,7 +6,7 @@ import { ECONOMY, applyRefill, canRefill, claimDaily, canClaimDaily, utcDay, typ
 export interface LedgerEntry {
   id: string;
   ts: number;
-  kind: 'bet' | 'payout' | 'daily' | 'refill' | 'mission' | 'level' | 'achievement' | 'migration' | 'adjust' | 'shop' | 'pass';
+  kind: 'bet' | 'payout' | 'daily' | 'refill' | 'mission' | 'level' | 'achievement' | 'migration' | 'adjust' | 'shop' | 'pass' | 'unlock' | 'weekly';
   amount: number; // signed
   game?: string;
   balance: number;
@@ -15,6 +15,8 @@ export interface LedgerEntry {
 interface WalletState {
   /** Guest/offline balance (account balance lives on the server). */
   balance: number;
+  /** Most chips ever held at once (unlock prices look at it). */
+  peak: number;
   practice: number;
   daily: DailyState;
   refill: RefillState;
@@ -45,6 +47,7 @@ const entry = (kind: LedgerEntry['kind'], amount: number, balance: number, game?
 
 const initial = () => ({
   balance: ECONOMY.startingBalance,
+  peak: ECONOMY.startingBalance,
   practice: ECONOMY.practiceBalance,
   daily: { lastClaimDay: null, streak: 0 } as DailyState,
   refill: { day: 0, used: 0 } as RefillState,
@@ -68,7 +71,7 @@ export const useWallet = create<WalletState>()(
         if (!Number.isInteger(amount) || amount <= 0) return;
         set((s) => {
           const nb = s.balance + amount;
-          return { balance: nb, ledger: [entry(kind, amount, nb, game), ...s.ledger].slice(0, 300) };
+          return { balance: nb, peak: Math.max(s.peak ?? 0, nb, ...s.ledger.slice(0, 300).map((e) => e.balance)), ledger: [entry(kind, amount, nb, game), ...s.ledger].slice(0, 300) };
         });
       },
       practiceDebit: (amount) => {

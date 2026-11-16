@@ -4,7 +4,7 @@
  */
 import { admin, handler, HttpError, json, requireUser, rpcError } from '../_shared/http.ts';
 import { ECONOMY, dailyRewardAmount, nextStreak, utcDay } from '../_shared/engine/meta/economy.ts';
-import { dailyMissions, weeklyMissions, passReward, seasonAt, seasonTier, type MissionDef } from '../_shared/engine/meta/progression.ts';
+import { dailyMissions, weeklyMissions, passReward, seasonAt, seasonTier, weekAt, type MissionDef } from '../_shared/engine/meta/progression.ts';
 
 const dayKey = (d: number) => new Date(d * 86_400_000).toISOString().slice(0, 10);
 
@@ -71,6 +71,20 @@ Deno.serve(
       rpcError(error);
       await db.rpc('award_progress', { p_user: userId, p_xp: m.xp, p_sp: m.sp, p_round: false });
       return json({ amount: m.coins, balance });
+    }
+    if (action === 'weekly') {
+      // pay last week's prizes if nobody has yet (idempotent), then return the boards
+      const week = weekAt(Date.now());
+      const { error } = await db.rpc('settle_weekly', { p_week: week - 1 });
+      rpcError(error);
+      const asked = Number.isInteger(body.week) ? Math.min(week, Math.max(1, Number(body.week))) : week;
+      const [points, winner, awards, mine] = await Promise.all([
+        db.rpc('weekly_board', { p_week: asked, p_category: 'points', p_limit: 50 }),
+        db.rpc('weekly_board', { p_week: asked, p_category: 'winner', p_limit: 50 }),
+        db.from('weekly_awards').select('category, rank, user_id, value, prize, profiles(username, avatar)').eq('week', week - 1).order('rank'),
+        db.from('weekly_awards').select('week, category, rank, prize').eq('user_id', userId).order('week', { ascending: false }).limit(10),
+      ]);
+      return json({ week, asked, points: points.data ?? [], winner: winner.data ?? [], lastWeek: awards.data ?? [], myAwards: mine.data ?? [], prizes: [10000, 5000, 2500] });
     }
     if (action === 'pass') {
       const tier = Number(body.tier);

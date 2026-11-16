@@ -9,6 +9,7 @@
 import { admin, handler, HttpError, json, requireUser, rpcError } from '../_shared/http.ts';
 import { LIVE_GAMES, LIVE_LEAD, LIVE_CRASH_CAP, slotAt, liveCard, liveResult, checkLiveBet, livePayout, liveCashout, liveCrashMult, liveCrashTime, type LiveGame, type LiveBet, type CrashBet } from '../_shared/engine/meta/live.ts';
 import type { RaceCard } from '../_shared/engine/games/horses.ts';
+import { requireUnlocked } from '../_shared/unlocks.ts';
 
 const seed31 = () => crypto.getRandomValues(new Uint32Array(1))[0] >>> 1;
 
@@ -99,6 +100,7 @@ Deno.serve(
     }
 
     if (action === 'bet') {
+      await requireUnlocked(db, userId, [`live:${game}`]);
       const slot = Number(body.slot);
       const s = slotAt(game, now);
       if (slot !== s.slot || now >= s.closesAt) throw new HttpError('betting_closed', 409);

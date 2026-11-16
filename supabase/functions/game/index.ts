@@ -10,6 +10,7 @@ import { fairRng, hashServerSeed } from '../_shared/engine/rng/rng.ts';
 import { GAME_IDS, type GameId } from '../_shared/engine/games/types.ts';
 import { roomById } from '../_shared/engine/meta/rooms.ts';
 import { hotRoom, isHotFrom } from '../_shared/engine/meta/hot.ts';
+import { requireUnlocked } from '../_shared/unlocks.ts';
 
 function countingRng(seed: { serverSeed: string; clientSeed: string; nonce: number }, skip: number) {
   const base = fairRng(seed);
@@ -46,6 +47,7 @@ Deno.serve(
 
     if (!GAME_IDS.includes(game) || game === 'poker') throw new HttpError('unknown_game');
     if (!requestId) throw new HttpError('missing_request_id');
+    await requireUnlocked(db, userId, [`game:${game}`]);
     // Real-coin rounds must declare a (non-practice) room; its limits are enforced by the protocol.
     let stakeCap: number | null = null;
     if (['play', 'start', 'deal'].includes(op)) {

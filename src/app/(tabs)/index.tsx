@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useIsFocused, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedNumber, Aurora, Avatar, useMyAvatar, useMyFrame, Button, ChipLogo, GameGlyph, Icon, Marquee, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
@@ -14,13 +14,14 @@ import { ECONOMY, dailyRewardAmount, nextStreak, utcDay } from '@/engine/meta/ec
 import { VISIBLE_GAMES } from '@/games/catalog';
 import { GameTile } from '@/games/shared/GameTile';
 import { MissionRow } from '@/features/progression/MissionRow';
-import { LiveRow, WhatsNew } from '@/features/home/WhatsNew';
+import { LiveRow } from '@/features/home/WhatsNew';
+import { useOwnedUnlocks, useNextUnlockPrice, useUnlocks } from '@/state/unlocks';
+import { isUnlocked, type UnlockId } from '@/engine/meta/unlocks.ts';
 import { claimDailyReward, claimRefill } from '@/features/economy/rewards';
 import { useNow } from '@/features/time/useNow';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
-const TOP = ['slots', 'roulette', 'blackjack', 'poker', 'trader'] as const;
 
 /**
  * Home is also the lobby (Offsuit-style): the balance is the hero, then big pastel game cards.
@@ -55,6 +56,11 @@ export default function Home() {
   // 7 stamps per row: screen − page padding − card padding − 6 gaps.
   const stampW = Math.floor((Math.min(width, 640) - SCREEN_PAD * 2 - 32 - 6 * 8) / 7);
   const open = (id: string) => router.push(`/game/${id}`);
+  const owned = useOwnedUnlocks();
+  const unlockPrice = useNextUnlockPrice();
+  const openUnlock = useUnlocks((st) => st.open);
+  // what you can play first, then what is still to unlock
+  const lobby = [...VISIBLE_GAMES].sort((a, b) => Number(!isUnlocked(owned, `game:${a.id}` as UnlockId)) - Number(!isUnlocked(owned, `game:${b.id}` as UnlockId)));
   const tried = VISIBLE_GAMES.filter((g) => (stats[g.id]?.rounds ?? 0) + (practiceStats[g.id]?.rounds ?? 0) > 0).map((g) => g.id);
   const runStreak = wallet.daily.streak > 0 && wallet.daily.lastClaimDay !== null && today - wallet.daily.lastClaimDay <= 1 ? wallet.daily.streak : 0;
 
@@ -78,6 +84,9 @@ export default function Home() {
           <ChipLogo size={30} id="home" />
           <T weight="display" style={{ fontSize: 21, lineHeight: 26, letterSpacing: -0.8, color: '#fff' }} accessibilityRole="header">cashino</T>
         </View>
+        <PressableScale onPress={() => router.push('/academy')} accessibilityLabel={t('home.learn')} style={[styles.round, { backgroundColor: c.surface2 }]}>
+          <Icon name="book" size={20} color={c.text} />
+        </PressableScale>
         <PressableScale onPress={() => router.push('/settings')} accessibilityLabel={t('settings.title')} style={[styles.round, { backgroundColor: c.surface2 }]}>
           <Icon name="settings" size={20} color={c.text} />
         </PressableScale>
@@ -143,53 +152,20 @@ export default function Home() {
         </PressableScale>
       )}
 
-      {/* What's new and the live tables */}
-      <Section title={`✨ ${t('news.title')}`}>
-        <WhatsNew />
-      </Section>
+      {/* The live tables */}
       <Section title={`🔴 ${t('live.title')}`}>
         <LiveRow />
-      </Section>
-
-      {/* Most played: wide cards */}
-      <Section title={t('home.top')}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: SCREEN_PAD, gap: 12 }} snapToInterval={282} decelerationRate="fast">
-          {TOP.map((id, i) => (
-            <GameTile key={id} id={id} big index={i} badge={id === 'poker' ? t('games.online') : undefined} onPress={() => open(id)} />
-          ))}
-        </ScrollView>
       </Section>
 
       {/* Every game, two per row */}
       <Section title={t('home.allGames')}>
         <View style={[styles.grid, { paddingHorizontal: SCREEN_PAD }]}>
-          {VISIBLE_GAMES.map((g, i) => (
-            <GameTile key={g.id} id={g.id} index={i + 2} style={{ width: tileW }} onPress={() => open(g.id)} />
-          ))}
+          {lobby.map((g, i) => {
+            const locked = !isUnlocked(owned, `game:${g.id}` as UnlockId);
+            return <GameTile key={g.id} id={g.id} index={i} style={{ width: tileW }} locked={locked} price={locked ? unlockPrice : undefined} onPress={() => (locked ? openUnlock(`game:${g.id}` as UnlockId) : open(g.id))} />;
+          })}
         </View>
       </Section>
-
-      {/* Sports betting on real events */}
-      <PressableScale onPress={() => router.push('/sports')} scaleTo={0.97} feedback="select" accessibilityLabel={t('sports.banner')} style={[styles.shopCard, { marginHorizontal: SCREEN_PAD }]}>
-        <LinearGradient colors={['#0B6E52', '#062A24']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-        <T style={{ fontSize: 34 }}>⚽</T>
-        <View style={{ flex: 1 }}>
-          <T weight="display" style={{ color: '#fff', fontSize: 20 }}>{t('sports.banner')}</T>
-          <T variant="footnote" style={{ color: 'rgba(255,255,255,0.9)' }}>{t('sports.bannerBody')}</T>
-        </View>
-        <T weight="display" style={{ color: '#5BE3B0', fontSize: 22 }}>›</T>
-      </PressableScale>
-
-      {/* Shop: something to spend chips on (looks only) */}
-      <PressableScale onPress={() => router.push('/shop')} scaleTo={0.97} feedback="select" accessibilityLabel={t('shop.open')} style={[styles.shopCard, { marginHorizontal: SCREEN_PAD }]}>
-        <LinearGradient colors={['#7B5CFF', '#4B2BD6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-        <T style={{ fontSize: 34 }}>🛍️</T>
-        <View style={{ flex: 1 }}>
-          <T weight="display" style={{ color: '#fff', fontSize: 20 }}>{t('shop.open')}</T>
-          <T variant="footnote" style={{ color: 'rgba(255,255,255,0.85)' }}>{t('shop.openBody')}</T>
-        </View>
-        <T weight="display" style={{ color: '#FFD06B', fontSize: 22 }}>›</T>
-      </PressableScale>
 
       {/* Collection: try every game (an honest exploration goal, no luck involved) */}
       <Section title={t('home.album')} action={<T variant="footnote" weight="semibold" color={tried.length === VISIBLE_GAMES.length ? 'win' : 'text2'}>{tried.length}/{VISIBLE_GAMES.length}</T>}>
@@ -209,18 +185,6 @@ export default function Home() {
           <T variant="footnote" color="text2" style={{ marginTop: 8 }}>{tried.length === VISIBLE_GAMES.length ? t('home.albumDone') : t('home.albumBody', { n: tried.length })}</T>
         </View>
       </Section>
-
-      {/* Academy */}
-      <PressableScale onPress={() => router.push('/academy')} scaleTo={0.98} style={{ marginHorizontal: SCREEN_PAD, marginTop: 28 }} accessibilityLabel={t('home.learn')}>
-        <View style={[styles.row, { backgroundColor: c.surface1 }]}>
-          <Text style={{ fontSize: 30 }} accessible={false}>📚</Text>
-          <View style={{ flex: 1 }}>
-            <T variant="callout" weight="semibold">{t('home.learn')}</T>
-            <T variant="footnote" color="text3">{t('home.learnBody')}</T>
-          </View>
-          <Icon name="chevronRight" size={18} color={c.text3} />
-        </View>
-      </PressableScale>
 
       {/* Today's challenges */}
       <Section title={t('home.challenges')}>

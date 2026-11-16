@@ -14,7 +14,7 @@ const en: Dictionary = {
     reset: 'Reset', search: 'Search', empty: 'Nothing here yet', minutes: 'min', seconds: 's', today: 'Today',
     noMoneyDisclaimer: 'Virtual currency with no monetary value. It cannot be bought, sold, transferred or redeemed.',
   },
-  tabs: { home: 'Home', games: 'Games', ranking: 'Ranking', social: 'Social', profile: 'Profile' },
+  tabs: { sports: 'Bets', shop: 'Shop', home: 'Home', games: 'Games', ranking: 'Ranking', social: 'Social', profile: 'Profile' },
   home: {
     morning: 'Good morning', afternoon: 'Good afternoon', evening: 'Good evening', guest: 'guest',
     balance: 'Balance', featured: 'Featured', quick: 'Quick access', challenges: "Today's challenges", weekly: 'Weekly challenges',
@@ -105,12 +105,14 @@ const en: Dictionary = {
     createTable: 'Create table', joinByCode: 'Join with code', code: 'Code', reconnecting: 'Reconnecting…', timeout: 'Timed out',
   },
   ranking: {
+    weekly: 'Weekly', seasonShort: 'Season', 
     title: 'Ranking', global: 'Global', perGame: 'By game', friends: 'Friends', season: 'Season', points: 'Season points',
     rating: 'Rating', mastery: 'Mastery', skill: 'Accuracy', you: 'Your position', how: 'How is it calculated?', notRanked: 'Unranked',
     offlineNote: 'Rankings only use server-verified games. Sign in to appear.', localPreview: 'Local preview',
     howBody: 'Balance never counts. We score participation (daily-capped), Academy learning, achievements, tournaments and, in poker and blackjack, real skill (Elo rating and accuracy against basic strategy).',
   },
   social: {
+    search: 'Search', noResults: 'Nobody with that name', requestSent: 'Request sent to {{name}}', alreadyAsked: 'You already sent a request', remove: 'Remove', pendingSent: '{{n}} sent requests waiting', 
     title: 'Social', friends: 'Friends', requests: 'Requests', invites: 'Invites', rooms: 'Private rooms', teams: 'Teams',
     tournaments: 'Tournaments', activity: 'Activity', reactions: 'Reactions', addFriend: 'Add friend', searchPlaceholder: 'Search by username',
     accept: 'Accept', decline: 'Decline', invite: 'Invite', join: 'Join', create: 'Create', leave: 'Leave', members: '{{n}} members',
@@ -121,6 +123,7 @@ const en: Dictionary = {
     registered: 'Registered', register: 'Register', startsIn: 'Starts in {{time}}', prizesNote: 'Prizes are cosmetic and chips with no monetary value.',
   },
   profile: {
+    bestStreak: 'Best streak', tier: { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', diamond: 'Diamond' }, 
     title: 'Profile', achievements: 'Achievements', stats: 'Statistics', history: 'History', favorites: 'Favorites', progress: 'Progress',
     editProfile: 'Edit profile', avatar: 'Avatar', username: 'Username', displayName: 'Name', guestName: 'Guest', overall: 'Overall',
     roundsPlayed: 'Rounds played', winRate: 'Win rate', biggestWin: 'Biggest win', bestMultiplier: 'Best multiplier',
@@ -142,6 +145,7 @@ const en: Dictionary = {
     sessionReminder: 'Break reminder', every: 'Every {{n}} min', never: 'Never', fairness: 'Provably fair', licenses: 'Licenses',
   },
   sports: {
+    lockedTitle: 'Sports betting is locked', lockedBody: 'Unlock the section, then each sport (football, NBA, NFL, NHL, tennis, UFC, F1) with chips you win playing.', 
     title: 'Sports betting', subtitle: 'Real matches · play chips', tabSports: 'Sports', tabLive: 'Live', tabMine: 'My bets',
     sport: { top: 'Featured', soccer: 'Football', nba: 'NBA', nfl: 'NFL', nhl: 'NHL', tennis: 'Tennis', ufc: 'UFC', f1: 'F1' },
     featured: 'Featured', soon: 'Starting soon', today: 'Today', tomorrow: 'Tomorrow', all: 'All', markets: '{{n}} markets', drivers: 'drivers', standingsTop: 'Championship', record: 'Record', draw: 'Draw',
@@ -170,6 +174,8 @@ const en: Dictionary = {
   pass: { title: 'Season pass', season: 'Season {{n}}', daysLeft: '{{n}} days left', toNext: '{{n}} points to tier {{tier}}', done: 'Pass completed! Legend 🏆', claim: 'Claim', claimN: 'Claim rewards ({{n}})', points: 'points', howTitle: 'How do I get points?', how: 'Playing a little every day (+2 per round, max 200 a day), Academy lessons (+30), achievements (+50), missions and poker tournaments. Betting more does NOT give more points. The whole pass is free.' },
   leagues: { title: 'Friend leagues', intro: 'Create a league, share the code with your mates and see who scores the most points this week. It resets every Monday.', signIn: 'Leagues need an account', none: 'You are not in any league yet. Create one or join with a code!', members: 'players', join: 'Join with a code', code: 'League code', create: 'Create a league', name: 'League name', namePh: 'The usual suspects', createBtn: 'Create', rules: 'This week’s season points count (Monday to Sunday, UTC). You earn them by playing a bit every day and learning, never by betting more. Max 30 per league.', thisWeek: 'This week', lastWeek: 'Last week', endsIn: 'Ends in {{t}}', level: 'Level {{n}}', inviteWith: 'Invite with this code', invite: 'Invite friends', copied: 'Code copied', leave: 'Leave league', shareMsg: 'Join my league “{{name}}” on Cashino! Code: {{code}}', banner: 'Friend leagues', bannerBody: 'Weekly bragging rights' },
   news: { title: 'What’s new', badge: 'NEW', cascade: { title: 'Sweet Cascade', body: 'The slot everyone plays: 8 matching sweets pay, more tumble in and bombs multiply up to ×100.' }, rocket: { title: 'Live rocket', body: 'Everyone on the same rocket at once. Jump off in time or ride it to ×50?' }, horses3d: { title: '3D racing', body: 'New TV camera: the track in perspective and every horse in its lane.' }, leagues: { title: 'Friend leagues', body: 'Create a league, share the code and battle it out every week.' }, pass: { title: 'Season pass', body: '30 free tiers of chips. You level up by playing a bit every day, not by betting more.' }, sports: { title: 'NHL, UFC & cash out', body: 'New sports, and close your bets before they start.' } },
+  unlock: { groupGames: 'Games', ladderShort: 'Blackjack and poker are free. Everything else is bought with chips: the 1st purchase costs 2,500, the 2nd 5,000 and then each one more (also depending on the most chips you ever had). ', done: '{{name}} unlocked! 🔓', notEnough: 'Not enough chips', notEnoughShort: '{{missing}} chips short', priceChanged: 'The price changed, check it again', price: 'Price', youHave: 'You have', buy: 'Unlock for {{price}}', ladder: 'You have {{n}} unlocks. Every purchase raises the next price (next one from {{next}}). Blackjack and poker are free.', needsFirst: 'First you need to unlock {{name}}.', goFirst: 'See {{name}}', lockedBody: 'This game is locked. Unlock it with chips you win at blackjack or poker.', title: 'Unlock', next: 'Next unlock', owned: 'Unlocked' },
+  weekly: { title: 'Week {{n}}', endsIn: 'Ends in {{t}}', prizesNote: 'Prizes for the top 3 of each category, paid automatically when the week ends (Monday 00:00 UTC).', youWon: 'You won {{prize}} chips in “{{cat}}” last week!', cat: { points: 'Points', winner: 'Biggest winner' }, catBody: { points: 'Playing a bit every day and learning', winner: 'Most net chips won this week' }, signIn: 'The weekly ranking and its prizes need an account.', emptyTitle: 'Empty podium', empty: { points: 'Nobody has points yet this week. Play a round and you are first!', winner: 'Nobody is up yet this week. Will it be you?' }, notYet: { points: 'No points yet this week', winner: 'Not up yet this week' }, lastWeek: 'Last week’s champions' },
   shop: {
     tabs: { back: '🂠 Cards', felt: '🟩 Felts', avatar: '🙂 Avatars', frame: '⭕ Frames', title: '🏷️ Titles' },
     title: 'Shop', subtitle: 'Style your table with your chips.', yourChips: 'Your chips', backs: 'Cards', felts: 'Felts', avatars: 'Avatars',
@@ -201,6 +207,11 @@ const en: Dictionary = {
   },
   tutorial: { title: 'First game', skip: 'Exit', gotIt: 'Next', finish: "Let's play!", step: 'Step {{n}} of {{total}}', replay: 'Show me how to play', tapHere: 'Tap here', help: 'How to play', guided: 'Guide me step by step', guidedBody: 'I point at what to tap. It is free: you play in the practice room.', rulesTitle: 'Rules', fairness: 'Check it is fair' },
   achievements: {
+    'streak-10': ['Unstoppable', 'Win 10 rounds in a row in the same game'], 'big-win-10k': ['Big hit', 'Win 10,000 net chips in a single round'], 'big-win-100k': ['Legend', 'Win 100,000 net chips in a single round'],
+    'crash-100x': ['To the Moon', 'Cash out of the Rocket at ×100 or more'], 'limbo-1000x': ['No ceiling', 'Win at Limbo at ×1,000 or more'], 'cascade-50x': ['Sweet rain', 'Win ×50 or more at Sweet Cascade'],
+    'cascade-500x': ['Sugar rush', 'Win ×500 or more at Sweet Cascade'], 'horses-100x': ['Sharp eye', 'Collect ×100 or more at the races'], 'videopoker-royal': ['Royal flush', 'Hit a royal flush in Video Poker'],
+    'mines-100x': ['Bomb squad', 'Collect ×100 or more at Mines'], 'towers-top': ['Dragon slayer', 'Collect ×50 or more in Dragon Tower'], 'rounds-10000': ['Immortal', 'Play 10,000 rounds'],
+    'level-50': ['Level 50', 'Reach level 50'], 'high-roller': ['High roller', 'Bet 1,000,000 chips in total'],
     'first-round': ['First step', 'Play your first round'], 'rounds-100': ['Steady', 'Play 100 rounds'], 'rounds-1000': ['Veteran', 'Play 1,000 rounds'],
     explorer: ['Explorer', 'Try 7 different games'], completionist: ['Collector', 'Play all 21 games'], student: ['Student', 'Complete 5 lessons'],
     scholar: ['Scholar', 'Complete 30 lessons'], 'tutorials-all': ['Well prepared', 'Complete all 21 tutorials'], 'level-10': ['Level 10', 'Reach level 10'],

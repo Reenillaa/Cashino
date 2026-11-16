@@ -22,3 +22,5 @@ export * from './Logo';
 export * from './GameLogo';
 export * from './Effects';
 export * from './Marquee';
+export * from './GameCover';
+export * from './AchievementBadge';

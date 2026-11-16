@@ -3,6 +3,7 @@ import { supabase } from '@/services/supabase';
 import { useSession } from '@/state/session';
 import { useCosmetics } from '@/state/cosmetics';
 import { accountShop } from '@/features/shop/accountShop';
+import { useUnlocks } from '@/state/unlocks';
 
 /** Keeps the session store in sync with Supabase Auth and tracks connectivity. */
 export function useAuthListener() {
@@ -21,7 +22,10 @@ export function useAuthListener() {
       if (session) {
         void useSession.getState().refresh().catch(() => undefined);
         void accountShop.sync().catch(() => undefined);
-      } else useCosmetics.getState().leaveAccount();
+      } else {
+        useCosmetics.getState().leaveAccount();
+        useUnlocks.getState().leaveAccount();
+      }
     });
     return () => sub.subscription.unsubscribe();
   }, []);
