@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useReveal } from '@/features/play/reveal';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
@@ -131,6 +132,7 @@ export default function PlinkoScreen({ forceTutorial }: { forceTutorial?: boolea
   const onLand = useCallback((b: BallSpec) => {
     setBalls((list) => list.filter((x) => x.id !== b.id));
     setLit(b.bin);
+    useReveal.getState().revealOne();
     sfx('land', 0.7);
     haptic.light();
     setTimeout(() => setLit((l) => (l === b.bin ? null : l)), 400);

@@ -8,22 +8,24 @@ import type { HistoryItem } from './HistoryStrip';
 import type { ResultInfo } from './ResultBanner';
 import { PlayError } from '@/features/play/session';
 import { OnlineError } from '@/services/supabase';
+import { useHiddenIds, useReveal } from '@/features/play/reveal';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
 /** Last results of a game for the history strip (persisted with progress). */
 export function useGameHistory(game: GameId, label?: (detail: string, mult: number) => string): HistoryItem[] {
   const history = useProgress((s) => s.history);
+  const hidden = useHiddenIds();
   return useMemo(
     () =>
       history
-        .filter((h) => h.game === game)
+        .filter((h) => h.game === game && !(hidden && hidden.split(',').includes(h.id)))
         .slice(0, 16)
         .map((h) => {
           const mult = h.bet > 0 ? h.payout / h.bet : 0;
           return { id: h.id, label: label ? label(h.detail, mult) : formatMult(mult), win: h.payout > h.bet ? true : h.payout === h.bet && h.bet > 0 ? null : false };
         }),
-    [history, game], // eslint-disable-line react-hooks/exhaustive-deps
+    [history, game, hidden], // eslint-disable-line react-hooks/exhaustive-deps
   );
 }
 
@@ -47,6 +49,8 @@ export function useResult() {
   const [result, setResult] = useState<ResultInfo | null>(null);
   const show = useCallback((r: { bet: number; payout: number; multiplier?: number; label?: string }, opts?: { silent?: boolean }) => {
     const net = r.payout - r.bet;
+    // the round is on screen now: its chips and its history entry can show
+    useReveal.getState().revealOne();
     setResult({ key: `${Date.now()}`, net, payout: r.payout, multiplier: r.multiplier, label: r.label });
     if (opts?.silent) return;
     if (net > 0) {

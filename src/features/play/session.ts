@@ -14,6 +14,10 @@ import { useFairness } from '@/state/fairness';
 import { useSession } from '@/state/session';
 import { callFn, OnlineError } from '@/services/supabase';
 import { useRoom } from './rooms';
+import { useHiddenPayout, useReveal } from './reveal';
+
+/** Games whose screens reveal their own results (poker settles hand by hand on the table). */
+const NO_HOLD: GameId[] = ['poker'];
 
 export type PlayMode = 'coins' | 'practice' | 'online';
 
@@ -90,12 +94,18 @@ export function useGameSession(game: GameId) {
   const guestBalance = useWallet((s) => s.balance);
   const practiceBalance = useWallet((s) => s.practice);
   const mode: PlayMode = practicePref || (signedIn && !connected) ? 'practice' : signedIn ? 'online' : 'coins';
-  const balance = mode === 'practice' ? practiceBalance : mode === 'online' ? serverBalance ?? 0 : guestBalance;
+  const hidden = useHiddenPayout(game);
+  const realBalance = mode === 'practice' ? practiceBalance : mode === 'online' ? serverBalance ?? 0 : guestBalance;
+  // what the player sees: the payout of a round still animating is not in it yet
+  const balance = Math.max(0, realBalance - hidden);
   const active = useActiveRounds((s) => s.rounds[game]);
   const rngRef = useRef<(Rng & { draws: () => number }) | null>(null);
   const seedRef = useRef<SeedInfo | null>(null);
   const [busy, setBusy] = useState(false);
   const busyRef = useRef(false);
+
+  // Leaving the game shows everything that was still hidden.
+  useEffect(() => () => useReveal.getState().revealGame(game), [game]);
 
   // Restore a local round's RNG position after a restart.
   useEffect(() => {
@@ -121,7 +131,10 @@ export function useGameSession(game: GameId) {
           const res = await callFn<OpResult & { balance: number }>('game', { game, op: name, params, requestId: `${Date.now()}-${Math.random().toString(36).slice(2)}` });
           useSession.getState().setBalance(res.balance);
           useActiveRounds.getState().put(game, res.done ? null : { state: null, view: res.view, mode: 'online' });
-          if (res.done && res.summary) afterRound(game, res.summary, false);
+          if (res.done && res.summary) {
+            afterRound(game, res.summary, false);
+            holdResult(game, res.payout);
+          }
           return { ...res, mode: 'online' };
         }
         // Local: start a provably fair stream for a new round.
@@ -162,6 +175,7 @@ export function useGameSession(game: GameId) {
         let xp: number | undefined;
         if (res.done && res.summary) {
           xp = afterRound(game, res.summary, roundMode === 'practice', seed ? { hash: seed.hash, clientSeed: seed.clientSeed, nonce: seed.nonce } : undefined);
+          holdResult(game, res.payout);
           rngRef.current = null;
           seedRef.current = null;
         }
@@ -179,6 +193,12 @@ export function useGameSession(game: GameId) {
   );
 
   return { mode, balance, op, busy, active, practice: practicePref, room, hot: hot && !baseRoom.practice };
+}
+
+function holdResult(game: GameId, payout: number) {
+  if (NO_HOLD.includes(game)) return;
+  const top = useProgress.getState().history[0];
+  useReveal.getState().hold({ game, payout, historyId: top?.game === game ? top.id : undefined });
 }
 
 function afterRound(
