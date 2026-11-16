@@ -93,13 +93,13 @@ async function pendingDates(db: DB): Promise<Record<string, string[]>> {
 
 Deno.serve(
   handler(async (req, body) => {
-    const userId = await requireUser(req);
     const db = admin();
     const action = String(body.action ?? 'refresh');
 
+    // Refreshing public fixtures moves no coins and is throttled, so anyone (or the scheduler) may ask for it.
     if (action === 'refresh') {
       const { data: meta } = await db.from('sports_meta').select('updated_at').eq('key', 'refreshed').maybeSingle();
-      if (meta && Date.now() - new Date(meta.updated_at).getTime() < REFRESH_MS && !body.force) return json({ ok: true, fresh: true });
+      if (meta && Date.now() - new Date(meta.updated_at).getTime() < REFRESH_MS) return json({ ok: true, fresh: true });
       await db.from('sports_meta').upsert({ key: 'refreshed', value: null, updated_at: new Date().toISOString() });
       const count = await refresh(db, await pendingDates(db));
       const settled = await settle(db);
@@ -107,6 +107,7 @@ Deno.serve(
     }
 
     if (action === 'bet') {
+      const userId = await requireUser(req);
       const mode = body.mode === 'combo' ? 'combo' : 'single';
       const stake = Number(body.stake);
       if (!Number.isInteger(stake) || stake < SLIP.minStake || stake > SLIP.maxStake) throw new HttpError('invalid_stake');

@@ -34,4 +34,5 @@ verify_jwt = true
 [functions.live]
 verify_jwt = true
 [functions.sports]
-verify_jwt = true
+# 'refresh' is public (throttled, moves no coins); 'bet' checks the user's token itself
+verify_jwt = false

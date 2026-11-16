@@ -103,7 +103,7 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
   - Cuotas propias: con cuotas de mercado (DraftKings vía ESPN) se quita su margen, se ajusta un modelo y de él salen todos los mercados con margen propio (6 % principales, 12 % exóticos, 15 % ganador F1). Fútbol: Poisson (~23 mercados). NFL/NBA: normal (moneyline, hándicaps, totales, márgenes). Tenis: sets desde el ranking. F1: Plackett–Luce desde los puntos del Mundial. Sin mercado, fútbol usa la clasificación.
   - Boleto: sencillas o combinada (una selección por partido, máx. 10). El servidor recalcula la cuota (si cambió la rechaza con la nueva) y no acepta eventos empezados. Liquidación con el resultado oficial; anulados devuelven.
   - Probado: 207 eventos reales en ~3 s; sencilla y combinada; rechazos correctos; liquidación de un partido ya jugado. 9 tests con respuestas reales de ESPN.
-  - Límite: los resultados se refrescan (y se pagan las apuestas) cuando alguien con cuenta abre las apuestas (máx. cada 90 s). Una tarea programada lo haría automático; no está activada.
+  - Refresco automático: el workflow `sports-refresh.yml` pide cada 15 min a la función `sports` que traiga resultados y liquide apuestas (además de cuando alguien abre las apuestas). La acción `refresh` es pública (no mueve fichas, máx. una vez cada 90 s); `bet` exige cuenta.
   - La API de ESPN es pública pero no oficial: puede cambiar. Para uso comercial haría falta un proveedor con licencia.
 
 ## Cambios de la ronda 11 (carreras de caballos, directo multijugador, tienda y mesa caliente en el servidor)

@@ -1,0 +1,17 @@
+name: Refresh sports results
+# Pulls fresh fixtures and scores and settles finished bets even when nobody has the app open.
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions: {}
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask the sports function to refresh (public, throttled, moves no coins)
+        run: |
+          curl -sS --fail-with-body -X POST "https://sdqezhwhkpybeciaonan.supabase.co/functions/v1/sports" \
+            -H 'Content-Type: application/json' \
+            -H "apikey: sb_publishable_QyImPhthm2wU3lpAE0RIjQ_jhqb3MDz" \
+            -d '{"action":"refresh"}'
