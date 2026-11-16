@@ -90,7 +90,7 @@ export function EventRow({ ev }: { ev: SportEvent }) {
     <PressableScale onPress={() => router.push(`/sports/${encodeURIComponent(ev.id)}`)} feedback="select" scaleTo={0.99} accessibilityLabel={ev.name} style={styles.row}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
         <StatusPill ev={ev} />
-        <T style={{ color: GREEN, fontSize: 11, fontWeight: '700' }}>+{extra} ›</T>
+        <T style={{ color: GREEN, fontSize: 11, fontWeight: '700' }}>{extra > 0 ? `+${extra} ` : ''}›</T>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <View style={{ flex: 1, gap: 6 }}>
