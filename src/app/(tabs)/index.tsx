@@ -185,6 +185,16 @@ export default function Home() {
         <LiveRow />
       </Section>
 
+      {/* Every game, two per row */}
+      <Section title={t('home.allGames')}>
+        <View style={[styles.grid, { paddingHorizontal: SCREEN_PAD }]}>
+          {lobby.map((g, i) => {
+            const locked = !isUnlocked(owned, `game:${g.id}` as UnlockId);
+            return <GameTile key={g.id} id={g.id} index={i} style={{ width: tileW }} locked={locked} price={locked ? unlockPrice : undefined} onPress={() => (locked ? openUnlock(`game:${g.id}` as UnlockId) : open(g.id))} />;
+          })}
+        </View>
+      </Section>
+
       {/* The slot hall: every slot machine in one big cabinet */}
       <PressableScale onPress={() => router.push('/slots')} scaleTo={0.98} accessibilityLabel={t('home.hall')} style={{ marginHorizontal: SCREEN_PAD, marginTop: 28 }}>
         <View style={styles.hall}>
@@ -203,16 +213,6 @@ export default function Home() {
           <View style={styles.hallGo}><T weight="display" style={{ color: '#231A3A', fontSize: 14 }}>{t('home.hallEnter')} ›</T></View>
         </View>
       </PressableScale>
-
-      {/* Every game, two per row */}
-      <Section title={t('home.allGames')}>
-        <View style={[styles.grid, { paddingHorizontal: SCREEN_PAD }]}>
-          {lobby.map((g, i) => {
-            const locked = !isUnlocked(owned, `game:${g.id}` as UnlockId);
-            return <GameTile key={g.id} id={g.id} index={i} style={{ width: tileW }} locked={locked} price={locked ? unlockPrice : undefined} onPress={() => (locked ? openUnlock(`game:${g.id}` as UnlockId) : open(g.id))} />;
-          })}
-        </View>
-      </Section>
 
       {/* Collection: try every game (an honest exploration goal, no luck involved) */}
       <Section title={t('home.album')} action={<T variant="footnote" weight="semibold" color={tried.length === VISIBLE_GAMES.length ? 'win' : 'text2'}>{tried.length}/{VISIBLE_GAMES.length}</T>}>

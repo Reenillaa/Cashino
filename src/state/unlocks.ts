@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { persistStorage, STORAGE_PREFIX } from '@/services/storage';
-import { isUnlocked, unlockPrice, unlockRequires, type UnlockId } from '@/engine/meta/unlocks.ts';
+import { isUnlocked, unlockPrice, unlockRequires, UNLOCKABLES, type UnlockId } from '@/engine/meta/unlocks.ts';
+import { useAdmin } from '@/features/admin/useAdmin';
 import { useWallet } from './wallet';
 import { useSession } from './session';
 
@@ -47,8 +48,11 @@ export const useUnlocks = create<UnlockState>()(
 /** Owned list that applies right now (account when signed in, else this device). */
 export function useOwnedUnlocks(): string[] {
   const signedIn = useSession((s) => !!s.userId);
+  const admin = useAdmin((s) => s.admin);
   const account = useUnlocks((s) => s.account);
   const owned = useUnlocks((s) => s.owned);
+  // developer accounts always have everything, even items newer than the server's list
+  if (signedIn && admin) return UNLOCKABLES;
   return signedIn && account ? account.owned : owned;
 }
 export function useIsUnlocked(id: UnlockId): boolean {

@@ -102,6 +102,11 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - En los juegos, la mesa va a la izquierda (escalada desde el diseño del móvil para que no se deforme) y los controles en un panel lateral a la derecha.
 - Móviles y tablets no cambian nada (comprobado con iPhone, iPad y Pixel emulados).
 
+## Cambios de la ronda 18 (ajustes)
+- Las tragaperras ya no salen las primeras en «Todos los juegos» como si fueran novedad: el orden vuelve a empezar por los clásicos (blackjack, póker, ruleta, carreras…) y el cartel de la sala de tragaperras está debajo de la lista.
+- **Admin con todo desbloqueado siempre**: la app ya no depende de la lista que manda el servidor; si la cuenta es admin, todo sale abierto (también lo que se añada en el futuro).
+- **Fallo encontrado y arreglado**: al añadir juegos nuevos solo se redesplegó la función `game`; la función `shop` (la que dice qué tienes desbloqueado y la que cobra los desbloqueos) seguía con la lista vieja, así que el admin no veía abiertas las tragaperras nuevas y un jugador con cuenta no habría podido comprarlas. Se han redesplegado todas las funciones que usan el motor compartido (account, game, live, poker, rewards, shop, sports) y hay un comando nuevo para no olvidarlo: `SUPABASE_PROJECT_REF=… SUPABASE_ACCESS_TOKEN=… npm run deploy:functions`.
+
 ## Cambios de la ronda 17 (más tragaperras, mejores gráficos y salas en el ordenador)
 - **Salas en el ordenador arregladas**: el carrusel de salas era de deslizar con el dedo y en pantallas anchas no se podía cambiar de sala (se quedaba en Práctica y el resto salían apagadas). Ahora en el ordenador las 4 salas salen centradas una al lado de otra: clic para elegir, clic otra vez (o el botón) para sentarte. En el móvil sigue igual.
 - **Ventanas en el ordenador**: la de desbloquear (y las demás) ya no se estiran hasta abajo con un hueco vacío; las portadas de desbloqueo y de juego bloqueado llenan todo el ancho.

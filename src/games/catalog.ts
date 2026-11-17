@@ -54,7 +54,7 @@ export const META: Record<GameId, GameMeta> = Object.fromEntries(CATALOG.map((g)
 export const HIDDEN_GAMES: GameId[] = ['keno', 'sicbo'];
 /** What the lobby, the collection and the Academy show, in order (most famous first). */
 export const VISIBLE_GAMES: GameMeta[] = [
-  ...(['fishing', 'goldmine', 'cascade', 'jade', 'fruits', 'pirate', 'horses', 'slots', 'roulette', 'blackjack', 'poker', 'videopoker', 'crash', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing'] as GameId[]).map((id) => META[id]),
+  ...(['blackjack', 'poker', 'roulette', 'horses', 'videopoker', 'baccarat', 'crash', 'slots', 'cascade', 'fishing', 'goldmine', 'jade', 'fruits', 'pirate', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'coinflip', 'hilo', 'limbo', 'crossing'] as GameId[]).map((id) => META[id]),
 ];
 
 /** The slot hall: every slot machine, newest first, with what makes each one different. */
