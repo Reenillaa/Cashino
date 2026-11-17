@@ -104,6 +104,7 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 
 ## Cambios de la ronda 17 (más tragaperras, mejores gráficos y salas en el ordenador)
 - **Salas en el ordenador arregladas**: el carrusel de salas era de deslizar con el dedo y en pantallas anchas no se podía cambiar de sala (se quedaba en Práctica y el resto salían apagadas). Ahora en el ordenador las 4 salas salen centradas una al lado de otra: clic para elegir, clic otra vez (o el botón) para sentarte. En el móvil sigue igual.
+- **Ventanas en el ordenador**: la de desbloquear (y las demás) ya no se estiran hasta abajo con un hueco vacío; las portadas de desbloqueo y de juego bloqueado llenan todo el ancho.
 - **Partida en el ordenador mejor colocada**: la mesa y un único panel (sala + apuesta + botón) quedan juntos y centrados, sin el hueco enorme de antes.
 - **Gráficos de las tragaperras de líneas** (las 5 de 5×3): casillas con fondo tipo ficha (de color en los símbolos caros), marco cromado con bombillas que corren (más rápido al girar), reflejo de cristal, desenfoque de movimiento mientras giran y pantallazo de **¡GRAN PREMIO! / ¡MEGA PREMIO! / ¡ÉPICO!** (×10 / ×25 / ×50 o más) con rayos, lluvia de monedas y el premio contando hacia arriba (se cierra tocando).
 - **3 tragaperras nuevas**, originales, cada una con una mecánica distinta:

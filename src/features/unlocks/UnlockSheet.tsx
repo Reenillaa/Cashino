@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Button, GameCover, Sheet, T, formatCoins } from '@/design/components';
+import { Button, FillCover, Sheet, T, formatCoins } from '@/design/components';
 import { gameVivid } from '@/design/tokens';
 import { useT } from '@/i18n';
 import type { GameId } from '@/engine/games/types.ts';
@@ -83,7 +83,7 @@ export function UnlockSheet() {
     <Sheet visible onClose={close}>
       <View style={styles.hero}>
         <LinearGradient colors={info.colors} style={StyleSheet.absoluteFill} />
-        {info.cover ? <View style={StyleSheet.absoluteFill}><GameCover id={info.cover} width={360} height={170} /></View> : <T style={styles.emoji}>{info.emoji}</T>}
+        {info.cover ? <FillCover id={info.cover} /> : <T style={styles.emoji}>{info.emoji}</T>}
         <LinearGradient colors={['rgba(0,0,0,0)', info.colors[1]]} locations={[0.35, 1]} style={StyleSheet.absoluteFill} />
         <View style={styles.lock}><T style={{ fontSize: 20 }}>🔒</T></View>
         <T weight="display" style={styles.name}>{info.name}</T>

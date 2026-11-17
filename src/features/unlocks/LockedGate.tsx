@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button, GameCover, IconButton, T, formatCoins } from '@/design/components';
+import { Button, FillCover, IconButton, T, formatCoins } from '@/design/components';
 import { useT } from '@/i18n';
 import type { UnlockId } from '@/engine/meta/unlocks.ts';
 import { useIsUnlocked, useNextUnlockPrice, useUnlocks } from '@/state/unlocks';
@@ -30,7 +30,7 @@ function LockedScreen({ id }: { id: UnlockId }) {
   return (
     <View style={styles.wrap}>
       <LinearGradient colors={info.colors} style={StyleSheet.absoluteFill} />
-      {info.cover ? <View style={[StyleSheet.absoluteFill, { opacity: 0.85 }]}><GameCover id={info.cover} width={440} height={900} /></View> : null}
+      {info.cover ? <FillCover id={info.cover} opacity={0.85} /> : null}
       <LinearGradient colors={['rgba(0,0,0,0.2)', 'rgba(7,4,15,0.6)', '#07040F']} locations={[0, 0.5, 0.85]} style={StyleSheet.absoluteFill} />
       <View style={{ paddingTop: insets.top + 6, paddingHorizontal: 12 }}>
         <IconButton icon="chevronLeft" label={t('common.back')} onPress={() => router.back()} />

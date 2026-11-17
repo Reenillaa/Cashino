@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, Ellipse, G, LinearGradient, Path, Polygon, RadialGradient, Rect, Stop, Text as SvgText } from 'react-native-svg';
 import type { GameId } from '@/engine/games/types.ts';
 
@@ -537,3 +538,13 @@ export const GameCover = React.memo(function GameCover({ id, width, height }: { 
     </Svg>
   );
 });
+
+/** A cover that fills its parent (measures it), for boxes whose width changes between phones and computers. */
+export function FillCover({ id, opacity = 1 }: { id: GameId; opacity?: number }) {
+  const [box, setBox] = React.useState<{ w: number; h: number } | null>(null);
+  return (
+    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity }]} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+      {box ? <GameCover id={id} width={box.w} height={box.h} /> : null}
+    </View>
+  );
+}

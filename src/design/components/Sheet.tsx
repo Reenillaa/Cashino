@@ -15,7 +15,7 @@ export function Sheet({ visible, onClose, title, children, maxHeight = 0.86 }: {
   const { height, width } = useWindowDimensions();
   const desktop = useDesktop();
   // computers: a centred dialog instead of a bottom sheet
-  const dialog = desktop ? { left: (width - Math.min(560, width - 48)) / 2, right: undefined, width: Math.min(560, width - 48), bottom: undefined, top: height * 0.08, borderRadius: radius.xl, paddingBottom: 16 } : null;
+  const dialog = desktop ? { left: (width - Math.min(560, width - 48)) / 2, right: 'auto' as const, width: Math.min(560, width - 48), bottom: 'auto' as const, top: height * 0.08, borderRadius: radius.xl, paddingBottom: 16 } : null;
   const [mounted, setMounted] = useState(visible);
   // Derived state: mount immediately when opened; unmount after the closing animation.
   if (visible && !mounted) setMounted(true);
@@ -53,7 +53,7 @@ export function Sheet({ visible, onClose, title, children, maxHeight = 0.86 }: {
             <IconButton icon="close" onPress={onClose} label="Close" />
           </View>
         ) : null}
-        <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_PAD, paddingBottom: 8 }} showsVerticalScrollIndicator={false}>
+        <ScrollView style={desktop ? { flexGrow: 0 } : null} contentContainerStyle={{ paddingHorizontal: SCREEN_PAD, paddingBottom: 8 }} showsVerticalScrollIndicator={false}>
           {children}
         </ScrollView>
       </Animated.View>
