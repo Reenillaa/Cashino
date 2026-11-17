@@ -15,7 +15,7 @@ export const UNLOCK_FIRST = 2500;
 export const UNLOCK_SECOND = 5000;
 export const UNLOCK_GROWTH = 1.5;
 export const UNLOCK_PEAK_SHARE = 0.4;
-export const LOCKABLE_GAMES: GameId[] = ['cascade', 'horses', 'slots', 'roulette', 'videopoker', 'crash', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing', 'keno', 'sicbo'];
+export const LOCKABLE_GAMES: GameId[] = ['fishing', 'jade', 'cascade', 'horses', 'slots', 'roulette', 'videopoker', 'crash', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing', 'keno', 'sicbo'];
 export const LIVE_UNLOCKS = ['live:horses', 'live:roulette', 'live:crash'] as const;
 export const SPORT_UNLOCKS = ['soccer', 'nba', 'nfl', 'nhl', 'tennis', 'ufc', 'f1'] as const;
 

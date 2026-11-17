@@ -16,6 +16,8 @@ export * as Baccarat from './games/baccarat.ts';
 export * as SicBo from './games/sicbo.ts';
 export * as Slots from './games/slots.ts';
 export * as Cascade from './games/cascade.ts';
+export * as Fishing from './games/fishing.ts';
+export * as Jade from './games/jade.ts';
 export * as Trader from './games/trader.ts';
 export * as Blackjack from './games/blackjack.ts';
 export * as Poker from './poker/table.ts';

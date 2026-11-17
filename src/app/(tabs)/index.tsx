@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useContentWidth, useDesktop } from '@/design/layout';
 import { useIsFocused, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AnimatedNumber, Aurora, Avatar, useMyAvatar, useMyFrame, Button, ChipLogo, GameGlyph, Icon, Marquee, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
+import { AnimatedNumber, Aurora, Avatar, useMyAvatar, useMyFrame, Button, ChipLogo, GameGlyph, GameLogo, Icon, Marquee, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD, brand, onPastel, radius } from '@/design/tokens';
 import { useT } from '@/i18n';
@@ -12,7 +12,7 @@ import { levelBonus, useProgress } from '@/state/progress';
 import { useSession } from '@/state/session';
 import { levelFromXp, dailyMissions, weeklyMissions, weeklyDaysLeft } from '@/engine/meta/progression.ts';
 import { ECONOMY, dailyRewardAmount, nextStreak, utcDay } from '@/engine/meta/economy.ts';
-import { VISIBLE_GAMES } from '@/games/catalog';
+import { SLOT_HALL, VISIBLE_GAMES } from '@/games/catalog';
 import { GameTile } from '@/games/shared/GameTile';
 import { MissionRow } from '@/features/progression/MissionRow';
 import { LiveRow } from '@/features/home/WhatsNew';
@@ -185,6 +185,25 @@ export default function Home() {
         <LiveRow />
       </Section>
 
+      {/* The slot hall: every slot machine in one big cabinet */}
+      <PressableScale onPress={() => router.push('/slots')} scaleTo={0.98} accessibilityLabel={t('home.hall')} style={{ marginHorizontal: SCREEN_PAD, marginTop: 28 }}>
+        <View style={styles.hall}>
+          <LinearGradient colors={['#FF4FA3', '#7B1FA2', '#1A0624']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+          <View style={styles.hallLogos}>
+            {SLOT_HALL.map((m, i) => (
+              <View key={m.id} style={[styles.hallLogo, { transform: [{ rotate: `${(i - 1.5) * 9}deg` }, { translateY: Math.abs(i - 1.5) * 5 }] }]}>
+                <GameLogo game={m.id} size={desktop ? 54 : 40} />
+              </View>
+            ))}
+          </View>
+          <View style={{ flex: 1 }}>
+            <T variant="caption" weight="semibold" style={{ color: '#FFE58A', letterSpacing: 1.5 }}>🎰 {t('home.hall').toUpperCase()}</T>
+            <T variant="headline" weight="semibold" style={{ color: '#fff' }}>{t('home.hallBody', { n: SLOT_HALL.length })}</T>
+          </View>
+          <View style={styles.hallGo}><T weight="display" style={{ color: '#231A3A', fontSize: 14 }}>{t('home.hallEnter')} ›</T></View>
+        </View>
+      </PressableScale>
+
       {/* Every game, two per row */}
       <Section title={t('home.allGames')}>
         <View style={[styles.grid, { paddingHorizontal: SCREEN_PAD }]}>
@@ -210,7 +229,7 @@ export default function Home() {
             })}
           </View>
           <ProgressBar value={tried.length / VISIBLE_GAMES.length} height={5} tint={c.win} style={{ marginTop: 14 }} />
-          <T variant="footnote" color="text2" style={{ marginTop: 8 }}>{tried.length === VISIBLE_GAMES.length ? t('home.albumDone') : t('home.albumBody', { n: tried.length })}</T>
+          <T variant="footnote" color="text2" style={{ marginTop: 8 }}>{tried.length === VISIBLE_GAMES.length ? t('home.albumDone') : t('home.albumBody', { n: tried.length, total: VISIBLE_GAMES.length })}</T>
         </View>
       </Section>
 
@@ -251,6 +270,10 @@ const styles = StyleSheet.create({
   gift: { gap: 14, padding: 18, borderRadius: radius.xl, overflow: 'hidden' },
   giftBtn: { height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  hall: { borderRadius: 24, overflow: 'hidden', flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderWidth: 2, borderColor: '#FFD06B' },
+  hallLogos: { flexDirection: 'row' },
+  hallLogo: { marginHorizontal: -6 },
+  hallGo: { paddingHorizontal: 14, height: 36, borderRadius: 18, backgroundColor: '#FFD06B', justifyContent: 'center' },
   signRule: { height: 1, marginVertical: 10, marginHorizontal: 30, backgroundColor: 'rgba(255,214,120,0.35)' },
   hookRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, flexWrap: 'wrap' },
   pill: { paddingHorizontal: 12, height: 30, borderRadius: 15, justifyContent: 'center' },

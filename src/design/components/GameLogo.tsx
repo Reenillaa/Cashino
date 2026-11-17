@@ -295,6 +295,38 @@ const ART: Record<GameId, (id: string) => React.ReactNode> = {
       <Path d="M80 58 L84 66 L93 67 L86 73 L88 82 L80 77 L72 82 L74 73 L67 67 L76 66 Z" fill={`url(#${id}-gold)`} stroke="#FFFFFF" strokeWidth={1.5} strokeLinejoin="round" />
     </>
   ),
+  fishing: (id) => (
+    <>
+      {/* a jumping golden fish over ripples, with a rod line */}
+      <Path d="M8 14 Q60 4 88 30" stroke="#C9C4DA" strokeWidth={3} fill="none" strokeLinecap="round" />
+      <Path d="M88 30 L88 46" stroke="#FFFFFF" strokeWidth={1.5} />
+      <Ellipse cx={50} cy={86} rx={36} ry={7} fill="#3D9BFF" opacity={0.6} />
+      <Ellipse cx={50} cy={86} rx={22} ry={4} fill="#9FD8FF" opacity={0.8} />
+      <G transform="translate(2 4)"><Path d="M18 62 C30 38 62 36 76 54 C64 72 32 76 18 62 Z" fill={SH} /></G>
+      <Path d="M18 62 C30 38 62 36 76 54 C64 72 32 76 18 62 Z" fill={`url(#${id}-gold)`} stroke="#FFFFFF" strokeWidth={2} />
+      <Path d="M76 54 L92 42 L90 68 Z" fill="#FFB938" stroke="#FFFFFF" strokeWidth={2} strokeLinejoin="round" />
+      <Circle cx={30} cy={56} r={4} fill="#231A3A" />
+      <Circle cx={31} cy={55} r={1.4} fill="#FFFFFF" />
+      <Path d="M44 50 Q48 58 44 66 M54 50 Q58 58 54 66" stroke="#C98B12" strokeWidth={2} fill="none" />
+      <Path d="M88 46 Q84 52 88 56" stroke="#C9C4DA" strokeWidth={2} fill="none" strokeLinecap="round" />
+    </>
+  ),
+  jade: (id) => (
+    <>
+      {/* a stepped jade temple with a golden idol face */}
+      <Rect x={14} y={70} width={72} height={16} rx={3} fill={SH} transform="translate(2 3)" />
+      <Rect x={14} y={70} width={72} height={16} rx={3} fill="#0B5E3E" />
+      <Rect x={22} y={52} width={56} height={20} rx={3} fill="#12C08A" />
+      <Rect x={32} y={34} width={36} height={20} rx={3} fill="#5BE3B0" />
+      <Rect x={36} y={14} width={28} height={22} rx={5} fill={`url(#${id}-gold)`} stroke="#FFFFFF" strokeWidth={2} />
+      <Rect x={41} y={21} width={7} height={4} rx={1} fill="#231A3A" />
+      <Rect x={52} y={21} width={7} height={4} rx={1} fill="#231A3A" />
+      <Rect x={44} y={29} width={12} height={3} rx={1.5} fill="#231A3A" />
+      <Rect x={44} y={62} width={12} height={24} rx={2} fill="#04231A" />
+      <Path d="M8 44 Q14 30 26 34 Q16 38 14 50 Z" fill="#3BE39A" />
+      <Path d="M92 44 Q86 30 74 34 Q84 38 86 50 Z" fill="#3BE39A" />
+    </>
+  ),
   dragontiger: (id) => (
     <>
       <Rect x={10} y={22} width={38} height={54} rx={7} fill={SH} transform="translate(2 4) rotate(-8 29 49)" />

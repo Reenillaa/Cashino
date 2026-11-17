@@ -16,6 +16,7 @@ const en: Dictionary = {
   },
   tabs: { sports: 'Bets', shop: 'Shop', home: 'Home', games: 'Games', ranking: 'Ranking', social: 'Social', profile: 'Profile' },
   home: {
+    hall: 'Slot hall', hallBody: '{{n}} machines with animations and free spins', hallEnter: 'Enter', hallTitle: 'Slot hall', hallSub: 'Every machine in one place. Same fair engine: each spin is decided before it spins.', hallMax: 'Max ×{{n}}', hallPlay: 'Play', hallUnlock: 'Unlock', hallReels: '{{r}} reels', hallFree: 'Free spins', hallRtp: 'Return {{v}}',
     morning: 'Good morning', afternoon: 'Good afternoon', evening: 'Good evening', guest: 'guest',
     balance: 'Balance', featured: 'Featured', quick: 'Quick access', challenges: "Today's challenges", weekly: 'Weekly challenges',
     daily: 'Daily gift', claim: 'Claim', claimed: 'Claimed', nextIn: 'Next gift in {{time}}', streakDay: 'Streak day {{day}}',
@@ -27,7 +28,7 @@ const en: Dictionary = {
     welcome: 'WELCOME TO',
     tapToPlay: 'Tap a game to start',
     streak: '🔥 {{n}} days in a row', nextLevel: '{{xp}} XP to level {{level}} and its {{bonus}}-chip gift',
-    daysLeft_one: '{{count}} day left', daysLeft_other: '{{count}} days left', album: 'Your collection', albumBody: 'You have tried {{n}} of 21 games. Tap a new one to try it.', albumDone: 'Collection complete! You have tried all 21 games.',
+    daysLeft_one: '{{count}} day left', daysLeft_other: '{{count}} days left', album: 'Your collection', albumBody: 'You have tried {{n}} of {{total}} games. Tap a new one to try it.', albumDone: 'Collection complete! You have tried every game.',
     levelUp: 'Level {{n}}!', levelGift: '+{{n}} chips gift', levelUpBody: 'Keep going: every level brings a bigger gift.',
   },
   games: {
@@ -35,17 +36,18 @@ const en: Dictionary = {
     openRules: 'Rules', openTutorial: 'Tutorial', openAcademy: 'Academy', houseEdge: 'House edge', rtp: 'RTP',
     names: {
       poker: 'Poker', blackjack: 'Blackjack', crash: 'Crash', dice: 'Dice', mines: 'Mines', plinko: 'Plinko', crossing: 'Crossing',
-      roulette: 'Roulette', limbo: 'Limbo', coinflip: 'Coinflip', baccarat: 'Baccarat', hilo: 'Hi-Lo', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Slots', trader: 'Stocks', videopoker: 'Video Poker', wheel: 'Wheel', towers: 'Dragon Tower', diamonds: 'Diamonds', pump: 'Pump', dragontiger: 'Dragon Tiger', horses: 'Horse Racing', cascade: 'Sweet Cascade',
+      roulette: 'Roulette', limbo: 'Limbo', coinflip: 'Coinflip', baccarat: 'Baccarat', hilo: 'Hi-Lo', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Slots', trader: 'Stocks', videopoker: 'Video Poker', wheel: 'Wheel', towers: 'Dragon Tower', diamonds: 'Diamonds', pump: 'Pump', dragontiger: 'Dragon Tiger', horses: 'Horse Racing', cascade: 'Sweet Cascade', fishing: 'Golden Lake', jade: 'Jade Temple',
     },
     blurbs: {
       poker: "No-Limit Texas Hold'em against bots or friends.", blackjack: 'Get to 21 without busting and beat the dealer.',
       crash: 'Cash out before the rocket blows.', dice: 'Pick your odds and roll.', mines: 'Uncover gems, dodge mines.',
       plinko: 'Drop the ball and watch it land.', crossing: 'Cross lane by lane and stop in time.', roulette: 'European roulette, 37 pockets.',
       limbo: 'Set a target and beat it.', coinflip: 'Heads or tails, double or nothing.', baccarat: 'Player, Banker or Tie.',
-      hilo: 'Will the next card be higher or lower?', keno: 'Pick numbers and wait for the draw.', sicbo: 'Three dice, many bets.', slots: 'Three reels, three of a kind, win.', trader: 'Up or down? Invest and watch the chart.', videopoker: 'The Las Vegas poker machine.', wheel: 'Spin the wheel, win what it shows.', towers: 'Climb floors without waking the dragon.', diamonds: 'Five gems: match colours.', pump: 'Inflate the balloon… before it pops.', dragontiger: 'One card each: highest wins.', horses: 'Study the card and bet like at the track.', cascade: '8 matching sweets pay, more tumble in and bombs multiply.',
+      hilo: 'Will the next card be higher or lower?', keno: 'Pick numbers and wait for the draw.', sicbo: 'Three dice, many bets.', slots: 'Three reels, three of a kind, win.', trader: 'Up or down? Invest and watch the chart.', videopoker: 'The Las Vegas poker machine.', wheel: 'Spin the wheel, win what it shows.', towers: 'Climb floors without waking the dragon.', diamonds: 'Five gems: match colours.', pump: 'Inflate the balloon… before it pops.', dragontiger: 'One card each: highest wins.', horses: 'Study the card and bet like at the track.', cascade: '8 matching sweets pay, more tumble in and bombs multiply.', fishing: 'Money fish and a fisherman who reels them all in.', jade: 'The special symbol expands over whole reels.',
     },
   },
   play: {
+    tenLines: '10 LINES', fishCollect: '🎣 {{n}} fisherman reel in the fish · ×{{x}}', fishFree: '🎣 {{n}} FREE SPINS!', fishLevel: '🔥 +10 spins! Multiplier ×{{x}}', fishHint: 'Money fish · 3+ tackle boxes = free spins with the fisherman · every 4 fishermen: +10 and a bigger multiplier', jadeSpecial: 'Special symbol', jadeFree: '🗿 {{n}} FREE SPINS!', jadeExpand: '✨ It expands! +{{v}}', jadeHint: '3+ idols = 10 free spins with a special symbol that expands over whole reels',
     freeSpin: 'Free spin', freeSpinsWon: '🍭 {{n}} FREE SPINS!', turbo: 'Turbo',
     change: 'Change', hideOptions: 'Done',
     dragTarget: '👆 Drag the white dot to pick your target',

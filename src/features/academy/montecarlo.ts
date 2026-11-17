@@ -10,7 +10,8 @@ import { parseCard } from '@/engine/cards/cards.ts';
 import { suggestHold } from '@/engine/games/videopoker.ts';
 
 type Round = (rng: Rng, bet: number) => { stake: number; payout: number };
-export interface SimOption { label: (lang: Lang) => string; round: Round; rtp: number }
+/** `spread`: how far 20 000 rounds can honestly land from the return (bonus-driven slots swing a lot). */
+export interface SimOption { label: (lang: Lang) => string; round: Round; rtp: number; spread?: number }
 
 const L = (es: string, en: string) => (lang: Lang) => (lang === 'es' ? es : en);
 const one = (game: GameId, params: Record<string, unknown>): Round => (rng, bet) => {
@@ -92,6 +93,8 @@ export const SIM_OPTIONS: Partial<Record<GameId, SimOption[]>> = {
   ],
   diamonds: [{ label: L('Partida normal', 'Normal play'), round: one('diamonds', {}), rtp: 0.99 }],
   cascade: [{ label: L('Tirada normal', 'Normal spin'), round: one('cascade', {}), rtp: 0.965 }],
+  fishing: [{ label: L('Tirada normal', 'Normal spin'), round: one('fishing', {}), rtp: 0.956, spread: 0.35 }],
+  jade: [{ label: L('Tirada normal', 'Normal spin'), round: one('jade', {}), rtp: 0.97, spread: 0.35 }],
   towers: [
     { label: L('Medio · 2 pisos y cobrar', 'Medium · 2 floors then collect'), round: steps('towers', { level: 'medium' }, () => ['pick', { door: 0 }], 2), rtp: 0.99 },
     { label: L('Difícil · 4 pisos y cobrar', 'Hard · 4 floors then collect'), round: steps('towers', { level: 'hard' }, () => ['pick', { door: 0 }], 4), rtp: 0.99 },

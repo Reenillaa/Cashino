@@ -22,6 +22,8 @@ import * as SicBo from './games/sicbo.ts';
 import * as BJ from './games/blackjack.ts';
 import * as Slots from './games/slots.ts';
 import * as Cascade from './games/cascade.ts';
+import * as Fishing from './games/fishing.ts';
+import * as Jade from './games/jade.ts';
 import * as Trader from './games/trader.ts';
 import * as VP from './games/videopoker.ts';
 import * as Wheel from './games/wheel.ts';
@@ -106,6 +108,18 @@ const handlers: Record<Exclude<GameId, 'poker'>, Handler> = {
     const r = Cascade.playCascade(rng, b);
     const detail = `${r.multiplier}×${r.freeSpins ? ` · 🍭 ${r.spins.length - 1}` : ''}`;
     return single(b, r.payout, detail, { spins: r.spins, freeSpins: r.freeSpins, scatterWin: r.scatterWin, multiplier: r.multiplier, capped: r.capped });
+  },
+  fishing: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const b = bet(p.bet);
+    const r = Fishing.playFishing(rng, b);
+    return single(b, r.payout, `${r.multiplier}×${r.spins.length > 1 ? ` · 🎣 ${r.spins.length - 1}` : ''}`, { spins: r.spins, freeSpins: r.freeSpins, collected: r.collected, multiplier: r.multiplier, capped: r.capped });
+  },
+  jade: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const b = bet(p.bet);
+    const r = Jade.playJade(rng, b);
+    return single(b, r.payout, `${r.multiplier}×${r.spins.length > 1 ? ` · 🗿 ${r.spins.length - 1}` : ''}`, { spins: r.spins, special: r.special, freeSpins: r.freeSpins, multiplier: r.multiplier, capped: r.capped });
   },
   horses: (s, op, p, { rng }) => {
     type HState = { card: Horses.RaceCard; min: number; max: number };

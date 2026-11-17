@@ -121,6 +121,8 @@ export const gameTint: Record<GameId, string> = {
   dragontiger: '#FFD06B',
   horses: '#5BE3B0',
   cascade: '#FF8AC4',
+  fishing: '#5BE3B0',
+  jade: '#5BE3B0',
 };
 
 /**
@@ -150,6 +152,8 @@ export const gameArt: Record<GameId, { emoji: string; colors: [string, string] }
   diamonds: { emoji: '💎', colors: ['#C8F5DF', '#A6DCEF'] },
   pump: { emoji: '🎈', colors: ['#FFD3E8', '#FFB3D6'] },
   cascade: { emoji: '🍭', colors: ['#FFD3E8', '#FFB3D6'] },
+  fishing: { emoji: '🎣', colors: ['#C8F5DF', '#A6DCEF'] },
+  jade: { emoji: '🗿', colors: ['#C8F5DF', '#A6DCEF'] },
   dragontiger: { emoji: '🐯', colors: ['#FFE9B0', '#FFD38A'] },
   horses: { emoji: '🏇', colors: ['#C8F5DF', '#A6DCEF'] },
 };
@@ -196,6 +200,8 @@ export const gameVivid: Record<GameId, [string, string]> = {
   diamonds: ['#12C08A', '#0B6E6E'],
   pump: ['#FF4FA3', '#B3127A'],
   cascade: ['#FF4FA3', '#B3127A'],
+  fishing: ['#1FA7E0', '#0B4E7A'],
+  jade: ['#12C08A', '#0B5E3E'],
   dragontiger: ['#FFB938', '#D9741C'],
   horses: ['#12C08A', '#0B6E6E'],
 };

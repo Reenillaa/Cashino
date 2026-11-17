@@ -23,6 +23,8 @@ import { SLOT_ONE_CHERRY, SLOT_THREE, SLOT_TWO_CHERRIES, SLOT_WEIGHTS, slotsStat
 import { TRADER_MULTIPLIER } from '@/engine/games/trader.ts';
 import { VP_PAYS, VP_REFERENCE_RTP } from '@/engine/games/videopoker.ts';
 import { wheelRtp } from '@/engine/games/wheel.ts';
+import { FISHING_PAYS, FISHING_WEIGHTS, FISH_VALUES } from '@/engine/games/fishing.ts';
+import { JADE_PAYS, JADE_WEIGHTS } from '@/engine/games/jade.ts';
 import { towerMultiplier } from '@/engine/games/towers.ts';
 import { diamondStats, DIAMOND_PAYS } from '@/engine/games/diamonds.ts';
 import { pumpMultiplier } from '@/engine/games/pump.ts';
@@ -228,6 +230,34 @@ const MODELS: Record<GameId, Builder> = {
       rtp: 0.965,
       formula: L(lang, 'Probabilidad de 8+ de un dulce = suma binomial sobre 30 casillas. El retorno total (cascadas, bombas y tiradas gratis) se mide simulando 10 millones de tiradas: ≈96,5 %.', 'Chance of 8+ of a sweet = binomial sum over 30 cells. The total return (tumbles, bombs and free spins) is measured by simulating 10 million spins: ≈96.5 %.'),
       example: L(lang, 'Unas 3 de cada 10 tiradas pagan algo, casi siempre poco. El dinero gordo está en las tiradas gratis con bombas, que salen 1 vez de cada ~440: por eso la banca de una sesión sube y baja tanto.', 'About 3 in 10 spins pay something, usually little. The big money is in the free spins with bombs, about 1 in ~440: that is why a session swings so much.'),
+    };
+  },
+  fishing: (lang) => {
+    const W = FISHING_WEIGHTS.base.reduce((a, b) => a + b, 0);
+    const p3 = (s: number) => (FISHING_WEIGHTS.base[s] / W) ** 3;
+    const NAMES = [['flotadores', 'floats'], ['barcas', 'boats'], ['cañas', 'rods'], ['peces', 'fish']];
+    const fishW = FISH_VALUES.reduce((a, [, w]) => a + w, 0);
+    const bigFish = FISH_VALUES.filter(([v]) => v >= 50).reduce((a, [, w]) => a + w, 0) / fishW;
+    return {
+      idea: L(lang, 'Cinco rodillos y 10 líneas: 3 o más iguales seguidos desde la izquierda pagan. Lo gordo está en las tiradas gratis: el pescador recoge el valor de todos los peces que haya en pantalla.', 'Five reels and 10 lines: 3 or more in a row from the left pay. The big money is in the free spins: the fisherman collects the value of every fish on screen.'),
+      rowsTitle: L(lang, 'En una línea concreta, 3 seguidos de…', 'On one line, 3 in a row of…'),
+      rows: [0, 6, 7, 8].map((s, i) => ({ label: L(lang, NAMES[i][0], NAMES[i][1]), p: p3(s), mult: FISHING_PAYS[s][0] })),
+      rtp: 0.956,
+      formula: L(lang, `Cada casilla se sortea con pesos: 3 iguales en una línea = (peso ÷ ${W})³. El pez lleva un valor (×2 a ×2000 la apuesta); solo ${fmtPct(lang, bigFish)} de los peces valen ×50 o más. El retorno total se mide simulando 8 millones de tiradas: ≈95,6 %.`, `Each cell is drawn with weights: 3 of a kind on a line = (weight ÷ ${W})³. Fish carry a value (×2 to ×2000 the bet); only ${fmtPct(lang, bigFish)} of fish are worth ×50 or more. The total return is measured by simulating 8 million spins: ≈95.6 %.`),
+      example: L(lang, 'Una de cada 4 tiradas paga algo, casi siempre poco. Las tiradas gratis salen ≈1 de cada 220: ahí está la mayor parte del retorno, así que puedes pasar muchas tiradas seguidas perdiendo.', 'One spin in 4 pays something, usually little. Free spins arrive about 1 in 220: most of the return lives there, so you can lose many spins in a row.'),
+    };
+  },
+  jade: (lang) => {
+    const W = JADE_WEIGHTS.base.reduce((a, b) => a + b, 0);
+    const p3 = (s: number) => (JADE_WEIGHTS.base[s] / W) ** 3;
+    const NAMES = [['hojas', 'leaves'], ['máscaras', 'masks'], ['serpientes', 'serpents'], ['exploradores', 'explorers']];
+    return {
+      idea: L(lang, 'Cinco rodillos y 10 líneas. El ídolo es comodín y además abre 10 tiradas gratis. En ellas se sortea un símbolo especial que, si sale en suficientes rodillos, los llena enteros y paga en las 10 líneas a la vez.', 'Five reels and 10 lines. The idol is wild and also opens 10 free spins. In them a special symbol is drawn: if it lands on enough reels it fills them and pays on all 10 lines at once.'),
+      rowsTitle: L(lang, 'En una línea concreta, 3 seguidos de… (sin contar comodines)', 'On one line, 3 in a row of… (not counting wilds)'),
+      rows: [0, 5, 7, 8].map((s, i) => ({ label: L(lang, NAMES[i][0], NAMES[i][1]), p: p3(s), mult: JADE_PAYS[s][0] })),
+      rtp: 0.97,
+      formula: L(lang, `3 iguales en una línea ≈ (peso ÷ ${W})³, algo más gracias a los ídolos comodín. El símbolo expandido paga su premio × 10 líneas. Retorno total medido simulando 8 millones de tiradas: ≈97 %.`, `3 of a kind on a line ≈ (weight ÷ ${W})³, a little more thanks to the wild idols. The expanded symbol pays its prize × 10 lines. Total return measured by simulating 8 million spins: ≈97 %.`),
+      example: L(lang, 'Una de cada 4 tiradas paga algo. Las tiradas gratis salen ≈1 de cada 200 y de media dan unas 60 veces la apuesta, pero si el especial es una hoja suelen dar poco y si es el explorador pueden dar muchísimo.', 'One spin in 4 pays something. Free spins come about 1 in 200 and average about 60× the bet, but a leaf special usually pays little while the explorer can pay a lot.'),
     };
   },
   horses: (lang) => ({

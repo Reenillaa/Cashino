@@ -188,6 +188,34 @@ export const RULES: Record<GameId, RulesDoc> = {
       { label: b('×100 o más', '×100 or more'), value: '≈1 / 2400' },
     ],
   },
+  fishing: {
+    summary: b('Tragaperras de 5 rodillos y 10 líneas en un lago. 3 o más símbolos iguales seguidos desde la izquierda pagan; en las tiradas gratis el pescador recoge los peces.', '5-reel, 10-line lake slot. 3 or more matching symbols in a row from the left pay; in free spins the fisherman collects the fish.'),
+    rules: [
+      b('Premios para 3 / 4 / 5 iguales (× apuesta total): flotador y anzuelo ×1/×2,5/×10 · señuelo y carrete ×1,2/×3,5/×16 · libélula, rana y pez ×2/×9/×45 · barca ×4/×16/×90 · caña ×6,5/×33/×220.', 'Pays for 3 / 4 / 5 of a kind (× total bet): float and hook ×1/×2.5/×10 · lure and reel ×1.2/×3.5/×16 · dragonfly, frog and fish ×2/×9/×45 · boat ×4/×16/×90 · rod ×6.5/×33/×220.'),
+      b('3 / 4 / 5 cajas de pesca 🧰 en cualquier sitio dan 10 / 15 / 20 tiradas gratis.', '3 / 4 / 5 tackle boxes 🧰 anywhere give 10 / 15 / 20 free spins.'),
+      b('En las gratis aparece el pescador: es comodín y recoge el valor de todos los peces en pantalla (×2 a ×2000 la apuesta). Cada 4 pescadores sube el nivel: +10 tiradas y los peces valen ×2, ×3 y ×10.', 'In free spins the fisherman appears: he is wild and collects the value of every fish on screen (×2 to ×2000 the bet). Every 4 fishermen raise the level: +10 spins and fish are worth ×2, ×3 and ×10.'),
+      b('Premio máximo ×5000 la apuesta. Toda la ronda se decide antes de que giren los rodillos.', 'Maximum win ×5000 the bet. The whole round is decided before the reels spin.'),
+    ],
+    odds: [
+      { label: b('Retorno (simulado, 8 millones de tiradas)', 'Return (simulated, 8 million spins)'), value: '≈95.6 %' },
+      { label: b('Tiradas con premio', 'Spins that pay'), value: '≈26 %' },
+      { label: b('Tiradas gratis', 'Free spins'), value: '≈1 / 220' },
+    ],
+  },
+  jade: {
+    summary: b('Tragaperras de 5 rodillos y 10 líneas en un templo de la selva, con símbolo especial que se expande en las tiradas gratis.', '5-reel, 10-line jungle-temple slot with an expanding special symbol in the free spins.'),
+    rules: [
+      b('Premios para 3 / 4 / 5 iguales (× apuesta total): hoja, pluma y concha ×0,7/×3,5/×14 · amuleto y tambor ×0,7/×5,5/×21 · máscara y jaguar ×4/×14/×100 · serpiente ×5,5/×55/×280 · explorador ×14/×140/×700. Serpiente y explorador también pagan con 2 (×0,5 y ×1).', 'Pays for 3 / 4 / 5 of a kind (× total bet): leaf, feather and shell ×0.7/×3.5/×14 · amulet and drum ×0.7/×5.5/×21 · mask and jaguar ×4/×14/×100 · serpent ×5.5/×55/×280 · explorer ×14/×140/×700. Serpent and explorer also pay for 2 (×0.5 and ×1).'),
+      b('El ídolo 🗿 es comodín y dispersión: 3 / 4 / 5 en cualquier sitio pagan ×2 / ×20 / ×200 y dan 10 tiradas gratis (3 más durante ellas suman 10 más).', 'The idol 🗿 is wild and scatter: 3 / 4 / 5 anywhere pay ×2 / ×20 / ×200 and give 10 free spins (3 more during them add 10).'),
+      b('Antes de las gratis se sortea un símbolo especial. Si sale en 3 o más rodillos (2 para serpiente y explorador), llena esos rodillos y paga en las 10 líneas, aunque no estén seguidos.', 'Before the free spins a special symbol is drawn. If it lands on 3+ reels (2 for serpent and explorer) it fills them and pays on all 10 lines, even when not adjacent.'),
+      b('Premio máximo ×5000 la apuesta. Toda la ronda se decide antes de que giren los rodillos.', 'Maximum win ×5000 the bet. The whole round is decided before the reels spin.'),
+    ],
+    odds: [
+      { label: b('Retorno (simulado, 8 millones de tiradas)', 'Return (simulated, 8 million spins)'), value: '≈97 %' },
+      { label: b('Tiradas con premio', 'Spins that pay'), value: '≈26 %' },
+      { label: b('Tiradas gratis', 'Free spins'), value: '≈1 / 205' },
+    ],
+  },
   trader: {
     summary: b('Bolsa: ¿el precio acabará más alto o más bajo que ahora? Eliges Sube o Baja y miras la gráfica.', 'Stock market: will the price end higher or lower than now? Pick Up or Down and watch the chart.'),
     rules: [

@@ -22,6 +22,8 @@ import TowersScreen from './towers/Screen';
 import DiamondsScreen from './diamonds/Screen';
 import PumpScreen from './pump/Screen';
 import CascadeScreen from './cascade/Screen';
+import FishingScreen from './fishing/Screen';
+import JadeScreen from './jade/Screen';
 import DragonTigerScreen from './dragontiger/Screen';
 import HorsesScreen from './horses/Screen';
 
@@ -50,6 +52,8 @@ export const GAME_SCREENS: Record<GameId, GameScreen> = {
   diamonds: DiamondsScreen,
   pump: PumpScreen,
   cascade: CascadeScreen,
+  fishing: FishingScreen,
+  jade: JadeScreen,
   dragontiger: DragonTigerScreen,
   horses: HorsesScreen,
 };

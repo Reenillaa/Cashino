@@ -164,6 +164,56 @@ const SCENES: Partial<Record<GameId, Scene>> = {
       <SvgText x={124} y={34} fontSize={9} fontWeight="900" fill="#FFFFFF" textAnchor="middle">×5</SvgText>
     </>
   ),
+  fishing: (p) => (
+    <>
+      {sky(p, '#FFB36B', '#6FD0FF')}
+      <Circle cx={150} cy={40} r={20} fill="#FFF3A0" opacity={0.95} />
+      <Path d="M-10 92 L30 66 L60 86 L100 58 L140 84 L176 64 L210 88 V110 H-10 Z" fill="#2E8A6A" />
+      <Rect x={0} y={100} width={200} height={140} fill="#1F7FC4" />
+      {[110, 124, 140].map((y, i) => <Path key={i} d={`M${10 + i * 14} ${y} q10 -4 20 0 t20 0 M${110 - i * 10} ${y + 6} q10 -4 20 0 t20 0`} stroke="#9FD8FF" strokeWidth={2} fill="none" opacity={0.7} />)}
+      {/* little boat with the fisherman and his rod */}
+      <Path d="M24 98 L84 98 L76 112 L32 112 Z" fill="#8A4B1E" stroke="#5A2E10" strokeWidth={2} />
+      <Circle cx={54} cy={78} r={7} fill="#FFD0A8" />
+      <Path d="M44 72 L64 72 L60 66 L48 66 Z" fill="#FFD06B" />
+      <Rect x={48} y={84} width={12} height={14} rx={3} fill="#E8304F" />
+      <Path d="M60 88 L128 30" stroke="#5A2E10" strokeWidth={3} strokeLinecap="round" />
+      <Path d="M128 30 Q140 60 136 104" stroke="#FFFFFF" strokeWidth={1} fill="none" />
+      <Circle cx={136} cy={104} r={3.5} fill="#E8304F" stroke="#FFFFFF" strokeWidth={1.2} />
+      {/* a jumping golden fish with a value tag */}
+      <G transform="translate(150 70) rotate(-24)">
+        <Path d="M-20 0 C-10 -14 12 -14 20 0 C12 14 -10 14 -20 0 Z" fill="#FFD06B" stroke="#FFFFFF" strokeWidth={2} />
+        <Path d="M20 0 L32 -10 L32 10 Z" fill="#FFB938" stroke="#FFFFFF" strokeWidth={1.5} />
+        <Circle cx={-11} cy={-3} r={2.5} fill="#231A3A" />
+      </G>
+      <Rect x={138} y={38} width={30} height={14} rx={7} fill="#231A3A" />
+      <SvgText x={153} y={48} fontSize={9} fontWeight="900" fill="#FFD06B" textAnchor="middle">×50</SvgText>
+      {[[170, 104], [180, 96], [186, 110]].map(([x, y], i) => <Circle key={i} cx={x} cy={y} r={2 + i} fill="none" stroke="#FFFFFF" strokeWidth={1.2} opacity={0.8} />)}
+    </>
+  ),
+  jade: (p) => (
+    <>
+      {sky(p, '#0E5E44', '#03221A')}
+      {stars(14, 5, '#C8FFE6')}
+      <Circle cx={40} cy={34} r={14} fill="#E8FFF3" opacity={0.85} />
+      {/* stepped temple */}
+      <Rect x={30} y={120} width={140} height={40} fill="#0B5E3E" />
+      <Rect x={46} y={92} width={108} height={30} fill="#12C08A" />
+      <Rect x={62} y={66} width={76} height={28} fill="#5BE3B0" />
+      <Rect x={78} y={36} width={44} height={32} rx={4} fill="#FFD06B" stroke="#FFFFFF" strokeWidth={2} />
+      <Rect x={86} y={45} width={10} height={6} rx={1} fill="#231A3A" />
+      <Rect x={104} y={45} width={10} height={6} rx={1} fill="#231A3A" />
+      <Rect x={92} y={57} width={16} height={4} rx={2} fill="#231A3A" />
+      <Rect x={90} y={128} width={20} height={32} rx={3} fill="#021A12" />
+      {[0, 1, 2].map((k) => <Rect key={k} x={92 - k * 2} y={122 + k * 6} width={16 + k * 4} height={3} fill="#3BE39A" opacity={0.6} />)}
+      {/* jungle leaves */}
+      <Path d="M-10 70 Q20 40 46 60 Q20 62 10 96 Z" fill="#1F9A5C" />
+      <Path d="M210 66 Q180 36 152 58 Q180 60 190 94 Z" fill="#1F9A5C" />
+      <Path d="M-10 150 Q30 120 50 150 Q24 150 6 180 Z" fill="#14804A" />
+      <Path d="M210 150 Q170 122 150 150 Q176 150 194 180 Z" fill="#14804A" />
+      <Path d="M140 0 Q146 30 136 60" stroke="#3BE39A" strokeWidth={2} fill="none" />
+      <Circle cx={136} cy={62} r={4} fill="#FFD06B" />
+    </>
+  ),
   horses: (p) => (
     <>
       {sky(p, '#7FC8FF', '#CFEFFF')}

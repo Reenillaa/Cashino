@@ -40,19 +40,20 @@ export function Screen({
   subtitle,
   right,
   back,
+  wide,
   children,
   scroll = true,
   tabBar = true,
   contentStyle,
   ...rest
-}: ScrollViewProps & { title?: string; subtitle?: string; right?: React.ReactNode; back?: boolean; scroll?: boolean; tabBar?: boolean; contentStyle?: StyleProp<ViewStyle> }) {
+}: ScrollViewProps & { title?: string; subtitle?: string; right?: React.ReactNode; back?: boolean; wide?: boolean; scroll?: boolean; tabBar?: boolean; contentStyle?: StyleProp<ViewStyle> }) {
   const { c } = useTheme();
   const insets = useSafeAreaInsets();
   const entrance = useFocusEntrance();
   const focused = useIsFocused();
   const desktop = useDesktop();
   // on a computer the page is a centred column instead of the full window width
-  const column = desktop ? { width: '100%' as const, maxWidth: back ? 860 : CONTENT_MAX, alignSelf: 'center' as const } : null;
+  const column = desktop ? { width: '100%' as const, maxWidth: back && !wide ? 860 : CONTENT_MAX, alignSelf: 'center' as const } : null;
   const header = (title || back || right) && (
     <View style={[{ paddingTop: insets.top + (back ? 6 : desktop ? 28 : 12), paddingHorizontal: SCREEN_PAD, paddingBottom: 12 }, column]}>
       {back && <BackButton />}

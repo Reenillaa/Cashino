@@ -14,6 +14,7 @@ const es = {
   },
   tabs: { sports: 'Apuestas', shop: 'Tienda', home: 'Inicio', games: 'Juegos', ranking: 'Ranking', social: 'Social', profile: 'Perfil' },
   home: {
+    hall: 'Sala de tragaperras', hallBody: '{{n}} máquinas con animaciones y tiradas gratis', hallEnter: 'Entrar', hallTitle: 'Sala de tragaperras', hallSub: 'Todas las máquinas en un sitio. Mismo motor justo: cada tirada se decide antes de girar.', hallMax: 'Máx. ×{{n}}', hallPlay: 'Jugar', hallUnlock: 'Desbloquear', hallReels: '{{r}} rodillos', hallFree: 'Tiradas gratis', hallRtp: 'Retorno {{v}}',
     morning: 'Buenos días', afternoon: 'Buenas tardes', evening: 'Buenas noches', guest: 'invitado',
     balance: 'Saldo', featured: 'Destacados', quick: 'Accesos rápidos', challenges: 'Retos de hoy', weekly: 'Retos de la semana',
     daily: 'Regalo diario', claim: 'Recoger', claimed: 'Recogido', nextIn: 'Siguiente regalo en {{time}}', streakDay: 'Día {{day}} de racha',
@@ -25,7 +26,7 @@ const es = {
     welcome: 'BIENVENIDO A',
     tapToPlay: 'Toca un juego para empezar',
     streak: '🔥 {{n}} días seguidos', nextLevel: 'Te faltan {{xp}} XP para el nivel {{level}} y su regalo de {{bonus}} fichas',
-    daysLeft_one: 'Queda {{count}} día', daysLeft_other: 'Quedan {{count}} días', album: 'Tu colección', albumBody: 'Has probado {{n}} de 21 juegos. Toca uno nuevo para estrenarlo.', albumDone: '¡Colección completa! Has probado los 21 juegos.',
+    daysLeft_one: 'Queda {{count}} día', daysLeft_other: 'Quedan {{count}} días', album: 'Tu colección', albumBody: 'Has probado {{n}} de {{total}} juegos. Toca uno nuevo para estrenarlo.', albumDone: '¡Colección completa! Has probado todos los juegos.',
     levelUp: '¡Nivel {{n}}!', levelGift: '+{{n}} fichas de regalo', levelUpBody: 'Sigue así: cada nivel trae un regalo mayor.',
   },
   games: {
@@ -33,17 +34,18 @@ const es = {
     openRules: 'Reglas', openTutorial: 'Tutorial', openAcademy: 'Academy', houseEdge: 'Ventaja de la casa', rtp: 'RTP',
     names: {
       poker: 'Póker', blackjack: 'Blackjack', crash: 'Cohete', dice: 'Dados', mines: 'Minas', plinko: 'Plinko', crossing: 'Cruza la calle',
-      roulette: 'Ruleta', limbo: 'Limbo', coinflip: 'Cara o cruz', baccarat: 'Bacará', hilo: 'Mayor o menor', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Tragaperras', trader: 'Bolsa', videopoker: 'Video Póker', wheel: 'Rueda', towers: 'Torre del Dragón', diamonds: 'Diamantes', pump: 'Globo', dragontiger: 'Dragon Tiger', horses: 'Carreras', cascade: 'Dulce Cascada',
+      roulette: 'Ruleta', limbo: 'Limbo', coinflip: 'Cara o cruz', baccarat: 'Bacará', hilo: 'Mayor o menor', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Tragaperras', trader: 'Bolsa', videopoker: 'Video Póker', wheel: 'Rueda', towers: 'Torre del Dragón', diamonds: 'Diamantes', pump: 'Globo', dragontiger: 'Dragon Tiger', horses: 'Carreras', cascade: 'Dulce Cascada', fishing: 'Lago de Oro', jade: 'Templo de Jade',
     },
     blurbs: {
       poker: 'El de toda la vida, contra bots o amigos.', blackjack: 'Suma 21 sin pasarte.',
       crash: 'Retírate antes de que explote.', dice: 'Elige un número y tira.', mines: 'Busca diamantes, evita bombas.',
       plinko: 'Suelta la bola y mira dónde cae.', crossing: 'Cruza paso a paso sin que te pillen.', roulette: 'Apuesta a un número o a un color.',
       limbo: 'Elige hasta dónde sube.', coinflip: 'Cara o cruz, así de fácil.', baccarat: 'Jugador, banca o empate.',
-      hilo: '¿La siguiente carta es mayor o menor?', keno: 'Elige números, como la lotería.', sicbo: 'Tres dados: adivina qué sale.', slots: 'Tres rodillos, tres iguales y premio.', trader: '¿Sube o baja? Invierte y mira la gráfica.', videopoker: 'La máquina de póker de Las Vegas.', wheel: 'Gira la rueda y cobra lo que marque.', towers: 'Sube pisos sin despertar al dragón.', diamonds: 'Cinco gemas: junta colores.', pump: 'Infla el globo… sin que explote.', dragontiger: 'Una carta cada uno: gana la más alta.', horses: 'Estudia el programa y apuesta como en el hipódromo.', cascade: '8 dulces iguales pagan, caen más y las bombas multiplican.',
+      hilo: '¿La siguiente carta es mayor o menor?', keno: 'Elige números, como la lotería.', sicbo: 'Tres dados: adivina qué sale.', slots: 'Tres rodillos, tres iguales y premio.', trader: '¿Sube o baja? Invierte y mira la gráfica.', videopoker: 'La máquina de póker de Las Vegas.', wheel: 'Gira la rueda y cobra lo que marque.', towers: 'Sube pisos sin despertar al dragón.', diamonds: 'Cinco gemas: junta colores.', pump: 'Infla el globo… sin que explote.', dragontiger: 'Una carta cada uno: gana la más alta.', horses: 'Estudia el programa y apuesta como en el hipódromo.', cascade: '8 dulces iguales pagan, caen más y las bombas multiplican.', fishing: 'Peces con premio y un pescador que se los lleva todos.', jade: 'El símbolo especial se expande por rodillos enteros.',
     },
   },
   play: {
+    tenLines: '10 LÍNEAS', fishCollect: '🎣 {{n}} pescador(es) recogen los peces · ×{{x}}', fishFree: '🎣 ¡{{n}} TIRADAS GRATIS!', fishLevel: '🔥 ¡+10 tiradas! Multiplicador ×{{x}}', fishHint: 'Peces con premio · 3+ cajas = tiradas gratis con pescador · cada 4 pescadores: +10 y más multiplicador', jadeSpecial: 'Símbolo especial', jadeFree: '🗿 ¡{{n}} TIRADAS GRATIS!', jadeExpand: '✨ ¡Se expande! +{{v}}', jadeHint: '3+ ídolos = 10 tiradas gratis con un símbolo especial que se expande por rodillos enteros',
     freeSpin: 'Tirada gratis', freeSpinsWon: '🍭 ¡{{n}} TIRADAS GRATIS!', turbo: 'Turbo',
     change: 'Cambiar', hideOptions: 'Listo',
     dragTarget: '👆 Arrastra el punto blanco para elegir tu objetivo',

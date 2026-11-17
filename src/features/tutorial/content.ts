@@ -104,6 +104,16 @@ export const TUTORIALS: Record<GameId, TutorialStep[]> = {
     doIt('cascade:spin', ['Tira', 'Spin'], ['Elige tu ficha y pulsa Tirar.', 'Pick your chip and tap Spin.']),
     quiz(['Las bombas', 'The bombs'], ['Ganas ×2 y hay dos bombas ×3 y ×5 en pantalla. ¿Cuánto cobras?', 'You win ×2 and there are ×3 and ×5 bombs on screen. What do you get?'], [['×16', '×16'], ['×30', '×30']], 0, ['Las bombas se suman (3 + 5 = 8) y multiplican la ganancia: ×2 × 8 = ×16. Si no ganas nada, no hacen nada.', 'Bombs add up (3 + 5 = 8) and multiply the win: ×2 × 8 = ×16. With no win they do nothing.']),
   ],
+  fishing: [
+    info(['Lago de Oro', 'Golden Lake'], ['5 rodillos y 10 líneas: 3 o más iguales seguidos desde la izquierda pagan. 3 cajas de pesca 🧰 dan tiradas gratis.', '5 reels and 10 lines: 3 or more in a row from the left pay. 3 tackle boxes 🧰 give free spins.']),
+    doIt('fishing:spin', ['Tira', 'Spin'], ['Elige tu ficha y pulsa Tirar.', 'Pick your chip and tap Spin.']),
+    quiz(['El pescador', 'The fisherman'], ['En las gratis sale el pescador y hay peces de ×5 y ×10 en pantalla. ¿Cuánto cobras?', 'In the free spins the fisherman lands with ×5 and ×10 fish on screen. What do you get?'], [['×15', '×15'], ['Nada, los peces no pagan', 'Nothing, fish do not pay']], 0, ['El pescador recoge el valor de todos los peces visibles: 5 + 10 = ×15 la apuesta (y más si has subido de nivel).', 'The fisherman collects every visible fish: 5 + 10 = ×15 the bet (and more after levelling up).']),
+  ],
+  jade: [
+    info(['Templo de Jade', 'Jade Temple'], ['5 rodillos y 10 líneas. El ídolo 🗿 es comodín; 3 o más en cualquier sitio dan 10 tiradas gratis con un símbolo especial que se expande.', '5 reels and 10 lines. The idol 🗿 is wild; 3 or more anywhere give 10 free spins with an expanding special symbol.']),
+    doIt('jade:spin', ['Tira', 'Spin'], ['Elige tu ficha y pulsa Tirar.', 'Pick your chip and tap Spin.']),
+    quiz(['El especial', 'The special'], ['En las gratis el especial sale en los rodillos 1, 3 y 5 (no seguidos). ¿Paga?', 'In free spins the special lands on reels 1, 3 and 5 (not adjacent). Does it pay?'], [['Sí, en las 10 líneas', 'Yes, on all 10 lines'], ['No, tienen que estar seguidos', 'No, they must be adjacent']], 0, ['El especial se expande y paga en todas las líneas aunque los rodillos no estén seguidos.', 'The special expands and pays on every line even when the reels are not adjacent.']),
+  ],
   trader: [
     info(['La bolsa', 'The market'], ['Eliges si el precio acabará más alto (Sube) o más bajo (Baja). Luego miras cómo se mueve la gráfica.', 'Pick whether the price will end higher (Up) or lower (Down). Then watch the chart move.']),
     doIt('trader:play', ['Haz tu apuesta', 'Make your call'], ['Pulsa Sube o Baja.', 'Tap Up or Down.']),

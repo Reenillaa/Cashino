@@ -7,7 +7,7 @@ describe('Monte Carlo simulator (real engine)', () => {
       expect(r.staked).toBe(20000 * 10);
       const rtp = r.returned / r.staked;
       // Generous band: high-variance strategies (×10 targets, plenos) move a lot in 20k rounds.
-      expect(Math.abs(rtp - o.rtp)).toBeLessThan(0.08);
+      expect(Math.abs(rtp - o.rtp)).toBeLessThan(o.spread ?? 0.08);
     });
   }
   it('is deterministic for a seed and samples the path', () => {
