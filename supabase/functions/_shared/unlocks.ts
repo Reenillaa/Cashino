@@ -1,5 +1,5 @@
 import { HttpError } from './http.ts';
-import { isUnlocked, unlockPrice, UNLOCKABLES, type UnlockId } from './engine/meta/unlocks.ts';
+import { isUnlocked, unlockPrice, TRIAL_ROUNDS, UNLOCKABLES, type UnlockId } from './engine/meta/unlocks.ts';
 
 // deno-lint-ignore no-explicit-any
 type DB = any;
@@ -27,9 +27,32 @@ export async function requireUnlocked(db: DB, userId: string, ids: UnlockId[]): 
   if (missing) throw new HttpError(`locked:${missing}`, 403);
 }
 
-/** Next price for this player (shared formula) and the count it was computed for. */
-export async function nextUnlockPrice(db: DB, userId: string, owned?: string[]): Promise<{ price: number; count: number; peak: number }> {
-  const list = owned ?? (await ownedUnlocks(db, userId));
-  const { data: peak } = await db.rpc('peak_balance', { p_user: userId });
-  return { price: unlockPrice(list.length, Number(peak ?? 0)), count: list.length, peak: Number(peak ?? 0) };
+/** Next price for this player (shared formula) and the count it was computed for: only PAID unlocks count. */
+export async function nextUnlockPrice(db: DB, userId: string): Promise<{ price: number; count: number; peak: number }> {
+  const [{ count }, { data: peak }] = await Promise.all([
+    db.from('unlocks').select('item', { count: 'exact', head: true }).eq('user_id', userId).gt('price', 0),
+    db.rpc('peak_balance', { p_user: userId }),
+  ]);
+  const paid = Number(count ?? 0);
+  return { price: unlockPrice(paid, Number(peak ?? 0)), count: paid, peak: Number(peak ?? 0) };
+}
+
+/** Trial rounds already played per locked item. */
+export async function trialsUsed(db: DB, userId: string): Promise<Record<string, number>> {
+  const { data } = await db.from('unlock_trials').select('item, used').eq('user_id', userId);
+  return Object.fromEntries((data ?? []).map((r: { item: string; used: number }) => [r.item, Number(r.used)]));
+}
+
+/**
+ * Access to a game: `owned` (free, bought or admin) or `trial` with the trial rounds already used.
+ * Throws `locked` when a NEW round is about to start and the trial is used up.
+ */
+export async function gameAccess(db: DB, userId: string, id: UnlockId, startsRound: boolean): Promise<{ owned: true } | { owned: false; used: number }> {
+  if (isUnlocked([], id) || (await isAdmin(db, userId))) return { owned: true };
+  const { data } = await db.from('unlocks').select('item').eq('user_id', userId).eq('item', id).maybeSingle();
+  if (data) return { owned: true };
+  const { data: t } = await db.from('unlock_trials').select('used').eq('user_id', userId).eq('item', id).maybeSingle();
+  const used = Number(t?.used ?? 0);
+  if (startsRound && used >= TRIAL_ROUNDS) throw new HttpError(`locked:${id}`, 403);
+  return { owned: false, used };
 }

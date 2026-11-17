@@ -32,11 +32,13 @@ export function useAdminAndGifts() {
     }
     void useAdmin.getState().check();
     const look = async () => {
-      const { data } = await supabase!.from('notifications').select('id, payload').eq('kind', 'gift').is('read_at', null).limit(10);
+      const { data } = await supabase!.from('notifications').select('id, kind, payload').in('kind', ['gift', 'transfer']).is('read_at', null).limit(10);
       if (!data?.length) return;
       for (const n of data) {
-        const p = n.payload as { amount: number; note?: string | null };
-        useProgress.getState().pushToast({ kind: 'info', title: i18n.t('admin.received', { amount: p.amount.toLocaleString('es-ES') }), body: p.note ?? undefined });
+        const p = n.payload as { amount: number; note?: string | null; from?: string | null };
+        const amount = p.amount.toLocaleString('es-ES');
+        const title = n.kind === 'transfer' ? i18n.t('social.received', { amount, name: p.from ?? '' }) : i18n.t('admin.received', { amount });
+        useProgress.getState().pushToast({ kind: 'info', title, body: p.note ?? undefined });
       }
       await supabase!.from('notifications').update({ read_at: new Date().toISOString() }).in('id', data.map((n) => n.id));
       void useSession.getState().refresh().catch(() => undefined);

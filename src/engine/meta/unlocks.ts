@@ -15,6 +15,10 @@ export const UNLOCK_FIRST = 2500;
 export const UNLOCK_SECOND = 5000;
 export const UNLOCK_GROWTH = 1.5;
 export const UNLOCK_PEAK_SHARE = 0.4;
+/** Every player can open two games of their choice for free (their "main" games); free ones never raise prices. */
+export const FREE_UNLOCK_CREDITS = 2;
+/** Rounds anyone can play in a locked game before buying it. */
+export const TRIAL_ROUNDS = 3;
 export const LOCKABLE_GAMES: GameId[] = ['fishing', 'jade', 'goldmine', 'fruits', 'pirate', 'cascade', 'horses', 'slots', 'roulette', 'videopoker', 'crash', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing', 'keno', 'sicbo'];
 export const LIVE_UNLOCKS = ['live:horses', 'live:roulette', 'live:crash'] as const;
 export const SPORT_UNLOCKS = ['soccer', 'nba', 'nfl', 'nhl', 'tennis', 'ufc', 'f1'] as const;
@@ -50,4 +54,9 @@ export function unlockRequires(id: UnlockId): UnlockId | null {
 
 export function isUnlocked(owned: readonly string[], id: UnlockId): boolean {
   return FREE_UNLOCKS.includes(id) || owned.includes(id);
+}
+
+/** Trial rounds left in a locked game (`used` = trial rounds already played). */
+export function trialLeft(used: number | undefined): number {
+  return Math.max(0, TRIAL_ROUNDS - (used ?? 0));
 }

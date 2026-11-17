@@ -7,7 +7,7 @@
 import { admin, handler, HttpError, json, requireUser, rpcError } from '../_shared/http.ts';
 import { FREE_ITEMS, SHOP_PRICES, SHOP_SLOTS, type ShopSlot } from '../_shared/engine/meta/shop.ts';
 import { isUnlockId, unlockRequires } from '../_shared/engine/meta/unlocks.ts';
-import { nextUnlockPrice, ownedUnlocks } from '../_shared/unlocks.ts';
+import { nextUnlockPrice, ownedUnlocks, trialsUsed } from '../_shared/unlocks.ts';
 
 Deno.serve(
   handler(async (req, body) => {
@@ -20,9 +20,13 @@ Deno.serve(
         db.from('profiles').select('cosmetics').eq('id', userId).single(),
         db.from('wallets').select('balance').eq('user_id', userId).single(),
       ]);
-      const unlocks = await ownedUnlocks(db, userId);
-      const next = await nextUnlockPrice(db, userId, unlocks);
-      return { owned: [...FREE_ITEMS, ...(owned ?? []).map((o) => o.item as string)], equipped: profile?.cosmetics ?? {}, balance: wallet?.balance ?? 0, unlocks, nextPrice: next.price, peak: next.peak };
+      const [unlocks, next, trials, { data: fu }] = await Promise.all([
+        ownedUnlocks(db, userId),
+        nextUnlockPrice(db, userId),
+        trialsUsed(db, userId),
+        db.from('profiles').select('free_unlocks').eq('id', userId).single(),
+      ]);
+      return { owned: [...FREE_ITEMS, ...(owned ?? []).map((o) => o.item as string)], equipped: profile?.cosmetics ?? {}, balance: wallet?.balance ?? 0, unlocks, nextPrice: next.price, peak: next.peak, freeUnlocks: Number(fu?.free_unlocks ?? 0), trials };
     };
     if (action === 'state') return json(await state());
     if (action === 'buy') {
@@ -44,13 +48,23 @@ Deno.serve(
       const owned = await ownedUnlocks(db, userId);
       const req = unlockRequires(item);
       if (req && !owned.includes(req)) throw new HttpError(`locked:${req}`, 409);
-      const { price, count } = await nextUnlockPrice(db, userId, owned);
+      const { price, count } = await nextUnlockPrice(db, userId);
       // the player confirmed a price: never charge more than what they saw
       if (Number(body.price) !== price) return json({ error: 'price_changed', price }, 409);
       const { error } = await db.rpc('unlock_buy', { p_user: userId, p_item: item, p_price: price, p_count: count });
       if (error?.message.includes('already_owned')) throw new HttpError('already_owned', 409);
       if (error?.message.includes('price_changed')) throw new HttpError('price_changed', 409);
       if (error?.message.includes('insufficient')) throw new HttpError('insufficient', 409);
+      rpcError(error);
+      return json(await state());
+    }
+    if (action === 'unlock_free') {
+      // one of the player's free unlocks: any game, no chips
+      const item = String(body.item ?? '');
+      if (!isUnlockId(item) || !item.startsWith('game:')) throw new HttpError('games_only');
+      const { error } = await db.rpc('unlock_free', { p_user: userId, p_item: item });
+      if (error?.message.includes('already_owned')) throw new HttpError('already_owned', 409);
+      if (error?.message.includes('no_free_unlocks')) throw new HttpError('no_free_unlocks', 409);
       rpcError(error);
       return json(await state());
     }

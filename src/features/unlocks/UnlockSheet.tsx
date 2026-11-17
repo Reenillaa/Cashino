@@ -6,7 +6,8 @@ import { gameVivid } from '@/design/tokens';
 import { useT } from '@/i18n';
 import type { GameId } from '@/engine/games/types.ts';
 import { unlockPrice, unlockRequires, type UnlockId } from '@/engine/meta/unlocks.ts';
-import { useOwnedUnlocks, useNextUnlockPrice, useUnlocks } from '@/state/unlocks';
+import { useFreeUnlocks, useOwnedUnlocks, useNextUnlockPrice, useTrialLeft, useUnlocks } from '@/state/unlocks';
+import { useRouter } from 'expo-router';
 import { useSession } from '@/state/session';
 import { useWallet } from '@/state/wallet';
 import { useProgress } from '@/state/progress';
@@ -45,12 +46,40 @@ export function UnlockSheet() {
   const peak = useWallet((s) => s.peak ?? s.balance);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const free = useFreeUnlocks();
+  const trialLeft = useTrialLeft((id ?? 'sports') as UnlockId);
+  const router = useRouter();
   if (!id) return <Sheet visible={false} onClose={() => open(null)}>{null}</Sheet>;
+  const isGame = id.startsWith('game:');
   const info = unlockInfo(id, t);
   const have = signedIn ? balance ?? 0 : guestBalance;
   const need = unlockRequires(id);
   const blocked = need && !owned.includes(need) ? need : null;
   const next = unlockPrice(owned.length + 1, signedIn ? 0 : peak);
+  /** Uses one of the two free unlocks on this game. */
+  const takeFree = async () => {
+    if (busy) return;
+    setMsg(null);
+    try {
+      setBusy(true);
+      if (signedIn) await accountShop.unlockFree(id);
+      else if (useUnlocks.getState().freeLocal(id) !== 'ok') throw new OnlineError('no_free_unlocks');
+      sfx('cashout');
+      haptic.success();
+      useProgress.getState().pushToast({ kind: 'info', title: t('unlock.done', { name: info.name }) });
+      close();
+    } catch (e) {
+      haptic.warning();
+      setMsg(`${t('common.error')} (${e instanceof OnlineError ? e.code : 'error'})`);
+    } finally {
+      setBusy(false);
+    }
+  };
+  /** Plays the game with its free trial rounds. */
+  const tryIt = () => {
+    close();
+    if (isGame) router.push(`/game/${id.slice(5)}`);
+  };
   const close = () => {
     setMsg(null);
     open(null);
@@ -96,6 +125,18 @@ export function UnlockSheet() {
           </>
         ) : (
           <>
+            {isGame && free > 0 ? (
+              <View style={styles.free}>
+                <T weight="displaySemi" align="center" style={{ color: '#FFE58A' }}>🎁 {t('unlock.freeLeft', { count: free })}</T>
+                <T variant="footnote" align="center" style={{ color: 'rgba(255,255,255,0.75)' }}>{t('unlock.freeBody')}</T>
+                <Button title={t('unlock.freeCta')} onPress={takeFree} loading={busy} />
+              </View>
+            ) : null}
+            {isGame && trialLeft > 0 ? (
+              <Button kind="secondary" title={t('unlock.tryCta', { n: trialLeft })} onPress={tryIt} />
+            ) : isGame ? (
+              <T variant="footnote" color="text3" align="center">{t('unlock.trialOver')}</T>
+            ) : null}
             <View style={styles.row}>
               <T color="text2">{t('unlock.price')}</T>
               <T weight="display" tabular style={{ color: '#FFD06B', fontSize: 26 }}>{formatCoins(price)}</T>
@@ -120,4 +161,5 @@ const styles = StyleSheet.create({
   lock: { position: 'absolute', top: 12, right: 12, width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.35)' },
   name: { color: '#fff', fontSize: 26 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  free: { gap: 8, padding: 14, borderRadius: 20, backgroundColor: 'rgba(255,208,107,0.12)', borderWidth: 1.5, borderColor: 'rgba(255,208,107,0.5)' },
 });

@@ -1,19 +1,42 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Button, FillCover, IconButton, T, formatCoins } from '@/design/components';
+import { Button, FillCover, IconButton, PressableScale, T, formatCoins } from '@/design/components';
 import { useT } from '@/i18n';
 import type { UnlockId } from '@/engine/meta/unlocks.ts';
-import { useIsUnlocked, useNextUnlockPrice, useUnlocks } from '@/state/unlocks';
+import { useIsUnlocked, useNextUnlockPrice, useTrialLeft, useUnlocks } from '@/state/unlocks';
 import { unlockInfo } from './UnlockSheet';
 
 /** Wraps a screen that has to be bought first: shows its cover and the price until it is unlocked. */
 export function LockedGate({ id, children }: { id: UnlockId; children: React.ReactNode }) {
   const unlocked = useIsUnlocked(id);
+  const left = useTrialLeft(id);
+  // decided when you come in: with trial rounds left you can play (the round in progress is never cut off)
+  const [trial] = useState(() => !unlocked && id.startsWith('game:') && left > 0);
   if (unlocked) return <>{children}</>;
+  // the game shows how many trial rounds are left under its room chip (see TrialNote)
+  if (trial) return <>{children}</>;
   return <LockedScreen id={id} />;
+}
+
+/** "Free trial: N rounds left · Unlock", shown by the game screen under the room chip while the game is locked. */
+export function TrialNote({ id }: { id: UnlockId }) {
+  const { t } = useT();
+  const unlocked = useIsUnlocked(id);
+  const left = useTrialLeft(id);
+  const open = useUnlocks((s) => s.open);
+  if (unlocked) return null;
+  return (
+    <View style={{ alignItems: 'center', marginTop: 6 }}>
+      <PressableScale onPress={() => open(id)} scaleTo={0.96} accessibilityLabel={t('unlock.trialBadge', { n: left })} style={styles.badge}>
+        <LinearGradient colors={['#FFD06B', '#FF8A3D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+        <T weight="displaySemi" style={{ color: '#231A3A', fontSize: 12 }}>🎟️ {t('unlock.trialBadge', { n: left })}</T>
+        <T weight="display" style={{ color: '#231A3A', fontSize: 12 }}>· {t('unlock.unlockShort')} ›</T>
+      </PressableScale>
+    </View>
+  );
 }
 
 function LockedScreen({ id }: { id: UnlockId }) {
@@ -47,5 +70,6 @@ function LockedScreen({ id }: { id: UnlockId }) {
 
 const styles = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: '#07040F' },
+  badge: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 30, paddingHorizontal: 14, borderRadius: 15, overflow: 'hidden', borderWidth: 1.5, borderColor: '#FFF3C4' },
   body: { flex: 1, justifyContent: 'flex-end', alignItems: 'center', gap: 12, paddingHorizontal: 24 },
 });

@@ -13,6 +13,8 @@ import { useLearning } from '@/state/learning';
 import { useFairness } from '@/state/fairness';
 import { useSession } from '@/state/session';
 import { callFn, OnlineError } from '@/services/supabase';
+import { takeTrialRound, useUnlocks } from '@/state/unlocks';
+import type { UnlockId } from '@/engine/meta/unlocks.ts';
 import { useRoom } from './rooms';
 import { useHiddenPayout, useReveal } from './reveal';
 
@@ -128,8 +130,10 @@ export function useGameSession(game: GameId) {
         // Rounds are always played in the selected room; the protocol checks its limits.
         if (!current && !('room' in params)) params = { ...params, room: room.id };
         if (roundMode === 'online') {
-          const res = await callFn<OpResult & { balance: number }>('game', { game, op: name, params, requestId: `${Date.now()}-${Math.random().toString(36).slice(2)}` });
+          const res = await callFn<OpResult & { balance: number; trialLeft?: number }>('game', { game, op: name, params, requestId: `${Date.now()}-${Math.random().toString(36).slice(2)}` });
           useSession.getState().setBalance(res.balance);
+          // trial rounds in a locked game are counted by the server
+          if (typeof res.trialLeft === 'number') useUnlocks.getState().setAccountTrialLeft(`game:${game}` as UnlockId, res.trialLeft);
           useActiveRounds.getState().put(game, res.done ? null : { state: null, view: res.view, mode: 'online' });
           if (res.done && res.summary) {
             afterRound(game, res.summary, false);
@@ -137,6 +141,8 @@ export function useGameSession(game: GameId) {
           }
           return { ...res, mode: 'online' };
         }
+        // A locked game can be tried for a few rounds (practice included).
+        if (!current && !takeTrialRound(`game:${game}` as UnlockId)) throw new PlayError(`locked:game:${game}`);
         // Local: start a provably fair stream for a new round.
         if (!current || !rngRef.current) {
           if (!current) {

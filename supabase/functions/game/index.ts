@@ -10,7 +10,8 @@ import { fairRng, hashServerSeed } from '../_shared/engine/rng/rng.ts';
 import { GAME_IDS, type GameId } from '../_shared/engine/games/types.ts';
 import { roomById } from '../_shared/engine/meta/rooms.ts';
 import { hotRoom, isHotFrom } from '../_shared/engine/meta/hot.ts';
-import { requireUnlocked } from '../_shared/unlocks.ts';
+import { gameAccess } from '../_shared/unlocks.ts';
+import { TRIAL_ROUNDS, type UnlockId } from '../_shared/engine/meta/unlocks.ts';
 
 function countingRng(seed: { serverSeed: string; clientSeed: string; nonce: number }, skip: number) {
   const base = fairRng(seed);
@@ -47,7 +48,6 @@ Deno.serve(
 
     if (!GAME_IDS.includes(game) || game === 'poker') throw new HttpError('unknown_game');
     if (!requestId) throw new HttpError('missing_request_id');
-    await requireUnlocked(db, userId, [`game:${game}`]);
     // Real-coin rounds must declare a (non-practice) room; its limits are enforced by the protocol.
     let stakeCap: number | null = null;
     if (['play', 'start', 'deal'].includes(op)) {
@@ -71,6 +71,8 @@ Deno.serve(
     }
 
     const { data: session } = await db.from('game_sessions').select('*').eq('user_id', userId).eq('game', game).maybeSingle();
+    // Locked games can be tried for a few rounds; a round already in progress can always be finished.
+    const access = await gameAccess(db, userId, `game:${game}` as UnlockId, !session && op !== 'resume');
     if (op === 'resume') return json({ view: session?.view ?? null, done: !session });
 
     const { data: seeds } = await db.from('user_seeds').select('*').eq('user_id', userId).single();
@@ -102,6 +104,14 @@ Deno.serve(
       p_key: key, p_version: session ? session.version : null,
     });
     rpcError(error);
-    return json({ view: res.view, stake: res.stake, payout: res.payout, done: res.done, summary: res.summary ?? null, balance });
+    // a new round in a locked game uses one trial round
+    let trialLeft: number | undefined;
+    if (!access.owned) {
+      if (!session) {
+        const { data: used } = await db.rpc('use_trial', { p_user: userId, p_item: `game:${game}`, p_max: TRIAL_ROUNDS });
+        trialLeft = Math.max(0, TRIAL_ROUNDS - Number(used ?? access.used + 1));
+      } else trialLeft = Math.max(0, TRIAL_ROUNDS - access.used);
+    }
+    return json({ view: res.view, stake: res.stake, payout: res.payout, done: res.done, summary: res.summary ?? null, balance, trialLeft });
   }),
 );

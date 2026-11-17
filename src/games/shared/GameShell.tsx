@@ -18,6 +18,8 @@ import { useRoom, useRooms } from '@/features/play/rooms';
 import type { Room } from '@/engine/meta/rooms.ts';
 import { useLearning } from '@/state/learning';
 import { RoomPicker } from './RoomPicker';
+import { TrialNote } from '@/features/unlocks/LockedGate';
+import type { UnlockId } from '@/engine/meta/unlocks.ts';
 import { TutorialCoach, useTutorialAutostart } from '@/features/tutorial/TutorialCoach';
 import { useTutorialRuntime } from '@/features/tutorial/tutorial';
 import { FairnessPanel } from './FairnessPanel';
@@ -115,6 +117,7 @@ export function GameShell({
     </PressableScale>
   ) : null;
   const historyEl = history ? <View style={{ marginTop: 10 }}>{history}</View> : null;
+  const trialEl = <TrialNote id={`game:${game}` as UnlockId} />;
   return (
     <AccentContext.Provider value={vivid}>
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -163,6 +166,7 @@ export function GameShell({
                 <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(motion.slow).delay(70)} style={[styles.deskPanel, { backgroundColor: 'rgba(16,14,24,0.92)' }]}>
                   <LinearGradient pointerEvents="none" colors={[alpha(vivid[0], 0.9), alpha(vivid[1], 0.9)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.panelEdge} />
                   <View style={{ marginTop: -10 }}>{roomEl}</View>
+                  {trialEl}
                   {hotEl}
                   {practiceEl}
                   {controls ? <View style={[styles.deskRule, { backgroundColor: c.hairline }]} /> : null}
@@ -173,6 +177,7 @@ export function GameShell({
           ) : (
             <>
               {roomEl}
+              {trialEl}
               {hotEl}
               {practiceEl}
               {historyEl}

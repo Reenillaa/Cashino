@@ -16,7 +16,7 @@ import { SLOT_HALL, VISIBLE_GAMES } from '@/games/catalog';
 import { GameTile } from '@/games/shared/GameTile';
 import { MissionRow } from '@/features/progression/MissionRow';
 import { LiveRow } from '@/features/home/WhatsNew';
-import { useOwnedUnlocks, useNextUnlockPrice, useUnlocks } from '@/state/unlocks';
+import { useFreeUnlocks, useOwnedUnlocks, useNextUnlockPrice, useUnlocks } from '@/state/unlocks';
 import { isUnlocked, type UnlockId } from '@/engine/meta/unlocks.ts';
 import { claimDailyReward, claimRefill } from '@/features/economy/rewards';
 import { useNow } from '@/features/time/useNow';
@@ -51,8 +51,11 @@ export default function Home() {
   const today = utcDay(now);
   const canClaim = wallet.canClaimDaily();
   const streak = canClaim ? nextStreak(wallet.daily, today) : wallet.daily.streak;
-  const missions = dailyMissions(today);
-  const weekly = weeklyMissions(today);
+  const owned = useOwnedUnlocks();
+  const freeUnlocks = useFreeUnlocks();
+  // only missions for games this player can play
+  const missions = dailyMissions(today, owned);
+  const weekly = weeklyMissions(today, owned);
   const low = signedIn ? (serverBalance ?? 0) < ECONOMY.refillThreshold : wallet.canRefill();
   // phones: two per row; computers: as many ~230 px cards as fit
   const cols = desktop ? Math.max(3, Math.floor((width - SCREEN_PAD * 2 + 12) / 242)) : 2;
@@ -61,7 +64,6 @@ export default function Home() {
   const perRow = desktop ? 12 : 7;
   const stampW = Math.floor(((desktop ? width : Math.min(width, 640)) - SCREEN_PAD * 2 - 32 - (perRow - 1) * 8) / perRow);
   const open = (id: string) => router.push(`/game/${id}`);
-  const owned = useOwnedUnlocks();
   const unlockPrice = useNextUnlockPrice();
   const openUnlock = useUnlocks((st) => st.open);
   // what you can play first, then what is still to unlock
@@ -185,6 +187,18 @@ export default function Home() {
         <LiveRow />
       </Section>
 
+      {/* New players (and everyone, once): two free unlocks for their main games */}
+      {freeUnlocks > 0 ? (
+        <View style={[styles.freeCard, { marginHorizontal: SCREEN_PAD }]}>
+          <LinearGradient colors={['#FFD06B', '#FF8A3D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+          <Text style={{ fontSize: 34 }} accessible={false}>🎁</Text>
+          <View style={{ flex: 1 }}>
+            <T variant="callout" weight="semibold" style={{ color: '#231A3A' }}>{t('unlock.homeFree')}</T>
+            <T variant="footnote" style={{ color: '#3A2A10' }}>{t('unlock.homeFreeBody', { count: freeUnlocks })}</T>
+          </View>
+        </View>
+      ) : null}
+
       {/* Every game, two per row */}
       <Section title={t('home.allGames')}>
         <View style={[styles.grid, { paddingHorizontal: SCREEN_PAD }]}>
@@ -270,6 +284,7 @@ const styles = StyleSheet.create({
   gift: { gap: 14, padding: 18, borderRadius: radius.xl, overflow: 'hidden' },
   giftBtn: { height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  freeCard: { marginTop: 24, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 22, overflow: 'hidden' },
   hall: { borderRadius: 24, overflow: 'hidden', flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderWidth: 2, borderColor: '#FFD06B' },
   hallLogos: { flexDirection: 'row' },
   hallLogo: { marginHorizontal: -6 },

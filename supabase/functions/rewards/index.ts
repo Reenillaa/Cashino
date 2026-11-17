@@ -5,6 +5,7 @@
 import { admin, handler, HttpError, json, requireUser, rpcError } from '../_shared/http.ts';
 import { ECONOMY, dailyRewardAmount, nextStreak, utcDay } from '../_shared/engine/meta/economy.ts';
 import { dailyMissions, weeklyMissions, passReward, seasonAt, seasonTier, weekAt, type MissionDef } from '../_shared/engine/meta/progression.ts';
+import { ownedUnlocks } from '../_shared/unlocks.ts';
 
 const dayKey = (d: number) => new Date(d * 86_400_000).toISOString().slice(0, 10);
 
@@ -60,8 +61,10 @@ Deno.serve(
     }
     if (action === 'mission') {
       const id = String(body.missionId ?? '');
-      const daily = dailyMissions(today).find((m) => m.id === id);
-      const weekly = weeklyMissions(today).find((m) => m.id === id);
+      // the same mission set the app shows: only missions for games this player has unlocked
+      const owned = await ownedUnlocks(db, userId);
+      const daily = dailyMissions(today, owned).find((m) => m.id === id);
+      const weekly = weeklyMissions(today, owned).find((m) => m.id === id);
       const m = daily ?? weekly;
       if (!m) throw new HttpError('unknown_mission', 404);
       const progress = await missionProgress(db, userId, m, !!weekly, today);

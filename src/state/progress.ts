@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { persistStorage, STORAGE_PREFIX } from '@/services/storage';
 import { GAME_IDS, type GameId } from '@/engine/games/types.ts';
 import { applyRound, emptyStats, newlyUnlocked, type GameStats } from '@/engine/meta/achievements.ts';
-import { levelFromXp, roundXp, seasonAt, seasonTier, passReward, dailyMissions, weeklyMissions, missionIncrement, type MissionDef, type MissionEvent } from '@/engine/meta/progression.ts';
+import { levelFromXp, roundXp, seasonAt, seasonTier, passReward, ALL_DAILY_MISSIONS, ALL_WEEKLY_MISSIONS, missionIncrement, type MissionDef, type MissionEvent } from '@/engine/meta/progression.ts';
 import { utcDay, ECONOMY } from '@/engine/meta/economy.ts';
 import { SP } from '@/engine/meta/ranking.ts';
 import { useWallet } from './wallet';
@@ -159,7 +159,7 @@ export const useProgress = create<ProgressState>()(
           const keepWeekly = s.missionWeek === week;
           const progress: Record<string, number> = {};
           const claimed: Record<string, boolean> = {};
-          if (keepWeekly) for (const m of weeklyMissions(today)) {
+          if (keepWeekly) for (const m of ALL_WEEKLY_MISSIONS) {
             progress[m.id] = s.missionProgress[m.id] ?? 0;
             claimed[m.id] = s.missionClaimed[m.id] ?? false;
           }
@@ -169,8 +169,8 @@ export const useProgress = create<ProgressState>()(
         const progress = { ...s.missionProgress };
         const varietyToday = e.type === 'round' && e.game && !s.varietyToday.includes(e.game) ? [...s.varietyToday, e.game] : s.varietyToday;
         const varietyWeek = e.type === 'round' && e.game && !s.varietyWeek.includes(e.game) ? [...s.varietyWeek, e.game] : s.varietyWeek;
-        for (const m of dailyMissions(today)) progress[m.id] = m.kind === 'variety' ? varietyToday.length : (progress[m.id] ?? 0) + missionIncrement(m, e);
-        for (const m of weeklyMissions(today)) progress[m.id] = m.kind === 'variety' ? varietyWeek.length : (progress[m.id] ?? 0) + missionIncrement(m, e);
+        for (const m of ALL_DAILY_MISSIONS) progress[m.id] = m.kind === 'variety' ? varietyToday.length : (progress[m.id] ?? 0) + missionIncrement(m, e);
+        for (const m of ALL_WEEKLY_MISSIONS) progress[m.id] = m.kind === 'variety' ? varietyWeek.length : (progress[m.id] ?? 0) + missionIncrement(m, e);
         set({ missionProgress: progress, varietyToday, varietyWeek });
       },
       claimMission: (m) => {

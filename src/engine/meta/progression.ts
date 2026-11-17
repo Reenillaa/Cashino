@@ -1,4 +1,5 @@
 import type { GameId } from '../games/types.ts';
+import { isUnlocked, type UnlockId } from './unlocks.ts';
 import { DAY_MS } from './economy.ts';
 
 /** XP never depends on coins won or lost: it rewards playing, learning and completing goals. */
@@ -111,16 +112,27 @@ function pick<T>(pool: T[], seed: number, n: number): T[] {
   return a.slice(0, n);
 }
 
-/** Deterministic mission sets: everyone gets the same missions on the same UTC day / week. */
-export function dailyMissions(day: number): MissionDef[] {
-  return pick(DAILY_POOL, day * 2654435761, 3);
+/** Missions about a specific game only show up for players who have that game unlocked. */
+const playable = (pool: MissionDef[], owned?: readonly string[]) =>
+  owned ? pool.filter((m) => !m.game || isUnlocked(owned, `game:${m.game}` as UnlockId)) : pool;
+
+/** Every mission that could ever be active (the app tracks progress for all of them). */
+export const ALL_DAILY_MISSIONS = DAILY_POOL;
+export const ALL_WEEKLY_MISSIONS = WEEKLY_POOL;
+
+/**
+ * Deterministic mission sets for the UTC day / week, chosen among the missions the player can do:
+ * `owned` is the player's unlocks (game missions for locked games are left out). Without it, the whole pool.
+ */
+export function dailyMissions(day: number, owned?: readonly string[]): MissionDef[] {
+  return pick(playable(DAILY_POOL, owned), day * 2654435761, 3);
 }
 /** Days left until the weekly challenges change (weeks start on Monday, UTC). */
 export function weeklyDaysLeft(day: number): number {
   return 7 - ((day + 3) % 7);
 }
-export function weeklyMissions(day: number): MissionDef[] {
-  return pick(WEEKLY_POOL, Math.floor((day + 3) / 7) * 40503, 3);
+export function weeklyMissions(day: number, owned?: readonly string[]): MissionDef[] {
+  return pick(playable(WEEKLY_POOL, owned), Math.floor((day + 3) / 7) * 40503, 3);
 }
 
 export interface MissionEvent {
