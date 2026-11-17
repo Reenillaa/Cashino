@@ -3,6 +3,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } f
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme';
+import { useDesktop } from '../layout';
 import { motion, radius, SCREEN_PAD } from '../tokens';
 import { T } from './Text';
 import { IconButton } from './Screen';
@@ -11,7 +12,10 @@ import { IconButton } from './Screen';
 export function Sheet({ visible, onClose, title, children, maxHeight = 0.86 }: { visible: boolean; onClose: () => void; title?: string; children: React.ReactNode; maxHeight?: number }) {
   const { c, reduceMotion } = useTheme();
   const insets = useSafeAreaInsets();
-  const { height } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
+  const desktop = useDesktop();
+  // computers: a centred dialog instead of a bottom sheet
+  const dialog = desktop ? { left: (width - Math.min(560, width - 48)) / 2, right: undefined, width: Math.min(560, width - 48), bottom: undefined, top: height * 0.08, borderRadius: radius.xl, paddingBottom: 16 } : null;
   const [mounted, setMounted] = useState(visible);
   // Derived state: mount immediately when opened; unmount after the closing animation.
   if (visible && !mounted) setMounted(true);
@@ -40,9 +44,9 @@ export function Sheet({ visible, onClose, title, children, maxHeight = 0.86 }: {
       </Animated.View>
       <Animated.View
         accessibilityViewIsModal
-        style={[styles.sheet, { backgroundColor: c.bgElevated, maxHeight: height * maxHeight, paddingBottom: insets.bottom + 16 }, sheet]}
+        style={[styles.sheet, { backgroundColor: c.bgElevated, maxHeight: height * maxHeight, paddingBottom: insets.bottom + 16 }, dialog, sheet]}
       >
-        <View style={[styles.grabber, { backgroundColor: c.hairlineStrong }]} />
+        {desktop ? null : <View style={[styles.grabber, { backgroundColor: c.hairlineStrong }]} />}
         {title ? (
           <View style={styles.header}>
             <T variant="headline" style={{ flex: 1 }} accessibilityRole="header">{title}</T>

@@ -1,3 +1,4 @@
+import { useDesktop } from '../layout';
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { Easing, FadeInUp, FadeOut, FadeOutUp, useAnimatedStyle, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
@@ -21,6 +22,7 @@ export function Toasts() {
   const { t } = useT();
   const { c, reduceMotion } = useTheme();
   const head = toasts[0];
+  const desktop = useDesktop();
   useEffect(() => {
     if (!head) return;
     sfx(head.kind === 'level' ? 'levelup' : 'notify');
@@ -35,7 +37,7 @@ export function Toasts() {
   const title = ach ? ach[0] : head.title;
   const body = ach ? ach[1] : head.body;
   return (
-    <View pointerEvents="none" style={[styles.wrap, { top: insets.top + 8 }]}>
+    <View pointerEvents="none" style={[styles.wrap, { top: insets.top + 8 }, desktop && { left: undefined, right: 24, width: 400 }]}>
       <Animated.View key={head.id} entering={reduceMotion ? undefined : FadeInUp.springify().damping(18)} exiting={reduceMotion ? undefined : FadeOutUp} accessibilityLiveRegion="polite">
         <Glass radius={22} style={styles.toast}>
           <View style={[styles.icon, { backgroundColor: c.surface3 }]}>

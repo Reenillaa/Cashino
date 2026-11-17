@@ -29,3 +29,4 @@ export const useReveal = create<RevealState>()((set) => ({
 export const useHiddenPayout = (game: GameId) => useReveal((s) => s.pending.reduce((a, p) => (p.game === game ? a + p.payout : a), 0));
 /** History ids not shown yet. */
 export const useHiddenIds = () => useReveal((s) => s.pending.map((p) => p.historyId).filter(Boolean).join(','));
+export const useHiddenTotal = () => useReveal((s) => s.pending.reduce((a, p) => a + p.payout, 0));

@@ -25,3 +25,4 @@ export * from './Marquee';
 export * from './GameCover';
 export * from './AchievementBadge';
 export * from './CasinoChip';
+export * from './DesktopSidebar';

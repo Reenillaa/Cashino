@@ -9,6 +9,7 @@ import { useT } from '@/i18n';
 import { LIVE_CONFIG, LIVE_GAMES, slotAt, type LiveGame } from '@/engine/meta/live.ts';
 import { useNow } from '@/features/time/useNow';
 import { mmss } from '@/features/live/useLive';
+import { useContentWidth } from '@/design/layout';
 import { useOwnedUnlocks, useUnlocks } from '@/state/unlocks';
 import { isUnlocked, type UnlockId } from '@/engine/meta/unlocks.ts';
 
@@ -59,6 +60,7 @@ export function LiveRow() {
   const now = useNow(1000);
   const owned = useOwnedUnlocks();
   const openUnlock = useUnlocks((st) => st.open);
+  const coverW = Math.max(120, (useContentWidth() - 52) / 3);
   return (
     <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: SCREEN_PAD }}>
       {LIVE_GAMES.map((g) => {
@@ -68,7 +70,7 @@ export function LiveRow() {
         return (
           <PressableScale key={g} onPress={() => (isUnlocked(owned, `live:${g}` as UnlockId) ? router.push(`/live/${g}`) : openUnlock(`live:${g}` as UnlockId))} feedback="select" scaleTo={0.96} accessibilityLabel={`${t(`live.${g}`)} · ${label}`} style={styles.live}>
             <LinearGradient colors={LIVE_META[g].colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-            <View style={StyleSheet.absoluteFill}><GameCover id={g} width={120} height={132} /></View>
+            <View style={StyleSheet.absoluteFill}><GameCover id={g} width={coverW} height={132} /></View>
             <LinearGradient colors={['rgba(0,0,0,0.15)', `${LIVE_META[g].colors[1]}EE`]} locations={[0.25, 0.85]} style={StyleSheet.absoluteFill} />
             <View style={styles.dotRow}><View style={styles.dot} /><T weight="display" style={{ color: '#fff', fontSize: 9, letterSpacing: 1 }}>LIVE</T></View>
             {isUnlocked(owned, `live:${g}` as UnlockId) ? <T style={{ fontSize: 30, marginTop: 4 }}>{LIVE_META[g].emoji}</T> : <T style={{ fontSize: 26, marginTop: 6 }}>🔒</T>}

@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Avatar, IconButton, T, formatCoins } from '@/design/components';
 import { useT } from '@/i18n';
 import { useSession } from '@/state/session';
+import { useDesktop } from '@/design/layout';
 import { mmss, type LiveBetRow, type LivePhase } from './useLive';
 
 /** Dark full-screen frame for live games: back, title, balance and the round clock. */
@@ -15,10 +16,11 @@ export function LiveFrame({ title, phase, closesAt, endsAt, now, children, foote
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const balance = useSession((s) => s.balance);
+  const desktop = useDesktop();
   const urgent = phase === 'betting' && closesAt - now < 10_000;
   const label = phase === 'betting' ? `${t('live.open')} · ${mmss(closesAt - now)}` : phase === 'waiting' ? t('live.closed') : phase === 'show' ? t('live.running') : `${t('live.next')} ${mmss(endsAt - now)}`;
   return (
-    <View style={[styles.wrap, { paddingTop: insets.top + 6 }]}>
+    <View style={[styles.wrap, { paddingTop: insets.top + 6 }, desktop && styles.deskWrap]}>
       <LinearGradient colors={['#1A0F3A', '#07040F']} style={StyleSheet.absoluteFill} />
       <View style={styles.head}>
         <IconButton icon="chevronLeft" label={t('common.back')} onPress={() => router.back()} />
@@ -63,6 +65,8 @@ export function BetsFeed({ bets, myId, describe }: { bets: LiveBetRow[]; myId: s
 
 const styles = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: '#07040F' },
+  // computers: the live table is a centred column with room around it
+  deskWrap: { width: '100%', maxWidth: 640, alignSelf: 'center', borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.1)' },
   head: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 8 },
   dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#FF3B5C' },
   clock: { alignSelf: 'center', marginTop: 6, marginBottom: 8, paddingHorizontal: 16, height: 30, borderRadius: 15, justifyContent: 'center' },

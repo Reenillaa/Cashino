@@ -23,6 +23,7 @@ import { useTutorialRuntime } from '@/features/tutorial/tutorial';
 import { FairnessPanel } from './FairnessPanel';
 import { GameIntro } from '@/features/brand/GameIntro';
 import { useWallet } from '@/state/wallet';
+import { useDesktop } from '@/design/layout';
 
 /**
  * Common frame for every game: header (back, name, balance), room carousel, stage, docked control panel,
@@ -78,12 +79,42 @@ export function GameShell({
   const showPicker = !picked && !locked && !tutorialActive;
   useTutorialAutostart(game, !!forceTutorial);
   const rules = RULES[game];
+  const desktop = useDesktop();
   const enter = reduceMotion ? undefined : FadeInDown.duration(motion.slow).easing(Easing.bezier(...motion.easeEnter));
   const startGuide = () => {
     setSheet(null);
     setPicked(true);
     useTutorialRuntime.getState().start(game);
   };
+  const roomEl = (
+    <View style={{ alignItems: 'center', marginTop: 10 }}>
+      <PressableScale
+        onPress={() => setPicked(false)}
+        disabled={locked || tutorialActive}
+        feedback="select"
+        scaleTo={0.96}
+        accessibilityLabel={`${t('rooms.change')}: ${t(`rooms.${room.id}`)} ${room.min}–${room.max}`}
+        style={[styles.roomChip, { backgroundColor: c.surface2 }]}
+      >
+        <Text style={{ fontSize: 15 }} accessible={false}>{roomArt[room.id].emoji}</Text>
+        <T variant="footnote" weight="semibold">{t(`rooms.${room.id}`)}</T>
+        <T variant="footnote" color="text3" tabular>{formatCoins(room.min)}–{formatCoins(room.max)}</T>
+        {!locked && !tutorialActive ? <Icon name="chevronDown" size={14} color={c.text3} /> : null}
+      </PressableScale>
+    </View>
+  );
+  const hotEl = hot && mode !== 'practice' ? (
+    <Animated.View entering={FadeIn} style={[styles.hot, { alignSelf: 'center' }]} accessibilityLiveRegion="polite">
+      <Text style={{ fontSize: 14 }} accessible={false}>🔥</Text>
+      <T variant="footnote" weight="semibold" style={{ color: '#FFD06B', flexShrink: 1 }}>{t('play.hotTable')}</T>
+    </Animated.View>
+  ) : null;
+  const practiceEl = mode === 'practice' && !tutorialActive ? (
+    <PressableScale onPress={() => useWallet.getState().resetPractice()} feedback="select" style={{ alignSelf: 'center', marginTop: 6 }} accessibilityLabel={t('common.reset')}>
+      <T variant="footnote" color="text3">{t('common.practiceBanner')} · {t('common.reset')}</T>
+    </PressableScale>
+  ) : null;
+  const historyEl = history ? <View style={{ marginTop: 10 }}>{history}</View> : null;
   return (
     <AccentContext.Provider value={vivid}>
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -118,47 +149,50 @@ export function GameShell({
         </View>
       ) : (
         <Animated.View style={{ flex: 1 }} entering={reduceMotion ? undefined : FadeIn.duration(motion.slow)}>
-          <View style={{ alignItems: 'center', marginTop: 10 }}>
-            <PressableScale
-              onPress={() => setPicked(false)}
-              disabled={locked || tutorialActive}
-              feedback="select"
-              scaleTo={0.96}
-              accessibilityLabel={`${t('rooms.change')}: ${t(`rooms.${room.id}`)} ${room.min}–${room.max}`}
-              style={[styles.roomChip, { backgroundColor: c.surface2 }]}
-            >
-              <Text style={{ fontSize: 15 }} accessible={false}>{roomArt[room.id].emoji}</Text>
-              <T variant="footnote" weight="semibold">{t(`rooms.${room.id}`)}</T>
-              <T variant="footnote" color="text3" tabular>{formatCoins(room.min)}–{formatCoins(room.max)}</T>
-              {!locked && !tutorialActive ? <Icon name="chevronDown" size={14} color={c.text3} /> : null}
-            </PressableScale>
-          </View>
-          {hot && mode !== 'practice' ? (
-            <Animated.View entering={FadeIn} style={[styles.hot, { alignSelf: 'center' }]} accessibilityLiveRegion="polite">
-              <Text style={{ fontSize: 14 }} accessible={false}>🔥</Text>
-              <T variant="footnote" weight="semibold" style={{ color: '#FFD06B', flexShrink: 1 }}>{t('play.hotTable')}</T>
-            </Animated.View>
-          ) : null}
-          {mode === 'practice' && !tutorialActive && (
-            <PressableScale onPress={() => useWallet.getState().resetPractice()} feedback="select" style={{ alignSelf: 'center', marginTop: 6 }} accessibilityLabel={t('common.reset')}>
-              <T variant="footnote" color="text3">{t('common.practiceBanner')} · {t('common.reset')}</T>
-            </PressableScale>
-          )}
-          {history ? <View style={{ marginTop: 10 }}>{history}</View> : null}
-          {/* Stage */}
-          <Animated.View style={[{ flex: 1, marginTop: 8 }, stageStyle]} entering={enter}>
-            {stage}
-          </Animated.View>
-          {/* Controls: a solid panel docked to the bottom edge */}
-          {controls ? (
-            <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(motion.slow).delay(70).easing(Easing.bezier(...motion.easeEnter))}>
-              <View style={[styles.panel, { backgroundColor: 'rgba(16,14,24,0.92)', paddingBottom: Math.max(insets.bottom, 12) + 4 }]}>
-                <LinearGradient pointerEvents="none" colors={[alpha(vivid[0], 0.9), alpha(vivid[1], 0.9)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.panelEdge} />
-                {controls}
+          {desktop ? (
+            // Computers: the table on the left, a betting panel on the right (like a casino website)
+            <View style={styles.deskRow}>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                {historyEl}
+                <Animated.View style={[{ flex: 1, marginTop: 8 }, stageStyle]} entering={enter}>
+                  <ScaledStage>{stage}</ScaledStage>
+                </Animated.View>
               </View>
-            </Animated.View>
+              <View style={styles.deskSide}>
+                {roomEl}
+                {hotEl}
+                {practiceEl}
+                <View style={{ flex: 1 }} />
+                {controls ? (
+                  <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(motion.slow).delay(70)} style={[styles.deskPanel, { backgroundColor: 'rgba(16,14,24,0.92)' }]}>
+                    <LinearGradient pointerEvents="none" colors={[alpha(vivid[0], 0.9), alpha(vivid[1], 0.9)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.panelEdge} />
+                    {controls}
+                  </Animated.View>
+                ) : null}
+              </View>
+            </View>
           ) : (
-            <View style={{ height: Math.max(insets.bottom, 10) }} />
+            <>
+              {roomEl}
+              {hotEl}
+              {practiceEl}
+              {historyEl}
+              {/* Stage */}
+              <Animated.View style={[{ flex: 1, marginTop: 8 }, stageStyle]} entering={enter}>
+                {stage}
+              </Animated.View>
+              {/* Controls: a solid panel docked to the bottom edge */}
+              {controls ? (
+                <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(motion.slow).delay(70).easing(Easing.bezier(...motion.easeEnter))}>
+                  <View style={[styles.panel, { backgroundColor: 'rgba(16,14,24,0.92)', paddingBottom: Math.max(insets.bottom, 12) + 4 }]}>
+                    <LinearGradient pointerEvents="none" colors={[alpha(vivid[0], 0.9), alpha(vivid[1], 0.9)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.panelEdge} />
+                    {controls}
+                  </View>
+                </Animated.View>
+              ) : (
+                <View style={{ height: Math.max(insets.bottom, 10) }} />
+              )}
+            </>
           )}
         </Animated.View>
       )}
@@ -233,7 +267,26 @@ export function ControlRow({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Computers: draws the game exactly as on a phone (440 pt wide) and enlarges it to fill the table area. */
+function ScaledStage({ children }: { children: React.ReactNode }) {
+  const [area, setArea] = useState({ w: 0, h: 0 });
+  const W = 440;
+  const k = area.w ? Math.max(1, Math.min(area.w / W, area.h / 620, 1.9)) : 1;
+  return (
+    <View style={{ flex: 1 }} onLayout={(e) => setArea({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+      {area.w > 0 ? (
+        <View style={{ position: 'absolute', top: 0, left: (area.w - W * k) / 2, width: W, height: area.h / k, transform: [{ scale: k }], transformOrigin: 'top left' }}>
+          {children}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  deskRow: { flex: 1, flexDirection: 'row', gap: 24, paddingHorizontal: 28, paddingBottom: 24, width: '100%', maxWidth: 1440, alignSelf: 'center' },
+  deskSide: { width: 400, paddingTop: 4 },
+  deskPanel: { borderRadius: 26, paddingHorizontal: 16, paddingTop: 18, paddingBottom: 18, overflow: 'hidden', gap: 10 },
   hot: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, backgroundColor: 'rgba(255,120,40,0.16)', borderWidth: 1, borderColor: 'rgba(255,185,56,0.45)', maxWidth: '92%' },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 12 },
   roomChip: { height: 36, borderRadius: 18, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 7 },

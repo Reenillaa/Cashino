@@ -20,7 +20,8 @@ const fmtOdds = (x: number) => `×${x.toLocaleString('es-ES', { minimumFractionD
 
 export default function LiveHorses() {
   const { t } = useT();
-  const { width, height } = useWindowDimensions();
+  const { width: winW, height } = useWindowDimensions();
+  const width = Math.min(winW, 640);
   const live = useLive('horses');
   const balance = useSession((s) => s.balance) ?? 0;
   const cfg = LIVE_CONFIG.horses;

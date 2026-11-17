@@ -6,6 +6,7 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from '
 import { useTheme } from '../theme';
 import { SCREEN_PAD, brand, motion } from '../tokens';
 import { Aurora } from './Effects';
+import { CONTENT_MAX, useDesktop } from '../layout';
 import { T } from './Text';
 import { Icon, type IconName } from './Icon';
 import { PressableScale } from './Pressable';
@@ -49,8 +50,11 @@ export function Screen({
   const insets = useSafeAreaInsets();
   const entrance = useFocusEntrance();
   const focused = useIsFocused();
+  const desktop = useDesktop();
+  // on a computer the page is a centred column instead of the full window width
+  const column = desktop ? { width: '100%' as const, maxWidth: back ? 860 : CONTENT_MAX, alignSelf: 'center' as const } : null;
   const header = (title || back || right) && (
-    <View style={{ paddingTop: insets.top + (back ? 6 : 12), paddingHorizontal: SCREEN_PAD, paddingBottom: 12 }}>
+    <View style={[{ paddingTop: insets.top + (back ? 6 : desktop ? 28 : 12), paddingHorizontal: SCREEN_PAD, paddingBottom: 12 }, column]}>
       {back && <BackButton />}
       <View style={styles.titleRow}>
         <View style={{ flex: 1 }}>
@@ -65,12 +69,12 @@ export function Screen({
       </View>
     </View>
   );
-  const bottom = (tabBar ? TAB_BAR_SPACE : 24) + insets.bottom;
+  const bottom = (tabBar && !desktop ? TAB_BAR_SPACE : desktop ? 48 : 24) + insets.bottom;
   if (!scroll) {
     return (
       <Animated.View style={[styles.flex, { backgroundColor: c.bg }, entrance]}>
         {header}
-        <View style={[styles.flex, contentStyle]}>{children}</View>
+        <View style={[styles.flex, contentStyle, column]}>{children}</View>
       </Animated.View>
     );
   }
@@ -84,7 +88,7 @@ export function Screen({
     >
       {header ? <Aurora colors={[brand.violet, brand.pink, brand.amber]} height={340} alpha={0.26} active={focused} /> : null}
       {header}
-      {children}
+      {column ? <View style={column}>{children}</View> : children}
     </Animated.ScrollView>
   );
 }

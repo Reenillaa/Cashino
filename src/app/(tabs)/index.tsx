@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { useContentWidth, useDesktop } from '@/design/layout';
 import { useIsFocused, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AnimatedNumber, Aurora, Avatar, useMyAvatar, useMyFrame, Button, ChipLogo, GameGlyph, Icon, Marquee, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
@@ -33,7 +34,8 @@ export default function Home() {
   const myAvatar = useMyAvatar(useSession((st) => st.profile?.avatar));
   const { c } = useTheme();
   const router = useRouter();
-  const { width } = useWindowDimensions();
+  const width = useContentWidth();
+  const desktop = useDesktop();
   const focused = useIsFocused();
   const signedIn = useSession((s) => !!s.userId);
   const serverBalance = useSession((s) => s.balance);
@@ -52,9 +54,12 @@ export default function Home() {
   const missions = dailyMissions(today);
   const weekly = weeklyMissions(today);
   const low = signedIn ? (serverBalance ?? 0) < ECONOMY.refillThreshold : wallet.canRefill();
-  const tileW = (Math.min(width, 640) - SCREEN_PAD * 2 - 12) / 2;
+  // phones: two per row; computers: as many ~230 px cards as fit
+  const cols = desktop ? Math.max(3, Math.floor((width - SCREEN_PAD * 2 + 12) / 242)) : 2;
+  const tileW = ((desktop ? width : Math.min(width, 640)) - SCREEN_PAD * 2 - 12 * (cols - 1)) / cols;
   // 7 stamps per row: screen − page padding − card padding − 6 gaps.
-  const stampW = Math.floor((Math.min(width, 640) - SCREEN_PAD * 2 - 32 - 6 * 8) / 7);
+  const perRow = desktop ? 12 : 7;
+  const stampW = Math.floor(((desktop ? width : Math.min(width, 640)) - SCREEN_PAD * 2 - 32 - (perRow - 1) * 8) / perRow);
   const open = (id: string) => router.push(`/game/${id}`);
   const owned = useOwnedUnlocks();
   const unlockPrice = useNextUnlockPrice();
@@ -78,8 +83,8 @@ export default function Home() {
   return (
     <Screen>
       <Aurora colors={[brand.violet, brand.pink, brand.money]} height={460} alpha={0.38} active={focused} />
-      {/* Header: wordmark + settings + avatar */}
-      <View style={[styles.header, { paddingHorizontal: SCREEN_PAD }]}>
+      {/* Header: wordmark + settings + avatar (computers have all this in the sidebar) */}
+      {desktop ? null : <View style={[styles.header, { paddingHorizontal: SCREEN_PAD }]}>
         <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <ChipLogo size={30} id="home" />
           <T weight="display" style={{ fontSize: 21, lineHeight: 26, letterSpacing: -0.8, color: '#fff' }} accessibilityRole="header">cashino</T>
@@ -93,10 +98,13 @@ export default function Home() {
         <PressableScale onPress={() => router.push('/(tabs)/profile')} accessibilityLabel={t('tabs.profile')}>
           <Avatar id={myAvatar} size={42} frame={myFrame} />
         </PressableScale>
-      </View>
+      </View>}
+
+      {/* computers: the sign and today's gift side by side */}
+      <View style={desktop ? { flexDirection: 'row', gap: 20, paddingHorizontal: SCREEN_PAD, marginTop: 34, alignItems: 'flex-start' } : null}>
 
       {/* Balance hero */}
-      <View style={{ paddingHorizontal: SCREEN_PAD, marginTop: 22 }}>
+      <View style={desktop ? { flex: 1.35 } : { paddingHorizontal: SCREEN_PAD, marginTop: 22 }}>
         <Marquee>
           <T weight="displaySemi" align="center" style={{ color: '#FFD873', fontSize: 11, letterSpacing: 3 }}>{t('home.welcome')}</T>
           <T weight="display" align="center" style={{ color: '#FFE58A', fontSize: 30, lineHeight: 36, letterSpacing: 1, textShadowColor: 'rgba(255,185,56,0.8)', textShadowRadius: 16 }}>CASHINO</T>
@@ -121,6 +129,26 @@ export default function Home() {
         </View>
       </View>
 
+      {desktop && canClaim ? (
+        <PressableScale onPress={claim} scaleTo={0.98} style={{ flex: 1 }} accessibilityLabel={`${t('home.gift')}: +${dailyRewardAmount(streak)} ${t('common.coins')}`}>
+          <View style={[styles.gift, { minHeight: 214, justifyContent: 'space-between' }]}>
+            <LinearGradient colors={['#FFE6A7', '#FFC6D9']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+              <Text style={{ fontSize: 52 }} accessible={false}>🎁</Text>
+              <View style={{ flex: 1 }}>
+                <T variant="callout" weight="semibold" style={{ color: onPastel.text }}>{t('home.gift')}</T>
+                <T variant="title" weight="semibold" tabular style={{ color: onPastel.text }}>+{formatCoins(dailyRewardAmount(streak))} {t('common.coins')}</T>
+                <T variant="footnote" style={{ color: onPastel.text2 }}>{t('home.giftDay', { day: streak })}</T>
+              </View>
+            </View>
+            <View style={[styles.giftBtn, { backgroundColor: onPastel.text }]}>
+              <T variant="callout" weight="semibold" style={{ color: '#fff' }}>{t('home.claim')}</T>
+            </View>
+          </View>
+        </PressableScale>
+      ) : null}
+      </View>
+
       {/* Refill when the balance is almost gone */}
       {low && (
         <View style={[styles.notice, { backgroundColor: c.surface1, marginHorizontal: SCREEN_PAD }]}>
@@ -133,7 +161,7 @@ export default function Home() {
       )}
 
       {/* Daily gift: only shown when there is something to collect */}
-      {canClaim && (
+      {canClaim && !desktop && (
         <PressableScale onPress={claim} scaleTo={0.98} style={{ marginHorizontal: SCREEN_PAD, marginTop: 24 }} accessibilityLabel={`${t('home.gift')}: +${dailyRewardAmount(streak)} ${t('common.coins')}`}>
           <View style={styles.gift}>
             <LinearGradient colors={['#FFE6A7', '#FFC6D9']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
