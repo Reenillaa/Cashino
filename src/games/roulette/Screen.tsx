@@ -58,7 +58,7 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
   const total = Object.values(bets).reduce((a, b) => a + b.amount, 0);
   // The wheel takes what is left after the three rows of bets (≈ 3 × 53 px + hint).
   const rowH = box.h < 400 ? 36 : 46;
-  const size = Math.max(100, Math.min(box.w * 0.66, box.h - (rowH * 3 + 14 + 48), 280));
+  const size = Math.max(100, Math.min(box.w * 0.66, box.h - (rowH * 3 + 14 + 48 + 24 + 8), 280));
 
   const place = (bet: RouletteBet) => {
     if (spinning) return;
