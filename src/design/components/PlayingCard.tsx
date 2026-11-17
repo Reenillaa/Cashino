@@ -1,14 +1,13 @@
 import React, { useEffect, useId } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, View } from 'react-native';
 import { useCosmetics } from '@/state/cosmetics';
 import { backById, type CardBackItem } from '@/features/shop/items';
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
-import Svg, { Circle, Path, Defs, Pattern, Rect, Line } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import type { Card, Suit } from '@/engine/cards/cards.ts';
 import { rankLabel } from '@/engine/cards/cards.ts';
 import { useTheme } from '../theme';
-import { T } from './Text';
+import { CardBackSvg, CardFaceArt } from './CardArt';
 
 const SUIT_NAME: Record<Suit, string> = { s: 'spades', h: 'hearts', d: 'diamonds', c: 'clubs' };
 
@@ -39,16 +38,10 @@ const DIM: Record<CardSize, { w: number; h: number; rank: number; suit: number; 
   xl: { w: 136, h: 190, rank: 62, suit: 48, r: 18 },
 };
 
-function Face({ card, size, dim }: { card: Card; size: CardSize; dim: (typeof DIM)['md'] }) {
-  const { c } = useTheme();
-  const red = card.suit === 'h' || card.suit === 'd';
-  const col = red ? c.cardRed : c.cardInk;
+function Face({ card, dim }: { card: Card; size: CardSize; dim: (typeof DIM)['md'] }) {
   return (
-    <View style={[StyleSheet.absoluteFill, { backgroundColor: c.cardFace, borderRadius: dim.r, padding: dim.w * 0.1 }]}>
-      <T style={{ fontFamily: 'Geist_600SemiBold', fontSize: dim.rank, lineHeight: dim.rank * 1.05, color: col, letterSpacing: -0.5 }}>{rankLabel(card.rank)}</T>
-      <View style={{ position: 'absolute', right: dim.w * 0.1, bottom: dim.w * 0.1 }}>
-        <SuitIcon suit={card.suit} size={size === 'xs' ? dim.suit : dim.suit * 1.15} color={col} />
-      </View>
+    <View style={[StyleSheet.absoluteFill, { borderRadius: dim.r, overflow: 'hidden' }]}>
+      <CardFaceArt card={card} w={dim.w} h={dim.h} />
     </View>
   );
 }
@@ -60,33 +53,10 @@ function Back({ dim }: { dim: (typeof DIM)['md'] }) {
 
 /** Draws one card-back design (used by the cards and by the shop window). */
 export function CardBackArt({ item, dim }: { item: CardBackItem; dim: { w: number; h: number; r: number } }) {
-  const { c } = useTheme();
-  const u = useId().replace(/:/g, '');
-  const classic = item.id === 'classic';
+  const u = useId().replace(/[^a-zA-Z0-9]/g, '');
   return (
     <View style={[StyleSheet.absoluteFill, { borderRadius: dim.r, overflow: 'hidden', backgroundColor: item.colors[1] }]}>
-      <LinearGradient colors={item.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-      <View style={StyleSheet.absoluteFill}>
-        <Svg width="100%" height="100%">
-          <Defs>
-            <Pattern id={`bk${u}`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              {item.pattern === 'dots' ? <Rect x="2" y="2" width="2" height="2" rx="1" fill={item.accent} opacity={0.35} />
-                : item.pattern === 'diamonds' ? <Rect x="1.5" y="1.5" width="3" height="3" fill="none" stroke={item.accent} strokeWidth="0.8" opacity={0.45} />
-                : <Line x1="0" y1="0" x2="0" y2="6" stroke={classic ? 'rgba(255,255,255,0.10)' : item.accent} strokeWidth={item.pattern === 'rays' ? 1 : 2} opacity={classic ? 1 : 0.3} />}
-            </Pattern>
-          </Defs>
-          <Rect x="4" y="4" width={dim.w - 8} height={dim.h - 8} rx={dim.r - 3} fill={`url(#bk${u})`} stroke={classic ? 'rgba(255,255,255,0.18)' : item.accent} strokeWidth="1" strokeOpacity={classic ? 1 : 0.7} />
-        </Svg>
-      </View>
-      <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
-        {classic ? (
-          <View style={{ width: dim.w * 0.34, height: dim.w * 0.34, borderRadius: dim.w * 0.1, backgroundColor: c.text3, opacity: 0.6, transform: [{ rotate: '45deg' }] }} />
-        ) : (
-          <View style={{ width: dim.w * 0.46, height: dim.w * 0.46, borderRadius: dim.w, borderWidth: 1.5, borderColor: item.accent, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.18)' }}>
-            <Text style={{ color: item.accent, fontSize: dim.w * 0.26, fontWeight: '900', lineHeight: dim.w * 0.32 }}>C</Text>
-          </View>
-        )}
-      </View>
+      <CardBackSvg w={dim.w} h={dim.h} colors={item.colors as [string, string]} accent={item.id === 'classic' ? '#C9C4DA' : item.accent} pattern={item.pattern} uid={`bk${u}`} />
     </View>
   );
 }

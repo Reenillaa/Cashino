@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, FadeIn, ZoomIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, ZoomIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Circle } from 'react-native-svg';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Button, Icon, PressableScale, T, formatCoins } from '@/design/components';
+import { Button, CasinoChip, Icon, PressableScale, T, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { RouletteWheelArt } from './WheelArt';
@@ -165,7 +165,10 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
             ) : null}
           </View>
           <T variant="footnote" color="text2" align="center" numberOfLines={1} adjustsFontSizeToFit style={{ marginTop: 6, marginBottom: 8 }}>{spinning ? t('play.noMoreBets') : t('play.tapNumber')}</T>
-          <TutorialTarget id="roulette:place" style={{ alignSelf: 'stretch', gap: 7 }}>
+          <TutorialTarget id="roulette:place" style={styles.board}>
+            {/* the betting layout printed on green cloth with gold lines */}
+            <LinearGradient colors={['#17905F', '#0A4A33']} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: 18 }]} />
+            <LinearGradient colors={['rgba(255,255,255,0.14)', 'rgba(255,255,255,0)', 'rgba(0,0,0,0.25)']} style={[StyleSheet.absoluteFill, { borderRadius: 18 }]} />
             <View style={styles.row}>
               {spot({ bet: { kind: 'red' }, label: t('play.red'), colors: ['#FF4F6A', '#B3123C'] }, 1.3)}
               {spot({ bet: { kind: 'straight', numbers: [0] }, label: '0', colors: ['#2BE09A', '#0B8A55'] }, 0.6)}
@@ -205,13 +208,19 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
 }
 
 function BigSpot({ label, colors, placed, win, flex, h, onPress }: { label: string; colors?: [string, string]; placed?: number; win: boolean; flex: number; h: number; onPress: () => void }) {
+  // red and black carry the classic printed diamond; the rest are printed straight on the cloth
+  const diamond = colors && (label.length > 1) ? colors[0] : null;
   return (
-    <PressableScale onPress={onPress} feedback="none" scaleTo={0.93} accessibilityLabel={`${label}${placed ? `, ${placed}` : ''}`} style={[styles.spot, { flex, height: h, borderColor: win ? '#FFE58A' : 'rgba(255,229,138,0.35)', borderWidth: win ? 2.5 : 1 }]}>
-      <LinearGradient colors={colors ?? ['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.04)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-      <T weight="displaySemi" style={{ color: '#fff', fontSize: 13 }}>{label}</T>
+    <PressableScale onPress={onPress} feedback="none" scaleTo={0.93} accessibilityLabel={`${label}${placed ? `, ${placed}` : ''}`} style={[styles.spot, { flex, height: h, borderColor: win ? '#FFE58A' : 'rgba(255,229,138,0.55)', borderWidth: win ? 2.5 : 1.2 }, win && styles.winSpot]}>
+      {colors ? <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} /> : null}
+      {colors ? <LinearGradient colors={['rgba(255,255,255,0.25)', 'rgba(255,255,255,0)']} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.6 }} style={StyleSheet.absoluteFill} /> : null}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        {diamond ? <View style={[styles.diamond, { backgroundColor: diamond }]} /> : null}
+        <T weight="displaySemi" style={{ color: colors ? '#fff' : '#FFF3D6', fontSize: 13, letterSpacing: 0.5, textShadowColor: 'rgba(0,0,0,0.4)', textShadowRadius: 3 }}>{label}</T>
+      </View>
       {placed ? (
-        <Animated.View entering={FadeIn} style={styles.placed}>
-          <T weight="display" style={{ color: '#3A1A00', fontSize: 10 }}>{placed >= 1000 ? `${placed / 1000}k` : placed}</T>
+        <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.placed}>
+          <CasinoChip size={26} color="#FFB938" label={placed >= 1000 ? `${placed / 1000}k` : String(placed)} />
         </Animated.View>
       ) : null}
     </PressableScale>
@@ -234,8 +243,11 @@ const styles = StyleSheet.create({
   ball: { position: 'absolute', left: 0, top: 0, width: 14, height: 14, borderRadius: 7, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8D2E8', shadowColor: '#fff', shadowOpacity: 0.8, shadowRadius: 6 },
   landed: { position: 'absolute', width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: '#FFE58A' },
   row: { flexDirection: 'row', gap: 7 },
-  spot: { height: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  placed: { position: 'absolute', right: 4, top: 4, minWidth: 22, height: 22, borderRadius: 11, paddingHorizontal: 4, backgroundColor: '#FFB938', borderWidth: 1.5, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' },
+  spot: { height: 46, borderRadius: 10, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
+  winSpot: { shadowColor: '#FFE58A', shadowOpacity: 0.9, shadowRadius: 10 },
+  diamond: { width: 11, height: 11, transform: [{ rotate: '45deg' }], borderWidth: 1.5, borderColor: '#FFF3D6' },
+  board: { alignSelf: 'stretch', gap: 7, padding: 9, borderRadius: 18, borderWidth: 3, borderColor: '#C98B12', shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 14 },
+  placed: { position: 'absolute', right: -6, top: -8 },
   tools: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
   tool: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
 });

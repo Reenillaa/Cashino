@@ -102,6 +102,14 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - En los juegos, la mesa va a la izquierda (escalada desde el diseño del móvil para que no se deforme) y los controles en un panel lateral a la derecha.
 - Móviles y tablets no cambian nada (comprobado con iPhone, iPad y Pixel emulados).
 
+## Cambios de la ronda 20 (visual de los juegos principales)
+- **Baraja nueva** (todas las cartas de blackjack, póker, video póker, bacará, mayor o menor, dragon tiger…): cartulina crema con marco fino, índices en dos esquinas (el de abajo girado), los palos colocados como en una baraja real del 2 al 10, As con palo grande decorado y **figuras J, Q y K ilustradas** (rey con corona, armiño y cetro; reina con tiara y flor; sota con gorro y alabarda) dibujadas en dos mitades como las cartas de verdad. En tamaño pequeño, número grande y palo grande para que se lea bien.
+- **Reverso nuevo**: doble marco, rombos en las esquinas y medallón tipo ficha, con los colores y el dibujo del reverso que tengas puesto en la tienda.
+- **Mesas** (blackjack, póker, bacará, dragon tiger, sic bo): borde acolchado de cuero con pespunte y moldura dorada, tapete con textura de paño, luz en el centro y bordes en sombra, arcos y óvalos impresos en dorado y el emblema de la casa.
+- **Póker**: los bots tienen retrato ilustrado según su forma de jugar (Tiburón con gafas de sol y corbata, Roca de piedra con gorro, Maníaco con pelo de loco, Caller vaquero con bigote).
+- **Ruleta**: las apuestas están sobre un tapete verde con líneas doradas, rombos rojo/negro como en la mesa real y las apuestas puestas se ven como fichas de verdad.
+- **Cohete**: rediseñado con fuselaje metálico, remaches, morro rojo, ojo de buey con cristal, alerones, tobera y llama de tres capas.
+
 ## Cambios de la ronda 19 (dibujo profesional y personalidad en las tragaperras)
 - **Todos los símbolos de las 7 tragaperras redibujados** (≈75 dibujos vectoriales nuevos en `src/games/lineslot/art`): contorno oscuro del color de cada pieza, degradado de luz a sombra, cara sombreada, brillo tipo cristal, destellos, sombra proyectada y detalles (escamas, vetas, remaches, azúcar…). Cintas WILD/FREE con pliegues y placas de valor en relieve. Cada máquina tiene su estilo: Lago de Oro (pesca), Templo de Jade (selva maya), Mina de Oro (metal y oro), Fuego Frutal (frutas jugosas), Noche Pirata (madera, latón y pergamino), la clásica 777 (Las Vegas: cromo, oro y rubí) y Dulce Cascada (gominolas translúcidas con azúcar).
 - **Línea de premio con personalidad** (ya no es una recta): curva suave que se dibuja de izquierda a derecha con algo que la recorre — agua con burbujas y un pececito (Lago de Oro), liana con hojas y luciérnaga (Jade), cadena de oro con chispa (Mina), estela de fuego con llamas (Fuego Frutal), camino de mapa del tesoro con su ✕ y una moneda (Pirata) y tubo de neón que parpadea con una luz que corre (777).

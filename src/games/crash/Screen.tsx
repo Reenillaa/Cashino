@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
-import Svg, { Defs, LinearGradient, Path, Stop, G, Circle } from 'react-native-svg';
+import Svg, { Defs, LinearGradient, Path, RadialGradient, Stop, G, Circle } from 'react-native-svg';
 import { Button, Chip, T, formatCoins, formatMult } from '@/design/components';
 import { useTheme, alpha } from '@/design/theme';
 import { useT } from '@/i18n';
@@ -20,14 +20,53 @@ import { MoreOptions } from '../shared/MoreOptions';
 
 const tint = META.crash.tint;
 
+/** Detailed rocket (pointing right): metal hull with rivets, red nose, porthole, fins, nozzle and a 3-layer flame. */
 function Rocket({ angle, flame }: { angle: number; flame: number }) {
+  const f = flame * 7;
   return (
     <G rotation={angle} origin="0,0" scale={1.9}>
-      <Path d={`M-15 -3.5 L${-24 - flame * 7} 0 L-15 3.5 Z`} fill="#FFB020" />
-      <Path d={`M-15 -2 L${-19 - flame * 4} 0 L-15 2 Z`} fill="#FFF3A0" />
-      <Path d="M-14 -5 L8 -5 Q18 0 8 5 L-14 5 Z" fill="#F4F2FA" />
-      <Path d="M-14 -5 L-20 -11 L-10 -5 Z M-14 5 L-20 11 L-10 5 Z" fill="#FF4F7B" />
-      <Circle cx="2" cy="0" r="2.6" fill="#3D7BFF" stroke="#231A3A" strokeWidth={0.8} />
+      <Defs>
+        <LinearGradient id="rkHull" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#FFFFFF" />
+          <Stop offset="0.45" stopColor="#E4E2EE" />
+          <Stop offset="1" stopColor="#8A86A0" />
+        </LinearGradient>
+        <LinearGradient id="rkNose" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#FF8AA0" />
+          <Stop offset="1" stopColor="#B0102E" />
+        </LinearGradient>
+        <LinearGradient id="rkFin" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#FF6A8A" />
+          <Stop offset="1" stopColor="#8A0A24" />
+        </LinearGradient>
+        <RadialGradient id="rkGlass" cx="0.35" cy="0.35" r="0.7">
+          <Stop offset="0" stopColor="#B8F0FF" />
+          <Stop offset="1" stopColor="#1A4ACF" />
+        </RadialGradient>
+      </Defs>
+      {/* flame: outer, middle and white-hot core */}
+      <Path d={`M-16 -4 C${-24 - f} -6 ${-30 - f * 1.4} -2 ${-34 - f * 1.6} 0 C${-30 - f * 1.4} 2 ${-24 - f} 6 -16 4 Z`} fill="#FF5A1C" opacity={0.85} />
+      <Path d={`M-16 -2.8 C${-22 - f} -4 ${-26 - f} -1 ${-28 - f * 1.2} 0 C${-26 - f} 1 ${-22 - f} 4 -16 2.8 Z`} fill="#FFB938" />
+      <Path d={`M-16 -1.6 C-19 -2 ${-21 - f * 0.6} -0.5 ${-22 - f * 0.7} 0 C${-21 - f * 0.6} 0.5 -19 2 -16 1.6 Z`} fill="#FFF8D0" />
+      {/* nozzle */}
+      <Path d="M-17 -4 L-13 -5 L-13 5 L-17 4 Z" fill="#4A4560" stroke="#14101E" strokeWidth={0.6} />
+      {/* fins behind */}
+      <Path d="M-12 -5 L-20 -13 L-17 -13 L-5 -5 Z" fill="url(#rkFin)" stroke="#3A0010" strokeWidth={0.7} strokeLinejoin="round" />
+      <Path d="M-12 5 L-20 13 L-17 13 L-5 5 Z" fill="url(#rkFin)" stroke="#3A0010" strokeWidth={0.7} strokeLinejoin="round" />
+      {/* hull and nose */}
+      <Path d="M-13 -5.5 L6 -5.5 L6 5.5 L-13 5.5 Q-15 0 -13 -5.5 Z" fill="url(#rkHull)" stroke="#2A2440" strokeWidth={0.8} />
+      <Path d="M6 -5.5 Q17 -4 21 0 Q17 4 6 5.5 Z" fill="url(#rkNose)" stroke="#3A0010" strokeWidth={0.8} />
+      <Path d="M8 -4 Q15 -3 18 -1" stroke="#FFFFFF" strokeOpacity={0.7} strokeWidth={0.9} fill="none" strokeLinecap="round" />
+      {/* bands and rivets */}
+      <Path d="M-8 -5.5 L-8 5.5 M4 -5.5 L4 5.5" stroke="#8A86A0" strokeWidth={0.8} />
+      {[-4, 0, 4].map((y) => <Circle key={y} cx={-8} cy={y} r={0.5} fill="#5A5670" />)}
+      <Path d="M-12 -3.8 L4 -3.8" stroke="#FFFFFF" strokeOpacity={0.8} strokeWidth={0.9} />
+      {/* porthole */}
+      <Circle cx={-1} cy={0} r={3.2} fill="#C9C4DA" stroke="#2A2440" strokeWidth={0.7} />
+      <Circle cx={-1} cy={0} r={2.2} fill="url(#rkGlass)" />
+      <Circle cx={-1.8} cy={-0.8} r={0.7} fill="#FFFFFF" />
+      {/* center fin */}
+      <Path d="M-11 -0.8 L-19 -0.8 L-19 0.8 L-11 0.8 Z" fill="#B0102E" />
     </G>
   );
 }

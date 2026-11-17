@@ -59,7 +59,7 @@ export function PokerTableView({
           return (
             <View key={i} style={[styles.opp, { opacity: p?.folded || (s!.stack === 0 && !p) ? 0.4 : 1 }]} accessibilityLabel={`${names?.[i] ?? s!.name}${s!.isBot ? ' (bot)' : ''}, ${s!.stack}`}>
               <View>
-                <Avatar id={s!.avatar ?? `a${i}`} bot={s!.isBot} size={44} ring={turn ? c.text : winners.has(i) ? c.win : undefined} />
+                <Avatar id={s!.avatar ?? `a${i}`} bot={s!.isBot} botStyle={s!.isBot ? s!.name : undefined} size={48} ring={turn ? c.text : winners.has(i) ? c.win : undefined} />
                 {h?.button === i && <View style={[styles.dealer, { backgroundColor: c.text }]}><T style={{ fontSize: 9, fontFamily: 'Geist_600SemiBold', color: c.bg }}>D</T></View>}
                 {reactions?.[i] ? <Animated.View entering={FadeIn} style={styles.reaction}><T style={{ fontSize: 22 }}>{reactions[i]}</T></Animated.View> : null}
               </View>

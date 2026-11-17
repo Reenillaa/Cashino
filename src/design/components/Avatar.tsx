@@ -1,4 +1,5 @@
 import { frameById, premiumAvatar, titleById } from '@/features/shop/items';
+import { BOT_STYLES, BotPortrait } from './BotPortrait';
 import { useCosmetics } from '@/state/cosmetics';
 import React from 'react';
 import { Text, View } from 'react-native';
@@ -10,7 +11,14 @@ const FACES = ['😎', '🤠', '🦊', '🐼', '🐯', '🦁', '🐸', '🐵', '
 const BACKS = Object.values(gameArt).map((a) => a.colors);
 export const AVATAR_COUNT = FACES.length;
 
-export function Avatar({ id = 'a0', size = 44, bot, ring, frame }: { id?: string; size?: number; bot?: boolean; ring?: string; frame?: string | null }) {
+export function Avatar({ id = 'a0', size = 44, bot, botStyle, ring, frame }: { id?: string; size?: number; bot?: boolean; /** Poker bots: their playing style picks an illustrated portrait. */ botStyle?: string; ring?: string; frame?: string | null }) {
+  if (bot && botStyle && (BOT_STYLES as readonly string[]).includes(botStyle)) {
+    return (
+      <View accessibilityLabel="Bot" style={{ width: size, height: size, borderRadius: size / 2, overflow: 'hidden', borderWidth: ring ? 2.5 : 0, borderColor: ring }}>
+        <BotPortrait style={botStyle} size={size - (ring ? 5 : 0)} />
+      </View>
+    );
+  }
   const f = frameById(frame ?? null);
   if (f) {
     const pad = Math.max(3, size * 0.07);
