@@ -85,9 +85,13 @@ export const useUnlocks = create<UnlockState>()(
     {
       name: `${STORAGE_PREFIX}unlocks`,
       storage: persistStorage,
-      version: 1,
-      // devices from before: everyone gets their two free unlocks and fresh trials
-      migrate: (state) => ({ ...(state as object), freeUsed: [], freeUnlocks: FREE_UNLOCK_CREDITS, trials: {} }) as never,
+      version: 2,
+      migrate: (state, version) => {
+        const s = (state ?? {}) as Partial<UnlockState>;
+        // v0 → 1: free unlocks and trials appear; v1 → 2: one free unlock instead of two (one used = none left)
+        if (version < 1) return { ...s, freeUsed: [], freeUnlocks: FREE_UNLOCK_CREDITS, trials: {} } as never;
+        return { ...s, freeUnlocks: Math.max(0, (s.freeUnlocks ?? FREE_UNLOCK_CREDITS) - 1) } as never;
+      },
       partialize: ({ owned, freeUsed, freeUnlocks, trials }) => ({ owned, freeUsed, freeUnlocks, trials }),
     },
   ),

@@ -129,6 +129,16 @@ export const TUTORIALS: Record<GameId, TutorialStep[]> = {
     doIt('pirate:spin', ['Tira', 'Spin'], ['Elige tu ficha y pulsa Tirar.', 'Pick your chip and tap Spin.']),
     quiz(['¿Cuántas re-tiradas?', 'How many respins?'], ['Sale un loro en el rodillo 4. Si no sale ninguno más, ¿cuántas re-tiradas gratis tienes?', 'A parrot lands on reel 4. If no other appears, how many free respins do you get?'], [['4', '4'], ['1', '1']], 0, ['Camina del rodillo 4 al 3, al 2, al 1 y luego se va: 4 re-tiradas.', 'It walks from reel 4 to 3, 2, 1 and then leaves: 4 respins.']),
   ],
+  angler: [
+    info(['Pesca Profunda', 'Deep Catch'], ['Elige el pez que crees que va a picar y lanza la caña. Cuanto más raro el pez, más paga.', 'Pick the fish you think will bite and cast. The rarer the fish, the bigger the prize.']),
+    doIt('angler:cast', ['Lanza', 'Cast'], ['Elige un pez y pulsa Lanzar.', 'Pick a fish and tap Cast.']),
+    quiz(['La fianza', 'The bond'], ['Pica una bota vieja. ¿Qué pasa con tu fianza?', 'An old boot bites. What happens to your bond?'], [['La pierdes', 'You lose it'], ['Te la devuelven', 'It comes back']], 0, ['Las capturas malas se llevan la fianza. Con cualquier otro pez te la devolvemos.', 'Bad catches take the bond. With any other fish it comes back.']),
+  ],
+  penguin: [
+    info(['Pingüino Saltarín', 'Penguin Hop'], ['Cada salto sube el multiplicador, pero cualquier bloque de hielo puede romperse.', 'Every hop raises the multiplier, but any floe can crack.']),
+    doIt('penguin:hop', ['Salta', 'Hop'], ['Elige tu ficha, empieza y pulsa Saltar.', 'Pick your chip, start and tap Hop.']),
+    quiz(['¿Mejor seguir?', 'Keep going?'], ['Llevas 4 saltos seguros. ¿Es menos probable que el siguiente se rompa?', 'You made 4 safe hops. Is the next one less likely to crack?'], [['Sí', 'Yes'], ['No, es igual', 'No, the same']], 1, ['Cada bloque tiene la misma probabilidad, pase lo que haya pasado antes.', 'Every floe has the same chance, whatever happened before.']),
+  ],
   trader: [
     info(['La bolsa', 'The market'], ['Eliges si el precio acabará más alto (Sube) o más bajo (Baja). Luego miras cómo se mueve la gráfica.', 'Pick whether the price will end higher (Up) or lower (Down). Then watch the chart move.']),
     doIt('trader:play', ['Haz tu apuesta', 'Make your call'], ['Pulsa Sube o Baja.', 'Tap Up or Down.']),

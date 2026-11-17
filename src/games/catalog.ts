@@ -40,6 +40,8 @@ export const CATALOG: GameMeta[] = [
   { id: 'goldmine', category: 'originals', tint: gameTint.goldmine, rtp: '≈95.8 %', edge: '≈4.2 %', multiStep: false, online: true },
   { id: 'fruits', category: 'originals', tint: gameTint.fruits, rtp: '≈97.6 %', edge: '≈2.4 %', multiStep: false, online: true },
   { id: 'pirate', category: 'originals', tint: gameTint.pirate, rtp: '≈95.5 %', edge: '≈4.5 %', multiStep: false, online: true },
+  { id: 'angler', category: 'originals', tint: gameTint.angler, rtp: '94.6–96 %', edge: '4–5.4 %', multiStep: false, online: true },
+  { id: 'penguin', category: 'originals', tint: gameTint.penguin, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
   { id: 'cascade', category: 'originals', tint: gameTint.cascade, rtp: '≈96.5 %', edge: '≈3.5 %', multiStep: false, online: true },
   { id: 'pump', category: 'originals', tint: gameTint.pump, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
   { id: 'dragontiger', category: 'cards', tint: gameTint.dragontiger, rtp: '96.3 %', edge: '3.7–10.4 %', multiStep: false, online: true },
@@ -54,7 +56,7 @@ export const META: Record<GameId, GameMeta> = Object.fromEntries(CATALOG.map((g)
 export const HIDDEN_GAMES: GameId[] = ['keno', 'sicbo'];
 /** What the lobby, the collection and the Academy show, in order (most famous first). */
 export const VISIBLE_GAMES: GameMeta[] = [
-  ...(['blackjack', 'poker', 'roulette', 'horses', 'videopoker', 'baccarat', 'crash', 'slots', 'cascade', 'fishing', 'goldmine', 'jade', 'fruits', 'pirate', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'coinflip', 'hilo', 'limbo', 'crossing'] as GameId[]).map((id) => META[id]),
+  ...(['blackjack', 'poker', 'roulette', 'horses', 'videopoker', 'baccarat', 'crash', 'angler', 'penguin', 'slots', 'cascade', 'fishing', 'goldmine', 'jade', 'fruits', 'pirate', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'coinflip', 'hilo', 'limbo', 'crossing'] as GameId[]).map((id) => META[id]),
 ];
 
 /** The slot hall: every slot machine, newest first, with what makes each one different. */

@@ -373,6 +373,38 @@ const ART: Record<GameId, (id: string) => React.ReactNode> = {
       <Circle cx={52} cy={64} r={1.5} fill="#1A1430" />
     </>
   ),
+  angler: (id) => (
+    <>
+      {/* a hook sinking with a fish nosing at it, bubbles rising */}
+      <Path d="M8 22 Q50 14 92 22" stroke="#7FE6FF" strokeWidth={3} fill="none" />
+      <Path d="M50 4 L50 54" stroke="#E8EEF8" strokeWidth={2} />
+      <Path d="M50 54 C50 66 38 66 38 58" stroke="#2A2440" strokeWidth={7} fill="none" strokeLinecap="round" />
+      <Path d="M50 54 C50 66 38 66 38 58" stroke="#C9C4DA" strokeWidth={4} fill="none" strokeLinecap="round" />
+      <Path d="M20 78 C28 64 50 62 62 74 L74 66 L72 80 L74 92 L62 84 C50 96 28 92 20 78 Z" fill={SH} transform="translate(2 3)" />
+      <Path d="M20 78 C28 64 50 62 62 74 L74 66 L72 80 L74 92 L62 84 C50 96 28 92 20 78 Z" fill={`url(#${id}-gold)`} stroke="#FFFFFF" strokeWidth={2} />
+      <Circle cx={30} cy={76} r={3.4} fill="#1A1430" />
+      <Circle cx={29} cy={75} r={1.2} fill="#FFFFFF" />
+      {[[80, 48, 4], [86, 36, 3], [78, 28, 2.4]].map(([x, y, r], k) => <Circle key={k} cx={x} cy={y} r={r} fill="none" stroke="#FFFFFF" strokeWidth={1.6} />)}
+    </>
+  ),
+  penguin: () => (
+    <>
+      {/* a penguin mid-hop above an ice floe */}
+      <Path d="M10 80 L28 70 L74 70 L92 80 L74 92 L28 92 Z" fill={SH} transform="translate(2 3)" />
+      <Path d="M10 80 L28 70 L74 70 L92 80 L74 92 L28 92 Z" fill="#E8F8FF" stroke="#FFFFFF" strokeWidth={2} />
+      <Path d="M10 80 L28 92 L74 92 L92 80 L92 86 L74 98 L28 98 L10 86 Z" fill="#7FC8F0" />
+      <Path d="M34 76 L44 80 M60 74 L54 82" stroke="#9CD0F0" strokeWidth={1.6} />
+      <Path d="M50 8 C68 8 72 26 72 40 C72 56 62 64 50 64 C38 64 28 56 28 40 C28 26 32 8 50 8 Z" fill="#1A2440" stroke="#FFFFFF" strokeWidth={2} />
+      <Path d="M50 22 C60 22 64 32 64 42 C64 54 58 60 50 60 C42 60 36 54 36 42 C36 32 40 22 50 22 Z" fill="#FFFFFF" />
+      <Circle cx={44} cy={30} r={3.2} fill="#1A1430" />
+      <Circle cx={56} cy={30} r={3.2} fill="#1A1430" />
+      <Circle cx={43} cy={29} r={1.1} fill="#FFFFFF" />
+      <Circle cx={55} cy={29} r={1.1} fill="#FFFFFF" />
+      <Path d="M44 36 L56 36 L50 44 Z" fill="#FFB938" stroke="#9A5A00" strokeWidth={1} />
+      <Path d="M28 38 C18 42 16 50 20 54 C24 48 28 46 30 46 Z M72 38 C82 42 84 50 80 54 C76 48 72 46 70 46 Z" fill="#1A2440" />
+      <Path d="M40 64 L36 70 L46 70 Z M60 64 L64 70 L54 70 Z" fill="#FFB938" />
+    </>
+  ),
   dragontiger: (id) => (
     <>
       <Rect x={10} y={22} width={38} height={54} rx={7} fill={SH} transform="translate(2 4) rotate(-8 29 49)" />

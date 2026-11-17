@@ -11,7 +11,7 @@ import { suggestHold } from '@/engine/games/videopoker.ts';
 
 type Round = (rng: Rng, bet: number) => { stake: number; payout: number };
 /** `spread`: how far 20 000 rounds can honestly land from the return (bonus-driven slots swing a lot). */
-export interface SimOption { label: (lang: Lang) => string; round: Round; rtp: number; spread?: number }
+export interface SimOption { label: (lang: Lang) => string; round: Round; rtp: number; spread?: number; /** What a round puts down per unit of bet (Pesca Profunda adds a 50 % bond). */ stakeFactor?: number }
 
 const L = (es: string, en: string) => (lang: Lang) => (lang === 'es' ? es : en);
 const one = (game: GameId, params: Record<string, unknown>): Round => (rng, bet) => {
@@ -98,6 +98,16 @@ export const SIM_OPTIONS: Partial<Record<GameId, SimOption[]>> = {
   goldmine: [{ label: L('Tirada normal', 'Normal spin'), round: one('goldmine', {}), rtp: 0.958, spread: 0.35 }],
   fruits: [{ label: L('Tirada normal', 'Normal spin'), round: one('fruits', {}), rtp: 0.976, spread: 0.3 }],
   pirate: [{ label: L('Tirada normal', 'Normal spin'), round: one('pirate', {}), rtp: 0.955, spread: 0.12 }],
+  // Pesca Profunda: the simulator counts everything put down (bet + bond), so its return is (p·m + 0.5·0.92) ÷ 1.5
+  angler: [
+    { label: L('Elegir la sardina (×2,9)', 'Pick the sardine (×2.9)'), round: one('angler', { pick: 'sardine' }), rtp: 0.964, spread: 0.06, stakeFactor: 1.5 },
+    { label: L('Elegir el pez payaso (×11)', 'Pick the clownfish (×11)'), round: one('angler', { pick: 'clownfish' }), rtp: 0.9727, spread: 0.15, stakeFactor: 1.5 },
+    { label: L('Elegir el atún (×125)', 'Pick the tuna (×125)'), round: one('angler', { pick: 'tuna' }), rtp: 0.9733, spread: 0.9, stakeFactor: 1.5 },
+  ],
+  penguin: [
+    { label: L('Fácil, 3 saltos', 'Easy, 3 hops'), round: steps('penguin', { difficulty: 'easy' }, () => ['hop', {}], 3), rtp: 0.99 },
+    { label: L('Difícil, 3 saltos', 'Hard, 3 hops'), round: steps('penguin', { difficulty: 'hard' }, () => ['hop', {}], 3), rtp: 0.99 },
+  ],
   towers: [
     { label: L('Medio · 2 pisos y cobrar', 'Medium · 2 floors then collect'), round: steps('towers', { level: 'medium' }, () => ['pick', { door: 0 }], 2), rtp: 0.99 },
     { label: L('Difícil · 4 pisos y cobrar', 'Hard · 4 floors then collect'), round: steps('towers', { level: 'hard' }, () => ['pick', { door: 0 }], 4), rtp: 0.99 },

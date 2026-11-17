@@ -15,11 +15,11 @@ export const UNLOCK_FIRST = 2500;
 export const UNLOCK_SECOND = 5000;
 export const UNLOCK_GROWTH = 1.5;
 export const UNLOCK_PEAK_SHARE = 0.4;
-/** Every player can open two games of their choice for free (their "main" games); free ones never raise prices. */
-export const FREE_UNLOCK_CREDITS = 2;
+/** Every player can open one game of their choice for free (their "main" game); it never raises prices. */
+export const FREE_UNLOCK_CREDITS = 1;
 /** Rounds anyone can play in a locked game before buying it. */
 export const TRIAL_ROUNDS = 3;
-export const LOCKABLE_GAMES: GameId[] = ['fishing', 'jade', 'goldmine', 'fruits', 'pirate', 'cascade', 'horses', 'slots', 'roulette', 'videopoker', 'crash', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing', 'keno', 'sicbo'];
+export const LOCKABLE_GAMES: GameId[] = ['fishing', 'jade', 'goldmine', 'fruits', 'pirate', 'angler', 'penguin', 'cascade', 'horses', 'slots', 'roulette', 'videopoker', 'crash', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing', 'keno', 'sicbo'];
 export const LIVE_UNLOCKS = ['live:horses', 'live:roulette', 'live:crash'] as const;
 export const SPORT_UNLOCKS = ['soccer', 'nba', 'nfl', 'nhl', 'tennis', 'ufc', 'f1'] as const;
 

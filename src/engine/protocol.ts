@@ -15,6 +15,8 @@ import * as Mines from './games/mines.ts';
 import * as Plinko from './games/plinko.ts';
 import * as Keno from './games/keno.ts';
 import * as Crossing from './games/crossing.ts';
+import * as Angler from './games/angler.ts';
+import * as Penguin from './games/penguin.ts';
 import * as Hilo from './games/hilo.ts';
 import * as Roulette from './games/roulette.ts';
 import * as Bac from './games/baccarat.ts';
@@ -57,6 +59,8 @@ export interface OpResult {
   payout: number;
   done: boolean;
   summary?: { bet: number; payout: number; detail: string; multiStep: boolean };
+  /** Part of the stake the room limits apply to, when the stake also holds a refundable bond (Pesca Profunda). */
+  roomStake?: number;
 }
 
 export class ProtocolError extends Error {}
@@ -400,6 +404,47 @@ const handlers: Record<Exclude<GameId, 'poker'>, Handler> = {
     }
     return fail('invalid_op');
   },
+  angler: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const b = bet(p.bet);
+    const pick = oneOf(p.pick, Angler.ANGLER_GOOD, 'pick');
+    const r = Angler.playAngler(rng, b, pick);
+    return {
+      state: null,
+      view: { ...r },
+      stake: r.stake,
+      payout: r.payout,
+      roomStake: b,
+      done: true,
+      // the summary counts the bond lost to a bad catch as part of what was bet
+      summary: { bet: r.bad ? r.stake : b, payout: r.bad ? 0 : r.payout - r.bond, detail: `${r.pick}→${r.catch}`, multiStep: false },
+    };
+  },
+  penguin: (s, op, p, { rng }) => {
+    const st = s as Penguin.PenguinState | null;
+    const view = (x: Penguin.PenguinState) => ({ ...Penguin.publicPenguin(x), multiplier: Penguin.penguinMultiplier(x.difficulty, x.hop), next: Penguin.penguinMultiplier(x.difficulty, x.hop + 1) });
+    if (op === 'start') {
+      if (st) fail('round_active');
+      const b = bet(p.bet);
+      const ns = Penguin.startPenguin(rng, b, oneOf(p.difficulty, ['easy', 'medium', 'hard', 'extreme'] as const, 'difficulty'));
+      return { state: ns, view: view(ns), stake: b, payout: 0, done: false };
+    }
+    if (!st) fail('no_round');
+    if (op === 'hop') {
+      const ns = guard(() => Penguin.hop(st!));
+      if (ns.status === 'lost') return { state: null, view: view(ns), stake: 0, payout: 0, done: true, summary: { bet: ns.bet, payout: 0, detail: `${ns.hop}`, multiStep: true } };
+      if (ns.status === 'cashed') {
+        const r = guard(() => Penguin.cashoutPenguin({ ...ns, status: 'active' }));
+        return { state: null, view: view(r), stake: 0, payout: r.payout, done: true, summary: { bet: r.bet, payout: r.payout, detail: `${r.hop}`, multiStep: true } };
+      }
+      return { state: ns, view: view(ns), stake: 0, payout: 0, done: false };
+    }
+    if (op === 'cashout') {
+      const r = guard(() => Penguin.cashoutPenguin(st!));
+      return { state: null, view: view(r), stake: 0, payout: r.payout, done: true, summary: { bet: r.bet, payout: r.payout, detail: `${r.hop}`, multiStep: true } };
+    }
+    return fail('invalid_op');
+  },
   hilo: (s, op, p, { rng }) => {
     const st = s as Hilo.HiloState | null;
     const view = (x: Hilo.HiloState) => ({ ...x, current: cardCode(x.current), steps: x.steps.map((k) => ({ ...k, card: cardCode(k.card) })), multiplier: Hilo.hiloMultiplier(x) });
@@ -494,9 +539,9 @@ export function runOp(game: GameId, state: unknown, op: string, params: Params, 
   if (STARTING_OPS.has(op) && params?.room !== undefined && res.stake > 0) {
     const room = roomById(params.room);
     if (!room) fail('invalid_room');
-    if (!stakeAllowed(room!, res.stake)) fail('stake_outside_room');
+    if (!stakeAllowed(room!, res.roomStake ?? res.stake)) fail('stake_outside_room');
   }
   return res;
 }
 
-export const MULTI_STEP: GameId[] = ['coinflip', 'mines', 'crossing', 'hilo', 'blackjack', 'crash'];
+export const MULTI_STEP: GameId[] = ['coinflip', 'mines', 'crossing', 'penguin', 'hilo', 'blackjack', 'crash'];

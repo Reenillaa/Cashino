@@ -273,6 +273,59 @@ const SCENES: Partial<Record<GameId, Scene>> = {
       <Circle cx={161} cy={72} r={2.5} fill="#FFFFFF" />
     </>
   ),
+  angler: (p) => (
+    <>
+      {sky(p, '#7FD8FF', '#041A3A')}
+      {/* surface with a little boat and the fisherman's line going deep */}
+      <Rect x={0} y={0} width={200} height={46} fill="#FFC78A" opacity={0.6} />
+      <Circle cx={160} cy={22} r={12} fill="#FFF3A0" />
+      <Path d="M0 46 Q25 40 50 46 T100 46 T150 46 T200 46 V60 H0 Z" fill="#3FB8E8" />
+      <Path d="M70 40 L118 40 L110 50 L78 50 Z" fill="#8A4B1E" stroke="#3A1A08" strokeWidth={1.5} />
+      <Circle cx={92} cy={30} r={5} fill="#FFD0A8" />
+      <Path d="M86 26 L98 26 L95 22 L89 22 Z" fill="#FFD06B" />
+      <Path d="M96 34 L128 14" stroke="#5A2E10" strokeWidth={2} />
+      <Path d="M128 14 Q132 80 120 160" stroke="#E8EEF8" strokeWidth={1} fill="none" />
+      <Path d="M120 160 C120 168 112 168 112 162" stroke="#C9C4DA" strokeWidth={2} fill="none" />
+      {/* fish at different depths */}
+      {[[40, 84, '#C8D8E8', 0.8], [160, 104, '#FFD06B', 1], [56, 136, '#FF8A3D', 1.1], [150, 190, '#7FE6FF', 1.3]].map(([x, y, c, s], i) => (
+        <G key={i} transform={`translate(${x} ${y}) scale(${s})`}>
+          <Path d="M-14 0 C-8 -8 8 -8 12 0 C8 8 -8 8 -14 0 Z" fill={String(c)} stroke="#FFFFFF" strokeWidth={1} />
+          <Path d="M12 0 L20 -6 L20 6 Z" fill={String(c)} />
+          <Circle cx={-8} cy={-1} r={1.6} fill="#1A1430" />
+        </G>
+      ))}
+      <Path d="M0 225 Q30 210 60 222 T120 218 T200 224 V240 H0 Z" fill="#0B3E5A" />
+      {[[20, 220], [180, 214]].map(([x, y], i) => <Path key={i} d={`M${x} ${y} q-4 -16 2 -26 q4 10 -2 26`} fill="#14804A" />)}
+    </>
+  ),
+  penguin: (p) => (
+    <>
+      {sky(p, '#0B1A4A', '#5AB8E8')}
+      {stars(16, 3)}
+      <Path d="M-10 40 Q50 10 110 34 T210 24 L210 60 Q150 40 100 56 T-10 60 Z" fill="#5BE3B0" opacity={0.35} />
+      <Path d="M-10 56 Q60 34 120 52 T210 44" stroke="#A996FF" strokeWidth={6} fill="none" opacity={0.3} />
+      <Path d="M0 120 L40 92 L70 112 L110 80 L150 110 L200 90 V140 H0 Z" fill="#E8F8FF" opacity={0.85} />
+      <Rect x={0} y={130} width={200} height={110} fill="#0E5A8A" />
+      {/* ice floes going away in perspective */}
+      {[[100, 226, 70, 12], [92, 190, 52, 9], [106, 162, 38, 7], [98, 143, 28, 5]].map(([x, y, w, h], i) => (
+        <G key={i}>
+          <Path d={`M${x - w} ${y} L${x - w * 0.7} ${y - h} L${x + w * 0.7} ${y - h} L${x + w} ${y} L${x + w * 0.7} ${y + h * 0.6} L${x - w * 0.7} ${y + h * 0.6} Z`} fill="#F4FCFF" stroke="#9CD0F0" strokeWidth={1.2} />
+          <Path d={`M${x - w} ${y} L${x - w * 0.7} ${y + h * 0.6} L${x + w * 0.7} ${y + h * 0.6} L${x + w} ${y} L${x + w} ${y + h * 0.5} L${x + w * 0.7} ${y + h * 1.2} L${x - w * 0.7} ${y + h * 1.2} L${x - w} ${y + h * 0.5} Z`} fill="#7FC8F0" />
+        </G>
+      ))}
+      <Path d="M86 186 L96 194 L90 200" stroke="#3D9BFF" strokeWidth={1.5} fill="none" />
+      {/* the penguin */}
+      <G transform="translate(100 170)">
+        <Ellipse cx={0} cy={-14} rx={14} ry={20} fill="#1A2440" />
+        <Ellipse cx={0} cy={-10} rx={9} ry={14} fill="#FFFFFF" />
+        <Circle cx={-4} cy={-22} r={2} fill="#1A1430" />
+        <Circle cx={4} cy={-22} r={2} fill="#1A1430" />
+        <Path d="M-4 -18 L4 -18 L0 -13 Z" fill="#FFB938" />
+        <Path d="M-6 6 L-10 9 L-2 9 Z M6 6 L10 9 L2 9 Z" fill="#FFB938" />
+      </G>
+      {Array.from({ length: 14 }, (_, i) => <Circle key={i} cx={(i * 47) % 200} cy={(i * 31) % 130} r={1.4} fill="#FFFFFF" opacity={0.8} />)}
+    </>
+  ),
   horses: (p) => (
     <>
       {sky(p, '#7FC8FF', '#CFEFFF')}

@@ -4,7 +4,7 @@ describe('Monte Carlo simulator (real engine)', () => {
   for (const [game, opts] of Object.entries(SIM_OPTIONS)) {
     it.each(opts!.map((o, i) => [i, o] as const))(`${game} option %i converges to its theoretical return`, (_i, o) => {
       const r = simulate(o, 20000, 1, 10, 12345);
-      expect(r.staked).toBe(20000 * 10);
+      expect(r.staked).toBe(20000 * 10 * (o.stakeFactor ?? 1));
       const rtp = r.returned / r.staked;
       // Generous band: high-variance strategies (×10 targets, plenos) move a lot in 20k rounds.
       expect(Math.abs(rtp - o.rtp)).toBeLessThan(o.spread ?? 0.08);

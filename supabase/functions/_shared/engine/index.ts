@@ -21,6 +21,8 @@ export * as Jade from './games/jade.ts';
 export * as Goldmine from './games/goldmine.ts';
 export * as Fruits from './games/fruits.ts';
 export * as Pirate from './games/pirate.ts';
+export * as Angler from './games/angler.ts';
+export * as Penguin from './games/penguin.ts';
 export * as Trader from './games/trader.ts';
 export * as Blackjack from './games/blackjack.ts';
 export * as Poker from './poker/table.ts';

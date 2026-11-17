@@ -28,6 +28,8 @@ export const GAME_IDS = [
   'goldmine',
   'fruits',
   'pirate',
+  'angler',
+  'penguin',
 ] as const;
 export type GameId = (typeof GAME_IDS)[number];
 

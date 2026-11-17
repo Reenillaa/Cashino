@@ -17,15 +17,15 @@ describe('missions only for unlocked games', () => {
 });
 
 describe('trials and free unlocks', () => {
-  it('gives 3 trial rounds and 2 free unlocks', () => {
+  it('gives 3 trial rounds and 1 free unlock', () => {
     expect(TRIAL_ROUNDS).toBe(3);
-    expect(FREE_UNLOCK_CREDITS).toBe(2);
+    expect(FREE_UNLOCK_CREDITS).toBe(1);
     expect(trialLeft(undefined)).toBe(3);
     expect(trialLeft(2)).toBe(1);
     expect(trialLeft(5)).toBe(0);
   });
   it('free unlocks do not raise the price ladder (price counts paid unlocks only)', () => {
-    // two free games and no purchase: the first purchase still costs the first price
+    // a free game and no purchase: the first purchase still costs the first price
     expect(unlockPrice(0, 0)).toBe(2500);
   });
 });

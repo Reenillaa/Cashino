@@ -257,6 +257,30 @@ export const RULES: Record<GameId, RulesDoc> = {
       { label: b('Tiradas con loro', 'Spins with a parrot'), value: '≈1 / 8' },
     ],
   },
+  angler: {
+    summary: b('Adivina qué pez va a picar. Eliges uno antes de lanzar; el anzuelo baja hasta donde vive el pez que pica. Si es el tuyo, cobras su premio.', 'Guess which fish will bite. You pick one before casting; the hook sinks to where the biting fish lives. If it is yours, you win its prize.'),
+    rules: [
+      b('Peces (probabilidad de picar → premio × apuesta): sardina 34 % → ×2,9 · caballa 22 % → ×4,5 · dorada 14 % → ×7,1 · pez payaso 9 % → ×11,1 · pez espada 6 % → ×16,6 · pulpo 4 % → ×25 · pez linterna 2 % → ×50 · atún gigante 0,8 % → ×125 · tiburón dorado 0,2 % → ×500.', 'Fish (chance to bite → prize × bet): sardine 34 % → ×2.9 · mackerel 22 % → ×4.5 · sea bream 14 % → ×7.1 · clownfish 9 % → ×11.1 · swordfish 6 % → ×16.6 · octopus 4 % → ×25 · lanternfish 2 % → ×50 · giant tuna 0.8 % → ×125 · golden shark 0.2 % → ×500.'),
+      b('Capturas malas (8 % en total): bota vieja 3,5 %, pez muerto 3 %, pez globo 1,5 %. Con cada lanzamiento dejas una fianza de la mitad de tu apuesta: si pica algo malo la pierdes, si no, te la devolvemos siempre.', 'Bad catches (8 % in total): old boot 3.5 %, dead fish 3 %, puffer fish 1.5 %. Every cast puts down a bond of half your bet: a bad catch takes it, otherwise it always comes back.'),
+      b('Si pica otro pez normal, pierdes la apuesta (y recuperas la fianza). Lo que pica se decide antes de lanzar.', 'If another normal fish bites you lose the bet (and get the bond back). What bites is decided before you cast.'),
+    ],
+    odds: [
+      { label: b('Retorno de la apuesta (según el pez)', 'Return on the bet (by fish)'), value: '94.6–96 %' },
+      { label: b('Pica algo malo', 'A bad catch bites'), value: '8 %' },
+    ],
+  },
+  penguin: {
+    summary: b('Un pingüino salta de bloque en bloque de hielo. Cada salto multiplica tu apuesta, pero cualquier bloque puede romperse. Retírate cuando quieras.', 'A penguin hops from floe to floe. Every hop multiplies your bet, but any floe can crack. Cash out whenever you like.'),
+    rules: [
+      b('Dificultad (probabilidad de que un bloque se rompa · bloques): fácil 5 % · 22, media 12 % · 18, difícil 20 % · 14, extrema 32 % · 10.', 'Difficulty (chance a floe cracks · floes): easy 5 % · 22, medium 12 % · 18, hard 20 % · 14, extreme 32 % · 10.'),
+      b('Multiplicador tras k saltos = 0,99 ÷ (1 − probabilidad)^k. Si se rompe, pierdes la apuesta; al llegar al último bloque cobras solo.', 'Multiplier after k hops = 0.99 ÷ (1 − chance)^k. If it cracks you lose the bet; reaching the last floe cashes out automatically.'),
+      b('Dónde se rompe se decide al empezar y no cambia por cómo juegues.', 'Where it cracks is decided at the start and does not change with how you play.'),
+    ],
+    odds: [
+      { label: b('Retorno (retirándote cuando quieras)', 'Return (cashing out whenever)'), value: '99 %' },
+      { label: b('Llegar al final en fácil', 'Reaching the end on easy'), value: '32 %' },
+    ],
+  },
   trader: {
     summary: b('Bolsa: ¿el precio acabará más alto o más bajo que ahora? Eliges Sube o Baja y miras la gráfica.', 'Stock market: will the price end higher or lower than now? Pick Up or Down and watch the chart.'),
     rules: [

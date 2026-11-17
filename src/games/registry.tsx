@@ -27,6 +27,8 @@ import JadeScreen from './jade/Screen';
 import GoldmineScreen from './goldmine/Screen';
 import FruitsScreen from './fruits/Screen';
 import PirateScreen from './pirate/Screen';
+import AnglerScreen from './angler/Screen';
+import PenguinScreen from './penguin/Screen';
 import DragonTigerScreen from './dragontiger/Screen';
 import HorsesScreen from './horses/Screen';
 
@@ -60,6 +62,8 @@ export const GAME_SCREENS: Record<GameId, GameScreen> = {
   goldmine: GoldmineScreen,
   fruits: FruitsScreen,
   pirate: PirateScreen,
+  angler: AnglerScreen,
+  penguin: PenguinScreen,
   dragontiger: DragonTigerScreen,
   horses: HorsesScreen,
 };

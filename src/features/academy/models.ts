@@ -28,6 +28,8 @@ import { JADE_PAYS, JADE_WEIGHTS } from '@/engine/games/jade.ts';
 import { MINE_PAYS, MINE_WEIGHTS, MINE_BONUS } from '@/engine/games/goldmine.ts';
 import { FRUIT_PAYS, FRUIT_WEIGHTS } from '@/engine/games/fruits.ts';
 import { PIRATE_PAYS, PIRATE_WEIGHTS } from '@/engine/games/pirate.ts';
+import { ANGLER_FISH, anglerMultiplier, anglerReturn } from '@/engine/games/angler.ts';
+import { PENGUIN_CONFIG, penguinMultiplier, penguinSurvival } from '@/engine/games/penguin.ts';
 import { towerMultiplier } from '@/engine/games/towers.ts';
 import { diamondStats, DIAMOND_PAYS } from '@/engine/games/diamonds.ts';
 import { pumpMultiplier } from '@/engine/games/pump.ts';
@@ -308,6 +310,25 @@ const MODELS: Record<GameId, Builder> = {
       example: L(lang, 'Casi 1 de cada 3 tiradas paga algo, así que el saldo se mueve menos que en las otras tragaperras. Un loro en el rodillo 5 da 4 re-tiradas seguidas.', 'Almost 1 spin in 3 pays something, so your balance swings less than in the other slots. A parrot on reel 5 gives 4 respins in a row.'),
     };
   },
+  angler: (lang) => {
+    const NAMES: Record<string, [string, string]> = { sardine: ['Sardina', 'Sardine'], bream: ['Dorada', 'Sea bream'], swordfish: ['Pez espada', 'Swordfish'], lanternfish: ['Pez linterna', 'Lanternfish'], goldshark: ['Tiburón dorado', 'Golden shark'] };
+    return {
+      idea: L(lang, 'Aquí no hay suerte "a ver qué sale": tú eliges el pez. Cada pez paga más o menos según lo raro que es, así que todos los peces devuelven lo mismo de media. Lo único que cambia es si quieres ganar poco a menudo o mucho de vez en cuando.', 'You pick the fish. Each one pays according to how rare it is, so every fish returns about the same on average. All that changes is whether you want to win little often or a lot rarely.'),
+      rowsTitle: L(lang, 'Si eliges…', 'If you pick…'),
+      rows: (['sardine', 'bream', 'swordfish', 'lanternfish', 'goldshark'] as const).map((f) => ({ label: L(lang, NAMES[f][0], NAMES[f][1]), p: ANGLER_FISH[f].p, mult: anglerMultiplier(f) })),
+      rtp: anglerReturn('octopus'),
+      formula: L(lang, 'Premio ≈ 1 ÷ probabilidad (por ejemplo, la dorada pica el 14 % → ×7,1). A eso se le resta lo que cuestan las capturas malas: 8 % × la mitad de la apuesta = 4 %. Por eso el retorno es ≈95–96 %. (El simulador cuenta también la fianza que se juega en cada lanzamiento, por eso su porcentaje sale algo más alto.)', 'Prize ≈ 1 ÷ chance (e.g. sea bream bites 14 % → ×7.1). Bad catches cost 8 % × half the bet = 4 %, so the return is ≈95–96 %. (The simulator also counts the bond put down with each cast, so its percentage looks a bit higher.)'),
+      example: L(lang, 'Si siempre eliges el tiburón dorado, ganarás 1 vez de cada 500 lanzamientos (×500). Si eliges la sardina, ganarás 1 de cada 3, pero solo ×2,9. A la larga, las dos cosas te dejan casi igual.', 'Always picking the golden shark wins 1 cast in 500 (×500). Picking the sardine wins 1 in 3, but only ×2.9. In the long run both leave you about the same.'),
+    };
+  },
+  penguin: (lang) => ({
+    idea: L(lang, 'Igual que cruzar la calle, pero sobre hielo: cada bloque tiene la misma probabilidad de romperse, y el multiplicador está calculado para que retirarte en cualquier momento devuelva el 99 % de media.', 'Like crossing the road, but on ice: every floe has the same chance to crack, and the multiplier is set so cashing out at any point returns 99 % on average.'),
+    rowsTitle: L(lang, 'En dificultad media, llegar a…', 'On medium, reaching…'),
+    rows: [1, 3, 5, 8, 12].map((k) => ({ label: L(lang, `${k} saltos`, `${k} hops`), p: penguinSurvival('medium', k), mult: penguinMultiplier('medium', k) })),
+    rtp: 0.99,
+    formula: L(lang, `Probabilidad de llegar a k saltos = (1 − ${PENGUIN_CONFIG.medium.crack})^k. Multiplicador = 0,99 ÷ esa probabilidad. Por eso multiplicador × probabilidad = 0,99 siempre.`, `Chance to reach k hops = (1 − ${PENGUIN_CONFIG.medium.crack})^k. Multiplier = 0.99 ÷ that chance, so multiplier × chance = 0.99 always.`),
+    example: L(lang, 'Retirarte pronto o tarde no cambia el retorno medio: solo cambia cuánto arriesgas en cada ronda. Que lleves varios saltos buenos no hace más probable que el siguiente aguante.', 'Cashing out early or late does not change the average return, only how much you risk per round. A run of good hops does not make the next one safer.'),
+  }),
   horses: (lang) => ({
     idea: L(lang, 'La casa calcula sus cuotas simulando la carrera, pero solo tiene en cuenta en parte si a cada caballo le gustan el terreno y la distancia. Analizar eso es tu ventaja; apostar al azar te cuesta caro.', 'The bookmaker prices the race by simulating it, but only partly accounts for whether each horse likes the ground and trip. Studying that is your edge; betting at random costs you.'),
     rowsTitle: L(lang, 'Con 8 caballos, la probabilidad de acertar…', 'With 8 runners, the chance of getting right…'),
