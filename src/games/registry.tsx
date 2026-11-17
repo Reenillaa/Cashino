@@ -24,6 +24,9 @@ import PumpScreen from './pump/Screen';
 import CascadeScreen from './cascade/Screen';
 import FishingScreen from './fishing/Screen';
 import JadeScreen from './jade/Screen';
+import GoldmineScreen from './goldmine/Screen';
+import FruitsScreen from './fruits/Screen';
+import PirateScreen from './pirate/Screen';
 import DragonTigerScreen from './dragontiger/Screen';
 import HorsesScreen from './horses/Screen';
 
@@ -54,6 +57,9 @@ export const GAME_SCREENS: Record<GameId, GameScreen> = {
   cascade: CascadeScreen,
   fishing: FishingScreen,
   jade: JadeScreen,
+  goldmine: GoldmineScreen,
+  fruits: FruitsScreen,
+  pirate: PirateScreen,
   dragontiger: DragonTigerScreen,
   horses: HorsesScreen,
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming, ZoomIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -21,7 +21,7 @@ export function reelTimes(turbo: boolean, tease: number[]): number[] {
 }
 
 /** One reel: a strip [new 3, random fill…, old 3] that drops from above and lands with a small bounce. */
-const Reel = React.memo(function Reel({ i, strip, cell, spinKey, duration, tease, render }: { i: number; strip: number[]; cell: number; spinKey: number; duration: number; tease: boolean; render: (code: number, size: number) => React.ReactNode }) {
+const Reel = React.memo(function Reel({ i, strip, cell, spinKey, duration, tease, render, tile }: { i: number; strip: number[]; cell: number; spinKey: number; duration: number; tease: boolean; render: (code: number, size: number) => React.ReactNode; tile?: (code: number) => [string, string] | null }) {
   const { reduceMotion } = useTheme();
   const y = useSharedValue(0);
   const glow = useSharedValue(0);
@@ -44,9 +44,20 @@ const Reel = React.memo(function Reel({ i, strip, cell, spinKey, duration, tease
   return (
     <View style={[styles.reel, { width: cell, height: cell * ROWS }]}>
       <Animated.View style={st}>
-        {strip.map((c, k) => (
-          <View key={k} style={{ height: cell, alignItems: 'center', justifyContent: 'center' }}>{render(c, cell * 0.86)}</View>
-        ))}
+        {strip.map((c, k) => {
+          // the symbols that only fly past while spinning are stretched and faded: a cheap motion blur
+          const blur = k >= ROWS && k < strip.length - ROWS;
+          const tc = tile?.(c);
+          return (
+            <View key={k} style={{ height: cell, alignItems: 'center', justifyContent: 'center' }}>
+              <View style={[styles.tile, { width: cell - 6, height: cell - 6, borderRadius: cell * 0.2 }, blur && styles.blurTile]}>
+                <LinearGradient colors={tc ?? ['rgba(255,255,255,0.10)', 'rgba(255,255,255,0.02)']} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }} style={StyleSheet.absoluteFill} />
+                <View style={[styles.tileShine, { borderRadius: cell * 0.2 }]} />
+              </View>
+              <View style={blur ? { opacity: 0.55, transform: [{ scaleY: 1.35 }] } : null}>{render(c, cell * 0.84)}</View>
+            </View>
+          );
+        })}
       </Animated.View>
       <LinearGradient pointerEvents="none" colors={['rgba(0,0,0,0.55)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0.55)']} locations={[0, 0.22, 0.78, 1]} style={StyleSheet.absoluteFill} />
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.tease, gl]} />
@@ -79,6 +90,8 @@ export interface MachineProps {
   cells: { reel: number; row: number }[];
   /** Reels covered by an expanding symbol (Jade). */
   expanded?: { reels: number[]; render: (size: number) => React.ReactNode } | null;
+  /** Optional tile colours per symbol (premium symbols get a coloured tile). */
+  tile?: (code: number) => [string, string] | null;
   title: React.ReactNode;
   colors: [string, string];
   rim: string;
@@ -89,7 +102,7 @@ export interface MachineProps {
  * The slot cabinet: marquee on top, a glass window with five reels, a gold rim. Reels drop one after another;
  * winning lines and cells light up after they stop; `children` draws effects on top (fish collection…).
  */
-export function Machine({ grid, prev, spinKey, cell, turbo, tease, render, filler, lines, cells, expanded, title, colors, rim, children }: MachineProps) {
+export function Machine({ grid, prev, spinKey, cell, turbo, tease, render, filler, lines, cells, expanded, tile, title, colors, rim, children }: MachineProps) {
   const times = useMemo(() => reelTimes(turbo, tease), [turbo, tease]);
   const strips = useMemo(
     () => grid.map((col, i) => [...col, ...Array.from({ length: FILL + i * 3 }, filler), ...(prev[i] ?? col)]),
@@ -97,12 +110,16 @@ export function Machine({ grid, prev, spinKey, cell, turbo, tease, render, fille
   );
   const W = cell * REELS, H = cell * ROWS;
   return (
-    <View style={[styles.cabinet, { borderColor: rim }]}>
+    <View style={styles.chrome}>
+    <LinearGradient colors={['#FFF6D6', rim, '#7A4E08', rim, '#FFF6D6']} locations={[0, 0.25, 0.5, 0.75, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: 30 }]} />
+    <View style={styles.cabinet}>
       <LinearGradient colors={colors} style={StyleSheet.absoluteFill} />
+      <LinearGradient pointerEvents="none" colors={['rgba(255,255,255,0.18)', 'rgba(255,255,255,0)']} locations={[0, 0.4]} style={StyleSheet.absoluteFill} />
       <View style={styles.marquee}>{title}</View>
+      <Bulbs n={Math.max(8, Math.round(W / 26))} fast={spinKey} />
       <View style={[styles.window, { width: W + 8, height: H + 8, borderColor: rim }]}>
         <View style={{ flexDirection: 'row' }}>
-          {strips.map((s, i) => <Reel key={i} i={i} strip={s} cell={cell} spinKey={spinKey} duration={times[i]} tease={tease.includes(i)} render={render} />)}
+          {strips.map((s, i) => <Reel key={i} i={i} strip={s} cell={cell} spinKey={spinKey} duration={times[i]} tease={tease.includes(i)} render={render} tile={tile} />)}
         </View>
         {expanded?.reels.length ? expanded.reels.map((r) => (
           <Animated.View key={`x${r}`} entering={ZoomIn.springify().damping(12)} style={[styles.expand, { left: 4 + r * cell, width: cell, height: H }]}>
@@ -121,14 +138,53 @@ export function Machine({ grid, prev, spinKey, cell, turbo, tease, render, fille
           {cells.map((c) => <WinCell key={`${c.reel}-${c.row}`} x={c.reel} y={c.row} cell={cell} color="#FFE58A" />)}
           {children}
         </View>
+        {/* glass: a soft diagonal reflection over the reels */}
+        <LinearGradient pointerEvents="none" colors={['rgba(255,255,255,0.13)', 'rgba(255,255,255,0)', 'rgba(255,255,255,0)', 'rgba(255,255,255,0.06)']} locations={[0, 0.35, 0.8, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
       </View>
+      <Bulbs n={Math.max(8, Math.round(W / 26))} fast={spinKey} reverse />
+    </View>
+    </View>
+  );
+}
+
+/** A row of chasing bulbs above / below the reels (one cheap JS tick, faster for a moment after each spin). */
+function Bulbs({ n, fast, reverse }: { n: number; fast: number; reverse?: boolean }) {
+  const { reduceMotion } = useTheme();
+  const [k, setK] = useState(0);
+  const spunAt = useRef(0);
+  useEffect(() => {
+    if (fast) spunAt.current = Date.now();
+  }, [fast]);
+  useEffect(() => {
+    if (reduceMotion) return;
+    let n = 0;
+    const id = setInterval(() => {
+      n++;
+      // fast chase for a moment after each spin, calm otherwise
+      if (Date.now() - spunAt.current < 2600 || n % 4 === 0) setK((x) => x + 1);
+    }, 90);
+    return () => clearInterval(id);
+  }, [reduceMotion]);
+  return (
+    <View style={styles.bulbs} pointerEvents="none">
+      {Array.from({ length: n }, (_, i) => {
+        const on = (reverse ? n - i : i) % 3 === k % 3;
+        return <View key={i} style={[styles.bulb, on ? styles.bulbOn : null]} />;
+      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  cabinet: { borderRadius: 26, borderWidth: 3, padding: 10, paddingTop: 6, alignItems: 'center', overflow: 'hidden' },
-  marquee: { height: 40, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' },
+  chrome: { borderRadius: 30, padding: 4, shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 18, shadowOffset: { width: 0, height: 8 } },
+  cabinet: { borderRadius: 26, padding: 10, paddingTop: 4, paddingBottom: 6, alignItems: 'center', overflow: 'hidden' },
+  bulbs: { flexDirection: 'row', alignSelf: 'stretch', justifyContent: 'space-between', paddingHorizontal: 10, marginVertical: 5 },
+  bulb: { width: 7, height: 7, borderRadius: 4, backgroundColor: 'rgba(255,229,138,0.28)' },
+  bulbOn: { backgroundColor: '#FFF3C4', shadowColor: '#FFD06B', shadowOpacity: 1, shadowRadius: 6 },
+  tile: { position: 'absolute', overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)' },
+  blurTile: { opacity: 0.4 },
+  tileShine: { position: 'absolute', left: 3, right: 3, top: 2, height: '38%', backgroundColor: 'rgba(255,255,255,0.07)' },
+  marquee: { height: 36, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' },
   window: { borderRadius: 16, borderWidth: 3, padding: 4, backgroundColor: '#05030C', overflow: 'hidden' },
   reel: { overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.04)' },
   divider: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 1, backgroundColor: 'rgba(255,255,255,0.12)' },

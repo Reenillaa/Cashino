@@ -152,23 +152,22 @@ export function GameShell({
           {desktop ? (
             // Computers: the table on the left, a betting panel on the right (like a casino website)
             <View style={styles.deskRow}>
-              <View style={{ flex: 1, minWidth: 0 }}>
+              <View style={{ flex: 1, minWidth: 0, maxWidth: 820 }}>
                 {historyEl}
                 <Animated.View style={[{ flex: 1, marginTop: 8 }, stageStyle]} entering={enter}>
                   <ScaledStage>{stage}</ScaledStage>
                 </Animated.View>
               </View>
               <View style={styles.deskSide}>
-                {roomEl}
-                {hotEl}
-                {practiceEl}
-                <View style={{ flex: 1 }} />
-                {controls ? (
-                  <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(motion.slow).delay(70)} style={[styles.deskPanel, { backgroundColor: 'rgba(16,14,24,0.92)' }]}>
-                    <LinearGradient pointerEvents="none" colors={[alpha(vivid[0], 0.9), alpha(vivid[1], 0.9)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.panelEdge} />
-                    {controls}
-                  </Animated.View>
-                ) : null}
+                {/* one betting card: where you play, then what you bet */}
+                <Animated.View entering={reduceMotion ? undefined : FadeInDown.duration(motion.slow).delay(70)} style={[styles.deskPanel, { backgroundColor: 'rgba(16,14,24,0.92)' }]}>
+                  <LinearGradient pointerEvents="none" colors={[alpha(vivid[0], 0.9), alpha(vivid[1], 0.9)]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.panelEdge} />
+                  <View style={{ marginTop: -10 }}>{roomEl}</View>
+                  {hotEl}
+                  {practiceEl}
+                  {controls ? <View style={[styles.deskRule, { backgroundColor: c.hairline }]} /> : null}
+                  {controls}
+                </Animated.View>
               </View>
             </View>
           ) : (
@@ -284,8 +283,9 @@ function ScaledStage({ children }: { children: React.ReactNode }) {
 }
 
 const styles = StyleSheet.create({
-  deskRow: { flex: 1, flexDirection: 'row', gap: 24, paddingHorizontal: 28, paddingBottom: 24, width: '100%', maxWidth: 1440, alignSelf: 'center' },
-  deskSide: { width: 400, paddingTop: 4 },
+  deskRow: { flex: 1, flexDirection: 'row', justifyContent: 'center', gap: 32, paddingHorizontal: 28, paddingBottom: 24, width: '100%', maxWidth: 1440, alignSelf: 'center' },
+  deskSide: { width: 400, justifyContent: 'center', paddingVertical: 12 },
+  deskRule: { height: StyleSheet.hairlineWidth, marginVertical: 6 },
   deskPanel: { borderRadius: 26, paddingHorizontal: 16, paddingTop: 18, paddingBottom: 18, overflow: 'hidden', gap: 10 },
   hot: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14, backgroundColor: 'rgba(255,120,40,0.16)', borderWidth: 1, borderColor: 'rgba(255,185,56,0.45)', maxWidth: '92%' },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 12 },

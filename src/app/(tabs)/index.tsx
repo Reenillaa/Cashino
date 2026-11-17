@@ -190,8 +190,8 @@ export default function Home() {
         <View style={styles.hall}>
           <LinearGradient colors={['#FF4FA3', '#7B1FA2', '#1A0624']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
           <View style={styles.hallLogos}>
-            {SLOT_HALL.map((m, i) => (
-              <View key={m.id} style={[styles.hallLogo, { transform: [{ rotate: `${(i - 1.5) * 9}deg` }, { translateY: Math.abs(i - 1.5) * 5 }] }]}>
+            {SLOT_HALL.slice(0, desktop ? 7 : 4).map((m, i, all) => (
+              <View key={m.id} style={[styles.hallLogo, { transform: [{ rotate: `${(i - (all.length - 1) / 2) * 9}deg` }, { translateY: Math.abs(i - (all.length - 1) / 2) * 5 }] }]}>
                 <GameLogo game={m.id} size={desktop ? 54 : 40} />
               </View>
             ))}

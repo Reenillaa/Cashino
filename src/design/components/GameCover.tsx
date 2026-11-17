@@ -214,6 +214,64 @@ const SCENES: Partial<Record<GameId, Scene>> = {
       <Circle cx={136} cy={62} r={4} fill="#FFD06B" />
     </>
   ),
+  goldmine: (p) => (
+    <>
+      {sky(p, '#3A1E06', '#120802')}
+      {/* timber-framed mine entrance with a glowing lantern and a cart of gold on rails */}
+      <Path d="M-10 70 Q60 40 100 50 T210 60 V240 H-10 Z" fill="#5A3210" />
+      <Path d="M40 140 L40 64 L160 64 L160 140" stroke="#8A5A1E" strokeWidth={12} fill="none" />
+      <Rect x={34} y={58} width={132} height={12} fill="#A06A2A" />
+      <Path d="M52 140 L52 78 L148 78 L148 140 Z" fill="#0A0402" />
+      <Path d="M100 72 C100 66 108 66 108 72" stroke="#C9C4DA" strokeWidth={2} fill="none" />
+      <Rect x={98} y={72} width={12} height={16} rx={3} fill="#FFD06B" />
+      <Circle cx={104} cy={80} r={22} fill="#FFD06B" opacity={0.18} />
+      <Path d="M20 160 L180 160 M14 172 L186 172" stroke="#9FB4C8" strokeWidth={3} />
+      {[30, 60, 90, 120, 150].map((x) => <Rect key={x} x={x} y={156} width={6} height={20} fill="#6A3A12" />)}
+      {[[78, 116, 8], [94, 110, 10], [112, 116, 8], [102, 120, 7]].map(([x, y, r], i) => <Circle key={i} cx={x} cy={y} r={r} fill="#FFD06B" stroke="#8A5200" strokeWidth={1.5} />)}
+      <Path d="M64 120 L136 120 L128 146 L72 146 Z" fill="#7A3E1A" stroke="#3A1A08" strokeWidth={2} />
+      <Circle cx={82} cy={150} r={7} fill="#3A3550" stroke="#C9C4DA" strokeWidth={2} />
+      <Circle cx={118} cy={150} r={7} fill="#3A3550" stroke="#C9C4DA" strokeWidth={2} />
+      {[[30, 100], [170, 104], [150, 40], [40, 36]].map(([x, y], i) => <Path key={i} d={`M${x} ${y - 5} L${x + 2} ${y - 1} L${x + 6} ${y} L${x + 2} ${y + 1} L${x} ${y + 5} L${x - 2} ${y + 1} L${x - 6} ${y} L${x - 2} ${y - 1} Z`} fill="#FFF3C4" />)}
+    </>
+  ),
+  fruits: (p) => (
+    <>
+      {sky(p, '#FF5A2A', '#6A0A2A')}
+      {Array.from({ length: 10 }, (_, k) => <Path key={k} d={`M100 70 L${100 + Math.cos((k * Math.PI) / 5) * 160} ${70 + Math.sin((k * Math.PI) / 5) * 160} L${100 + Math.cos((k * Math.PI) / 5 + 0.18) * 160} ${70 + Math.sin((k * Math.PI) / 5 + 0.18) * 160} Z`} fill="#FFFFFF" opacity={0.08} />)}
+      <Path d="M100 10 C112 30 132 34 132 62 C140 54 140 46 136 38 C152 54 150 100 100 110 C56 106 50 64 70 46 C70 58 74 60 78 66 C74 40 90 28 100 10 Z" fill="#FFB938" opacity={0.9} />
+      <SvgText x={100} y={92} fontSize={58} fontWeight="900" fill="#FFFFFF" stroke="#7A0A1A" strokeWidth={2} textAnchor="middle">7</SvgText>
+      <Circle cx={40} cy={120} r={16} fill="#E8183F" stroke="#FFFFFF" strokeWidth={2} />
+      <Circle cx={62} cy={126} r={16} fill="#E8183F" stroke="#FFFFFF" strokeWidth={2} />
+      <Path d="M40 104 C44 90 54 84 66 82 M62 110 C60 98 62 90 66 82" stroke="#2E8A3A" strokeWidth={3} fill="none" />
+      <Ellipse cx={156} cy={124} rx={24} ry={18} fill="#FFE03A" stroke="#FFFFFF" strokeWidth={2} />
+      <Circle cx={104} cy={140} r={18} fill="#FF8A1C" stroke="#FFFFFF" strokeWidth={2} />
+      <Circle cx={150} cy={40} r={12} fill="#E8304F" stroke="#FFE58A" strokeWidth={2.5} />
+      <SvgText x={150} y={44} fontSize={10} fontWeight="900" fill="#FFFFFF" textAnchor="middle">×5</SvgText>
+    </>
+  ),
+  pirate: (p) => (
+    <>
+      {sky(p, '#1A1050', '#0E0830')}
+      {stars(18, 9)}
+      <Circle cx={156} cy={34} r={18} fill="#FFF3C4" />
+      <Circle cx={164} cy={30} r={16} fill="#1A1050" />
+      <Rect x={0} y={118} width={200} height={122} fill="#12306A" />
+      {[124, 136, 150].map((y, i) => <Path key={i} d={`M${i * 18} ${y} q12 -5 24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0 t24 0`} stroke="#3D7BFF" strokeWidth={2} fill="none" opacity={0.6} />)}
+      {/* ship with black sails */}
+      <Path d="M96 30 L96 104" stroke="#5A2E10" strokeWidth={4} />
+      <Path d="M96 36 C124 42 124 70 96 76 Z" fill="#231A3A" stroke="#C9C4DA" strokeWidth={1.5} />
+      <Path d="M96 44 C76 50 76 70 96 74 Z" fill="#231A3A" stroke="#C9C4DA" strokeWidth={1.5} />
+      <Circle cx={106} cy={56} r={6} fill="#FFFFFF" />
+      <Path d="M100 64 L112 60 M100 60 L112 64" stroke="#FFFFFF" strokeWidth={2} />
+      <Path d="M96 30 L114 26 L96 22 Z" fill="#E8304F" />
+      <Path d="M44 102 L156 102 L140 124 L60 124 Z" fill="#8A4B1E" stroke="#3A1A08" strokeWidth={2} />
+      {[70, 90, 110, 130].map((x) => <Circle key={x} cx={x} cy={110} r={3} fill="#FFD06B" />)}
+      {/* parrot on the bow */}
+      <Path d="M150 100 C140 90 142 72 154 66 C164 62 170 70 168 78 C166 90 160 98 150 100 Z" fill="#E8304F" stroke="#FFFFFF" strokeWidth={1.5} />
+      <Path d="M166 72 C174 72 176 78 170 82 C170 78 168 76 166 76 Z" fill="#FFD06B" />
+      <Circle cx={161} cy={72} r={2.5} fill="#FFFFFF" />
+    </>
+  ),
   horses: (p) => (
     <>
       {sky(p, '#7FC8FF', '#CFEFFF')}

@@ -16,9 +16,12 @@ import { ResultBanner } from '../shared/ResultBanner';
 import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
 import { FishSymbol } from '../lineslot/Symbols';
 import { Machine, reelTimes } from '../lineslot/Machine';
+import { useBigWin } from '../lineslot/BigWin';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
+const tileOf = (c: number): [string, string] | null =>
+  c === FISHER ? ['#FFE58A', '#C98B12'] : c === BOX ? ['#FF8A4A', '#8A1F0A'] : isFish(c) ? ['#3D9BFF', '#0B3E7A'] : c === 7 || c === 6 ? ['#A996FF', '#3D2BC9'] : c >= 4 ? ['#12C08A', '#0B4E32'] : null;
 const START = [[0, 4, 1], [2, FISH + 5, 6], [7, 3, 5], [FISH + 10, 0, 4], [1, 6, BOX]];
 const short = (v: number) => (v >= 1e6 ? `${(v / 1e6).toFixed(v >= 1e7 ? 0 : 1)}M` : v >= 1e4 ? `${Math.round(v / 1e3)}k` : formatCoins(v));
 const fillCode = () => {
@@ -74,6 +77,7 @@ export default function FishingScreen({ forceTutorial }: { forceTutorial?: boole
   const [fly, setFly] = useState<{ key: number; items: { from: { x: number; y: number }; to: { x: number; y: number }; text: string }[] } | null>(null);
   const [box, setBox] = useState({ w: 360, h: 460 });
   const { result, show } = useResult();
+  const big = useBigWin();
   const onError = usePlayErrors();
   const history = useGameHistory('fishing', (d) => d);
   const skip = useRef(false);
@@ -160,6 +164,7 @@ export default function FishingScreen({ forceTutorial }: { forceTutorial?: boole
         }
       }
       setWon(v.multiplier);
+      await big.celebrate(v.multiplier, r.payout);
       show({ bet, payout: r.payout, multiplier: r.payout > 0 ? v.multiplier : undefined });
       tutorialEvent('fishing', 'fishing:spin');
     } catch (e) {
@@ -197,7 +202,7 @@ export default function FishingScreen({ forceTutorial }: { forceTutorial?: boole
           ) : null}
           <Machine
             grid={grid} prev={prev} spinKey={spinKey} cell={cell} turbo={turbo} tease={tease}
-            render={render} filler={fillCode} lines={lines} cells={cells}
+            render={render} filler={fillCode} lines={lines} cells={cells} tile={tileOf}
             colors={free ? ['#0B6E9A', '#06304A'] : ['#1FA7E0', '#0B4E7A']} rim="#FFD06B"
             title={<T weight="display" style={styles.marquee}>🎣 {free ? t('play.freeSpin').toUpperCase() : t(`games.names.fishing`).toUpperCase()} 🐟</T>}
           >
@@ -213,6 +218,7 @@ export default function FishingScreen({ forceTutorial }: { forceTutorial?: boole
             <T variant="caption" color="text3" align="center">{t('play.fishHint')}</T>
           </Animated.View>
           <ResultBanner result={result} />
+          {big.node}
         </View>
       }
       controls={

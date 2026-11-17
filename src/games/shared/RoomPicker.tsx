@@ -11,6 +11,7 @@ import { Button, PressableScale, Shine, T, formatCoins } from '@/design/componen
 import { useTheme } from '@/design/theme';
 import { motion, radius, roomArt } from '@/design/tokens';
 import { useT } from '@/i18n';
+import { useDesktop } from '@/design/layout';
 import { haptic } from '@/services/haptics';
 import { sfx } from '@/services/audio';
 
@@ -19,15 +20,21 @@ const EASE_ENTER = Easing.bezier(...motion.easeEnter);
 const GAP = 14;
 
 function RoomCard({
-  room, index, x, step, width, balance, onPress, leaving, selected, describe,
+  room, index, x, step, width, balance, onPress, leaving, selected, describe, flat = false, active = false,
 }: {
   room: Room; index: number; x: SharedValue<number>; step: number; width: number; balance: number;
   onPress: () => void; leaving: SharedValue<number>; selected: boolean; describe?: (r: Room) => string | null;
+  /** Computers: every room is visible side by side; `active` is the one that will be entered. */
+  flat?: boolean; active?: boolean;
 }) {
   const { t } = useT();
   const open = canEnterRoom(room, balance);
   const art = roomArt[room.id];
   const style = useAnimatedStyle(() => {
+    if (flat) {
+      const fade = selected ? 1 : 1 - leaving.value;
+      return { opacity: (active ? 1 : 0.72) * fade, transform: [{ translateY: active ? -10 : 0 }, { scale: (active ? 1.03 : 1) * (selected ? 1 + 0.04 * leaving.value : 1) }] };
+    }
     const r = [(index - 1) * step, index * step, (index + 1) * step];
     const s = interpolate(x.value, r, [0.9, 1, 0.9], Extrapolation.CLAMP);
     const o = interpolate(x.value, r, [0.5, 1, 0.5], Extrapolation.CLAMP);
@@ -41,14 +48,14 @@ function RoomCard({
   const extra = describe?.(room);
   const coins = t('common.coins');
   return (
-    <Animated.View style={[{ width, marginRight: GAP }, style]}>
+    <Animated.View style={[{ width, marginRight: flat ? 0 : GAP }, style]}>
       <PressableScale
         onPress={onPress}
         feedback="none"
         scaleTo={0.975}
         accessibilityRole="button"
         accessibilityLabel={`${t(`rooms.${room.id}`)}, ${formatCoins(room.min)}–${formatCoins(room.max)} ${coins}${open ? '' : `, ${t('rooms.locked', { amount: formatCoins(room.min) })}`}`}
-        style={styles.card}
+        style={[styles.card, flat && { borderWidth: 3, borderColor: active ? '#FFFFFF' : 'transparent' }]}
       >
         <LinearGradient colors={art.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
         <View style={styles.disc} />
@@ -64,7 +71,7 @@ function RoomCard({
           <T variant="title" weight="display" style={{ color: '#FFFFFF', fontSize: 28 }}>{t(`rooms.${room.id}`)}</T>
           <T variant="footnote" style={{ color: 'rgba(255,255,255,0.82)', marginTop: 10 }}>{t('rooms.limits')}</T>
           <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-            <T variant="display" tabular adjustsFontSizeToFit numberOfLines={1} style={{ color: '#FFFFFF', flexShrink: 1 }}>
+            <T variant="display" tabular adjustsFontSizeToFit numberOfLines={1} style={[{ color: '#FFFFFF', flexShrink: 1 }, flat && { fontSize: Math.min(34, Math.floor(width / 9)) }]}>
               {formatCoins(room.min)}–{formatCoins(room.max)}
             </T>
             <T variant="callout" style={{ color: 'rgba(255,255,255,0.82)' }}>{coins}</T>
@@ -93,6 +100,7 @@ export function RoomPicker({
   const { t } = useT();
   const { c, reduceMotion } = useTheme();
   const { width } = useWindowDimensions();
+  const desktop = useDesktop();
   const cardW = Math.min(Math.round(Math.min(width, 520) * 0.72), 320);
   const step = cardW + GAP;
   const pad = (Math.min(width, 520) - cardW) / 2;
@@ -138,6 +146,35 @@ export function RoomPicker({
     else scroller.current?.scrollTo({ x: i * step, animated: !reduceMotion });
   };
   const entering = (k: number) => (reduceMotion ? undefined : FadeInDown.duration(520).delay(60 * k).easing(EASE_ENTER));
+  if (desktop) {
+    // Computers: all rooms side by side, click one to pick it, click it again (or the button) to sit down.
+    const flatW = Math.min(290, Math.floor((Math.min(width, 1300) - 80 - GAP * (ROOMS.length - 1)) / ROOMS.length));
+    const pick = (i: number) => {
+      if (i === index) enter(i);
+      else tick(i);
+    };
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 40 }}>
+        <Animated.View entering={entering(0)} style={{ alignItems: 'center', marginBottom: 30 }}>
+          <T variant="title" align="center">{t('rooms.title')}</T>
+          <T variant="body" color="text2" align="center" style={{ marginTop: 6 }}>{t('rooms.subtitleDesk')}</T>
+        </Animated.View>
+        <Animated.View entering={entering(1)} style={{ flexDirection: 'row', gap: GAP, paddingTop: 12 }}>
+          {ROOMS.map((r, i) => (
+            <RoomCard key={r.id} room={r} index={i} x={x} step={step} width={flatW} balance={balance} onPress={() => pick(i)} leaving={leaving} selected={chosen === i} describe={describe} flat active={i === index} />
+          ))}
+        </Animated.View>
+        <Animated.View entering={entering(2)} style={{ width: '100%', maxWidth: 520, marginTop: 30 }}>
+          <Button
+            title={open ? t('rooms.enter', { name: t(`rooms.${room.id}`) }) : t('rooms.locked', { amount: formatCoins(room.min) })}
+            subtitle={`${formatCoins(room.min)}–${formatCoins(room.max)} ${t('common.coins')}`}
+            disabled={!open || chosen !== null}
+            onPress={() => enter(index)}
+          />
+        </Animated.View>
+      </View>
+    );
+  }
   return (
     <View style={{ flex: 1, justifyContent: 'center' }}>
       <Animated.View entering={entering(0)} style={{ paddingHorizontal: 24, marginBottom: 18 }}>

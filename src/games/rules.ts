@@ -216,6 +216,47 @@ export const RULES: Record<GameId, RulesDoc> = {
       { label: b('Tiradas gratis', 'Free spins'), value: '≈1 / 205' },
     ],
   },
+  goldmine: {
+    summary: b('Tragaperras minera de 5 rodillos y 10 líneas con re-tiradas de pepitas (las pepitas se quedan y cada una nueva da 3 re-tiradas más).', '5-reel, 10-line mining slot with nugget respins (nuggets stick and each new one gives 3 more respins).'),
+    rules: [
+      b('Premios para 3 / 4 / 5 iguales (× apuesta total): pico y pala ×1,1/×3,3/×13 · farol y casco ×1,3/×4,4/×18 · vagoneta ×2,6/×8,8/×40 · dinamita ×3,3/×13/×66 · lingote ×6,6/×33/×176 · minero (comodín) ×13/×66/×440.', 'Pays for 3 / 4 / 5 of a kind (× total bet): pickaxe and shovel ×1.1/×3.3/×13 · lantern and helmet ×1.3/×4.4/×18 · cart ×2.6/×8.8/×40 · dynamite ×3.3/×13/×66 · gold bar ×6.6/×33/×176 · miner (wild) ×13/×66/×440.'),
+      b('Las pepitas llevan un valor (×1 a ×15 la apuesta) o MINI (×20) o MAJOR (×100). Son premios fijos, no botes que crecen. No pagan en líneas.', 'Nuggets carry a value (×1 to ×15 the bet) or MINI (×20) or MAJOR (×100). They are fixed prizes, not growing jackpots. They do not pay on lines.'),
+      b('Con 5 o más pepitas empiezan las re-tiradas: las pepitas se quedan y el resto vuelve a girar. Tienes 3 y cada pepita nueva las devuelve a 3. Al acabar cobras todas las pepitas; si llenas las 15 casillas, además el GRAND (×1000).', '5 or more nuggets start the respins: nuggets stay and the rest spin again. You get 3 and every new nugget resets them to 3. At the end every nugget pays; fill all 15 cells for the GRAND (×1000) on top.'),
+      b('Premio máximo ×5000 la apuesta. Toda la ronda se decide antes de que giren los rodillos.', 'Maximum win ×5000 the bet. The whole round is decided before the reels spin.'),
+    ],
+    odds: [
+      { label: b('Retorno (simulado, 8 millones de tiradas)', 'Return (simulated, 8 million spins)'), value: '≈95.8 %' },
+      { label: b('Tiradas con premio', 'Spins that pay'), value: '≈25 %' },
+      { label: b('Re-tiradas de pepitas', 'Nugget respins'), value: '≈1 / 225' },
+    ],
+  },
+  fruits: {
+    summary: b('Tragaperras de frutas clásica de 5 rodillos y 10 líneas con comodines multiplicadores y tiradas gratis.', 'Classic 5-reel, 10-line fruit slot with multiplier wilds and free spins.'),
+    rules: [
+      b('Premios para 3 / 4 / 5 iguales (× apuesta total): cereza y limón ×0,5/×1,5/×5 · naranja y ciruela ×0,75/×2/×7,5 · uvas y sandía ×1,25/×3,75/×15 · campana ×2,5/×10/×37,5 · 7 ×6,25/×25/×125.', 'Pays for 3 / 4 / 5 of a kind (× total bet): cherry and lemon ×0.5/×1.5/×5 · orange and plum ×0.75/×2/×7.5 · grapes and melon ×1.25/×3.75/×15 · bell ×2.5/×10/×37.5 · 7 ×6.25/×25/×125.'),
+      b('Las bolas de fuego son comodines con ×2, ×3 o ×5: una línea ganadora se multiplica por la suma de los comodines que tenga.', 'Fireballs are wilds worth ×2, ×3 or ×5: a winning line is multiplied by the sum of its wilds.'),
+      b('3 / 4 / 5 estrellas en cualquier sitio pagan ×1 / ×5 / ×50 y dan 8 tiradas gratis, con más comodines y multiplicadores hasta ×10. 3 estrellas en las gratis suman 5 más.', '3 / 4 / 5 stars anywhere pay ×1 / ×5 / ×50 and give 8 free spins with more wilds and multipliers up to ×10. 3 stars during them add 5 more.'),
+      b('Premio máximo ×5000 la apuesta. Toda la ronda se decide antes de que giren los rodillos.', 'Maximum win ×5000 the bet. The whole round is decided before the reels spin.'),
+    ],
+    odds: [
+      { label: b('Retorno (simulado, 8 millones de tiradas)', 'Return (simulated, 8 million spins)'), value: '≈97.6 %' },
+      { label: b('Tiradas con premio', 'Spins that pay'), value: '≈25 %' },
+      { label: b('Tiradas gratis', 'Free spins'), value: '≈1 / 157' },
+    ],
+  },
+  pirate: {
+    summary: b('Tragaperras pirata de 5 rodillos y 10 líneas con loro comodín que camina y da re-tiradas gratis.', '5-reel, 10-line pirate slot with a walking wild parrot that gives free respins.'),
+    rules: [
+      b('Premios para 3 / 4 / 5 iguales (× apuesta total): ancla y brújula ×0,6/×1,6/×6,3 · ron y mapa ×0,8/×2,4/×7,9 · cañón ×1,6/×4,7/×19 · cofre ×1,9/×6,3/×25 · barco ×3,2/×12,6/×63 · capitán ×6,3/×25/×158.', 'Pays for 3 / 4 / 5 of a kind (× total bet): anchor and compass ×0.6/×1.6/×6.3 · rum and map ×0.8/×2.4/×7.9 · cannon ×1.6/×4.7/×19 · chest ×1.9/×6.3/×25 · ship ×3.2/×12.6/×63 · captain ×6.3/×25/×158.'),
+      b('El loro es comodín y solo sale en los rodillos 2 a 5. Mientras haya un loro, tienes una re-tirada gratis: el loro camina un rodillo a la izquierda y lo demás vuelve a girar (pueden salir loros nuevos). Cuando sale por el rodillo 1, se va.', 'The parrot is wild and only lands on reels 2–5. While a parrot is on screen you get a free respin: it walks one reel to the left and the rest spin again (new parrots can land). It leaves after reel 1.'),
+      b('Cada re-tirada paga sus propias líneas. Premio máximo ×2000 la apuesta. Toda la ronda se decide antes de girar.', 'Each respin pays its own lines. Maximum win ×2000 the bet. The whole round is decided before it spins.'),
+    ],
+    odds: [
+      { label: b('Retorno (simulado, 8 millones de tiradas)', 'Return (simulated, 8 million spins)'), value: '≈95.5 %' },
+      { label: b('Tiradas con premio', 'Spins that pay'), value: '≈31 %' },
+      { label: b('Tiradas con loro', 'Spins with a parrot'), value: '≈1 / 8' },
+    ],
+  },
   trader: {
     summary: b('Bolsa: ¿el precio acabará más alto o más bajo que ahora? Eliges Sube o Baja y miras la gráfica.', 'Stock market: will the price end higher or lower than now? Pick Up or Down and watch the chart.'),
     rules: [

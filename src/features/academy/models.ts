@@ -25,6 +25,9 @@ import { VP_PAYS, VP_REFERENCE_RTP } from '@/engine/games/videopoker.ts';
 import { wheelRtp } from '@/engine/games/wheel.ts';
 import { FISHING_PAYS, FISHING_WEIGHTS, FISH_VALUES } from '@/engine/games/fishing.ts';
 import { JADE_PAYS, JADE_WEIGHTS } from '@/engine/games/jade.ts';
+import { MINE_PAYS, MINE_WEIGHTS, MINE_BONUS } from '@/engine/games/goldmine.ts';
+import { FRUIT_PAYS, FRUIT_WEIGHTS } from '@/engine/games/fruits.ts';
+import { PIRATE_PAYS, PIRATE_WEIGHTS } from '@/engine/games/pirate.ts';
 import { towerMultiplier } from '@/engine/games/towers.ts';
 import { diamondStats, DIAMOND_PAYS } from '@/engine/games/diamonds.ts';
 import { pumpMultiplier } from '@/engine/games/pump.ts';
@@ -258,6 +261,51 @@ const MODELS: Record<GameId, Builder> = {
       rtp: 0.97,
       formula: L(lang, `3 iguales en una línea ≈ (peso ÷ ${W})³, algo más gracias a los ídolos comodín. El símbolo expandido paga su premio × 10 líneas. Retorno total medido simulando 8 millones de tiradas: ≈97 %.`, `3 of a kind on a line ≈ (weight ÷ ${W})³, a little more thanks to the wild idols. The expanded symbol pays its prize × 10 lines. Total return measured by simulating 8 million spins: ≈97 %.`),
       example: L(lang, 'Una de cada 4 tiradas paga algo. Las tiradas gratis salen ≈1 de cada 200 y de media dan unas 60 veces la apuesta, pero si el especial es una hoja suelen dar poco y si es el explorador pueden dar muchísimo.', 'One spin in 4 pays something. Free spins come about 1 in 200 and average about 60× the bet, but a leaf special usually pays little while the explorer can pay a lot.'),
+    };
+  },
+  goldmine: (lang) => {
+    const W = MINE_WEIGHTS.reduce((a, b) => a + b, 0);
+    const p3 = (s: number) => (MINE_WEIGHTS[s] / W) ** 3;
+    const pn = MINE_WEIGHTS[8] / W;
+    // chance of 5+ nuggets among 15 cells (binomial)
+    const choose = (a: number, k: number) => { let r = 1; for (let i = 1; i <= k; i++) r = (r * (a - k + i)) / i; return r; };
+    let pBonus = 0;
+    for (let k = MINE_BONUS.trigger; k <= 15; k++) pBonus += choose(15, k) * pn ** k * (1 - pn) ** (15 - k);
+    const NAMES = [['picos', 'pickaxes'], ['vagonetas', 'carts'], ['lingotes', 'gold bars'], ['mineros', 'miners']];
+    return {
+      idea: L(lang, 'Cinco rodillos y 10 líneas. Lo gordo está en las pepitas: con 5 o más empiezan las re-tiradas y cada pepita nueva da 3 más. Los premios MINI, MAJOR y GRAND son fijos.', 'Five reels and 10 lines. The big money is in the nuggets: 5 or more start the respins and each new nugget gives 3 more. MINI, MAJOR and GRAND are fixed prizes.'),
+      rowsTitle: L(lang, 'En una línea concreta, 3 seguidos de…', 'On one line, 3 in a row of…'),
+      rows: [0, 4, 6, 7].map((s, i) => ({ label: L(lang, NAMES[i][0], NAMES[i][1]), p: p3(s), mult: MINE_PAYS[s][0] })),
+      rtp: 0.958,
+      formula: L(lang, `Cada casilla es pepita con probabilidad ${fmtPct(lang, pn)}. 5 o más de 15 = suma binomial = ${fmtPct(lang, pBonus)} (≈1 de cada ${Math.round(1 / pBonus)}). El retorno total se mide simulando 8 millones de tiradas: ≈95,8 %.`, `Each cell is a nugget with chance ${fmtPct(lang, pn)}. 5 or more of 15 = binomial sum = ${fmtPct(lang, pBonus)} (≈1 in ${Math.round(1 / pBonus)}). Total return measured by simulating 8 million spins: ≈95.8 %.`),
+      example: L(lang, 'Una de cada 4 tiradas paga algo. Las re-tiradas dan de media unas 48 veces la apuesta, pero llenar la pantalla entera (GRAND) es rarísimo: más o menos 1 de cada 12.000 tiradas.', 'One spin in 4 pays something. The respins average about 48× the bet, but filling the whole screen (GRAND) is very rare: about 1 in 12,000 spins.'),
+    };
+  },
+  fruits: (lang) => {
+    const W = FRUIT_WEIGHTS.base.reduce((a, b) => a + b, 0);
+    const p3 = (s: number) => (FRUIT_WEIGHTS.base[s] / W) ** 3;
+    const NAMES = [['cerezas', 'cherries'], ['uvas', 'grapes'], ['campanas', 'bells'], ['sietes', 'sevens']];
+    return {
+      idea: L(lang, 'Frutas de siempre en 10 líneas. La gracia son las bolas de fuego: son comodines y multiplican la línea en la que están (×2, ×3 o ×5, y si hay varias se suman).', 'Classic fruits on 10 lines. The fun is the fireballs: they are wild and multiply the line they are on (×2, ×3 or ×5, and several add up).'),
+      rowsTitle: L(lang, 'En una línea concreta, 3 seguidos de… (sin comodines)', 'On one line, 3 in a row of… (no wilds)'),
+      rows: [0, 4, 6, 7].map((s, i) => ({ label: L(lang, NAMES[i][0], NAMES[i][1]), p: p3(s), mult: FRUIT_PAYS[s][0] })),
+      rtp: 0.976,
+      formula: L(lang, `3 iguales en una línea ≈ (peso ÷ ${W})³, más con comodines. Un comodín ×3 en una línea de campanas: ×2,5 × 3 = ×7,5. Retorno total medido con 8 millones de tiradas: ≈97,6 %.`, `3 of a kind on a line ≈ (weight ÷ ${W})³, more with wilds. A ×3 wild on a line of bells: ×2.5 × 3 = ×7.5. Total return measured with 8 million spins: ≈97.6 %.`),
+      example: L(lang, 'Una de cada 4 tiradas paga algo. Las tiradas gratis salen ≈1 de cada 157 y traen el doble de comodines, con multiplicadores de hasta ×10.', 'One spin in 4 pays something. Free spins come about 1 in 157 and bring twice as many wilds, with multipliers up to ×10.'),
+    };
+  },
+  pirate: (lang) => {
+    const W = PIRATE_WEIGHTS.reduce((a, b) => a + b, 0);
+    const p3 = (s: number) => (PIRATE_WEIGHTS[s] / W) ** 3;
+    const noParrot = (1 - PIRATE_WEIGHTS[8] / W) ** 12;
+    const NAMES = [['anclas', 'anchors'], ['cañones', 'cannons'], ['barcos', 'ships'], ['capitanes', 'captains']];
+    return {
+      idea: L(lang, 'Es la de premios más frecuentes de la sala: el loro comodín te regala re-tiradas mientras camina hacia la izquierda, así que muchas tiradas se alargan solas. A cambio, los premios máximos son más bajos (×2000).', 'The hall’s most frequent payer: the wild parrot gives you respins while it walks to the left, so many spins extend themselves. In exchange the top prize is lower (×2000).'),
+      rowsTitle: L(lang, 'En una línea concreta, 3 seguidos de… (sin loro)', 'On one line, 3 in a row of… (no parrot)'),
+      rows: [0, 4, 6, 7].map((s, i) => ({ label: L(lang, NAMES[i][0], NAMES[i][1]), p: p3(s), mult: PIRATE_PAYS[s][0] })),
+      rtp: 0.955,
+      formula: L(lang, `Probabilidad de que salga al menos un loro en los 12 huecos de los rodillos 2–5 = 1 − (1 − ${PIRATE_WEIGHTS[8]}/${W})¹² = ${fmtPct(lang, 1 - noParrot)}. El retorno total se mide simulando 8 millones de tiradas: ≈95,5 %.`, `Chance of at least one parrot in the 12 spots of reels 2–5 = 1 − (1 − ${PIRATE_WEIGHTS[8]}/${W})¹² = ${fmtPct(lang, 1 - noParrot)}. Total return measured by simulating 8 million spins: ≈95.5 %.`),
+      example: L(lang, 'Casi 1 de cada 3 tiradas paga algo, así que el saldo se mueve menos que en las otras tragaperras. Un loro en el rodillo 5 da 4 re-tiradas seguidas.', 'Almost 1 spin in 3 pays something, so your balance swings less than in the other slots. A parrot on reel 5 gives 4 respins in a row.'),
     };
   },
   horses: (lang) => ({

@@ -23,6 +23,9 @@ import * as BJ from './games/blackjack.ts';
 import * as Slots from './games/slots.ts';
 import * as Cascade from './games/cascade.ts';
 import * as Fishing from './games/fishing.ts';
+import * as Goldmine from './games/goldmine.ts';
+import * as Fruits from './games/fruits.ts';
+import * as Pirate from './games/pirate.ts';
 import * as Jade from './games/jade.ts';
 import * as Trader from './games/trader.ts';
 import * as VP from './games/videopoker.ts';
@@ -120,6 +123,24 @@ const handlers: Record<Exclude<GameId, 'poker'>, Handler> = {
     const b = bet(p.bet);
     const r = Jade.playJade(rng, b);
     return single(b, r.payout, `${r.multiplier}×${r.spins.length > 1 ? ` · 🗿 ${r.spins.length - 1}` : ''}`, { spins: r.spins, special: r.special, freeSpins: r.freeSpins, multiplier: r.multiplier, capped: r.capped });
+  },
+  goldmine: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const b = bet(p.bet);
+    const r = Goldmine.playGoldmine(rng, b);
+    return single(b, r.payout, `${r.multiplier}×${r.respins.length ? ` · ⛏️ ${r.respins.length}` : ''}${r.grand ? ' · GRAND' : ''}`, { grid: r.grid, lines: r.lines, lineWin: r.lineWin, nuggets: r.nuggets, respins: r.respins, bonus: r.bonus, grand: r.grand, multiplier: r.multiplier, capped: r.capped });
+  },
+  fruits: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const b = bet(p.bet);
+    const r = Fruits.playFruits(rng, b);
+    return single(b, r.payout, `${r.multiplier}×${r.spins.length > 1 ? ` · ⭐ ${r.spins.length - 1}` : ''}`, { spins: r.spins, freeSpins: r.freeSpins, multiplier: r.multiplier, capped: r.capped });
+  },
+  pirate: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const b = bet(p.bet);
+    const r = Pirate.playPirate(rng, b);
+    return single(b, r.payout, `${r.multiplier}×${r.spins.length > 1 ? ` · 🦜 ${r.spins.length - 1}` : ''}`, { spins: r.spins, multiplier: r.multiplier, capped: r.capped });
   },
   horses: (s, op, p, { rng }) => {
     type HState = { card: Horses.RaceCard; min: number; max: number };

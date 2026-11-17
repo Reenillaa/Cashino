@@ -16,9 +16,12 @@ import { ResultBanner } from '../shared/ResultBanner';
 import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
 import { JadeSymbol } from '../lineslot/Symbols';
 import { Machine, reelTimes } from '../lineslot/Machine';
+import { useBigWin } from '../lineslot/BigWin';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
+const tileOf = (c: number): [string, string] | null =>
+  c === IDOL ? ['#FFE58A', '#C98B12'] : c === 8 || c === 7 ? ['#FF8A3D', '#8A2A0A'] : c === 5 || c === 6 ? ['#12C08A', '#0B4E32'] : null;
 const START = [[0, 5, 3], [IDOL, 1, 6], [4, 8, 2], [7, 0, 5], [1, 3, IDOL]];
 const fillCode = () => (Math.random() < 0.05 ? IDOL : Math.floor(Math.random() * 9));
 const teaseOf = (g: number[][]) => {
@@ -89,6 +92,7 @@ export default function JadeScreen({ forceTutorial }: { forceTutorial?: boolean 
   const [free, setFree] = useState<{ i: number; n: number } | null>(null);
   const [box, setBox] = useState({ w: 360, h: 460 });
   const { result, show } = useResult();
+  const big = useBigWin();
   const onError = usePlayErrors();
   const history = useGameHistory('jade', (d) => d);
   const skip = useRef(false);
@@ -172,6 +176,7 @@ export default function JadeScreen({ forceTutorial }: { forceTutorial?: boolean 
         }
       }
       setWon(v.multiplier);
+      await big.celebrate(v.multiplier, r.payout);
       show({ bet, payout: r.payout, multiplier: r.payout > 0 ? v.multiplier : undefined });
       tutorialEvent('jade', 'jade:spin');
     } catch (e) {
@@ -206,7 +211,7 @@ export default function JadeScreen({ forceTutorial }: { forceTutorial?: boolean 
           </View>
           <Machine
             grid={grid} prev={prev} spinKey={spinKey} cell={cell} turbo={turbo} tease={tease}
-            render={render} filler={fillCode} lines={lines} cells={cells}
+            render={render} filler={fillCode} lines={lines} cells={cells} tile={tileOf}
             expanded={special !== null && expanded.length ? { reels: expanded, render: (size) => (
               <View style={{ alignItems: 'center', gap: 2 }}>{[0, 1, 2].map((k) => <JadeSymbol key={k} code={special} size={size * 0.72} />)}</View>
             ) } : null}
@@ -224,6 +229,7 @@ export default function JadeScreen({ forceTutorial }: { forceTutorial?: boolean 
             <T variant="caption" color="text3" align="center">{t('play.jadeHint')}</T>
           </Animated.View>
           <ResultBanner result={result} />
+          {big.node}
         </View>
       }
       controls={

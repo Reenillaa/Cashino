@@ -114,6 +114,21 @@ export const TUTORIALS: Record<GameId, TutorialStep[]> = {
     doIt('jade:spin', ['Tira', 'Spin'], ['Elige tu ficha y pulsa Tirar.', 'Pick your chip and tap Spin.']),
     quiz(['El especial', 'The special'], ['En las gratis el especial sale en los rodillos 1, 3 y 5 (no seguidos). ¿Paga?', 'In free spins the special lands on reels 1, 3 and 5 (not adjacent). Does it pay?'], [['Sí, en las 10 líneas', 'Yes, on all 10 lines'], ['No, tienen que estar seguidos', 'No, they must be adjacent']], 0, ['El especial se expande y paga en todas las líneas aunque los rodillos no estén seguidos.', 'The special expands and pays on every line even when the reels are not adjacent.']),
   ],
+  goldmine: [
+    info(['Mina de Oro', 'Gold Mine'], ['5 rodillos y 10 líneas. Las pepitas de oro no pagan en líneas: con 5 o más en pantalla empiezan las re-tiradas.', '5 reels and 10 lines. Gold nuggets do not pay on lines: 5 or more on screen start the respins.']),
+    doIt('goldmine:spin', ['Tira', 'Spin'], ['Elige tu ficha y pulsa Tirar.', 'Pick your chip and tap Spin.']),
+    quiz(['Las re-tiradas', 'The respins'], ['Te queda 1 re-tirada y cae una pepita nueva. ¿Cuántas te quedan?', 'You have 1 respin left and a new nugget lands. How many are left?'], [['3', '3'], ['0', '0']], 0, ['Cada pepita nueva vuelve a poner el contador en 3. Si llenas las 15 casillas, ganas el GRAND (×1000).', 'Every new nugget resets the counter to 3. Fill all 15 cells for the GRAND (×1000).']),
+  ],
+  fruits: [
+    info(['Fuego Frutal', 'Fruit Fire'], ['Frutas de toda la vida en 10 líneas. Las bolas de fuego son comodines con ×2, ×3 o ×5.', 'Classic fruits on 10 lines. Fireballs are wilds worth ×2, ×3 or ×5.']),
+    doIt('fruits:spin', ['Tira', 'Spin'], ['Elige tu ficha y pulsa Tirar.', 'Pick your chip and tap Spin.']),
+    quiz(['Dos comodines', 'Two wilds'], ['Una línea de tres 7 lleva un comodín ×2 y otro ×3. ¿Por cuánto se multiplica?', 'A line of three 7s has a ×2 and a ×3 wild. What is it multiplied by?'], [['×5', '×5'], ['×6', '×6']], 0, ['Los multiplicadores de los comodines de la misma línea se suman: 2 + 3 = ×5.', 'Wild multipliers on the same line add up: 2 + 3 = ×5.']),
+  ],
+  pirate: [
+    info(['Noche Pirata', 'Pirate Night'], ['10 líneas y un loro comodín. Cada vez que hay un loro, tienes una re-tirada gratis y el loro camina un rodillo a la izquierda.', '10 lines and a wild parrot. Whenever a parrot is on screen you get a free respin and it walks one reel to the left.']),
+    doIt('pirate:spin', ['Tira', 'Spin'], ['Elige tu ficha y pulsa Tirar.', 'Pick your chip and tap Spin.']),
+    quiz(['¿Cuántas re-tiradas?', 'How many respins?'], ['Sale un loro en el rodillo 4. Si no sale ninguno más, ¿cuántas re-tiradas gratis tienes?', 'A parrot lands on reel 4. If no other appears, how many free respins do you get?'], [['4', '4'], ['1', '1']], 0, ['Camina del rodillo 4 al 3, al 2, al 1 y luego se va: 4 re-tiradas.', 'It walks from reel 4 to 3, 2, 1 and then leaves: 4 respins.']),
+  ],
   trader: [
     info(['La bolsa', 'The market'], ['Eliges si el precio acabará más alto (Sube) o más bajo (Baja). Luego miras cómo se mueve la gráfica.', 'Pick whether the price will end higher (Up) or lower (Down). Then watch the chart move.']),
     doIt('trader:play', ['Haz tu apuesta', 'Make your call'], ['Pulsa Sube o Baja.', 'Tap Up or Down.']),

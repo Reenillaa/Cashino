@@ -95,6 +95,9 @@ export const SIM_OPTIONS: Partial<Record<GameId, SimOption[]>> = {
   cascade: [{ label: L('Tirada normal', 'Normal spin'), round: one('cascade', {}), rtp: 0.965 }],
   fishing: [{ label: L('Tirada normal', 'Normal spin'), round: one('fishing', {}), rtp: 0.956, spread: 0.35 }],
   jade: [{ label: L('Tirada normal', 'Normal spin'), round: one('jade', {}), rtp: 0.97, spread: 0.35 }],
+  goldmine: [{ label: L('Tirada normal', 'Normal spin'), round: one('goldmine', {}), rtp: 0.958, spread: 0.35 }],
+  fruits: [{ label: L('Tirada normal', 'Normal spin'), round: one('fruits', {}), rtp: 0.976, spread: 0.3 }],
+  pirate: [{ label: L('Tirada normal', 'Normal spin'), round: one('pirate', {}), rtp: 0.955, spread: 0.12 }],
   towers: [
     { label: L('Medio · 2 pisos y cobrar', 'Medium · 2 floors then collect'), round: steps('towers', { level: 'medium' }, () => ['pick', { door: 0 }], 2), rtp: 0.99 },
     { label: L('Difícil · 4 pisos y cobrar', 'Hard · 4 floors then collect'), round: steps('towers', { level: 'hard' }, () => ['pick', { door: 0 }], 4), rtp: 0.99 },

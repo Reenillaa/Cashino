@@ -327,6 +327,52 @@ const ART: Record<GameId, (id: string) => React.ReactNode> = {
       <Path d="M92 44 Q86 30 74 34 Q84 38 86 50 Z" fill="#3BE39A" />
     </>
   ),
+  goldmine: (id) => (
+    <>
+      {/* a mine cart heaped with nuggets and a pickaxe */}
+      <Path d="M20 30 L52 64" stroke="#8A4B1E" strokeWidth={6} strokeLinecap="round" />
+      <Path d="M8 34 C18 18 40 12 52 20 C40 20 28 26 22 38 Z" fill="#C9C4DA" stroke="#4A4560" strokeWidth={2} />
+      <Circle cx={34} cy={48} r={9} fill={`url(#${id}-gold)`} stroke="#8A5200" strokeWidth={1.5} />
+      <Circle cx={50} cy={44} r={11} fill={`url(#${id}-gold)`} stroke="#8A5200" strokeWidth={1.5} />
+      <Circle cx={66} cy={47} r={9} fill={`url(#${id}-gold)`} stroke="#8A5200" strokeWidth={1.5} />
+      <Path d="M18 52 L84 52 L76 78 L26 78 Z" fill={SH} transform="translate(2 3)" />
+      <Path d="M18 52 L84 52 L76 78 L26 78 Z" fill="#7A3E1A" stroke="#FFFFFF" strokeWidth={2} />
+      <Rect x={24} y={58} width={54} height={4} fill="#5A2E10" />
+      <Circle cx={34} cy={84} r={7} fill="#3A3550" stroke="#C9C4DA" strokeWidth={2} />
+      <Circle cx={68} cy={84} r={7} fill="#3A3550" stroke="#C9C4DA" strokeWidth={2} />
+      <Path d="M80 22 L83 28 L90 29 L84 33 L86 40 L80 36 L74 40 L76 33 L70 29 L77 28 Z" fill="#FFFFFF" />
+    </>
+  ),
+  fruits: () => (
+    <>
+      {/* cherries in front of a fireball wild */}
+      <Path d="M50 8 C60 20 74 22 74 42 C80 36 80 30 77 24 C90 36 88 74 50 88 C16 84 12 52 26 36 C26 44 30 46 33 50 C30 30 42 22 50 8 Z" fill="#FF8A1C" stroke="#FFFFFF" strokeWidth={2} />
+      <Path d="M50 30 C56 40 62 44 62 56 C62 70 38 72 38 56 C38 48 46 42 50 30 Z" fill="#FFE070" />
+      <Path d="M40 62 C42 48 50 40 62 36 M58 64 C56 52 58 44 62 36" stroke="#2E8A3A" strokeWidth={3} fill="none" />
+      <Circle cx={40} cy={68} r={12} fill="#E8183F" stroke="#FFFFFF" strokeWidth={2} />
+      <Circle cx={60} cy={70} r={12} fill="#E8183F" stroke="#FFFFFF" strokeWidth={2} />
+      <Circle cx={36} cy={63} r={3} fill="#FFFFFF" opacity={0.7} />
+      <Circle cx={56} cy={65} r={3} fill="#FFFFFF" opacity={0.7} />
+    </>
+  ),
+  pirate: () => (
+    <>
+      {/* a skull flag and a parrot on its pole */}
+      <Rect x={20} y={10} width={5} height={80} rx={2.5} fill="#8A4B1E" />
+      <Path d="M25 14 L82 14 C76 30 82 40 82 52 L25 52 Z" fill={SH} transform="translate(2 3)" />
+      <Path d="M25 14 L82 14 C76 30 82 40 82 52 L25 52 Z" fill="#1A1430" stroke="#FFFFFF" strokeWidth={2} />
+      <Circle cx={52} cy={30} r={9} fill="#FFFFFF" />
+      <Rect x={47} y={36} width={10} height={6} rx={2} fill="#FFFFFF" />
+      <Circle cx={49} cy={30} r={2.4} fill="#1A1430" />
+      <Circle cx={55} cy={30} r={2.4} fill="#1A1430" />
+      <Path d="M40 46 L64 40 M40 40 L64 46" stroke="#FFFFFF" strokeWidth={3} strokeLinecap="round" />
+      <Path d="M40 90 C30 80 32 64 44 58 C54 54 60 62 58 70 C56 80 50 88 40 90 Z" fill="#E8304F" stroke="#FFFFFF" strokeWidth={2} />
+      <Path d="M42 76 C38 82 38 88 40 92 C46 86 48 80 46 74 Z" fill="#3D9BFF" />
+      <Path d="M56 64 C64 64 66 70 60 74 C60 70 58 68 56 68 Z" fill="#FFD06B" />
+      <Circle cx={51} cy={64} r={3} fill="#FFFFFF" />
+      <Circle cx={52} cy={64} r={1.5} fill="#1A1430" />
+    </>
+  ),
   dragontiger: (id) => (
     <>
       <Rect x={10} y={22} width={38} height={54} rx={7} fill={SH} transform="translate(2 4) rotate(-8 29 49)" />

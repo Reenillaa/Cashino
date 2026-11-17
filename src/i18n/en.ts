@@ -36,18 +36,18 @@ const en: Dictionary = {
     openRules: 'Rules', openTutorial: 'Tutorial', openAcademy: 'Academy', houseEdge: 'House edge', rtp: 'RTP',
     names: {
       poker: 'Poker', blackjack: 'Blackjack', crash: 'Crash', dice: 'Dice', mines: 'Mines', plinko: 'Plinko', crossing: 'Crossing',
-      roulette: 'Roulette', limbo: 'Limbo', coinflip: 'Coinflip', baccarat: 'Baccarat', hilo: 'Hi-Lo', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Slots', trader: 'Stocks', videopoker: 'Video Poker', wheel: 'Wheel', towers: 'Dragon Tower', diamonds: 'Diamonds', pump: 'Pump', dragontiger: 'Dragon Tiger', horses: 'Horse Racing', cascade: 'Sweet Cascade', fishing: 'Golden Lake', jade: 'Jade Temple',
+      roulette: 'Roulette', limbo: 'Limbo', coinflip: 'Coinflip', baccarat: 'Baccarat', hilo: 'Hi-Lo', keno: 'Keno', sicbo: 'Sic Bo', slots: 'Slots', trader: 'Stocks', videopoker: 'Video Poker', wheel: 'Wheel', towers: 'Dragon Tower', diamonds: 'Diamonds', pump: 'Pump', dragontiger: 'Dragon Tiger', horses: 'Horse Racing', cascade: 'Sweet Cascade', fishing: 'Golden Lake', jade: 'Jade Temple', goldmine: 'Gold Mine', fruits: 'Fruit Fire', pirate: 'Pirate Night',
     },
     blurbs: {
       poker: "No-Limit Texas Hold'em against bots or friends.", blackjack: 'Get to 21 without busting and beat the dealer.',
       crash: 'Cash out before the rocket blows.', dice: 'Pick your odds and roll.', mines: 'Uncover gems, dodge mines.',
       plinko: 'Drop the ball and watch it land.', crossing: 'Cross lane by lane and stop in time.', roulette: 'European roulette, 37 pockets.',
       limbo: 'Set a target and beat it.', coinflip: 'Heads or tails, double or nothing.', baccarat: 'Player, Banker or Tie.',
-      hilo: 'Will the next card be higher or lower?', keno: 'Pick numbers and wait for the draw.', sicbo: 'Three dice, many bets.', slots: 'Three reels, three of a kind, win.', trader: 'Up or down? Invest and watch the chart.', videopoker: 'The Las Vegas poker machine.', wheel: 'Spin the wheel, win what it shows.', towers: 'Climb floors without waking the dragon.', diamonds: 'Five gems: match colours.', pump: 'Inflate the balloon… before it pops.', dragontiger: 'One card each: highest wins.', horses: 'Study the card and bet like at the track.', cascade: '8 matching sweets pay, more tumble in and bombs multiply.', fishing: 'Money fish and a fisherman who reels them all in.', jade: 'The special symbol expands over whole reels.',
+      hilo: 'Will the next card be higher or lower?', keno: 'Pick numbers and wait for the draw.', sicbo: 'Three dice, many bets.', slots: 'Three reels, three of a kind, win.', trader: 'Up or down? Invest and watch the chart.', videopoker: 'The Las Vegas poker machine.', wheel: 'Spin the wheel, win what it shows.', towers: 'Climb floors without waking the dragon.', diamonds: 'Five gems: match colours.', pump: 'Inflate the balloon… before it pops.', dragontiger: 'One card each: highest wins.', horses: 'Study the card and bet like at the track.', cascade: '8 matching sweets pay, more tumble in and bombs multiply.', fishing: 'Money fish and a fisherman who reels them all in.', jade: 'The special symbol expands over whole reels.', goldmine: 'Nuggets that stick and respins up to the GRAND.', fruits: 'Classic fruits with ×2, ×3 and ×5 wilds.', pirate: 'The wild parrot walks and gives you respins.',
     },
   },
   play: {
-    tenLines: '10 LINES', fishCollect: '🎣 {{n}} fisherman reel in the fish · ×{{x}}', fishFree: '🎣 {{n}} FREE SPINS!', fishLevel: '🔥 +10 spins! Multiplier ×{{x}}', fishHint: 'Money fish · 3+ tackle boxes = free spins with the fisherman · every 4 fishermen: +10 and a bigger multiplier', jadeSpecial: 'Special symbol', jadeFree: '🗿 {{n}} FREE SPINS!', jadeExpand: '✨ It expands! +{{v}}', jadeHint: '3+ idols = 10 free spins with a special symbol that expands over whole reels',
+    win_big: 'BIG WIN!', win_mega: 'MEGA WIN!', win_epic: 'EPIC WIN!', tenLines: '10 LINES', respin: 'Respin', mineBonus: '⛏️ {{n}} NUGGETS! RESPINS', mineLeft: 'Respins: {{n}}', mineGrand: '💎 FULL SCREEN! GRAND ×1000', mineHint: '5+ nuggets = respins: they stick and each new nugget gives 3 more', fruitFree: '⭐ {{n}} FREE SPINS!', fruitHint: 'Wild 🔥 multiply the line · 3+ stars = 8 free spins', pirateWalk: '🦜 The parrot walks! Free respin', pirateHint: 'Each parrot gives a respin and walks one reel to the left', fishCollect: '🎣 {{n}} fisherman reel in the fish · ×{{x}}', fishFree: '🎣 {{n}} FREE SPINS!', fishLevel: '🔥 +10 spins! Multiplier ×{{x}}', fishHint: 'Money fish · 3+ tackle boxes = free spins with the fisherman · every 4 fishermen: +10 and a bigger multiplier', jadeSpecial: 'Special symbol', jadeFree: '🗿 {{n}} FREE SPINS!', jadeExpand: '✨ It expands! +{{v}}', jadeHint: '3+ idols = 10 free spins with a special symbol that expands over whole reels',
     freeSpin: 'Free spin', freeSpinsWon: '🍭 {{n}} FREE SPINS!', turbo: 'Turbo',
     change: 'Change', hideOptions: 'Done',
     dragTarget: '👆 Drag the white dot to pick your target',
@@ -89,7 +89,7 @@ const en: Dictionary = {
     red: 'Red', black: 'Black', selectChip: 'Chip', tapToBet: 'Tap the table to bet', totalBet: 'Total bet', lastResults: 'Last results',
   },
   rooms: {
-    title: 'Where do you play?', subtitle: 'Swipe to see the rooms. Each one has its own minimum and maximum bet.', practice: 'Practice', r1: 'The Bar', r2: 'The Club', r3: 'VIP Room',
+    subtitleDesk: 'Click a room to pick it. Each one has its own minimum and maximum bet.', title: 'Where do you play?', subtitle: 'Swipe to see the rooms. Each one has its own minimum and maximum bet.', practice: 'Practice', r1: 'The Bar', r2: 'The Club', r3: 'VIP Room',
     tier: { practice: 'Free', r1: 'Easy', r2: 'Lively', r3: 'High stakes' }, limits: 'Bets from', enter: 'Play in {{name}}',
     locked: 'You need {{amount}} chips', free: 'Free · your chips are safe', counts: 'With your chips · earns XP', change: 'Change room',
     blinds: 'Blinds {{sb}}/{{bb}}', buyIn: 'Buy-in {{min}}–{{max}} chips', chips: 'Chips {{chips}}', maxReached: 'Room maximum: {{max}} chips', minRequired: 'Room minimum: {{min}} chips',

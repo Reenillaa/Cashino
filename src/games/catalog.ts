@@ -37,6 +37,9 @@ export const CATALOG: GameMeta[] = [
   { id: 'diamonds', category: 'originals', tint: gameTint.diamonds, rtp: '99 %', edge: '1 %', multiStep: false, online: true },
   { id: 'fishing', category: 'originals', tint: gameTint.fishing, rtp: '≈95.6 %', edge: '≈4.4 %', multiStep: false, online: true },
   { id: 'jade', category: 'originals', tint: gameTint.jade, rtp: '≈97 %', edge: '≈3 %', multiStep: false, online: true },
+  { id: 'goldmine', category: 'originals', tint: gameTint.goldmine, rtp: '≈95.8 %', edge: '≈4.2 %', multiStep: false, online: true },
+  { id: 'fruits', category: 'originals', tint: gameTint.fruits, rtp: '≈97.6 %', edge: '≈2.4 %', multiStep: false, online: true },
+  { id: 'pirate', category: 'originals', tint: gameTint.pirate, rtp: '≈95.5 %', edge: '≈4.5 %', multiStep: false, online: true },
   { id: 'cascade', category: 'originals', tint: gameTint.cascade, rtp: '≈96.5 %', edge: '≈3.5 %', multiStep: false, online: true },
   { id: 'pump', category: 'originals', tint: gameTint.pump, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
   { id: 'dragontiger', category: 'cards', tint: gameTint.dragontiger, rtp: '96.3 %', edge: '3.7–10.4 %', multiStep: false, online: true },
@@ -51,13 +54,16 @@ export const META: Record<GameId, GameMeta> = Object.fromEntries(CATALOG.map((g)
 export const HIDDEN_GAMES: GameId[] = ['keno', 'sicbo'];
 /** What the lobby, the collection and the Academy show, in order (most famous first). */
 export const VISIBLE_GAMES: GameMeta[] = [
-  ...(['fishing', 'cascade', 'jade', 'horses', 'slots', 'roulette', 'blackjack', 'poker', 'videopoker', 'crash', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing'] as GameId[]).map((id) => META[id]),
+  ...(['fishing', 'goldmine', 'cascade', 'jade', 'fruits', 'pirate', 'horses', 'slots', 'roulette', 'blackjack', 'poker', 'videopoker', 'crash', 'wheel', 'towers', 'pump', 'diamonds', 'dragontiger', 'trader', 'dice', 'mines', 'plinko', 'baccarat', 'coinflip', 'hilo', 'limbo', 'crossing'] as GameId[]).map((id) => META[id]),
 ];
 
 /** The slot hall: every slot machine, newest first, with what makes each one different. */
 export const SLOT_HALL: { id: GameId; reels: string; max: number; free: boolean }[] = [
   { id: 'fishing', reels: '5×3', max: 5000, free: true },
   { id: 'jade', reels: '5×3', max: 5000, free: true },
+  { id: 'goldmine', reels: '5×3', max: 5000, free: true },
+  { id: 'fruits', reels: '5×3', max: 5000, free: true },
+  { id: 'pirate', reels: '5×3', max: 2000, free: true },
   { id: 'cascade', reels: '6×5', max: 5000, free: true },
   { id: 'slots', reels: '3', max: 500, free: false },
 ];

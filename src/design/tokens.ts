@@ -123,6 +123,9 @@ export const gameTint: Record<GameId, string> = {
   cascade: '#FF8AC4',
   fishing: '#5BE3B0',
   jade: '#5BE3B0',
+  goldmine: '#FFD06B',
+  fruits: '#FF8A3D',
+  pirate: '#A996FF',
 };
 
 /**
@@ -154,6 +157,9 @@ export const gameArt: Record<GameId, { emoji: string; colors: [string, string] }
   cascade: { emoji: '🍭', colors: ['#FFD3E8', '#FFB3D6'] },
   fishing: { emoji: '🎣', colors: ['#C8F5DF', '#A6DCEF'] },
   jade: { emoji: '🗿', colors: ['#C8F5DF', '#A6DCEF'] },
+  goldmine: { emoji: '⛏️', colors: ['#FFE6A7', '#E8C9A0'] },
+  fruits: { emoji: '🍒', colors: ['#FFD0B8', '#FFC6D9'] },
+  pirate: { emoji: '🦜', colors: ['#D8D0FF', '#A6DCEF'] },
   dragontiger: { emoji: '🐯', colors: ['#FFE9B0', '#FFD38A'] },
   horses: { emoji: '🏇', colors: ['#C8F5DF', '#A6DCEF'] },
 };
@@ -202,6 +208,9 @@ export const gameVivid: Record<GameId, [string, string]> = {
   cascade: ['#FF4FA3', '#B3127A'],
   fishing: ['#1FA7E0', '#0B4E7A'],
   jade: ['#12C08A', '#0B5E3E'],
+  goldmine: ['#C98B12', '#4A2A08'],
+  fruits: ['#FF5A2A', '#8A0F3A'],
+  pirate: ['#3D2BC9', '#0E0830'],
   dragontiger: ['#FFB938', '#D9741C'],
   horses: ['#12C08A', '#0B6E6E'],
 };
