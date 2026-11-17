@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming, ZoomIn } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withTiming, ZoomIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Polyline } from 'react-native-svg';
-import { PAYLINES, REELS, ROWS } from '@/engine/games/lineslot.ts';
+import { REELS, ROWS } from '@/engine/games/lineslot.ts';
+import { Pop, SLOT_THEMES, WinCellFx, WinLine, type SlotTheme } from './WinFx';
 import { useTheme } from '@/design/theme';
 
-export const LINE_COLORS = ['#FFD06B', '#FF4FA3', '#5BE3B0', '#A996FF', '#3D9BFF', '#FF8A3D', '#E8304F', '#12C08A', '#FFFFFF', '#C04BFF'];
 const FILL = 12;
 
 /** Spin timing: every reel drops after the previous one; reels after a "tease" spin longer. */
@@ -21,7 +20,7 @@ export function reelTimes(turbo: boolean, tease: number[]): number[] {
 }
 
 /** One reel: a strip [new 3, random fill…, old 3] that drops from above and lands with a small bounce. */
-const Reel = React.memo(function Reel({ i, strip, cell, spinKey, duration, tease, render, tile }: { i: number; strip: number[]; cell: number; spinKey: number; duration: number; tease: boolean; render: (code: number, size: number) => React.ReactNode; tile?: (code: number) => [string, string] | null }) {
+const Reel = React.memo(function Reel({ i, strip, cell, spinKey, duration, tease, render, tile, wins }: { i: number; strip: number[]; cell: number; spinKey: number; duration: number; tease: boolean; render: (code: number, size: number) => React.ReactNode; tile?: (code: number) => [string, string] | null; wins: string }) {
   const { reduceMotion } = useTheme();
   const y = useSharedValue(0);
   const glow = useSharedValue(0);
@@ -54,7 +53,9 @@ const Reel = React.memo(function Reel({ i, strip, cell, spinKey, duration, tease
                 <LinearGradient colors={tc ?? ['rgba(255,255,255,0.10)', 'rgba(255,255,255,0.02)']} start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }} style={StyleSheet.absoluteFill} />
                 <View style={[styles.tileShine, { borderRadius: cell * 0.2 }]} />
               </View>
-              <View style={blur ? { opacity: 0.55, transform: [{ scaleY: 1.35 }] } : null}>{render(c, cell * 0.84)}</View>
+              <View style={blur ? { opacity: 0.55, transform: [{ scaleY: 1.35 }] } : null}>
+                {k < ROWS ? <Pop active={wins.includes(String(k))}>{render(c, cell * 0.84)}</Pop> : render(c, cell * 0.84)}
+              </View>
             </View>
           );
         })}
@@ -65,16 +66,6 @@ const Reel = React.memo(function Reel({ i, strip, cell, spinKey, duration, tease
     </View>
   );
 });
-
-/** A pulsing frame on a winning cell. */
-function WinCell({ x, y, cell, color }: { x: number; y: number; cell: number; color: string }) {
-  const p = useSharedValue(0);
-  useEffect(() => {
-    p.set(withRepeat(withSequence(withTiming(1, { duration: 280 }), withTiming(0.35, { duration: 280 })), -1, true));
-  }, [p]);
-  const st = useAnimatedStyle(() => ({ opacity: p.value, transform: [{ scale: 0.92 + 0.08 * p.value }] }));
-  return <Animated.View pointerEvents="none" style={[styles.win, { left: x * cell + 3, top: y * cell + 3, width: cell - 6, height: cell - 6, borderColor: color, shadowColor: color }, st]} />;
-}
 
 export interface MachineProps {
   grid: number[][];
@@ -92,6 +83,8 @@ export interface MachineProps {
   expanded?: { reels: number[]; render: (size: number) => React.ReactNode } | null;
   /** Optional tile colours per symbol (premium symbols get a coloured tile). */
   tile?: (code: number) => [string, string] | null;
+  /** The slot's personality: line style, particles, frames. */
+  theme?: SlotTheme;
   title: React.ReactNode;
   colors: [string, string];
   rim: string;
@@ -102,13 +95,17 @@ export interface MachineProps {
  * The slot cabinet: marquee on top, a glass window with five reels, a gold rim. Reels drop one after another;
  * winning lines and cells light up after they stop; `children` draws effects on top (fish collection…).
  */
-export function Machine({ grid, prev, spinKey, cell, turbo, tease, render, filler, lines, cells, expanded, tile, title, colors, rim, children }: MachineProps) {
+export function Machine({ grid, prev, spinKey, cell, turbo, tease, render, filler, lines, cells, expanded, tile, theme = SLOT_THEMES.mine, title, colors, rim, children }: MachineProps) {
   const times = useMemo(() => reelTimes(turbo, tease), [turbo, tease]);
   const strips = useMemo(
     () => grid.map((col, i) => [...col, ...Array.from({ length: FILL + i * 3 }, filler), ...(prev[i] ?? col)]),
     [spinKey], // eslint-disable-line react-hooks/exhaustive-deps
   );
   const W = cell * REELS, H = cell * ROWS;
+  // winning rows of each reel, as a small string so a reel only re-renders when its own wins change
+  const wins = Array.from({ length: REELS }, (_, r) => cells.filter((c) => c.reel === r).map((c) => c.row).sort().join(''));
+  const seen = new Set<string>();
+  const uniq = cells.filter((c) => (seen.has(`${c.reel}-${c.row}`) ? false : (seen.add(`${c.reel}-${c.row}`), true)));
   return (
     <View style={styles.chrome}>
     <LinearGradient colors={['#FFF6D6', rim, '#7A4E08', rim, '#FFF6D6']} locations={[0, 0.25, 0.5, 0.75, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: 30 }]} />
@@ -119,7 +116,7 @@ export function Machine({ grid, prev, spinKey, cell, turbo, tease, render, fille
       <Bulbs n={Math.max(8, Math.round(W / 26))} fast={spinKey} />
       <View style={[styles.window, { width: W + 8, height: H + 8, borderColor: rim }]}>
         <View style={{ flexDirection: 'row' }}>
-          {strips.map((s, i) => <Reel key={i} i={i} strip={s} cell={cell} spinKey={spinKey} duration={times[i]} tease={tease.includes(i)} render={render} tile={tile} />)}
+          {strips.map((s, i) => <Reel key={i} i={i} strip={s} cell={cell} spinKey={spinKey} duration={times[i]} tease={tease.includes(i)} render={render} tile={tile} wins={wins[i]} />)}
         </View>
         {expanded?.reels.length ? expanded.reels.map((r) => (
           <Animated.View key={`x${r}`} entering={ZoomIn.springify().damping(12)} style={[styles.expand, { left: 4 + r * cell, width: cell, height: H }]}>
@@ -127,15 +124,9 @@ export function Machine({ grid, prev, spinKey, cell, turbo, tease, render, fille
             {expanded.render(cell * 1.15)}
           </Animated.View>
         )) : null}
-        {lines.length ? (
-          <Svg pointerEvents="none" width={W} height={H} style={{ position: 'absolute', left: 4, top: 4 }}>
-            {lines.map((l) => (
-              <Polyline key={l} points={PAYLINES[l].map((row, reel) => `${reel * cell + cell / 2},${row * cell + cell / 2}`).join(' ')} stroke={LINE_COLORS[l]} strokeWidth={4} strokeLinejoin="round" strokeLinecap="round" fill="none" opacity={0.95} />
-            ))}
-          </Svg>
-        ) : null}
         <View pointerEvents="none" style={{ position: 'absolute', left: 4, top: 4, width: W, height: H }}>
-          {cells.map((c) => <WinCell key={`${c.reel}-${c.row}`} x={c.reel} y={c.row} cell={cell} color="#FFE58A" />)}
+          {uniq.map((c, k) => <WinCellFx key={`${spinKey}-${c.reel}-${c.row}`} x={c.reel} y={c.row} cell={cell} theme={theme} order={k} />)}
+          {lines.map((l, k) => <WinLine key={`${spinKey}-${l}`} line={l} order={k} cell={cell} width={W} height={H} theme={theme} />)}
           {children}
         </View>
         {/* glass: a soft diagonal reflection over the reels */}
@@ -189,6 +180,5 @@ const styles = StyleSheet.create({
   reel: { overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.04)' },
   divider: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 1, backgroundColor: 'rgba(255,255,255,0.12)' },
   tease: { borderWidth: 3, borderColor: '#FFD06B', borderRadius: 8, backgroundColor: 'rgba(255,208,107,0.12)' },
-  win: { position: 'absolute', borderWidth: 3, borderRadius: 12, shadowOpacity: 0.9, shadowRadius: 10 },
   expand: { position: 'absolute', top: 4, borderRadius: 10, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#FFF3C4' },
 });

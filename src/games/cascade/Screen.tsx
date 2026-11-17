@@ -12,6 +12,9 @@ import { GameShell } from '../shared/GameShell';
 import { BetInput } from '../shared/BetInput';
 import { HistoryStrip } from '../shared/HistoryStrip';
 import { ResultBanner } from '../shared/ResultBanner';
+import { Ambient } from '../lineslot/Ambient';
+import { SLOT_THEMES, WinCellFx } from '../lineslot/WinFx';
+import { useBigWin } from '../lineslot/BigWin';
 import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
 import { SweetArt } from './Sweets';
 import { sfx } from '@/services/audio';
@@ -47,6 +50,7 @@ const SweetCell = React.memo(function SweetCell({ code, row, col, size, drop, de
     <Animated.View style={[styles.cell, { left: col * size, top: row * size, width: size, height: size }, st]}>
       {mark === 'win' || mark === 'bomb' ? <View style={[styles.glow, { borderRadius: size / 3, backgroundColor: mark === 'bomb' ? 'rgba(255,208,107,0.35)' : 'rgba(255,255,255,0.28)' }]} /> : null}
       <SweetArt code={code} size={size * 0.9} />
+      {mark === 'win' ? <View pointerEvents="none" style={StyleSheet.absoluteFill}><WinCellFx x={0} y={0} cell={size} theme={SLOT_THEMES.candy} order={(row + col) % 4} /></View> : null}
     </Animated.View>
   );
 });
@@ -69,6 +73,7 @@ export default function CascadeScreen({ forceTutorial }: { forceTutorial?: boole
   const [free, setFree] = useState<{ i: number; n: number } | null>(null);
   const [box, setBox] = useState({ w: 340, h: 380 });
   const { result, show } = useResult();
+  const big = useBigWin('candy');
   const onError = usePlayErrors();
   const history = useGameHistory('cascade', (d) => d);
   const skip = useRef(false);
@@ -160,6 +165,7 @@ export default function CascadeScreen({ forceTutorial }: { forceTutorial?: boole
         }
       }
       setWon(v.multiplier);
+      await big.celebrate(v.multiplier, r.payout);
       show({ bet, payout: r.payout, multiplier: r.payout > 0 ? v.multiplier : undefined });
       if (v.multiplier >= 20) sfx('bigwin');
       tutorialEvent('cascade', 'cascade:spin');
@@ -182,6 +188,7 @@ export default function CascadeScreen({ forceTutorial }: { forceTutorial?: boole
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+          <Ambient kind="candy" />
           <View style={styles.top}>
             {free ? (
               <View style={[styles.pill, { backgroundColor: '#FF4FA3' }]}><T weight="display" style={{ color: '#fff', fontSize: 13 }}>🍭 {t('play.freeSpin')} {free.i}/{free.n}</T></View>
@@ -215,7 +222,8 @@ export default function CascadeScreen({ forceTutorial }: { forceTutorial?: boole
             ))}
             <View style={styles.pay}><SweetArt code={SCATTER} size={18} /><T weight="displaySemi" style={{ color: '#FFE58A', fontSize: 10 }}>4+ = 10 🎁</T></View>
           </Animated.View>
-          <ResultBanner result={result} />
+          <ResultBanner result={result} compact />
+          {big.node}
         </View>
       }
       controls={

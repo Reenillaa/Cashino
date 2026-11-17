@@ -17,6 +17,8 @@ import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../share
 import { JadeSymbol } from '../lineslot/Symbols';
 import { Machine, reelTimes } from '../lineslot/Machine';
 import { useBigWin } from '../lineslot/BigWin';
+import { Ambient } from '../lineslot/Ambient';
+import { SLOT_THEMES } from '../lineslot/WinFx';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
@@ -92,7 +94,7 @@ export default function JadeScreen({ forceTutorial }: { forceTutorial?: boolean 
   const [free, setFree] = useState<{ i: number; n: number } | null>(null);
   const [box, setBox] = useState({ w: 360, h: 460 });
   const { result, show } = useResult();
-  const big = useBigWin();
+  const big = useBigWin('leaf');
   const onError = usePlayErrors();
   const history = useGameHistory('jade', (d) => d);
   const skip = useRef(false);
@@ -196,6 +198,7 @@ export default function JadeScreen({ forceTutorial }: { forceTutorial?: boolean 
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+          <Ambient kind="jungle" />
           <View style={styles.top}>
             {free ? (
               <View style={[styles.pill, { backgroundColor: '#12C08A' }]}>
@@ -211,7 +214,7 @@ export default function JadeScreen({ forceTutorial }: { forceTutorial?: boolean 
           </View>
           <Machine
             grid={grid} prev={prev} spinKey={spinKey} cell={cell} turbo={turbo} tease={tease}
-            render={render} filler={fillCode} lines={lines} cells={cells} tile={tileOf}
+            render={render} filler={fillCode} lines={lines} cells={cells} theme={SLOT_THEMES.jungle} tile={tileOf}
             expanded={special !== null && expanded.length ? { reels: expanded, render: (size) => (
               <View style={{ alignItems: 'center', gap: 2 }}>{[0, 1, 2].map((k) => <JadeSymbol key={k} code={special} size={size * 0.72} />)}</View>
             ) } : null}
@@ -228,7 +231,7 @@ export default function JadeScreen({ forceTutorial }: { forceTutorial?: boolean 
           <Animated.View entering={FadeIn} style={{ marginTop: 8, paddingHorizontal: 12 }}>
             <T variant="caption" color="text3" align="center">{t('play.jadeHint')}</T>
           </Animated.View>
-          <ResultBanner result={result} />
+          <ResultBanner result={result} compact />
           {big.node}
         </View>
       }

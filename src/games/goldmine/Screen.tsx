@@ -17,6 +17,8 @@ import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../share
 import { MineSymbol, Nugget } from '../lineslot/Symbols2';
 import { Machine, reelTimes } from '../lineslot/Machine';
 import { useBigWin } from '../lineslot/BigWin';
+import { Ambient } from '../lineslot/Ambient';
+import { SLOT_THEMES } from '../lineslot/WinFx';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
@@ -81,7 +83,7 @@ export default function GoldmineScreen({ forceTutorial }: { forceTutorial?: bool
   const [banner, setBanner] = useState<string | null>(null);
   const [box, setBox] = useState({ w: 360, h: 460 });
   const { result, show } = useResult();
-  const big = useBigWin();
+  const big = useBigWin('spark');
   const onError = usePlayErrors();
   const history = useGameHistory('goldmine', (d) => d);
   const skip = useRef(false);
@@ -180,6 +182,7 @@ export default function GoldmineScreen({ forceTutorial }: { forceTutorial?: bool
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+          <Ambient kind="mine" />
           <View style={styles.top}>
             {hold ? (
               <View style={styles.dots}>
@@ -201,7 +204,7 @@ export default function GoldmineScreen({ forceTutorial }: { forceTutorial?: bool
           </View>
           <Machine
             grid={grid} prev={prev} spinKey={spinKey} cell={cell} turbo={turbo} tease={tease}
-            render={render} filler={fillCode} lines={lines} cells={cells} tile={tileOf}
+            render={render} filler={fillCode} lines={lines} cells={cells} theme={SLOT_THEMES.mine} tile={tileOf}
             colors={hold ? ['#8A5200', '#2A1606'] : ['#C98B12', '#3A1E06']} rim="#FFD06B"
             title={<T weight="display" style={styles.marquee}>⛏️ {t('games.names.goldmine').toUpperCase()} 💰</T>}
           >
@@ -216,7 +219,7 @@ export default function GoldmineScreen({ forceTutorial }: { forceTutorial?: bool
           <Animated.View entering={FadeIn} style={{ marginTop: 8, paddingHorizontal: 12 }}>
             <T variant="caption" color="text3" align="center">{t('play.mineHint')}</T>
           </Animated.View>
-          <ResultBanner result={result} />
+          <ResultBanner result={result} compact />
           {big.node}
         </View>
       }

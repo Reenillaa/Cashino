@@ -17,6 +17,8 @@ import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../share
 import { FruitSymbol } from '../lineslot/Symbols2';
 import { Machine, reelTimes } from '../lineslot/Machine';
 import { useBigWin } from '../lineslot/BigWin';
+import { Ambient } from '../lineslot/Ambient';
+import { SLOT_THEMES } from '../lineslot/WinFx';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
@@ -56,7 +58,7 @@ export default function FruitsScreen({ forceTutorial }: { forceTutorial?: boolea
   const [free, setFree] = useState<{ i: number; n: number } | null>(null);
   const [box, setBox] = useState({ w: 360, h: 460 });
   const { result, show } = useResult();
-  const big = useBigWin();
+  const big = useBigWin('ember');
   const onError = usePlayErrors();
   const history = useGameHistory('fruits', (d) => d);
   const skip = useRef(false);
@@ -144,6 +146,7 @@ export default function FruitsScreen({ forceTutorial }: { forceTutorial?: boolea
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+          <Ambient kind="fire" />
           <View style={styles.top}>
             {free ? (
               <View style={[styles.pill, { backgroundColor: '#5A4BFF' }]}>
@@ -156,7 +159,7 @@ export default function FruitsScreen({ forceTutorial }: { forceTutorial?: boolea
           </View>
           <Machine
             grid={grid} prev={prev} spinKey={spinKey} cell={cell} turbo={turbo} tease={tease}
-            render={render} filler={fillCode} lines={lines} cells={cells} tile={tileOf}
+            render={render} filler={fillCode} lines={lines} cells={cells} theme={SLOT_THEMES.fire} tile={tileOf}
             colors={free ? ['#3D2BC9', '#12063A'] : ['#FF5A2A', '#7A0A2A']} rim="#FFD06B"
             title={<T weight="display" style={styles.marquee}>🔥 {free ? t('play.freeSpin').toUpperCase() : t('games.names.fruits').toUpperCase()} 🍒</T>}
           >
@@ -175,7 +178,7 @@ export default function FruitsScreen({ forceTutorial }: { forceTutorial?: boolea
           <Animated.View entering={FadeIn} style={{ marginTop: 8, paddingHorizontal: 12 }}>
             <T variant="caption" color="text3" align="center">{t('play.fruitHint')}</T>
           </Animated.View>
-          <ResultBanner result={result} />
+          <ResultBanner result={result} compact />
           {big.node}
         </View>
       }

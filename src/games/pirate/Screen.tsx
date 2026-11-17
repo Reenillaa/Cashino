@@ -17,6 +17,8 @@ import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../share
 import { PirateSymbol } from '../lineslot/Symbols2';
 import { Machine, reelTimes } from '../lineslot/Machine';
 import { useBigWin } from '../lineslot/BigWin';
+import { Ambient } from '../lineslot/Ambient';
+import { SLOT_THEMES } from '../lineslot/WinFx';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
@@ -68,7 +70,7 @@ export default function PirateScreen({ forceTutorial }: { forceTutorial?: boolea
   const [respin, setRespin] = useState(0);
   const [box, setBox] = useState({ w: 360, h: 460 });
   const { result, show } = useResult();
-  const big = useBigWin();
+  const big = useBigWin('coin');
   const onError = usePlayErrors();
   const history = useGameHistory('pirate', (d) => d);
   const skip = useRef(false);
@@ -150,6 +152,7 @@ export default function PirateScreen({ forceTutorial }: { forceTutorial?: boolea
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+          <Ambient kind="pirate" />
           <View style={styles.top}>
             {respin ? (
               <View style={[styles.pill, { backgroundColor: '#12C08A' }]}>
@@ -162,7 +165,7 @@ export default function PirateScreen({ forceTutorial }: { forceTutorial?: boolea
           </View>
           <Machine
             grid={grid} prev={prev} spinKey={spinKey} cell={cell} turbo={turbo} tease={[]}
-            render={render} filler={fillCode} lines={lines} cells={cells} tile={tileOf}
+            render={render} filler={fillCode} lines={lines} cells={cells} theme={SLOT_THEMES.pirate} tile={tileOf}
             colors={respin ? ['#12806A', '#06201A'] : ['#3D2BC9', '#0E0830']} rim="#FFD06B"
             title={<T weight="display" style={styles.marquee}>🏴‍☠️ {t('games.names.pirate').toUpperCase()} 🦜</T>}
           >
@@ -177,7 +180,7 @@ export default function PirateScreen({ forceTutorial }: { forceTutorial?: boolea
           <Animated.View entering={FadeIn} style={{ marginTop: 8, paddingHorizontal: 12 }}>
             <T variant="caption" color="text3" align="center">{t('play.pirateHint')}</T>
           </Animated.View>
-          <ResultBanner result={result} />
+          <ResultBanner result={result} compact />
           {big.node}
         </View>
       }

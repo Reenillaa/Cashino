@@ -17,6 +17,8 @@ import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../share
 import { FishSymbol } from '../lineslot/Symbols';
 import { Machine, reelTimes } from '../lineslot/Machine';
 import { useBigWin } from '../lineslot/BigWin';
+import { Ambient } from '../lineslot/Ambient';
+import { SLOT_THEMES } from '../lineslot/WinFx';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
@@ -77,7 +79,7 @@ export default function FishingScreen({ forceTutorial }: { forceTutorial?: boole
   const [fly, setFly] = useState<{ key: number; items: { from: { x: number; y: number }; to: { x: number; y: number }; text: string }[] } | null>(null);
   const [box, setBox] = useState({ w: 360, h: 460 });
   const { result, show } = useResult();
-  const big = useBigWin();
+  const big = useBigWin('bubble');
   const onError = usePlayErrors();
   const history = useGameHistory('fishing', (d) => d);
   const skip = useRef(false);
@@ -184,6 +186,7 @@ export default function FishingScreen({ forceTutorial }: { forceTutorial?: boole
       history={<HistoryStrip items={history} />}
       stage={
         <View style={styles.stage} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
+          <Ambient kind="water" />
           <View style={styles.top}>
             {free ? (
               <View style={[styles.pill, { backgroundColor: '#1FA7E0' }]}>
@@ -202,7 +205,7 @@ export default function FishingScreen({ forceTutorial }: { forceTutorial?: boole
           ) : null}
           <Machine
             grid={grid} prev={prev} spinKey={spinKey} cell={cell} turbo={turbo} tease={tease}
-            render={render} filler={fillCode} lines={lines} cells={cells} tile={tileOf}
+            render={render} filler={fillCode} lines={lines} cells={cells} theme={SLOT_THEMES.water} tile={tileOf}
             colors={free ? ['#0B6E9A', '#06304A'] : ['#1FA7E0', '#0B4E7A']} rim="#FFD06B"
             title={<T weight="display" style={styles.marquee}>🎣 {free ? t('play.freeSpin').toUpperCase() : t(`games.names.fishing`).toUpperCase()} 🐟</T>}
           >
@@ -217,7 +220,7 @@ export default function FishingScreen({ forceTutorial }: { forceTutorial?: boole
           <Animated.View entering={FadeIn} style={styles.pays}>
             <T variant="caption" color="text3" align="center">{t('play.fishHint')}</T>
           </Animated.View>
-          <ResultBanner result={result} />
+          <ResultBanner result={result} compact />
           {big.node}
         </View>
       }

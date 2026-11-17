@@ -102,6 +102,15 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - En los juegos, la mesa va a la izquierda (escalada desde el diseño del móvil para que no se deforme) y los controles en un panel lateral a la derecha.
 - Móviles y tablets no cambian nada (comprobado con iPhone, iPad y Pixel emulados).
 
+## Cambios de la ronda 19 (dibujo profesional y personalidad en las tragaperras)
+- **Todos los símbolos de las 7 tragaperras redibujados** (≈75 dibujos vectoriales nuevos en `src/games/lineslot/art`): contorno oscuro del color de cada pieza, degradado de luz a sombra, cara sombreada, brillo tipo cristal, destellos, sombra proyectada y detalles (escamas, vetas, remaches, azúcar…). Cintas WILD/FREE con pliegues y placas de valor en relieve. Cada máquina tiene su estilo: Lago de Oro (pesca), Templo de Jade (selva maya), Mina de Oro (metal y oro), Fuego Frutal (frutas jugosas), Noche Pirata (madera, latón y pergamino), la clásica 777 (Las Vegas: cromo, oro y rubí) y Dulce Cascada (gominolas translúcidas con azúcar).
+- **Línea de premio con personalidad** (ya no es una recta): curva suave que se dibuja de izquierda a derecha con algo que la recorre — agua con burbujas y un pececito (Lago de Oro), liana con hojas y luciérnaga (Jade), cadena de oro con chispa (Mina), estela de fuego con llamas (Fuego Frutal), camino de mapa del tesoro con su ✕ y una moneda (Pirata) y tubo de neón que parpadea con una luz que corre (777).
+- **Premio en cada casilla**: los símbolos ganadores botan y se balancean, con marco brillante y partículas propias de cada máquina (burbujas, hojas, chispas de oro, brasas, monedas, estrellas de neón, confeti de chuches).
+- **Fondo animado de cada máquina**: rayos de luz y burbujas bajo el agua, lianas y luciérnagas, vigas de mina con faroles que titilan y polvo, brasas que suben, noche estrellada con luna y niebla, neones de Las Vegas y chuches flotando.
+- **Pantallazo de premio gordo** también en la 777 y en Dulce Cascada, y con el confeti de cada máquina mezclado con las monedas.
+- En las tragaperras, el resultado sale como una píldora abajo para no tapar la línea ganadora.
+- Pendiente para próximas rondas: el mismo nivel de detalle en las mesas (cartas, fichas, ruleta…), portadas, logos y resto de la interfaz.
+
 ## Cambios de la ronda 18 (ajustes)
 - Las tragaperras ya no salen las primeras en «Todos los juegos» como si fueran novedad: el orden vuelve a empezar por los clásicos (blackjack, póker, ruleta, carreras…) y el cartel de la sala de tragaperras está debajo de la lista.
 - **Admin con todo desbloqueado siempre**: la app ya no depende de la lista que manda el servidor; si la cuenta es admin, todo sale abierto (también lo que se añada en el futuro).

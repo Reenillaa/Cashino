@@ -22,7 +22,7 @@ const EASE = Easing.bezier(...motion.ease);
  * Result after the animation. A win bursts into chips of the game's colours and shows a vivid card
  * that pops up; a loss is a quiet grey card. It holds briefly, then fades away.
  */
-export function ResultBanner({ result }: { result: ResultInfo | null }) {
+export function ResultBanner({ result, compact = false }: { result: ResultInfo | null; /** Slots: a slim pill at the bottom so the winning lines stay visible. */ compact?: boolean }) {
   const { t } = useT();
   const { c, reduceMotion } = useTheme();
   const accent = useContext(AccentContext);
@@ -45,6 +45,18 @@ export function ResultBanner({ result }: { result: ResultInfo | null }) {
   if (!result) return null;
   const push = result.net === 0 && result.payout > 0;
   const amount = Math.abs(win ? result.net : push ? 0 : result.net);
+  if (compact) {
+    return (
+      <View pointerEvents="none" style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 2 }]}>
+        <Animated.View accessibilityLiveRegion="polite" style={[styles.pill, !win && { backgroundColor: 'rgba(28,28,34,0.96)' }, win && { shadowColor: accent[0], shadowOpacity: 0.7, shadowRadius: 18 }, style]}>
+          {win ? <LinearGradient colors={accent as unknown as [string, string, ...string[]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} /> : null}
+          <T variant="footnote" weight="semibold" style={{ color: win ? 'rgba(255,255,255,0.92)' : c.text2 }}>{win ? t('play.youWon') : push ? t('play.pushResult') : t('play.youLost')}</T>
+          {result.multiplier !== undefined && win ? <T weight="display" tabular style={{ color: '#fff', fontSize: 20 }}>{formatMult(result.multiplier)}</T> : null}
+          <T weight="display" tabular style={{ color: win ? '#fff' : c.text2, fontSize: 18 }}>{win ? '+' : push ? '±' : '−'}{formatCoins(amount)}</T>
+        </Animated.View>
+      </View>
+    );
+  }
   return (
     <View pointerEvents="none" style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
       {big && !reduceMotion ? rain.map((r, i) => <RainCoin key={`${result.key}-r${i}`} r={r} />) : null}
@@ -89,5 +101,6 @@ function RainCoin({ r }: { r: { x: number; delay: number; spin: number; size: nu
 }
 
 const styles = StyleSheet.create({
+  pill: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 18, height: 44, borderRadius: 22, overflow: 'hidden', borderWidth: 2, borderColor: 'rgba(255,255,255,0.35)' },
   card: { minWidth: 210, maxWidth: 300, alignItems: 'center', paddingVertical: 20, paddingHorizontal: 30, borderRadius: 30, overflow: 'hidden' },
 });
