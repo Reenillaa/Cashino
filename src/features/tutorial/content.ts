@@ -139,6 +139,8 @@ export const TUTORIALS: Record<GameId, TutorialStep[]> = {
     doIt('penguin:hop', ['Salta', 'Hop'], ['Elige tu ficha, empieza y pulsa Saltar.', 'Pick your chip, start and tap Hop.']),
     quiz(['¿Mejor seguir?', 'Keep going?'], ['Llevas 4 saltos seguros. ¿Es menos probable que el siguiente se rompa?', 'You made 4 safe hops. Is the next one less likely to crack?'], [['Sí', 'Yes'], ['No, es igual', 'No, the same']], 1, ['Cada bloque tiene la misma probabilidad, pase lo que haya pasado antes.', 'Every floe has the same chance, whatever happened before.']),
   ],
+  // the scratch cards explain themselves on the ticket (no guided tutorial)
+  scratch: [],
   trader: [
     info(['La bolsa', 'The market'], ['Eliges si el precio acabará más alto (Sube) o más bajo (Baja). Luego miras cómo se mueve la gráfica.', 'Pick whether the price will end higher (Up) or lower (Down). Then watch the chart move.']),
     doIt('trader:play', ['Haz tu apuesta', 'Make your call'], ['Pulsa Sube o Baja.', 'Tap Up or Down.']),

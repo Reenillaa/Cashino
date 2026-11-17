@@ -405,6 +405,19 @@ const ART: Record<GameId, (id: string) => React.ReactNode> = {
       <Path d="M40 64 L36 70 L46 70 Z M60 64 L64 70 L54 70 Z" fill="#FFB938" />
     </>
   ),
+  scratch: () => (
+    <>
+      {/* a gold scratch ticket with a coin scratching it */}
+      <Rect x={16} y={14} width={62} height={76} rx={9} fill={SH} transform="translate(2 4) rotate(-8 47 52)" />
+      <Rect x={16} y={14} width={62} height={76} rx={9} fill="#E8304F" stroke="#FFFFFF" strokeWidth={2} transform="rotate(-8 47 52)" />
+      <Rect x={24} y={34} width={46} height={44} rx={6} fill="#FFD34D" stroke="#8A4E04" strokeWidth={1.4} transform="rotate(-8 47 52)" />
+      <Path d="M28 62 C36 52 44 64 52 54 C58 48 62 58 66 52" stroke="#FFF6D8" strokeWidth={7} strokeLinecap="round" fill="none" transform="rotate(-8 47 52)" />
+      <Rect x={24} y={20} width={46} height={8} rx={3} fill="#FFFFFF" opacity={0.85} transform="rotate(-8 47 52)" />
+      <Circle cx={76} cy={74} r={15} fill="#FFB938" stroke="#FFFFFF" strokeWidth={2} />
+      <Circle cx={76} cy={74} r={10} fill="none" stroke="#8A4E04" strokeWidth={1.4} />
+      <Path d="M71 70 L81 70 M76 66 L76 82" stroke="#8A4E04" strokeWidth={1.6} />
+    </>
+  ),
   dragontiger: (id) => (
     <>
       <Rect x={10} y={22} width={38} height={54} rx={7} fill={SH} transform="translate(2 4) rotate(-8 29 49)" />

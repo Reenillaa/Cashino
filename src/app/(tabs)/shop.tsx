@@ -14,13 +14,18 @@ import { accountShop } from '@/features/shop/accountShop';
 import { sfx } from '@/services/audio';
 import { UnlockList } from '@/features/unlocks/UnlockList';
 import { haptic } from '@/services/haptics';
+import { useRouter } from 'expo-router';
+import { SCRATCH, SCRATCH_CARDS, scratchHit } from '@/engine/games/scratch.ts';
+import { Ticket } from '@/games/scratch/Ticket';
+import { amount } from '@/games/scratch/geometry';
 
 /** Cosmetic shop: spend play chips on looks. Nothing here changes any game's odds. */
 export default function Shop() {
   const { t, lang } = useT();
   const { c } = useTheme();
   const { width } = useWindowDimensions();
-  const [tab, setTab] = useState<Slot | 'unlock'>('unlock');
+  const [tab, setTab] = useState<Slot | 'unlock' | 'scratch'>('scratch');
+  const router = useRouter();
   const [confirm, setConfirm] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const guestBalance = useWallet((s) => s.balance);
@@ -77,7 +82,7 @@ export default function Shop() {
   };
 
   const items =
-    tab === 'unlock' ? []
+    tab === 'unlock' || tab === 'scratch' ? []
     : tab === 'back' ? CARD_BACKS.map((b) => ({ id: b.id, name: b.name, price: b.price, preview: <CardBackArt item={b} dim={{ w: 64, h: 90, r: 10 }} />, w: 64, h: 90 }))
       : tab === 'felt' ? FELTS.map((f) => ({ id: f.id, name: f.name, price: f.price, preview: <FeltSwatch colors={f.colors} />, w: 120, h: 80 }))
         : tab === 'avatar' ? PREMIUM_AVATARS.map((a) => ({ id: a.id, name: a.name, price: a.price, preview: <Avatar id={a.id} size={76} />, w: 76, h: 76 }))
@@ -92,6 +97,7 @@ export default function Shop() {
           <T weight="display" tabular style={{ color: c.win, fontSize: 30, lineHeight: 36 }}>{formatCoins(balance)}</T>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          <Chip label={t('shop.tabs.scratch')} selected={tab === 'scratch'} onPress={() => { setTab('scratch'); setConfirm(null); setMsg(null); }} />
           <Chip label={`🔓 ${t('unlock.title')}`} selected={tab === 'unlock'} onPress={() => { setTab('unlock'); setConfirm(null); setMsg(null); }} />
           {(['back', 'felt', 'avatar', 'frame', 'title'] as Slot[]).map((k) => (
             <Chip key={k} label={t(`shop.tabs.${k}`)} selected={tab === k} onPress={() => { setTab(k); setConfirm(null); setMsg(null); }} />
@@ -99,8 +105,27 @@ export default function Shop() {
         </ScrollView>
         {msg ? <Animated.View entering={FadeIn}><T variant="footnote" color="warn" align="center">{msg}</T></Animated.View> : null}
         {tab === 'unlock' ? <UnlockList /> : null}
+        {tab === 'scratch' ? (
+          <View style={{ gap: 12 }}>
+            <T variant="footnote" color="text2" align="center">{t('scratch.shopBody')}</T>
+            <View style={styles.grid}>
+              {SCRATCH_CARDS.map((k, i) => (
+                <Animated.View key={k} entering={ZoomIn.delay(i * 50)} style={{ width: colW }}>
+                  <PressableScale onPress={() => router.push(`/game/scratch?card=${k}`)} feedback="select" scaleTo={0.96} accessibilityLabel={`${t(`scratch.names.${k}`)}, ${formatCoins(SCRATCH[k].price)} ${t('common.coins')}`} style={[styles.item, { backgroundColor: c.surface1, borderColor: 'transparent', alignItems: 'center' }]}>
+                    <View pointerEvents="none"><Ticket card={k} width={colW - 28} howTo={t(`scratch.how.${k}`)} serial={`0${i + 1}-000000`} /></View>
+                    <T variant="callout" weight="semibold" align="center" numberOfLines={1}>{t(`scratch.names.${k}`)}</T>
+                    <T variant="caption" color="text3" align="center" numberOfLines={1}>{t('scratch.top', { top: amount(SCRATCH[k].prizes[SCRATCH[k].prizes.length - 1][0] * SCRATCH[k].price) })} · {t('scratch.chance', { n: (1 / scratchHit(k)).toFixed(1).replace('.', lang === 'es' ? ',' : '.') })}</T>
+                    <View style={[styles.cta, { alignSelf: 'stretch', backgroundColor: '#FFD06B' }]}>
+                      <T weight="displaySemi" style={{ fontSize: 13, color: '#231A3A' }}>{formatCoins(SCRATCH[k].price)} 🪙</T>
+                    </View>
+                  </PressableScale>
+                </Animated.View>
+              ))}
+            </View>
+          </View>
+        ) : null}
         <View style={styles.grid}>
-          {tab !== 'unlock' && items.map((it, i) => {
+          {tab !== 'unlock' && tab !== 'scratch' && items.map((it, i) => {
             const key = `${tab}:${it.id}`;
             const has = owned.includes(key);
             const on = equipped[tab] === it.id;

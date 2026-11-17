@@ -5,8 +5,8 @@ import type { Room } from './rooms.ts';
  * quarter until the next day. The odds never change; only the stake limit of that one table.
  * Shared by the app (display) and the server (enforcement).
  */
-export const HOT_NET = 2000; // net chips won today in one game
-export const HOT_STREAK = 8; // or this many wins in a row in that game
+export const HOT_NET = 15000; // net chips won today in one game (it kicks in late: only after a really big day)
+export const HOT_STREAK = 20; // or this many wins in a row in that game
 export const HOT_CAP = 0.25; // share of the room's max bet still allowed
 
 /** Rounds of one game today, oldest first. */

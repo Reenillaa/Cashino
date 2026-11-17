@@ -17,6 +17,7 @@ import * as Keno from './games/keno.ts';
 import * as Crossing from './games/crossing.ts';
 import * as Angler from './games/angler.ts';
 import * as Penguin from './games/penguin.ts';
+import * as Scratch from './games/scratch.ts';
 import * as Hilo from './games/hilo.ts';
 import * as Roulette from './games/roulette.ts';
 import * as Bac from './games/baccarat.ts';
@@ -420,6 +421,19 @@ const handlers: Record<Exclude<GameId, 'poker'>, Handler> = {
       summary: { bet: r.bad ? r.stake : b, payout: r.bad ? 0 : r.payout - r.bond, detail: `${r.pick}→${r.catch}`, multiStep: false },
     };
   },
+  scratch: (_s, op, p, { rng }) => {
+    if (op !== 'play') fail('invalid_op');
+    const card = oneOf(p.card, Scratch.SCRATCH_CARDS, 'card');
+    const r = Scratch.playScratch(rng, card);
+    return {
+      state: null,
+      view: { ...r },
+      stake: r.price,
+      payout: r.payout,
+      done: true,
+      summary: { bet: r.price, payout: r.payout, detail: card, multiStep: false },
+    };
+  },
   penguin: (s, op, p, { rng }) => {
     const st = s as Penguin.PenguinState | null;
     const view = (x: Penguin.PenguinState) => ({ ...Penguin.publicPenguin(x), multiplier: Penguin.penguinMultiplier(x.difficulty, x.hop), next: Penguin.penguinMultiplier(x.difficulty, x.hop + 1) });
@@ -536,7 +550,8 @@ export function runOp(game: GameId, state: unknown, op: string, params: Params, 
   if (!h) fail('unknown_game');
   const res = h(state, op, params ?? {}, ctx);
   // Room limits apply to the stake that opens a round (doubles/splits in blackjack are extra stakes).
-  if (STARTING_OPS.has(op) && params?.room !== undefined && res.stake > 0) {
+  // Scratch cards are sold at a fixed price, so no room limit applies to them.
+  if (STARTING_OPS.has(op) && params?.room !== undefined && res.stake > 0 && game !== 'scratch') {
     const room = roomById(params.room);
     if (!room) fail('invalid_room');
     if (!stakeAllowed(room!, res.roomStake ?? res.stake)) fail('stake_outside_room');

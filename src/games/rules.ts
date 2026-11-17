@@ -281,6 +281,21 @@ export const RULES: Record<GameId, RulesDoc> = {
       { label: b('Llegar al final en fácil', 'Reaching the end on easy'), value: '32 %' },
     ],
   },
+  scratch: {
+    summary: b('Rasca y gana: cinco billetes de temática española que se compran en la Tienda. Cada billete trae su premio decidido al comprarlo; rascar solo lo descubre.', 'Scratch cards: five Spanish-themed tickets sold in the Shop. Each ticket\'s prize is decided when you buy it; scratching only uncovers it.'),
+    rules: [
+      b('Tapas de Oro (50): 9 casillas con importes. Tres importes iguales ganan ese importe.', 'Tapas de Oro (50): 9 boxes with amounts. Three equal amounts win that amount.'),
+      b('Sol y Playa (100): 2 números ganadores y 6 tuyos con su premio. Si uno de los tuyos coincide, ganas su premio.', 'Sol y Playa (100): 2 winning numbers and 6 of yours with a prize each. If one of yours matches, you win its prize.'),
+      b('Feria de Abril (200): 6 casetas y una caja de premio. Tres farolillos ganan la caja.', 'Feria de Abril (200): 6 stalls and a prize box. Three lanterns win the box.'),
+      b('Siesta Millonaria (500): un sombrero con el premio y 3 almohadas. Si sale la luna bajo una almohada, ganas el sombrero.', 'Siesta Millonaria (500): a hat with the prize and 3 pillows. A moon under a pillow wins the hat.'),
+      b('Paella Premiada (1.000): 6 ingredientes. Tres iguales ganan su premio, del limón (×2) a la paellera de oro (×5.000).', 'Paella Premiada (1,000): 6 ingredients. Three of a kind win its prize, from the lemon (×2) to the golden pan (×5,000).'),
+      b('El precio es fijo: no hay salas ni límite de mesa caliente. El premio sale de la tabla de cada billete y el resultado se puede verificar (provably fair).', 'The price is fixed: no rooms and no hot-table limit. The prize comes from each ticket\'s table and the result can be verified (provably fair).'),
+    ],
+    odds: [
+      { label: b('Retorno según el billete', 'Return by ticket'), value: '86–92 %' },
+      { label: b('Billetes con premio', 'Winning tickets'), value: '1 de cada 3–6' },
+    ],
+  },
   trader: {
     summary: b('Bolsa: ¿el precio acabará más alto o más bajo que ahora? Eliges Sube o Baja y miras la gráfica.', 'Stock market: will the price end higher or lower than now? Pick Up or Down and watch the chart.'),
     rules: [

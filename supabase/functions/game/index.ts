@@ -54,9 +54,10 @@ Deno.serve(
       const room = roomById(params.room);
       if (!room || room.practice) throw new HttpError('invalid_room');
       // Hot table: after a big winning day in this game, its max stake drops (odds never change).
+      // Scratch cards have a fixed price, so they are never capped.
       const today = new Date(); today.setUTCHours(0, 0, 0, 0);
       const { data: todays } = await db.from('game_rounds').select('bet, payout').eq('user_id', userId).eq('game', game).gte('created_at', today.toISOString()).order('created_at', { ascending: true }).limit(2000);
-      if (isHotFrom((todays ?? []).map((r) => ({ bet: Number(r.bet), payout: Number(r.payout) })))) {
+      if (game !== 'scratch' && isHotFrom((todays ?? []).map((r) => ({ bet: Number(r.bet), payout: Number(r.payout) })))) {
         stakeCap = hotRoom(room).max;
         params.hotCap = stakeCap; // games that take the stake later (horse racing) keep it in their state
       }

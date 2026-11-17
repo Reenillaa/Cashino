@@ -29,6 +29,7 @@ import FruitsScreen from './fruits/Screen';
 import PirateScreen from './pirate/Screen';
 import AnglerScreen from './angler/Screen';
 import PenguinScreen from './penguin/Screen';
+import ScratchScreen from './scratch/Screen';
 import DragonTigerScreen from './dragontiger/Screen';
 import HorsesScreen from './horses/Screen';
 
@@ -64,6 +65,7 @@ export const GAME_SCREENS: Record<GameId, GameScreen> = {
   pirate: PirateScreen,
   angler: AnglerScreen,
   penguin: PenguinScreen,
+  scratch: ScratchScreen,
   dragontiger: DragonTigerScreen,
   horses: HorsesScreen,
 };

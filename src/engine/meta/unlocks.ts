@@ -10,7 +10,8 @@ import type { GameId } from '../games/types.ts';
  */
 export type UnlockId = `game:${GameId}` | `live:${'horses' | 'roulette' | 'crash'}` | 'sports' | `sport:${string}`;
 
-export const FREE_UNLOCKS: UnlockId[] = ['game:blackjack', 'game:poker'];
+/** Blackjack and poker are free; the scratch cards are sold in the shop, so they never need an unlock. */
+export const FREE_UNLOCKS: UnlockId[] = ['game:blackjack', 'game:poker', 'game:scratch'];
 export const UNLOCK_FIRST = 2500;
 export const UNLOCK_SECOND = 5000;
 export const UNLOCK_GROWTH = 1.5;

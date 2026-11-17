@@ -30,6 +30,7 @@ import { FRUIT_PAYS, FRUIT_WEIGHTS } from '@/engine/games/fruits.ts';
 import { PIRATE_PAYS, PIRATE_WEIGHTS } from '@/engine/games/pirate.ts';
 import { ANGLER_FISH, anglerMultiplier, anglerReturn } from '@/engine/games/angler.ts';
 import { PENGUIN_CONFIG, penguinMultiplier, penguinSurvival } from '@/engine/games/penguin.ts';
+import { SCRATCH, scratchHit, scratchRtp } from '@/engine/games/scratch.ts';
 import { towerMultiplier } from '@/engine/games/towers.ts';
 import { diamondStats, DIAMOND_PAYS } from '@/engine/games/diamonds.ts';
 import { pumpMultiplier } from '@/engine/games/pump.ts';
@@ -343,6 +344,14 @@ const MODELS: Record<GameId, Builder> = {
     rtp: null,
     formula: L(lang, 'Cuota = (1 − margen) ÷ probabilidad que calcula la casa. Margen: 15 % ganador, 18 % colocado, 20–25 % gemelas y tríos.', 'Odds = (1 − margin) ÷ the bookmaker’s probability. Margin: 15 % win, 18 % place, 20–25 % quinellas and trifectas.'),
     example: L(lang, 'En simulación, apostar a ganador al azar devuelve ≈ 79 %, siempre al favorito ≈ 88 %, y un trío al azar ≈ 34 %. Elegir caballos a los que les gustan el terreno y la distancia del día se acercó al 110 % (con bastante margen de error).', 'In simulation, random win bets return ≈ 79 %, always backing the favourite ≈ 88 %, and a random trifecta ≈ 34 %. Picking horses that like the day’s ground and trip came close to 110 % (with a sizeable margin of error).'),
+  }),
+  scratch: (lang) => ({
+    idea: L(lang, 'Un rasca y gana no se decide al rascar: el premio ya está escrito cuando compras el billete. Rascar solo te enseña lo que había debajo.', 'A scratch card is not decided while you scratch: the prize is already printed when you buy it. Scratching only shows what was underneath.'),
+    rowsTitle: L(lang, 'Probabilidad de que el billete tenga premio', 'Chance that a ticket wins anything'),
+    rows: (['tapas', 'playa', 'feria', 'siesta', 'paella'] as const).map((c) => ({ label: L(lang, `${SCRATCH[c].price} fichas`, `${SCRATCH[c].price} chips`), p: scratchHit(c), mult: scratchRtp(c) })),
+    rtp: scratchRtp('playa'),
+    formula: L(lang, 'Retorno = Σ premio × probabilidad. Por ejemplo, en Tapas de Oro: 1×18 % + 2×10 % + 3×5 % + 5×3 % + 20×0,6 % + 100×0,08 % = 0,88. De cada 100 fichas en billetes vuelven 88 de media. (La columna de la derecha es ese retorno, no un multiplicador.)', 'Return = Σ prize × chance. For Tapas de Oro: 1×18 % + 2×10 % + 3×5 % + 5×3 % + 20×0.6 % + 100×0.08 % = 0.88. Out of every 100 chips spent on tickets, 88 come back on average. (The right column is that return, not a multiplier.)'),
+    example: L(lang, 'Muchos premios son "te devuelvo lo que pagaste": cuentan como premio pero no ganas nada. Y los grandes (×1.000, ×5.000) salen menos de una vez cada 10.000 billetes.', 'Many prizes are "you get your money back": they count as a win but you gain nothing. And the big ones (×1,000, ×5,000) come up less than once every 10,000 tickets.'),
   }),
   wheel: (lang) => ({
     idea: L(lang, 'Mismo retorno en los tres riesgos (99 %): cambia cómo llega el dinero, no cuánto pierdes de media.', 'Same return on all three risks (99 %): only how the money arrives changes, not how much you lose on average.'),

@@ -42,6 +42,7 @@ export const CATALOG: GameMeta[] = [
   { id: 'pirate', category: 'originals', tint: gameTint.pirate, rtp: '≈95.5 %', edge: '≈4.5 %', multiStep: false, online: true },
   { id: 'angler', category: 'originals', tint: gameTint.angler, rtp: '94.6–96 %', edge: '4–5.4 %', multiStep: false, online: true },
   { id: 'penguin', category: 'originals', tint: gameTint.penguin, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
+  { id: 'scratch', category: 'originals', tint: gameTint.scratch, rtp: '86–92 %', edge: '8–14 %', multiStep: false, online: true },
   { id: 'cascade', category: 'originals', tint: gameTint.cascade, rtp: '≈96.5 %', edge: '≈3.5 %', multiStep: false, online: true },
   { id: 'pump', category: 'originals', tint: gameTint.pump, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
   { id: 'dragontiger', category: 'cards', tint: gameTint.dragontiger, rtp: '96.3 %', edge: '3.7–10.4 %', multiStep: false, online: true },
