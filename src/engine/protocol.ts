@@ -310,7 +310,7 @@ const handlers: Record<Exclude<GameId, 'poker'>, Handler> = {
     bets.forEach((x) => bet(x.amount));
     const o = guard(() => Roulette.playRoulette(rng, bets));
     if (o.totalBet > MAX_BET) fail('invalid_bet');
-    return single(o.totalBet, o.payout, `${o.number}`, { number: o.number, color: o.color, winning: o.winning.map((w) => Roulette.betKey(w.bet)) });
+    return single(o.totalBet, o.payout, `${o.number}`, { number: o.number, color: o.color, fire: o.fire, fireHit: o.fireHit, winning: o.winning.map((w) => Roulette.betKey(w.bet)) });
   },
   sicbo: (_s, op, p, { rng }) => {
     if (op !== 'play') fail('invalid_op');

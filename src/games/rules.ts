@@ -96,13 +96,17 @@ export const RULES: Record<GameId, RulesDoc> = {
     odds: [{ label: b('Media: cruzar 5 carriles', 'Medium: cross 5 lanes'), value: '59 %' }],
   },
   roulette: {
-    summary: b('Ruleta europea de un solo cero (37 casillas).', 'Single-zero European roulette (37 pockets).'),
+    summary: b('Ruleta Llamarada: ruleta europea de un solo cero que gira sin parar. Sale una tirada cada 30 segundos y, en cada una, de 1 a 5 números se encienden con un multiplicador de fuego.', 'Flame Roulette: single-zero European roulette that never stops spinning. A spin every 30 seconds, and in each one 1 to 5 numbers catch fire with a multiplier.'),
     rules: [
-      b('Pleno 35:1 · Caballo 17:1 · Calle 11:1 · Cuadro 8:1 · Seisena 5:1 · Docena/Columna 2:1 · Sencillas 1:1.', 'Straight 35:1 · Split 17:1 · Street 11:1 · Corner 8:1 · Line 5:1 · Dozen/Column 2:1 · Even-money 1:1.'),
-      b('El 0 hace perder todas las apuestas sencillas.', 'Zero loses all even-money bets.'),
+      b('Apuesta mientras corre la cuenta atrás: pulsa Mesa para ver todos los números o Zonas para la pista (vecinos del cero, tercio, huérfanos, juego cero y vecinos de un número). Al cerrarse las apuestas, la mesa se recoge y gira la bola.', 'Bet while the countdown runs: tap Table to see every number or Zones for the racetrack (voisins, tiers, orphelins, jeu zéro and a number\'s neighbours). When betting closes the table folds away and the ball spins.'),
+      b('Números de fuego: si tu pleno es un número en llamas cobras su multiplicador (×50, ×100, ×200, ×300 o ×500 a 1). Si no está en llamas, el pleno paga 29:1.', 'Fire numbers: if your straight is on fire you collect its multiplier (×50, ×100, ×200, ×300 or ×500 to 1). If it is not on fire, a straight pays 29:1.'),
+      b('Caballo 17:1 · Trío 11:1 · Calle 11:1 · Cuadro 8:1 · Seisena 5:1 · Docena/Columna 2:1 · Sencillas 1:1. El 0 hace perder las sencillas.', 'Split 17:1 · Trio 11:1 · Street 11:1 · Corner 8:1 · Line 5:1 · Dozen/Column 2:1 · Even-money 1:1. Zero loses even-money bets.'),
+      b('El número y los números de fuego salen a la vez del mismo sorteo verificable, antes de que gire la bola.', 'The number and the fire numbers come from the same verifiable draw, before the ball spins.'),
     ],
     odds: [
-      { label: b('Ventaja en cualquier apuesta', 'Edge on any bet'), value: '2.70 %' },
+      { label: b('Ventaja en apuestas que no son plenos', 'Edge on bets other than straights'), value: '2.70 %' },
+      { label: b('Retorno de un pleno (con el fuego)', 'Return of a straight (with fire)'), value: '97.1 %' },
+      { label: b('Tu número sale en llamas', 'Your number lands on fire'), value: '0.22 %' },
       { label: b('Rojo', 'Red'), value: '48.6 %' },
     ],
   },

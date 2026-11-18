@@ -24,7 +24,7 @@ export const CATALOG: GameMeta[] = [
   { id: 'mines', category: 'originals', tint: gameTint.mines, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
   { id: 'plinko', category: 'originals', tint: gameTint.plinko, rtp: '98.6–99.0 %', edge: '1.0–1.4 %', multiStep: false, online: true },
   { id: 'crossing', category: 'originals', tint: gameTint.crossing, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
-  { id: 'roulette', category: 'table', tint: gameTint.roulette, rtp: '97.3 %', edge: '2.70 %', multiStep: false, online: true },
+  { id: 'roulette', category: 'table', tint: gameTint.roulette, rtp: '97.1–97.3 %', edge: '2.7–2.9 %', multiStep: false, online: true },
   { id: 'limbo', category: 'originals', tint: gameTint.limbo, rtp: '99 %', edge: '1 %', multiStep: false, online: true },
   { id: 'coinflip', category: 'originals', tint: gameTint.coinflip, rtp: '99 %', edge: '1 %', multiStep: true, online: true },
   { id: 'baccarat', category: 'cards', tint: gameTint.baccarat, rtp: '98.8 % (B)', edge: '1.06–14.4 %', multiStep: false, online: true },

@@ -67,9 +67,12 @@ describe('Roulette (European)', () => {
     expect([...Roulette.WHEEL_ORDER].sort((a, b) => a - b)).toEqual([...Array(37).keys()]);
     expect(Roulette.RED_NUMBERS.size).toBe(18);
   });
-  it('every bet type returns 36/37', () => {
+  it('every bet type returns 36/37 (straights ≈ 97.1 % with the fire numbers)', () => {
+    expect(Roulette.rouletteExpectedReturn({ kind: 'straight', numbers: [17] })).toBeCloseTo((30 + (3 / 37) * (102 - 29)) / 37, 12);
+    expect(Roulette.rouletteExpectedReturn({ kind: 'straight', numbers: [17] })).toBeGreaterThan(0.97);
+    expect(Roulette.rouletteExpectedReturn({ kind: 'straight', numbers: [17] })).toBeLessThan(36 / 37);
     const bets: Roulette.RouletteBet[] = [
-      { kind: 'straight', numbers: [17] }, { kind: 'split', numbers: [0, 2] }, { kind: 'split', numbers: [5, 8] }, { kind: 'street', row: 4 },
+      { kind: 'trio', numbers: [0, 2, 3] }, { kind: 'trio', numbers: [0, 1, 2] }, { kind: 'split', numbers: [0, 2] }, { kind: 'split', numbers: [5, 8] }, { kind: 'street', row: 4 },
       { kind: 'corner', numbers: [1, 2, 4, 5] }, { kind: 'line', row: 3 }, { kind: 'column', column: 2 }, { kind: 'dozen', dozen: 3 },
       { kind: 'red' }, { kind: 'black' }, { kind: 'odd' }, { kind: 'even' }, { kind: 'low' }, { kind: 'high' },
     ];
@@ -88,8 +91,63 @@ describe('Roulette (European)', () => {
     ]);
     expect(o.color).toBe('black');
     expect(o.totalBet).toBe(35);
-    expect(o.payout).toBe(360 + 40);
+    expect(o.payout).toBe(300 + 40); // straight 29:1 when 17 is not on fire
     expect(Roulette.settleRoulette(0, [{ bet: { kind: 'red' }, amount: 10 }]).payout).toBe(0);
+    // on fire: the straight pays the multiplier, other bets don't change
+    const f = Roulette.settleRoulette(17, [{ bet: { kind: 'straight', numbers: [17] }, amount: 10 }, { bet: { kind: 'black' }, amount: 20 }], [{ n: 17, m: 200 }, { n: 3, m: 50 }]);
+    expect(f.payout).toBe(10 * 201 + 40);
+    expect(f.fireHit).toBe(200);
+    expect(Roulette.settleRoulette(16, [{ bet: { kind: 'split', numbers: [16, 17] }, amount: 10 }], [{ n: 16, m: 500 }]).payout).toBe(180);
+  });
+  it('fire numbers: 1–5 distinct numbers, multipliers from the table, frequencies as published', () => {
+    const rng = seededRng(77);
+    const counts: Record<number, number> = {};
+    let k = 0, sum = 0, n = 0;
+    for (let i = 0; i < 40000; i++) {
+      const f = Roulette.drawFire(rng);
+      expect(f.length).toBeGreaterThanOrEqual(1);
+      expect(f.length).toBeLessThanOrEqual(5);
+      expect(new Set(f.map((x) => x.n)).size).toBe(f.length);
+      k += f.length;
+      for (const x of f) {
+        expect(x.n).toBeGreaterThanOrEqual(0);
+        expect(x.n).toBeLessThanOrEqual(36);
+        counts[x.m] = (counts[x.m] ?? 0) + 1;
+        sum += x.m;
+        n++;
+      }
+    }
+    expect(k / 40000).toBeCloseTo(3, 1);
+    expect(sum / n).toBeGreaterThan(Roulette.FIRE_MEAN - 4);
+    expect(sum / n).toBeLessThan(Roulette.FIRE_MEAN + 4);
+    for (const [m, p] of Roulette.FIRE_MULTS) expect(Math.abs(counts[m] / n - p)).toBeLessThan(0.01);
+  });
+  it('a simulated straight returns what the formula says', () => {
+    const rng = seededRng(5);
+    const N = 400000;
+    let paid = 0;
+    for (let i = 0; i < N; i++) paid += Roulette.playRoulette(rng, [{ bet: { kind: 'straight', numbers: [17] }, amount: 1 }]).payout;
+    expect(Math.abs(paid / N - Roulette.rouletteExpectedReturn({ kind: 'straight', numbers: [17] }))).toBeLessThan(0.06);
+  });
+  it('call bets cover the right sectors of the wheel', () => {
+    expect(Roulette.callChips('voisins')).toBe(9);
+    expect(Roulette.callChips('tiers')).toBe(6);
+    expect(Roulette.callChips('orphelins')).toBe(5);
+    expect(Roulette.callChips('zero')).toBe(4);
+    expect(Roulette.callNumbers('voisins')).toHaveLength(17);
+    expect(Roulette.callNumbers('tiers')).toHaveLength(12);
+    expect(Roulette.callNumbers('orphelins')).toHaveLength(8);
+    expect(Roulette.callNumbers('zero')).toHaveLength(7);
+    // voisins, tiers and orphelins split the wheel exactly
+    const all = [...Roulette.callNumbers('voisins'), ...Roulette.callNumbers('tiers'), ...Roulette.callNumbers('orphelins')].sort((a, b) => a - b);
+    expect(all).toEqual([...Array(37).keys()]);
+    expect(Roulette.callNumbers('tiers').sort((a, b) => a - b)).toEqual([5, 8, 10, 11, 13, 16, 23, 24, 27, 30, 33, 36]);
+    expect(Roulette.neighbours(0, 2)).toEqual([3, 26, 0, 32, 15]);
+    expect(Roulette.expandCall({ neighbours: 26, k: 1 }, 10).map((b) => b.bet)).toEqual([{ kind: 'straight', numbers: [3] }, { kind: 'straight', numbers: [26] }, { kind: 'straight', numbers: [0] }]);
+    expect(Roulette.expandCall('voisins', 10).reduce((a, b) => a + b.amount, 0)).toBe(90);
+    // tiers pays 17:1 on one chip whichever of its numbers comes up
+    for (const n of Roulette.callNumbers('tiers')) expect(Roulette.settleRoulette(n, Roulette.expandCall('tiers', 10)).payout).toBe(180);
+    expect(() => Roulette.coveredNumbers({ kind: 'trio', numbers: [0, 1, 3] })).toThrow();
   });
   it('spins uniformly', () => {
     const rng = seededRng(23);

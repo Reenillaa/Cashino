@@ -42,6 +42,7 @@ export function GameShell({
   forceTutorial,
   stageStyle,
   describeRoom,
+  wideStage,
 }: {
   game: GameId;
   mode: PlayMode;
@@ -55,6 +56,8 @@ export function GameShell({
   stageStyle?: object;
   /** Extra line on each room card (e.g. poker blinds, table chips). */
   describeRoom?: (r: Room) => string | null;
+  /** Computers: the stage gets the whole table area at its real size (it lays itself out), not a scaled phone. */
+  wideStage?: boolean;
 }) {
   const { t, lang } = useT();
   const { c, reduceMotion } = useTheme();
@@ -155,10 +158,10 @@ export function GameShell({
           {desktop ? (
             // Computers: the table on the left, a betting panel on the right (like a casino website)
             <View style={styles.deskRow}>
-              <View style={{ flex: 1, minWidth: 0, maxWidth: 820 }}>
+              <View style={{ flex: 1, minWidth: 0, maxWidth: wideStage ? undefined : 820 }}>
                 {historyEl}
                 <Animated.View style={[{ flex: 1, marginTop: 8 }, stageStyle]} entering={enter}>
-                  <ScaledStage>{stage}</ScaledStage>
+                  {wideStage ? stage : <ScaledStage>{stage}</ScaledStage>}
                 </Animated.View>
               </View>
               <View style={styles.deskSide}>

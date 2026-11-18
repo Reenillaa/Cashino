@@ -13,7 +13,7 @@ import { minesMultiplier, surviveChance } from '@/engine/games/mines.ts';
 import { binProbability, plinkoRtp, plinkoTable } from '@/engine/games/plinko.ts';
 import { KENO_TABLES, kenoHitProbability, kenoRtp } from '@/engine/games/keno.ts';
 import { CROSSING_CONFIG, crossingMultiplier, crossingSurvival } from '@/engine/games/crossing.ts';
-import { ROULETTE_PAYS } from '@/engine/games/roulette.ts';
+import { FIRE_HIT, FIRE_MEAN, ROULETTE_PAYS, rouletteExpectedReturn } from '@/engine/games/roulette.ts';
 import { SICBO_PAYS, TOTAL_PAYS, sicBoExpectedReturn, sicBoWinProbability } from '@/engine/games/sicbo.ts';
 import { BACCARAT_PAYS } from '@/engine/games/baccarat.ts';
 import { guessProbability } from '@/engine/games/hilo.ts';
@@ -134,11 +134,12 @@ const MODELS: Record<GameId, Builder> = {
     rows: [
       { label: L(lang, 'Rojo (o negro, par, impar…)', 'Red (or black, even, odd…)'), p: 18 / 37, mult: ROULETTE_PAYS.red + 1 },
       { label: L(lang, 'Una docena', 'A dozen'), p: 12 / 37, mult: ROULETTE_PAYS.dozen + 1 },
-      { label: L(lang, 'Un número (pleno)', 'One number'), p: 1 / 37, mult: ROULETTE_PAYS.straight + 1 },
+      { label: L(lang, 'Un número que no está en llamas', 'A number not on fire'), p: (1 / 37) * (1 - FIRE_HIT), mult: ROULETTE_PAYS.straight + 1 },
+      { label: L(lang, 'Un número en llamas (media)', 'A number on fire (average)'), p: (1 / 37) * FIRE_HIT, mult: FIRE_MEAN + 1 },
     ],
     rtp: 36 / 37,
-    formula: L(lang, 'Se paga como si hubiera 36 casillas, pero hay 37. Por eso, de cada 37 fichas apostadas, vuelven 36.', 'It pays as if there were 36 pockets, but there are 37. So for every 37 chips bet, 36 come back.'),
-    example: L(lang, `20 fichas al rojo: cobras 40 un ${fmtPct(lang, 18 / 37)} de las veces. Al 17: cobras 720, pero 1 vez de cada 37.`, `20 chips on red: you collect 40 ${fmtPct(lang, 18 / 37)} of the time. On 17: you collect 720, but 1 time in 37.`),
+    formula: L(lang, `Se paga como si hubiera 36 casillas, pero hay 37: de cada 37 fichas vuelven 36 (97,3 %). Los plenos pagan 29:1, pero en cada tirada se encienden de 1 a 5 números de fuego (×50 a ×500). Con eso, un pleno devuelve de media un ${fmtPct(lang, rouletteExpectedReturn({ kind: 'straight', numbers: [17] }))}.`, `It pays as if there were 36 pockets, but there are 37: for every 37 chips, 36 come back (97.3 %). Straights pay 29:1, but every spin 1 to 5 fire numbers light up (×50 to ×500). With them, a straight returns ${fmtPct(lang, rouletteExpectedReturn({ kind: 'straight', numbers: [17] }))} on average.`),
+    example: L(lang, `20 fichas al rojo: cobras 40 un ${fmtPct(lang, 18 / 37)} de las veces. Al 17: cobras 600 una vez de cada 37, y si además está en llamas a ×500, ¡10.020! Pero eso pasa muy, muy poco.`, `20 chips on red: you collect 40 ${fmtPct(lang, 18 / 37)} of the time. On 17: you collect 600 once in 37 spins, and if it is also on fire at ×500, 10,020! But that happens very, very rarely.`),
   }),
   keno: (lang) => ({
     idea: L(lang, 'Eliges números del 1 al 40 y salen 10 al azar. Cuantos más aciertes, más cobras. Como la lotería, pero rápido.', 'Pick numbers from 1 to 40 and 10 are drawn. The more you hit, the more you win. Like a lottery, but quick.'),

@@ -106,6 +106,17 @@ export function useLive(game: LiveGame, opts: { askEvery?: number; betsEvery?: n
     [game, round, fetchBets],
   );
 
+  /** Several bets in one request (the roulette layout, call bets). */
+  const placeBets = useCallback(
+    async (list: LiveBet[]) => {
+      if (!round || !list.length) return;
+      const r = await callFn<{ ok: boolean; balance: number }>('live', { action: 'bets', game, slot: round.slot, bets: list, requestId: `${round.slot}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` });
+      useSession.getState().setBalance(Number(r.balance));
+      await fetchBets(round.slot);
+    },
+    [game, round, fetchBets],
+  );
+
   /** Server time (device clock corrected by the measured skew), for smooth animations. */
   const clock = useCallback(() => Date.now() + skew.current, []);
   const refresh = useCallback(async () => {
@@ -113,7 +124,7 @@ export function useLive(game: LiveGame, opts: { askEvery?: number; betsEvery?: n
     if (round) await fetchBets(round.slot);
   }, [fetchState, fetchBets, round]);
 
-  return { now, round, bets, history, phase, closesAt, startsAt, endsAt, error, placeBet, clock, refresh, myId: useSession.getState().userId };
+  return { now, round, bets, history, phase, closesAt, startsAt, endsAt, error, placeBet, placeBets, clock, refresh, myId: useSession.getState().userId };
 }
 
 export const mmss = (ms: number) => {

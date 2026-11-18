@@ -75,7 +75,7 @@ export const SIM_OPTIONS: Partial<Record<GameId, SimOption[]>> = {
   ],
   roulette: [
     { label: L('Siempre al rojo', 'Always red'), round: (rng, bet) => one('roulette', { bets: [{ bet: { kind: 'red' }, amount: bet }] })(rng, bet), rtp: 36 / 37 },
-    { label: L('Siempre al 17', 'Always 17'), round: (rng, bet) => one('roulette', { bets: [{ bet: { kind: 'straight', numbers: [17] }, amount: bet }] })(rng, bet), rtp: 36 / 37 },
+    { label: L('Siempre al 17', 'Always 17'), round: (rng, bet) => one('roulette', { bets: [{ bet: { kind: 'straight', numbers: [17] }, amount: bet }] })(rng, bet), rtp: 0.9708, spread: 0.3 },
   ],
   keno: [
     { label: L('5 números', '5 numbers'), round: one('keno', { picks: [3, 11, 19, 27, 35], risk: 'medium' }), rtp: 0.99 },

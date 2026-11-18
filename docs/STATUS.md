@@ -102,6 +102,15 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - En los juegos, la mesa va a la izquierda (escalada desde el diseño del móvil para que no se deforme) y los controles en un panel lateral a la derecha.
 - Móviles y tablets no cambian nada (comprobado con iPhone, iPad y Pixel emulados).
 
+## Cambios de la ronda 24 (Ruleta Llamarada: en vivo, 3D y números de fuego)
+
+- **La ruleta ya no se para**: la rueda gira todo el rato y sale una tirada cada 30 s desde que te sientas (20,4 s para apostar, 0,6 s de «no va más» y 9 s de bola). Si no has apostado, la rueda gira igual (tirada de exhibición, sin fichas).
+- **Números de fuego** (estilo de las ruletas «de fuego» de los casinos online, pero con diseño y nombre propios): en cada tirada se encienden de 1 a 5 números con ×50, ×100, ×200, ×300 o ×500. Un pleno en un número en llamas cobra ese multiplicador; si no, el pleno paga 29:1. El resto de apuestas no cambia (ventaja 2,70 %); el pleno devuelve ≈ 97,1 % (calculado y simulado en los tests). El número y los números de fuego salen del mismo sorteo verificable.
+- **Mesa desplegable**: en pantalla solo se ve la ruleta. «Mesa» despliega todos los números a lo largo de la pantalla (de pie en el móvil, tumbada en el ordenador) con plenos, caballos, tríos, calles, cuadros, seisenas, docenas, columnas y sencillas: tocando la línea o esquina entre números apuestas a todos ellos. «Zonas» abre la pista con **vecinos del cero, tercio del cilindro, huérfanos, juego cero** y **vecinos ±1…4** de cualquier número. Al cerrarse las apuestas la mesa se recoge sola. Deshacer, borrar, repetir y doblar.
+- **Ruleta en 3D con planos**: rueda en perspectiva sobre su mesa (pared de madera, torreta de pie, luz de estudio), llamas y brasas alrededor. La bola sale por la derecha, va más despacio y frena de forma continua, cae al cono, rebota dos veces entre los trastes y se queda en su casilla. La cámara baja al lanzar, se acerca siguiendo a la bola y se aleja para el resultado (medalla del número y «EN LLAMAS ×m» si toca).
+- **En el ordenador** la ruleta usa todo el espacio de la mesa a tamaño real (no la versión de móvil ampliada) y la mesa de apuestas se ve tumbada como en un casino. En el móvil se mantiene la misma disposición de siempre (cabecera, sala, escenario y panel de abajo).
+- **Ruleta en directo** (online): mismo diseño, una tirada cada 30 s para todos (antes 45 s), números de fuego también en directo, todas las apuestas de mesa (antes solo sencillas, docenas y plenos) y botón de confirmar que manda la jugada entera al servidor de una vez (nueva acción `bets`, hasta 40 apuestas).
+
 ## Cambios de la ronda 23 (rasca y gana + mesa caliente mucho más tarde)
 
 - **Rasca y gana 🎟️** en la Tienda (pestaña nueva, la primera): cinco billetes originales de temática española, dibujados a mano en SVG y que se rascan de verdad con el dedo o el ratón (capa metálica con máscara; cada casilla se limpia sola al rascar ~60 %, y hay botón «Rascar todo»).

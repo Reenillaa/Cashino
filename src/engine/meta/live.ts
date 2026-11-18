@@ -14,8 +14,8 @@ export const LIVE_GAMES: LiveGame[] = ['horses', 'roulette', 'crash'];
 export const LIVE_CONFIG: Record<LiveGame, { period: number; betting: number; show: number; min: number; max: number }> = {
   // a race every 2 minutes: 90 s to study and bet, then the race (~16 s) and the results
   horses: { period: 120_000, betting: 90_000, show: 16_000, min: 10, max: 2000 },
-  // a spin every 45 seconds: 30 s to bet, then the wheel
-  roulette: { period: 45_000, betting: 30_000, show: 7_000, min: 10, max: 2000 },
+  // a spin every 30 seconds: 18 s to bet, the fire numbers and the ball (9 s), then the next round
+  roulette: { period: 30_000, betting: 18_000, show: 9_000, min: 10, max: 2000 },
   // a rocket every 45 seconds: 12 s to get on board, then everyone flies the same rocket (up to ×50)
   crash: { period: 45_000, betting: 12_000, show: 28_000, min: 10, max: 2000 },
 };
@@ -41,15 +41,19 @@ export function liveCard(game: LiveGame, seed: number): Horses.RaceCard | null {
   return game === 'horses' ? Horses.makeCard(seededRng(seed)) : null;
 }
 
-export type LiveResult = { race: Horses.RaceResult } | { number: number } | { crash: number };
+export type LiveResult = { race: Horses.RaceResult } | { number: number; fire?: Roulette.FireNumber[] } | { crash: number };
 export function liveResult(game: LiveGame, card: Horses.RaceCard | null, seed: number): LiveResult {
   const rng = seededRng(seed);
   if (game === 'crash') return { crash: Math.min(LIVE_CRASH_CAP, crashPoint(rng)) };
-  return game === 'horses' ? { race: Horses.runRace(rng, card!) } : { number: Roulette.spinRoulette(rng) };
+  if (game === 'horses') return { race: Horses.runRace(rng, card!) };
+  const number = Roulette.spinRoulette(rng);
+  return { number, fire: Roulette.drawFire(rng) };
 }
 
 export type LiveBet = Horses.HorseBet | Roulette.PlacedBet | CrashBet;
-const ROULETTE_LIVE: Roulette.RouletteBet['kind'][] = ['straight', 'red', 'black', 'odd', 'even', 'low', 'high', 'dozen', 'column'];
+const ROULETTE_LIVE: Roulette.RouletteBet['kind'][] = ['straight', 'split', 'trio', 'street', 'corner', 'line', 'red', 'black', 'odd', 'even', 'low', 'high', 'dozen', 'column'];
+/** Most bets one player can send at once (a whole layout or a call bet such as voisins). */
+export const LIVE_BATCH = 40;
 
 /** Validates a bet for a live game and returns its stake (throws on anything invalid). */
 export function checkLiveBet(game: LiveGame, bet: LiveBet): number {
@@ -96,5 +100,6 @@ function settleOther(game: LiveGame, card: Horses.RaceCard | null, result: LiveR
     const r = Horses.settleBets(card!, (result as { race: Horses.RaceResult }).race.finish, [bet as Horses.HorseBet]);
     return r.payout;
   }
-  return Roulette.settleRoulette((result as { number: number }).number, [bet as Roulette.PlacedBet]).payout;
+  const r = result as { number: number; fire?: Roulette.FireNumber[] };
+  return Roulette.settleRoulette(r.number, [bet as Roulette.PlacedBet], r.fire ?? []).payout;
 }

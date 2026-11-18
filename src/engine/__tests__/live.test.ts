@@ -25,7 +25,13 @@ describe('live rounds', () => {
     expect(checkLiveBet('horses', winBet)).toBe(50);
     expect(livePayout('horses', card, res, winBet)).toBe(Math.floor(50 * oddsFor(card, 'win', [res.race.finish[0]]) + 1e-9));
     expect(() => checkLiveBet('horses', { type: 'win', horses: [1], amount: 5 })).toThrow();
-    expect(() => checkLiveBet('roulette', { bet: { kind: 'split', numbers: [1, 2] }, amount: 50 })).toThrow();
+    expect(checkLiveBet('roulette', { bet: { kind: 'split', numbers: [1, 2] }, amount: 50 })).toBe(50);
+    expect(() => checkLiveBet('roulette', { bet: { kind: 'split', numbers: [1, 5] }, amount: 50 })).toThrow();
+    // fire numbers come with the live result and pay straights
+    const lr = liveResult('roulette', null, 11) as { number: number; fire: { n: number; m: number }[] };
+    expect(lr.fire.length).toBeGreaterThan(0);
+    expect(livePayout('roulette', null, { number: 7, fire: [{ n: 7, m: 300 }] }, { bet: { kind: 'straight', numbers: [7] }, amount: 10 })).toBe(3010);
+    expect(livePayout('roulette', null, { number: 7 }, { bet: { kind: 'straight', numbers: [7] }, amount: 10 })).toBe(300);
     const red = { bet: { kind: 'red' as const }, amount: 20 };
     expect(livePayout('roulette', null, { number: 1 }, red)).toBe(40);
     expect(livePayout('roulette', null, { number: 2 }, red)).toBe(0);

@@ -25,11 +25,12 @@ const short = (v: number) => (v >= 1000 ? `${v % 1000 === 0 ? v / 1000 : (v / 10
  * Bet chooser as a wheel of poker chips: swipe (or tap a chip) and the one in the middle is your bet.
  * Chips curve away like a wheel. Amounts stay inside the room limits and never above your balance.
  */
-export function BetInput({ value, onChange, balance, disabled, label, min = 1, max = Number.MAX_SAFE_INTEGER }: { value: number; onChange: (v: number) => void; balance: number; disabled?: boolean; tint?: string; label?: string; min?: number; max?: number; step?: number }) {
+export function BetInput({ value, onChange, balance, disabled, label, min = 1, max = Number.MAX_SAFE_INTEGER, options }: { value: number; onChange: (v: number) => void; balance: number; disabled?: boolean; tint?: string; label?: string; min?: number; max?: number; step?: number; /** Exact amounts to offer (e.g. the chips of a roulette room) instead of the ladder. */ options?: number[] }) {
   const { t } = useT();
   const { c } = useTheme();
   const top = Math.max(min, Math.min(max, Math.floor(balance)));
-  const values = useMemo(() => betLadder(min, top), [min, top]);
+  const optKey = options?.join(',');
+  const values = useMemo(() => (optKey ? optKey.split(',').map(Number).filter((v) => v <= top) : betLadder(min, top)), [min, top, optKey]);
   const [w, setW] = useState(0);
   const x = useSharedValue(0);
   const ref = useRef<Animated.ScrollView>(null);

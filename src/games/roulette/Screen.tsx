@@ -1,205 +1,257 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { Easing, ZoomIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { Circle } from 'react-native-svg';
+import { useIsFocused } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Button, CasinoChip, Icon, PressableScale, T, formatCoins } from '@/design/components';
-import { useTheme } from '@/design/theme';
+import { Icon, PressableScale, T, formatCoins } from '@/design/components';
+import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
 import { useT } from '@/i18n';
-import { RouletteWheelArt } from './WheelArt';
-import { WHEEL_ORDER, pocketColor, betKey, type RouletteBet } from '@/engine/games/roulette.ts';
+import { betKey, drawFire, spinRoulette, type PlacedBet, type RouletteOutcome } from '@/engine/games/roulette.ts';
 import { useGameSession, PlayError } from '@/features/play/session';
 import { tutorialEvent } from '@/features/tutorial/tutorial';
-import { TutorialTarget } from '@/features/tutorial/TutorialTarget';
+import { useDesktop } from '@/design/layout';
+import { useProgress } from '@/state/progress';
 import { GameShell } from '../shared/GameShell';
-import { HistoryStrip } from '../shared/HistoryStrip';
 import { ResultBanner } from '../shared/ResultBanner';
 import { BetInput } from '../shared/BetInput';
-import { useBet, useGameHistory, usePlayErrors, useResult, wait } from '../shared/hooks';
+import { useBet, usePlayErrors, useResult } from '../shared/hooks';
+import { useBigWin } from '../lineslot/BigWin';
+import { Countdown, LastNumbers, RouletteStage, SPIN, type SpinInfo } from './Stage';
+import { BetOverlay, type BoardMode } from './Overlay';
 import { sfx } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 
-const RED = '#E8304F';
-const BLACK = '#17111F';
-const GREEN = '#16C47F';
-const SEG = 360 / 37;
-const numColor = (n: number) => (pocketColor(n) === 'red' ? RED : pocketColor(n) === 'black' ? BLACK : GREEN);
+/** A spin every 30 s from the moment you sit down: 20.4 s to bet, a breath, then 9 s of ball. */
+export const ROUND = { bet: 20_400, lead: 600, cycle: 30_000 };
+const mathRng = { float: () => Math.random() };
 
-/**
- * The wheel is also the number board: tap a pocket to bet on that number (a chip appears on it).
- * Gold rim, turret in the middle; pockets keep their chips while it spins.
- */
-function Wheel({ size, placed, onPick, disabled }: { size: number; placed: Record<number, number>; onPick: (n: number) => void; disabled: boolean }) {
-  return (
-    <RouletteWheelArt size={size} id="rlw" onPocket={disabled ? undefined : onPick}
-      overlay={(n, x, y) => (placed[n] ? <Circle cx={x} cy={y} r={size * 0.03} fill="#FFB938" stroke="#FFFFFF" strokeWidth={1.4} /> : null)} />
-  );
-}
-
-type Spot = { bet: RouletteBet; label: string; colors?: [string, string] };
+type Phase = 'betting' | 'spinning';
+type Bets = Record<string, PlacedBet>;
 
 export default function RouletteScreen({ forceTutorial }: { forceTutorial?: boolean }) {
   const { t } = useT();
-  const { reduceMotion } = useTheme();
+  const focused = useIsFocused();
+  const desktop = useDesktop();
   const s = useGameSession('roulette');
-  const [chip, setChip] = useBet('roulette', s.room);
-  const [bets, setBets] = useState<Record<string, { bet: RouletteBet; amount: number }>>({});
-  const [stack, setStack] = useState<{ k: string; amount: number }[]>([]);
-  const [spinning, setSpinning] = useState(false);
-  const [last, setLast] = useState<{ number: number; winning: string[] } | null>(null);
-  const [box, setBox] = useState({ w: 360, h: 520 });
+  const chips = [...new Set([...s.room.chips, s.room.max])].sort((a, b) => a - b);
+  const [chip, setChip] = useBet('roulette', { ...s.room, min: chips[0] });
+  const [bets, setBets] = useState<Bets>({});
+  const [stack, setStack] = useState<string[][]>([]); // undo groups (a call bet is one step)
+  const [phase, setPhase] = useState<Phase>('betting');
+  const [opensAt, setOpensAt] = useState<number | null>(null);
+  const [spin, setSpin] = useState<SpinInfo | null>(null);
+  const [lastNums, setLastNums] = useState<{ n: number; fire?: number | null; key: string }[]>(() =>
+    useProgress.getState().history.filter((x) => x.game === 'roulette').slice(0, 12).map((x) => ({ n: Number(x.detail), key: x.id })).filter((x) => Number.isInteger(x.n)),
+  );
+  const [board, setBoard] = useState<BoardMode | null>(null);
+  const [box, setBox] = useState({ w: 360, h: 480 });
   const { result, show } = useResult();
+  const big = useBigWin('ember');
   const onError = usePlayErrors();
-  const history = useGameHistory('roulette', (d) => d);
-  const wheelRot = useSharedValue(0);
-  const ballRot = useSharedValue(0);
-  const ballR = useSharedValue(0);
-  const lastBets = useRef<typeof bets>({});
+  const lastBets = useRef<Bets>({});
+  const betsRef = useRef<Bets>({});
+  const [hasLast, setHasLast] = useState(false);
+  useEffect(() => {
+    betsRef.current = bets;
+  }, [bets]);
   const total = Object.values(bets).reduce((a, b) => a + b.amount, 0);
-  // The wheel takes what is left after the three rows of bets (≈ 3 × 53 px + hint).
-  const rowH = box.h < 400 ? 36 : 46;
-  const size = Math.max(100, Math.min(box.w * 0.66, box.h - (rowH * 3 + 14 + 48 + 24 + 8), 280));
+  const vertical = !desktop && box.h > box.w * 1.05;
 
-  const place = (bet: RouletteBet) => {
-    if (spinning) return;
-    if (total + chip > s.balance) return onError(new PlayError('insufficient'));
-    if (total + chip > s.room.max) return onError(new PlayError(`room_max:${s.room.max}`));
-    const k = betKey(bet);
-    setLast(null);
-    setBets((b) => ({ ...b, [k]: { bet, amount: (b[k]?.amount ?? 0) + chip } }));
-    setStack((st) => [...st, { k, amount: chip }]);
-    sfx('chip');
-    haptic.select();
-    tutorialEvent('roulette', 'roulette:place');
-  };
+
+  const add = useCallback(
+    (list: PlacedBet[]) => {
+      if (phase !== 'betting') return;
+      const sum = list.reduce((a, b) => a + b.amount, 0);
+      const cur = Object.values(betsRef.current).reduce((a, b) => a + b.amount, 0);
+      if (cur + sum > s.balance) return onError(new PlayError('insufficient'));
+      if (cur + sum > s.room.max) return onError(new PlayError(`room_max:${s.room.max}`));
+      const keys: string[] = [];
+      setBets((b) => {
+        const nb = { ...b };
+        for (const x of list) {
+          const k = betKey(x.bet);
+          keys.push(k);
+          nb[k] = { bet: x.bet, amount: (nb[k]?.amount ?? 0) + x.amount };
+        }
+        return nb;
+      });
+      setStack((st) => [...st, list.map((x) => `${betKey(x.bet)}|${x.amount}`)]);
+      sfx('chip');
+      haptic.select();
+      tutorialEvent('roulette', 'roulette:place');
+    },
+    [phase, s.balance, s.room.max, onError],
+  );
   const undo = () => {
     const top = stack[stack.length - 1];
     if (!top) return;
     setStack((st) => st.slice(0, -1));
     setBets((b) => {
-      const cur = b[top.k];
-      if (!cur) return b;
-      const amount = cur.amount - top.amount;
       const nb = { ...b };
-      if (amount <= 0) delete nb[top.k];
-      else nb[top.k] = { ...cur, amount };
+      for (const it of top) {
+        const [k, a] = it.split('|');
+        const left = (nb[k]?.amount ?? 0) - Number(a);
+        if (left <= 0) delete nb[k];
+        else nb[k] = { ...nb[k], amount: left };
+      }
       return nb;
     });
+    sfx('chip', 0.4);
+  };
+  const clear = () => {
+    setBets({});
+    setStack([]);
   };
   const repeat = () => {
     const lb = lastBets.current;
     const sum = Object.values(lb).reduce((a, b) => a + b.amount, 0);
-    if (sum && sum <= s.balance && sum >= s.room.min && sum <= s.room.max) {
-      setBets(lb);
-      setStack(Object.entries(lb).map(([k, v]) => ({ k, amount: v.amount })));
-      sfx('chip');
-    }
+    if (sum && !total) add(Object.values(lb));
   };
-  const spin = async () => {
-    try {
-      setSpinning(true);
-      const placed = Object.values(bets);
-      const r = await s.op('play', { bets: placed });
-      const v = r.view as { number: number; winning: string[] };
-      const idx = WHEEL_ORDER.indexOf(v.number as (typeof WHEEL_ORDER)[number]);
-      const dur = reduceMotion ? 0 : 4200;
-      const wEnd = wheelRot.get() + 720 + Math.random() * 360;
-      const target = (((wEnd + idx * SEG) % 360) + 360) % 360;
-      const bEnd = target - 360 * 4;
-      sfx('roll', 0.5);
-      wheelRot.set(withTiming(wEnd, { duration: dur, easing: Easing.out(Easing.cubic) }));
-      ballRot.set(ballRot.get() % 360);
-      ballRot.set(withTiming(bEnd, { duration: dur, easing: Easing.out(Easing.cubic) }));
-      ballR.set(0);
-      ballR.set(withTiming(1, { duration: dur, easing: Easing.in(Easing.quad) }));
-      await wait(dur);
-      sfx('balldrop');
-      setLast(v);
-      lastBets.current = bets;
-      setBets({});
-      setStack([]);
-      show({ bet: placed.reduce((a, b) => a + b.amount, 0), payout: r.payout, label: `${v.number}` });
-      tutorialEvent('roulette', 'roulette:spin');
-    } catch (e) {
-      onError(e);
-    } finally {
-      setSpinning(false);
-    }
-  };
-  const wheelStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${wheelRot.value}deg` }] }));
-  const ballStyle = useAnimatedStyle(() => {
-    const radius = size / 2 - size * 0.06 - ballR.value * (size * 0.1);
-    const a = ((ballRot.value - 90) * Math.PI) / 180;
-    return { transform: [{ translateX: size / 2 - 7 + radius * Math.cos(a) }, { translateY: size / 2 - 7 + radius * Math.sin(a) }] };
-  });
+  const double = () => total && add(Object.values(bets));
 
-  const straight: Record<number, number> = {};
-  Object.values(bets).forEach((b) => {
-    if (b.bet.kind === 'straight') straight[b.bet.numbers[0]] = b.amount;
-  });
-  const spot = (sp: Spot, flex = 1) => {
-    const k = betKey(sp.bet);
-    const win = !!last && last.winning.includes(k);
-    return <BigSpot key={k} label={sp.label} colors={sp.colors} placed={bets[k]?.amount} win={win} flex={flex} h={rowH} onPress={() => place(sp.bet)} />;
+  // betting closes → the bets are played (or the wheel spins on its own) → 9 s of ball → next round
+  useEffect(() => {
+    if (opensAt === null || !focused) return;
+    const closeAt = opensAt + ROUND.bet;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const close = async () => {
+      setPhase('spinning');
+      setBoard(null);
+      const placed = Object.values(betsRef.current);
+      const sum = placed.reduce((a, b) => a + b.amount, 0);
+      const at = closeAt + ROUND.lead;
+      const key = `${opensAt}`;
+      let outcome: (RouletteOutcome & { stake: number }) | null = null;
+      if (sum > 0 && sum >= s.room.min) {
+        try {
+          const r = await s.op('play', { bets: placed });
+          const v = r.view as unknown as RouletteOutcome;
+          outcome = { ...v, payout: r.payout, stake: sum };
+        } catch (e) {
+          onError(e);
+        }
+      } else if (sum > 0) {
+        useProgress.getState().pushToast({ kind: 'info', title: t('play.rl.tooSmall', { min: formatCoins(s.room.min) }) });
+      }
+      // nobody bet (or it failed): the wheel still spins, just for show
+      const number = outcome ? outcome.number : spinRoulette(mathRng);
+      const fire = outcome ? outcome.fire : drawFire(mathRng);
+      setSpin({ at, number, fire, key });
+      timers.push(
+        setTimeout(() => {
+          const hit = fire.find((f) => f.n === number)?.m ?? null;
+          setLastNums((l) => [{ n: number, fire: hit, key }, ...l].slice(0, 14));
+          if (outcome) {
+            lastBets.current = betsRef.current;
+            setHasLast(true);
+            clear();
+            void big.celebrate(outcome.stake ? outcome.payout / outcome.stake : 0, outcome.payout).then(() =>
+              show({ bet: outcome!.stake, payout: outcome!.payout, label: `${number}${hit ? ` 🔥×${hit}` : ''}` }),
+            );
+            tutorialEvent('roulette', 'roulette:spin');
+          }
+        }, Math.max(0, at + SPIN.reveal - Date.now())),
+      );
+      timers.push(
+        setTimeout(() => {
+          setPhase('betting');
+          setOpensAt(opensAt + ROUND.cycle);
+        }, Math.max(0, opensAt + ROUND.cycle - Date.now())),
+      );
+    };
+    timers.push(setTimeout(() => void close(), Math.max(0, closeAt - Date.now())));
+    return () => timers.forEach(clearTimeout);
+  }, [opensAt, focused]); // eslint-disable-line react-hooks/exhaustive-deps
+  // coming back to the table: start a fresh round
+  useEffect(() => {
+    if (!focused || opensAt === null || Date.now() <= opensAt + ROUND.cycle) return;
+    const id = setTimeout(() => {
+      setPhase('betting');
+      setOpensAt(Date.now());
+    }, 0);
+    return () => clearTimeout(id);
+  }, [focused]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const openBoard = (m: BoardMode) => {
+    if (phase !== 'betting') return;
+    setBoard(m);
+    sfx('card', 0.5);
+    haptic.light();
+    tutorialEvent('roulette', 'roulette:board');
   };
+  const prev = lastNums[0]?.n ?? null;
+  const clockEl = opensAt !== null ? <Countdown opensAt={opensAt} closesAt={opensAt + ROUND.bet} label={t('play.rl.place')} closed={phase === 'spinning' ? t('play.rl.closed') : null} compact={!desktop} /> : null;
+  const tools = (
+    <View style={styles.tools}>
+      <View style={styles.total}>
+        <T variant="caption" style={{ color: 'rgba(255,227,176,0.7)' }}>{t('play.totalBet')}</T>
+        <T weight="display" tabular style={{ color: total && total < s.room.min ? '#FFB938' : '#fff', fontSize: 15 }}>{formatCoins(total)}</T>
+      </View>
+      <Tool icon="refresh" label={t('play.repeat')} onPress={repeat} disabled={phase !== 'betting' || total > 0 || !hasLast} />
+      <Tool text="×2" label={t('play.rl.double')} onPress={double} disabled={phase !== 'betting' || !total} />
+      <Tool icon="arrowDown" rotate label={t('play.undo')} onPress={undo} disabled={phase !== 'betting' || !stack.length} />
+      <Tool icon="trash" label={t('common.clear')} onPress={clear} disabled={phase !== 'betting' || !total} />
+    </View>
+  );
   return (
     <GameShell
       game="roulette"
       mode={s.mode}
       balance={s.balance}
-      locked={spinning}
+      locked={total > 0 || phase === 'spinning'}
       forceTutorial={forceTutorial}
-      history={<HistoryStrip items={history} />}
+      wideStage
       stage={
-        <View style={{ flex: 1, alignItems: 'center', paddingHorizontal: 14 }} onLayout={(e) => setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
-          <View style={{ width: size, height: size, marginTop: 4 }} accessibilityLabel={last ? `${last.number}` : t('play.spin')}>
-            <View style={[StyleSheet.absoluteFill, styles.glow, { borderRadius: size / 2 }]} />
-            <Animated.View style={[StyleSheet.absoluteFill, wheelStyle]}>
-              <Wheel size={size} placed={straight} onPick={(n) => place({ kind: 'straight', numbers: [n] })} disabled={spinning} />
-            </Animated.View>
-            <Animated.View pointerEvents="none" style={[styles.ball, ballStyle]} />
-            {last ? (
-              <Animated.View key={last.number} entering={reduceMotion ? undefined : ZoomIn.springify().damping(12)} pointerEvents="none" style={[styles.landed, { backgroundColor: numColor(last.number), left: size / 2 - 30, top: size / 2 - 30 }]}>
-                <T weight="display" style={{ color: '#fff', fontSize: 24 }}>{last.number}</T>
-              </Animated.View>
-            ) : null}
+        <View
+          style={styles.stage}
+          onLayout={(e) => {
+            setBox({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height });
+            // the clock starts when you sit at the table
+            if (opensAt === null) setOpensAt(Date.now());
+          }}
+        >
+          <RouletteStage w={box.w} h={box.h} spin={spin} prev={prev} active={focused} compact={!desktop} />
+          {/* HUD: the countdown and the last numbers */}
+          <View pointerEvents="none" style={[styles.hud, { top: desktop ? 14 : 6 }]}>
+            {opensAt !== null && !board ? clockEl : null}
           </View>
-          <T variant="footnote" color="text2" align="center" numberOfLines={1} adjustsFontSizeToFit style={{ marginTop: 6, marginBottom: 8 }}>{spinning ? t('play.noMoreBets') : t('play.tapNumber')}</T>
-          <TutorialTarget id="roulette:place" style={styles.board}>
-            {/* the betting layout printed on green cloth with gold lines */}
-            <LinearGradient colors={['#17905F', '#0A4A33']} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }} style={[StyleSheet.absoluteFill, { borderRadius: 18 }]} />
-            <LinearGradient colors={['rgba(255,255,255,0.14)', 'rgba(255,255,255,0)', 'rgba(0,0,0,0.25)']} style={[StyleSheet.absoluteFill, { borderRadius: 18 }]} />
-            <View style={styles.row}>
-              {spot({ bet: { kind: 'red' }, label: t('play.red'), colors: ['#FF4F6A', '#B3123C'] }, 1.3)}
-              {spot({ bet: { kind: 'straight', numbers: [0] }, label: '0', colors: ['#2BE09A', '#0B8A55'] }, 0.6)}
-              {spot({ bet: { kind: 'black' }, label: t('play.black'), colors: ['#3A2E50', '#120C1C'] }, 1.3)}
-            </View>
-            <View style={styles.row}>
-              {spot({ bet: { kind: 'even' }, label: t('play.even') })}
-              {spot({ bet: { kind: 'odd' }, label: t('play.odd') })}
-              {spot({ bet: { kind: 'low' }, label: '1–18' })}
-              {spot({ bet: { kind: 'high' }, label: '19–36' })}
-            </View>
-            <View style={styles.row}>
-              {([1, 2, 3] as const).map((d) => spot({ bet: { kind: 'dozen', dozen: d }, label: `${12 * (d - 1) + 1}–${12 * d}` }))}
-            </View>
-          </TutorialTarget>
-          <ResultBanner result={result} />
+          <View pointerEvents="none" style={[styles.last, { bottom: desktop ? 16 : 8 }]}>
+            <LastNumbers items={lastNums} compact={!desktop} />
+          </View>
+          {board ? (
+            <BetOverlay
+              w={box.w}
+              h={box.h}
+              vertical={vertical}
+              mode={board}
+              onMode={setBoard}
+              bets={bets}
+              chip={chip}
+              onAdd={add}
+              last={prev}
+              disabled={phase !== 'betting'}
+              onClose={() => setBoard(null)}
+              footer={tools}
+              center={desktop ? clockEl : opensAt !== null ? <Countdown opensAt={opensAt} closesAt={opensAt + ROUND.bet} label="" closed={null} compact tiny /> : null}
+            />
+          ) : null}
+          <ResultBanner result={result} compact />
+          {big.node}
         </View>
       }
       controls={
-        <View>
-          <View style={styles.tools}>
-            <T variant="footnote" color="text2" style={{ flex: 1 }}>
-              {t('play.totalBet')}: <T variant="footnote" weight="semibold" tabular color={total && total < s.room.min ? 'warn' : 'text'}>{formatCoins(total)}</T>
-            </T>
-            <Tool icon="refresh" label={t('play.repeat')} onPress={repeat} disabled={spinning || total > 0} />
-            <Tool icon="arrowDown" label={t('play.undo')} onPress={undo} disabled={!stack.length || spinning} rotate />
-            <Tool icon="trash" label={t('common.clear')} onPress={() => { setBets({}); setStack([]); }} disabled={!total || spinning} />
-          </View>
-          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-            <View style={{ flex: 1.15 }}><BetInput value={chip} onChange={setChip} balance={s.balance} min={s.room.min} max={s.room.max} label={t('play.chipValue')} /></View>
-            <Button spot="roulette:spin" title={t('play.spin')} onPress={spin} loading={spinning} disabled={!total || total > s.balance || total < s.room.min} style={{ flex: 1 }} />
+        <View style={{ gap: 8 }}>
+          {board ? null : tools}
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            <View style={{ flex: 1.1 }}><BetInput value={chip} onChange={setChip} balance={s.balance} min={chips[0]} max={s.room.max} label={t('play.chipValue')} disabled={phase !== 'betting'} options={chips} /></View>
+            <View style={{ flex: 1, gap: 6 }}>
+              <TutorialTarget id="roulette:board">
+                <PressableScale onPress={() => openBoard('table')} disabled={phase !== 'betting'} feedback="select" scaleTo={0.96} accessibilityLabel={t('play.rl.table')} style={[styles.tableBtn, phase !== 'betting' && { opacity: 0.45 }]}>
+                  <LinearGradient colors={['#7A1024', '#3A0610']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+                  <T weight="display" style={{ color: '#FFE3B0', fontSize: 14 }}>🎯 {t('play.rl.table')}</T>
+                </PressableScale>
+              </TutorialTarget>
+              <FireButton label={t('play.rl.zones')} onPress={() => openBoard('zones')} disabled={phase !== 'betting'} />
+            </View>
           </View>
         </View>
       }
@@ -207,47 +259,36 @@ export default function RouletteScreen({ forceTutorial }: { forceTutorial?: bool
   );
 }
 
-function BigSpot({ label, colors, placed, win, flex, h, onPress }: { label: string; colors?: [string, string]; placed?: number; win: boolean; flex: number; h: number; onPress: () => void }) {
-  // red and black carry the classic printed diamond; the rest are printed straight on the cloth
-  const diamond = colors && (label.length > 1) ? colors[0] : null;
+/** The "nice" zones button: molten gradient with a flame. */
+function FireButton({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
   return (
-    <PressableScale onPress={onPress} feedback="none" scaleTo={0.93} accessibilityLabel={`${label}${placed ? `, ${placed}` : ''}`} style={[styles.spot, { flex, height: h, borderColor: win ? '#FFE58A' : 'rgba(255,229,138,0.55)', borderWidth: win ? 2.5 : 1.2 }, win && styles.winSpot]}>
-      {colors ? <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} /> : null}
-      {colors ? <LinearGradient colors={['rgba(255,255,255,0.25)', 'rgba(255,255,255,0)']} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.6 }} style={StyleSheet.absoluteFill} /> : null}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-        {diamond ? <View style={[styles.diamond, { backgroundColor: diamond }]} /> : null}
-        <T weight="displaySemi" style={{ color: colors ? '#fff' : '#FFF3D6', fontSize: 13, letterSpacing: 0.5, textShadowColor: 'rgba(0,0,0,0.4)', textShadowRadius: 3 }}>{label}</T>
-      </View>
-      {placed ? (
-        <Animated.View entering={ZoomIn.springify().damping(12)} style={styles.placed}>
-          <CasinoChip size={26} color="#FFB938" label={placed >= 1000 ? `${placed / 1000}k` : String(placed)} />
-        </Animated.View>
-      ) : null}
+    <PressableScale onPress={onPress} disabled={disabled} feedback="select" scaleTo={0.96} accessibilityLabel={label} style={[styles.fire, disabled && { opacity: 0.45 }]}>
+      <LinearGradient colors={['#FFD06B', '#FF6A1F', '#B8100A']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0)']} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.6 }} style={StyleSheet.absoluteFill} />
+      <T weight="display" style={{ color: '#2A0800', fontSize: 14, letterSpacing: 0.3 }}>🔥 {label}</T>
     </PressableScale>
   );
 }
 
-function Tool({ icon, label, onPress, disabled, rotate }: { icon: 'refresh' | 'arrowDown' | 'trash'; label: string; onPress: () => void; disabled?: boolean; rotate?: boolean }) {
-  const { c } = useTheme();
+function Tool({ icon, text, label, onPress, disabled, rotate }: { icon?: 'refresh' | 'arrowDown' | 'trash'; text?: string; label: string; onPress: () => void; disabled?: boolean; rotate?: boolean }) {
   return (
-    <PressableScale onPress={onPress} disabled={disabled} accessibilityLabel={label} hitSlop={6} style={[styles.tool, { backgroundColor: c.surface2 }]}>
-      <View style={rotate ? { transform: [{ rotate: '90deg' }] } : undefined}>
-        <Icon name={icon} size={17} color={c.text} />
-      </View>
+    <PressableScale onPress={onPress} disabled={disabled} accessibilityLabel={label} hitSlop={6} style={[styles.tool, disabled && { opacity: 0.35 }]}>
+      {icon ? (
+        <View style={rotate ? { transform: [{ rotate: '90deg' }] } : undefined}><Icon name={icon} size={17} color="#FFE3B0" /></View>
+      ) : (
+        <T weight="display" style={{ color: '#FFE3B0', fontSize: 13 }}>{text}</T>
+      )}
     </PressableScale>
   );
 }
 
 const styles = StyleSheet.create({
-  glow: { shadowColor: '#FFB938', shadowOpacity: 0.45, shadowRadius: 26 },
-  ball: { position: 'absolute', left: 0, top: 0, width: 14, height: 14, borderRadius: 7, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8D2E8', shadowColor: '#fff', shadowOpacity: 0.8, shadowRadius: 6 },
-  landed: { position: 'absolute', width: 60, height: 60, borderRadius: 30, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: '#FFE58A' },
-  row: { flexDirection: 'row', gap: 7 },
-  spot: { height: 46, borderRadius: 10, alignItems: 'center', justifyContent: 'center', overflow: 'visible' },
-  winSpot: { shadowColor: '#FFE58A', shadowOpacity: 0.9, shadowRadius: 10 },
-  diamond: { width: 11, height: 11, transform: [{ rotate: '45deg' }], borderWidth: 1.5, borderColor: '#FFF3D6' },
-  board: { alignSelf: 'stretch', gap: 7, padding: 9, borderRadius: 18, borderWidth: 3, borderColor: '#C98B12', shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 14 },
-  placed: { position: 'absolute', right: -6, top: -8 },
-  tools: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
-  tool: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  stage: { flex: 1, borderRadius: 24, overflow: 'hidden', marginHorizontal: 8 },
+  hud: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
+  last: { position: 'absolute', left: 0, right: 0 },
+  tools: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  total: { flex: 1, paddingHorizontal: 12, height: 40, borderRadius: 20, justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' },
+  tool: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,185,56,0.3)' },
+  tableBtn: { height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderWidth: 1.5, borderColor: 'rgba(255,229,138,0.7)' },
+  fire: { height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderWidth: 1.5, borderColor: '#FFE58A', shadowColor: '#FF6A1F', shadowOpacity: 0.7, shadowRadius: 10 },
 });

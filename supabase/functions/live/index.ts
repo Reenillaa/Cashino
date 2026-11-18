@@ -2,12 +2,13 @@
  * `live` Edge Function — shared, timed multiplayer rounds (live horse racing, live roulette).
  *   { action: 'state', game }                     → creates the current round if needed, resolves and pays closed rounds
  *   { action: 'bet', game, slot, bet, requestId } → places a bet while betting is open
+ *   { action: 'bets', game, slot, bets, requestId } → places several bets at once (a layout, a call bet such as voisins)
  *   { action: 'cashout', game: 'crash', slot }     → cashes out the caller's bets on the flying rocket
  * The result of a round is drawn with a fresh crypto seed only after its betting has closed. For the rocket
  * the crash point stays in live_secrets (never readable by players) until the rocket has exploded.
  */
 import { admin, handler, HttpError, json, requireUser, rpcError } from '../_shared/http.ts';
-import { LIVE_GAMES, LIVE_LEAD, LIVE_CRASH_CAP, slotAt, liveCard, liveResult, checkLiveBet, livePayout, liveCashout, liveCrashMult, liveCrashTime, type LiveGame, type LiveBet, type CrashBet } from '../_shared/engine/meta/live.ts';
+import { LIVE_BATCH, LIVE_GAMES, LIVE_LEAD, LIVE_CRASH_CAP, slotAt, liveCard, liveResult, checkLiveBet, livePayout, liveCashout, liveCrashMult, liveCrashTime, type LiveGame, type LiveBet, type CrashBet } from '../_shared/engine/meta/live.ts';
 import type { RaceCard } from '../_shared/engine/games/horses.ts';
 import { requireUnlocked } from '../_shared/unlocks.ts';
 
@@ -117,6 +118,34 @@ Deno.serve(
       const { data: balance, error } = await db.rpc('live_place_bet', { p_user: userId, p_game: game, p_slot: slot, p_bet: bet, p_amount: amount, p_key: `live:${userId}:${requestId}` });
       if (error?.message.includes('betting_closed')) throw new HttpError('betting_closed', 409);
       rpcError(error);
+      return json({ ok: true, balance });
+    }
+    if (action === 'bets') {
+      await requireUnlocked(db, userId, [`live:${game}`]);
+      const slot = Number(body.slot);
+      const s = slotAt(game, now);
+      if (slot !== s.slot || now >= s.closesAt) throw new HttpError('betting_closed', 409);
+      const list = body.bets as LiveBet[];
+      if (!Array.isArray(list) || !list.length || list.length > LIVE_BATCH) throw new HttpError('invalid_bet');
+      let total = 0;
+      try {
+        for (const b of list) total += checkLiveBet(game, b);
+      } catch (e) {
+        throw new HttpError((e as Error).message);
+      }
+      // check the whole batch fits in the wallet before placing any of it
+      const { data: w0 } = await db.from('wallets').select('balance').eq('user_id', userId).single();
+      if (Number(w0?.balance ?? 0) < total) throw new HttpError('insufficient', 409);
+      await ensureRound(db, game, now);
+      const requestId = String(body.requestId ?? '').slice(0, 70);
+      if (!requestId) throw new HttpError('missing_request_id');
+      let balance: unknown = w0?.balance;
+      for (let i = 0; i < list.length; i++) {
+        const { data, error } = await db.rpc('live_place_bet', { p_user: userId, p_game: game, p_slot: slot, p_bet: list[i], p_amount: checkLiveBet(game, list[i]), p_key: `live:${userId}:${requestId}:${i}` });
+        if (error?.message.includes('betting_closed')) throw new HttpError('betting_closed', 409);
+        rpcError(error);
+        balance = data;
+      }
       return json({ ok: true, balance });
     }
     if (action === 'cashout' && game === 'crash') {

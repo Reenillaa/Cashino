@@ -56,9 +56,11 @@ export const TUTORIALS: Record<GameId, TutorialStep[]> = {
     doIt('crossing:end', ['Retírate a tiempo', 'Stop in time'], ['Retira para cobrar o sigue arriesgando. Cada paso es independiente.', 'Cash out to collect or keep going. Every step is independent.']),
   ],
   roulette: [
-    info(['Ruleta europea', 'European roulette'], ['37 casillas: 0 a 36. Puedes apostar a números, colores, par/impar, docenas…', '37 pockets: 0 to 36. Bet on numbers, colours, odd/even, dozens…']),
-    doIt('roulette:place', ['Coloca una ficha', 'Place a chip'], ['Elige una ficha y toca “Rojo” o cualquier número.', 'Pick a chip and tap “Red” or any number.']),
-    doIt('roulette:spin', ['Gira', 'Spin'], ['Pulsa Girar. La casilla ganadora se decide antes del giro.', 'Tap Spin. The winning pocket is decided before the spin.']),
+    info(['Ruleta Llamarada', 'Flame Roulette'], ['La rueda gira sin parar y cada 30 segundos sale una tirada. Mientras corre la cuenta atrás, apuesta. En cada tirada se encienden de 1 a 5 números de fuego con multiplicador.', 'The wheel never stops and there is a spin every 30 seconds. Bet while the countdown runs. Every spin, 1 to 5 fire numbers light up with a multiplier.']),
+    doIt('roulette:board', ['Abre la mesa', 'Open the table'], ['Pulsa Mesa: se despliegan todos los números. (Zonas abre la pista con vecinos, tercio y huérfanos.)', 'Tap Table: every number unfolds. (Zones opens the racetrack with voisins, tiers and orphelins.)']),
+    doIt('roulette:place', ['Coloca una ficha', 'Place a chip'], ['Toca “Rojo” o cualquier número. Si tocas la línea entre dos números, apuestas a los dos.', 'Tap “Red” or any number. Tap the line between two numbers to bet on both.']),
+    doIt('roulette:spin', ['Espera la bola', 'Wait for the ball'], ['Cuando acaba la cuenta atrás la mesa se recoge y gira la bola. El número se decide antes de que gire.', 'When the countdown ends the table folds away and the ball spins. The number is decided before it spins.']),
+    quiz(['Números de fuego', 'Fire numbers'], ['Tu pleno al 17 sale en llamas a ×200. ¿Cuánto cobras por 10 fichas?', 'Your straight on 17 lands on fire at ×200. What do 10 chips collect?'], [['2.010', '2,010'], ['300', '300']], 0, ['×200 a 1: 2.000 de premio más tus 10. Sin fuego, el pleno paga 29 a 1 (300 en total).', '×200 to 1: 2,000 plus your 10. Without fire a straight pays 29 to 1 (300 in total).']),
     quiz(['¿Y el cero?', 'What about zero?'], ['Si sale 0 y apostaste a Rojo…', 'If 0 hits and you bet on Red…'], [['Recuperas la mitad', 'You get half back'], ['Pierdes la apuesta', 'You lose the bet']], 1, ['El 0 es la fuente de la ventaja de la casa (1/37 ≈ 2,7 %).', 'Zero is where the house edge comes from (1/37 ≈ 2.7 %).']),
   ],
   limbo: [
