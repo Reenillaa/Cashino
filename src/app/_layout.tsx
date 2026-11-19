@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack } from 'expo-router/js-stack';
+import { gameOptions, pageOptions, sheetOptions } from '@/design/motion/navTransitions';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
@@ -45,12 +46,15 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: c.bg }}>
       <SafeAreaProvider>
         <StatusBar style={isDark ? 'light' : 'dark'} />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.bg }, animation: 'default' }}>
+        {/* JavaScript stack: the same hand-made transitions on phones and in the browser (see navTransitions) */}
+        <Stack screenOptions={pageOptions(c.bg)}>
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="game/[id]" options={{ gestureEnabled: true }} />
-          <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="game/[id]" options={gameOptions} />
+          <Stack.Screen name="live/[game]" options={gameOptions} />
+          <Stack.Screen name="online/[id]" options={gameOptions} />
+          <Stack.Screen name="auth" options={sheetOptions} />
           <Stack.Screen name="settings" />
-          <Stack.Screen name="rules/[id]" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="rules/[id]" options={sheetOptions} />
         </Stack>
         <UnlockSheet />
         <Toasts />

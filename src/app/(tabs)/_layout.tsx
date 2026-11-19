@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import { Tabs } from 'expo-router';
-import { TabFlash } from '@/features/brand/Splash';
+import { tabOptions } from '@/design/motion/navTransitions';
 import { DesktopSidebar, GlassTabBar } from '@/design/components';
 import { useDesktop } from '@/design/layout';
 import { useT } from '@/i18n';
@@ -9,8 +9,6 @@ import { useT } from '@/i18n';
 /** Five destinations: Home (the lobby), Sports betting, Ranking (centre), Shop and Profile. */
 export default function TabsLayout() {
   const { t } = useT();
-  // Each tab change replays the chip flourish (keyed remount); nothing on first open.
-  const [flash, setFlash] = useState(0);
   const desktop = useDesktop();
   const items = [
     { key: 'index', label: t('tabs.home'), icon: 'home' as const },
@@ -22,13 +20,12 @@ export default function TabsLayout() {
   return (
     <View style={{ flex: 1 }}>
     <Tabs
-      // Screens animate themselves on focus (Screen → useFocusEntrance), so the navigator just swaps.
-      screenOptions={{ headerShown: false, animation: 'none', tabBarPosition: desktop ? 'left' : 'bottom' }}
+      // the old tab slides out and the new one in, towards the side of the tab you picked (navTransitions)
+      screenOptions={{ headerShown: false, tabBarPosition: desktop ? 'left' : 'bottom', ...tabOptions }}
       tabBar={({ state, navigateToTab }) => {
         const onSelect = (key: string) => {
           const route = state.routes.find((r) => r.name === key);
           if (route && route.name !== state.routes[state.index].name) {
-            if (!desktop) setFlash((n) => n + 1);
             navigateToTab(route.key);
           }
         };
@@ -44,7 +41,6 @@ export default function TabsLayout() {
       <Tabs.Screen name="shop" />
       <Tabs.Screen name="profile" />
     </Tabs>
-    {flash > 0 ? <TabFlash key={flash} /> : null}
     </View>
   );
 }

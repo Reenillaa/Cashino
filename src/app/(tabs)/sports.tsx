@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Button, Chip, Icon, PressableScale, Screen, Segmented, T, formatCoins } from '@/design/components';
+import { Button, Chip, Icon, PressableScale, Screen, Segmented, Skeleton, T, formatCoins } from '@/design/components';
 import { SCREEN_PAD } from '@/design/tokens';
 import { useT } from '@/i18n';
 import { onlineConfigured } from '@/services/supabase';
@@ -124,7 +124,7 @@ export default function Sportsbook() {
                       {evs.map((e) => (e.sport === 'f1' ? <RaceCard key={e.id} ev={e} /> : <EventRow key={e.id} ev={e} />))}
                     </View>
                   ))}
-                  {!shown.length ? <T color="text2" align="center" style={{ marginTop: 24 }}>{loading ? t('sports.loading') : t('sports.none')}</T> : null}
+                  {!shown.length ? (loading ? <Skeleton rows={5} height={64} avatar={false} style={{ marginTop: 8 }} /> : <T color="text2" align="center" style={{ marginTop: 24 }}>{t('sports.none')}</T>) : null}
                 </View>
               </>
             )}

@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Avatar, Button, PressableScale, T, formatCoins } from '@/design/components';
+import { Avatar, Button, PressableScale, Skeleton, T, formatCoins } from '@/design/components';
 import { SCREEN_PAD } from '@/design/tokens';
 import { useT } from '@/i18n';
 import { callFn, onlineConfigured } from '@/services/supabase';
@@ -112,7 +112,7 @@ export function WeeklyBoard() {
           {onlineConfigured ? <Button title={t('profile.createAccount')} onPress={() => router.push('/auth')} /> : null}
         </View>
       ) : !board ? (
-        <T color="text3" align="center">{err ? t('common.offline') : t('common.loading')}</T>
+        err ? <T color="text3" align="center">{t('common.offline')}</T> : <Skeleton rows={5} style={{ marginHorizontal: SCREEN_PAD }} />
       ) : rows.length === 0 ? (
         <View style={[styles.empty, { marginHorizontal: SCREEN_PAD }]}>
           <T style={{ fontSize: 40 }}>🪑</T>

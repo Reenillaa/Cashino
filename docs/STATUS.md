@@ -102,6 +102,19 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - En los juegos, la mesa va a la izquierda (escalada desde el diseño del móvil para que no se deforme) y los controles en un panel lateral a la derecha.
 - Móviles y tablets no cambian nada (comprobado con iPhone, iPad y Pixel emulados).
 
+## Cambios de la ronda 25 (admin fuera del ranking y transiciones entre pantallas)
+
+- **Las cuentas admin ya no salen en ningún ranking** (temporada, póker, maestría por juego, semanal de puntos y mayor ganador) ni pueden llevarse los premios semanales. Migración `20261124000000_rankings_hide_admins.sql`, aplicada y comprobada en la base de datos real (0 apariciones). Las ligas privadas entre amigos no cambian.
+- **Transiciones hechas a mano que funcionan igual en el móvil y en la web/PWA** (antes, en la web, las pantallas aparecían de golpe): la navegación usa la pila en JavaScript de Expo Router (`expo-router/js-stack`) con interpoladores propios (`src/design/motion/navTransitions.ts`).
+  - Abrir una página: entra deslizando por encima con esquinas redondeadas y sombra; la de debajo se aparta un 28 %, encoge un poco y se oscurece (en el ordenador: sube y aparece).
+  - Entrar a un juego o a una mesa en directo: zoom desde dentro con la sala de fondo oscureciéndose.
+  - Iniciar sesión y reglas: hoja que sube desde abajo sobre la página, que encoge.
+  - Pestañas: la de antes sale y la nueva entra hacia el lado de la pestaña elegida, con fundido y una leve escala (sustituye al destello de la ficha).
+  - Gesto de deslizar para volver en iOS/Android.
+- **Cascada dentro de cada pantalla**: el título entra primero (con una barrita de color que se dibuja debajo) y luego cada bloque de la página, 55 ms después del anterior; se repite cada vez que vuelves a la pantalla.
+- **Barra de abajo**: la burbuja deja un anillo de luz al llegar a la nueva pestaña. **Barra lateral del ordenador**: el resaltado se desliza entre secciones.
+- **Esqueletos de carga** con brillo (ranking semanal, ligas, deportes) en lugar de «Cargando…», y filas del ranking que entran una tras otra.
+
 ## Cambios de la ronda 24 (Ruleta Llamarada: en vivo, 3D y números de fuego)
 
 - **La ruleta ya no se para**: la rueda gira todo el rato y sale una tirada cada 30 s desde que te sientas (20,4 s para apostar, 0,6 s de «no va más» y 9 s de bola). Si no has apostado, la rueda gira igual (tirada de exhibición, sin fichas).

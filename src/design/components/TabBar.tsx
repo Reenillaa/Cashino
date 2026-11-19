@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Icon, type IconName } from './Icon';
@@ -30,10 +30,17 @@ export function GlassTabBar({ items, active, onSelect }: { items: TabItem[]; act
   const idx = Math.max(0, items.findIndex((i) => i.key === active));
   const seg = w / items.length;
   const x = useSharedValue(idx * seg);
+  // a ring of light leaves the bubble when it lands on a new tab
+  const pulse = useSharedValue(1);
   useEffect(() => {
     x.set(reduceMotion ? idx * seg : withSpring(idx * seg, { damping: 18, stiffness: 190, mass: 0.9 }));
-  }, [idx, seg, reduceMotion, x]);
+    if (!reduceMotion && seg) {
+      pulse.set(0);
+      pulse.set(withDelay(140, withTiming(1, { duration: 620, easing: Easing.out(Easing.cubic) })));
+    }
+  }, [idx, seg, reduceMotion, x, pulse]);
   const bubble = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }], width: seg }));
+  const ring = useAnimatedStyle(() => ({ opacity: (1 - pulse.value) * 0.7, transform: [{ scaleX: 1 + pulse.value * 0.22 }, { scaleY: 1 + pulse.value * 0.45 }] }));
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.max(insets.bottom, 10) }]}>
       <View style={styles.bar} onLayout={(e) => setW(e.nativeEvent.layout.width - 12)} accessibilityRole="tablist">
@@ -42,8 +49,10 @@ export function GlassTabBar({ items, active, onSelect }: { items: TabItem[]; act
         <LinearGradient pointerEvents="none" colors={['rgba(255,255,255,0.10)', 'rgba(255,255,255,0)']} end={{ x: 0, y: 0.6 }} style={StyleSheet.absoluteFill} />
         {w > 0 && (
           <Animated.View pointerEvents="none" style={[styles.bubbleWrap, bubble]}>
+            <Animated.View style={[styles.ring, ring]} />
             <View style={styles.bubble}>
               <LinearGradient colors={brand.grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+              <LinearGradient colors={['rgba(255,255,255,0.28)', 'rgba(255,255,255,0)']} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.6 }} style={StyleSheet.absoluteFill} />
             </View>
           </Animated.View>
         )}
@@ -88,6 +97,7 @@ const styles = StyleSheet.create({
   row: { flex: 1, flexDirection: 'row', paddingHorizontal: 6 },
   item: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   bubbleWrap: { position: 'absolute', top: 6, bottom: 6, left: 6, paddingHorizontal: 3 },
+  ring: { position: 'absolute', left: 3, right: 3, top: 0, bottom: 0, borderRadius: 28, borderWidth: 2, borderColor: '#FF9AD5' },
   bubble: { flex: 1, borderRadius: 28, overflow: 'hidden', shadowColor: brand.pink, shadowOpacity: 0.6, shadowRadius: 14 },
   badge: { position: 'absolute', top: 6, right: '24%', minWidth: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
 });

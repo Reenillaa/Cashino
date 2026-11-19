@@ -3,7 +3,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Button, EmptyState, PressableScale, Screen, Section, T } from '@/design/components';
+import { Button, EmptyState, PressableScale, Screen, Section, Skeleton, T } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD } from '@/design/tokens';
 import { useT } from '@/i18n';
@@ -80,7 +80,7 @@ export default function Leagues() {
           <T weight="display" style={{ color: '#fff', fontSize: 20 }}>🏆 {t('leagues.title')}</T>
           <T variant="footnote" style={{ color: 'rgba(255,255,255,0.9)' }}>{t('leagues.intro')}</T>
         </View>
-        {rows === null ? <T color="text3" align="center">{t('common.loading')}</T> : rows.length === 0 ? <T color="text2" align="center" style={{ marginVertical: 10 }}>{t('leagues.none')}</T> : rows.map((l, i) => (
+        {rows === null ? <Skeleton rows={3} /> : rows.length === 0 ? <T color="text2" align="center" style={{ marginVertical: 10 }}>{t('leagues.none')}</T> : rows.map((l, i) => (
           <Animated.View key={l.id} entering={FadeInDown.delay(i * 40)}>
             <PressableScale onPress={() => router.push(`/leagues/${l.id}`)} feedback="select" scaleTo={0.98} accessibilityLabel={l.name} style={styles.row}>
               <View style={[styles.rank, { backgroundColor: l.my_rank === 1 ? '#FFD06B' : '#2A1A66' }]}>

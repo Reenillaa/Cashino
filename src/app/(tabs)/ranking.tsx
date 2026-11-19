@@ -1,3 +1,4 @@
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -139,12 +140,12 @@ export default function Ranking() {
         ) : (
           <View style={{ marginHorizontal: SCREEN_PAD, borderRadius: radius.md, overflow: 'hidden', backgroundColor: c.surface1, borderWidth: StyleSheet.hairlineWidth, borderColor: c.hairline }}>
             {list.map((e, i) => (
-              <View key={e.user_id} style={[styles.row, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.hairline }, e.user_id === userId && { backgroundColor: c.surface3 }]} accessible accessibilityLabel={`${e.rank}. ${e.username}, ${e.value}`}>
+              <Animated.View key={e.user_id} entering={FadeInDown.delay(Math.min(i, 14) * 28).duration(320)} style={[styles.row, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.hairline }, e.user_id === userId && { backgroundColor: c.surface3 }]} accessible accessibilityLabel={`${e.rank}. ${e.username}, ${e.value}`}>
                 <T variant="callout" weight="semibold" tabular style={{ width: 34 }} color={e.rank <= 3 ? 'text' : 'text3'}>{e.rank}</T>
                 <Avatar id={e.avatar} size={32} />
                 <T variant="body" style={{ flex: 1 }} numberOfLines={1}>{e.username}</T>
                 <T variant="callout" weight="semibold" tabular>{e.value.toLocaleString('es-ES')}</T>
-              </View>
+              </Animated.View>
             ))}
           </View>
         )}

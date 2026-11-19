@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useTheme } from '../theme';
 import { StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -33,6 +35,14 @@ export function DesktopSidebar({ items, active, onSelect }: { items: SideItem[];
   const avatar = useMyAvatar(profile?.avatar);
   const frame = useMyFrame();
   const balance = Math.max(0, (signedIn ? server ?? 0 : guest) - hidden);
+  const { reduceMotion } = useTheme();
+  // the highlight glides to the active section (46 pt rows, 4 pt apart)
+  const idx = Math.max(0, items.findIndex((i) => i.key === active));
+  const y = useSharedValue(idx * 50);
+  useEffect(() => {
+    y.set(reduceMotion ? idx * 50 : withSpring(idx * 50, { damping: 20, stiffness: 210, mass: 0.9 }));
+  }, [idx, reduceMotion, y]);
+  const glide = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }));
   return (
     <View style={styles.bar} accessibilityRole="tablist">
       <LinearGradient colors={['#140C2C', '#0A0616']} style={StyleSheet.absoluteFill} />
@@ -47,11 +57,14 @@ export function DesktopSidebar({ items, active, onSelect }: { items: SideItem[];
         <T variant="caption" style={{ color: 'rgba(255,255,255,0.6)' }}>{t('common.level')} {lvl.level} · {lvl.into}/{lvl.needed} XP</T>
       </View>
       <View style={{ gap: 4, marginTop: 8 }}>
+        <Animated.View pointerEvents="none" style={[styles.glide, glide]}>
+          <LinearGradient colors={brand.grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+          <LinearGradient colors={['rgba(255,255,255,0.22)', 'rgba(255,255,255,0)']} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 0.7 }} style={StyleSheet.absoluteFill} />
+        </Animated.View>
         {items.map((it) => {
           const on = it.key === active;
           return (
-            <PressableScale key={it.key} onPress={() => onSelect(it.key)} feedback="select" scaleTo={0.97} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={it.label} style={[styles.item, on && styles.itemOn]}>
-              {on ? <LinearGradient colors={brand.grad} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} /> : null}
+            <PressableScale key={it.key} onPress={() => onSelect(it.key)} feedback="select" scaleTo={0.97} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={it.label} style={styles.item}>
               <Icon name={it.icon} size={21} color={on ? '#fff' : 'rgba(255,255,255,0.7)'} strokeWidth={on ? 2.2 : 1.8} />
               <T weight={on ? 'semibold' : 'medium'} style={{ color: on ? '#fff' : 'rgba(255,255,255,0.75)', fontSize: 15 }}>{it.label}</T>
             </PressableScale>
@@ -86,6 +99,6 @@ const styles = StyleSheet.create({
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 6, marginBottom: 20 },
   wallet: { borderRadius: 18, padding: 14, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(18,192,138,0.3)', marginBottom: 8 },
   item: { flexDirection: 'row', alignItems: 'center', gap: 12, height: 46, paddingHorizontal: 14, borderRadius: 14, overflow: 'hidden' },
-  itemOn: { shadowColor: brand.pink, shadowOpacity: 0.5, shadowRadius: 14 },
+  glide: { position: 'absolute', left: 0, right: 0, top: 0, height: 46, borderRadius: 14, overflow: 'hidden', shadowColor: brand.pink, shadowOpacity: 0.5, shadowRadius: 14 },
   me: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12, padding: 10, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.06)' },
 });

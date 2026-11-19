@@ -91,3 +91,47 @@ export function Aurora({ colors, height, alpha = 0.45, active = true }: { colors
     </View>
   );
 }
+
+/**
+ * Placeholder while something loads: rounded rows with a soft light sweeping across them, shaped like the
+ * content that is coming (an avatar dot and two lines), so the page never jumps when the data lands.
+ */
+export function Skeleton({ rows = 4, height = 58, avatar = true, style }: { rows?: number; height?: number; avatar?: boolean; style?: object }) {
+  const { reduceMotion } = useTheme();
+  const focused = useIsFocused();
+  const [w, setW] = useState(0);
+  const x = useSharedValue(0);
+  useEffect(() => {
+    if (reduceMotion || !focused || !w) return;
+    x.set(0);
+    x.set(withRepeat(withTiming(1, { duration: 1300, easing: Easing.inOut(Easing.quad) }), -1, false));
+    return () => cancelAnimation(x);
+  }, [reduceMotion, focused, w, x]);
+  const sweep = useAnimatedStyle(() => ({ transform: [{ translateX: -w * 0.6 + x.value * w * 1.6 }] }));
+  return (
+    <View style={[{ gap: 10 }, style]} onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)} accessibilityRole="progressbar" accessibilityLabel="…">
+      {Array.from({ length: rows }, (_, i) => (
+        <View key={i} style={[skel.row, { height, opacity: 1 - i * (0.6 / Math.max(1, rows)) }]}>
+          {avatar ? <View style={[skel.dot, { width: height * 0.62, height: height * 0.62, borderRadius: height * 0.31 }]} /> : null}
+          <View style={{ flex: 1, gap: 8 }}>
+            <View style={[skel.line, { width: `${62 - (i % 3) * 12}%` }]} />
+            <View style={[skel.line, { width: `${38 + (i % 2) * 14}%`, opacity: 0.6 }]} />
+          </View>
+          <View style={[skel.line, { width: 44, height: 14 }]} />
+          {w > 0 ? (
+            <Animated.View pointerEvents="none" style={[skel.sweep, { width: w * 0.45 }, sweep]}>
+              <LinearGradient colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.09)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={StyleSheet.absoluteFill} />
+            </Animated.View>
+          ) : null}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+const skel = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.05)', overflow: 'hidden' },
+  dot: { backgroundColor: 'rgba(255,255,255,0.08)' },
+  line: { height: 11, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.09)' },
+  sweep: { position: 'absolute', top: 0, bottom: 0, left: 0 },
+});
