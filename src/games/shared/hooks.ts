@@ -57,7 +57,7 @@ export function useResult() {
     if (opts?.silent) return;
     if (net > 0) {
       sfx(r.multiplier && r.multiplier >= 10 ? 'bigwin' : 'win');
-      haptic.success();
+      haptic.win(r.multiplier ?? (r.bet > 0 ? r.payout / r.bet : 1));
     } else if (net < 0) {
       sfx('lose', 0.7);
       haptic.soft();

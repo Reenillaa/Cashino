@@ -1,3 +1,4 @@
+import { WeekSummary } from '@/features/wellbeing/WeekSummary';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -116,6 +117,7 @@ export default function Profile() {
       </View>
       {tab === 'stats' && (
         <>
+          <WeekSummary />
           {/* game picker by icon */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingHorizontal: SCREEN_PAD, paddingTop: 14, paddingBottom: 4 }}>
             <PressableScale onPress={() => setGame('all')} feedback="select" accessibilityLabel={t('profile.overall')} style={[styles.gameBtn, { backgroundColor: c.surface2 }, game === 'all' && styles.gameOn]}>

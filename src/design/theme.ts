@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useReducedMotion } from 'react-native-reanimated';
 import { useSettings } from '@/state/settings';
+import { useSaver } from '@/state/saver';
 import { dark, type ColorScheme } from './tokens';
 
 export interface Theme {
@@ -18,6 +19,7 @@ export function useTheme(): Theme {
   const rm = useSettings((s) => s.reduceMotion);
   const re = useSettings((s) => s.reduceEffects);
   const quality = useSettings((s) => s.quality);
+  const saver = useSaver((s) => s.active);
   const systemReduced = useReducedMotion();
   // Cashino is a dark casino: every table, stage and card is designed on dark surfaces, so the app stays
   // dark whatever the phone's appearance (a light background made white text unreadable).
@@ -27,10 +29,11 @@ export function useTheme(): Theme {
       c: dark,
       isDark,
       reduceMotion: !animations || rm || systemReduced,
-      reduceEffects: re || quality === 'low',
+      // the battery saver lowers effects on its own while the battery is low
+      reduceEffects: re || quality === 'low' || saver,
       quality,
     }),
-    [isDark, animations, rm, systemReduced, re, quality],
+    [isDark, animations, rm, systemReduced, re, quality, saver],
   );
 }
 

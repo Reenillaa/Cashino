@@ -6,6 +6,7 @@ import { admin, handler, HttpError, json, requireUser, rpcError } from '../_shar
 import { ECONOMY, dailyRewardAmount, nextStreak, utcDay } from '../_shared/engine/meta/economy.ts';
 import { dailyMissions, weeklyMissions, passReward, seasonAt, seasonTier, weekAt, type MissionDef } from '../_shared/engine/meta/progression.ts';
 import { ownedUnlocks } from '../_shared/unlocks.ts';
+import { TOURNAMENT_PRIZES, tournamentDay, tournamentEnds, tournamentGame } from '../_shared/engine/meta/tournament.ts';
 
 const dayKey = (d: number) => new Date(d * 86_400_000).toISOString().slice(0, 10);
 
@@ -88,6 +89,18 @@ Deno.serve(
         db.from('weekly_awards').select('week, category, rank, prize').eq('user_id', userId).order('week', { ascending: false }).limit(10),
       ]);
       return json({ week, asked, points: points.data ?? [], winner: winner.data ?? [], lastWeek: awards.data ?? [], myAwards: mine.data ?? [], prizes: [10000, 5000, 2500] });
+    }
+    if (action === 'tournament') {
+      // pay yesterday's tournament if nobody has yet (idempotent), then today's board
+      const day = tournamentDay(Date.now());
+      const game = tournamentGame(day);
+      rpcError((await db.rpc('settle_daily', { p_day: day - 1, p_game: tournamentGame(day - 1) })).error);
+      const [board, yesterday, mine] = await Promise.all([
+        db.rpc('daily_board', { p_day: day, p_game: game, p_limit: 50 }),
+        db.from('daily_awards').select('rank, game, user_id, value, prize, profiles(username, avatar)').eq('day', day - 1).order('rank'),
+        db.from('daily_awards').select('day, rank, game, prize').eq('user_id', userId).order('day', { ascending: false }).limit(10),
+      ]);
+      return json({ day, game, endsAt: tournamentEnds(day), board: board.data ?? [], yesterday: yesterday.data ?? [], yesterdayGame: tournamentGame(day - 1), myAwards: mine.data ?? [], prizes: TOURNAMENT_PRIZES });
     }
     if (action === 'pass') {
       const tier = Number(body.tier);

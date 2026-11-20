@@ -13,6 +13,9 @@ import { useProgress } from '@/state/progress';
 import { useLearning } from '@/state/learning';
 import { supabase, callFn, onlineConfigured } from '@/services/supabase';
 import { scheduleDailyReminder } from '@/services/notifications';
+import { changeTimeLimit, dayOf, useWellbeing } from '@/state/wellbeing';
+import { useSaver } from '@/state/saver';
+import { useNow } from '@/features/time/useNow';
 
 function confirm(title: string, body: string, onOk: () => void) {
   if (Platform.OS === 'web') {
@@ -22,10 +25,18 @@ function confirm(title: string, body: string, onOk: () => void) {
   Alert.alert(title, body, [{ text: 'Cancel', style: 'cancel' }, { text: 'OK', style: 'destructive', onPress: onOk }]);
 }
 
+const TIME_STEPS = [0, 30, 60, 90, 120, 180];
+const LOSS_STEPS = [0, 500, 1000, 2500, 5000, 10000];
+const next = (steps: number[], v: number) => steps[(Math.max(0, steps.indexOf(v)) + 1) % steps.length];
+
 export default function Settings() {
   const { t } = useT();
   const router = useRouter();
   const s = useSettings();
+  const saverOn = useSaver((x) => x.active);
+  const pendingRaw = useWellbeing((x) => x.pendingLimit);
+  const now = useNow(60_000);
+  const pending = pendingRaw && dayOf(now) < pendingRaw.from ? pendingRaw : null;
   const signedIn = useSession((x) => !!x.userId);
   const email = useSession((x) => x.email);
   const profile = useSession((x) => x.profile);
@@ -68,7 +79,9 @@ export default function Settings() {
           <ToggleRow icon="sparkles" title={t('settings.animations')} value={s.animations} onChange={(animations) => s.set({ animations })} />
           <ToggleRow icon="layers" title={t('settings.reduceMotion')} value={s.reduceMotion} onChange={(reduceMotion) => s.set({ reduceMotion })} />
           <ToggleRow icon="eye" title={t('settings.reduceEffects')} value={s.reduceEffects} onChange={(reduceEffects) => s.set({ reduceEffects })} />
+          <ToggleRow icon="sun" title={t('limits.autoSaver')} value={s.autoSaver} onChange={(autoSaver) => s.set({ autoSaver })} />
         </ListGroup>
+        <T variant="caption" color="text3" style={{ paddingHorizontal: SCREEN_PAD, marginTop: 6 }}>{saverOn ? t('limits.saverOn') : t('limits.autoSaverBody')}</T>
         <View style={{ paddingHorizontal: SCREEN_PAD, marginTop: 10 }}>
           <Segmented size="sm" value={s.quality} onChange={(quality) => s.set({ quality })} options={[{ value: 'high', label: t('settings.qualityHigh') }, { value: 'balanced', label: t('settings.qualityBalanced') }, { value: 'low', label: t('settings.qualityLow') }]} />
         </View>
@@ -77,7 +90,10 @@ export default function Settings() {
         <ListGroup footer={t('settings.responsibleBody')}>
           <ToggleRow icon="chart" title={t('settings.showOdds')} value={s.showOdds} onChange={(showOdds) => s.set({ showOdds })} />
           <ListRow icon="clock" title={t('settings.sessionReminder')} value={s.breakReminderMin ? t('settings.every', { n: s.breakReminderMin }) : t('settings.never')} onPress={() => s.set({ breakReminderMin: s.breakReminderMin === 0 ? 30 : s.breakReminderMin === 30 ? 60 : 0 })} />
+          <ListRow icon="hourglass" title={t('limits.time')} value={s.dailyTimeLimitMin ? t('limits.minutes', { n: s.dailyTimeLimitMin }) : t('limits.none')} onPress={() => changeTimeLimit(next(TIME_STEPS, s.dailyTimeLimitMin))} />
+          <ListRow icon="chart" title={t('limits.loss')} value={s.dailyLossAlert ? `−${s.dailyLossAlert.toLocaleString('es-ES')}` : t('limits.none')} onPress={() => s.set({ dailyLossAlert: next(LOSS_STEPS, s.dailyLossAlert) })} />
         </ListGroup>
+        <T variant="caption" color="text3" style={{ paddingHorizontal: SCREEN_PAD, marginTop: 6 }}>{pending ? t('limits.pending', { min: pending.prev }) : t('limits.body')}</T>
       </Section>
       <Section title={t('settings.notifications')}>
         <ListGroup>

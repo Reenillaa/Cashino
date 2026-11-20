@@ -39,6 +39,11 @@ Deno.serve(
       return json({ ok: true, balance: Number(balance) });
     }
 
+    if (action === 'stats') {
+      const { data, error } = await db.rpc('admin_stats');
+      if (error) throw new Error(error.message);
+      return json({ stats: data });
+    }
     if (action === 'recent') {
       const { data } = await db.from('admin_gifts').select('amount, note, created_at, profiles!admin_gifts_user_id_fkey(username)').eq('admin_id', userId).order('created_at', { ascending: false }).limit(20);
       return json({ gifts: data ?? [] });

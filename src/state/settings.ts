@@ -21,6 +21,11 @@ export interface SettingsState {
   showOdds: boolean;
   confirmBigBets: boolean;
   breakReminderMin: number; // 0 = never
+  /** Lower the effects by itself on low battery or a slow device. */
+  autoSaver: boolean;
+  /** Your own limits (0 = off): minutes of play per day, and a warning when you have lost this much today. */
+  dailyTimeLimitMin: number;
+  dailyLossAlert: number;
   notifications: { daily: boolean; social: boolean; tournaments: boolean };
   privacy: { publicProfile: boolean; showOnline: boolean; allowInvites: boolean };
   set: (patch: Partial<Omit<SettingsState, 'set' | 'reset'>>) => void;
@@ -42,6 +47,9 @@ const defaults = {
   showOdds: true,
   confirmBigBets: true,
   breakReminderMin: 0,
+  autoSaver: true,
+  dailyTimeLimitMin: 0,
+  dailyLossAlert: 0,
   notifications: { daily: false, social: true, tournaments: true },
   privacy: { publicProfile: true, showOnline: true, allowInvites: true },
 };

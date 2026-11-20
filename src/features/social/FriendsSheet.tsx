@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Avatar, Button, PressableScale, Sheet, T, formatCoins } from '@/design/components';
+import { PlayerCard } from './PlayerCard';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { useSession } from '@/state/session';
@@ -22,6 +23,7 @@ export function FriendsSheet({ visible, onClose }: { visible: boolean; onClose: 
   const [found, setFound] = useState<MiniProfile[]>([]);
   const [msg, setMsg] = useState<string | null>(null);
   const [sendTo, setSendTo] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
   if (!onlineConfigured || !userId) {
     return (
       <Sheet visible={visible} onClose={onClose} title={t('social.friends')}>
@@ -69,12 +71,13 @@ export function FriendsSheet({ visible, onClose }: { visible: boolean; onClose: 
       <T weight="display" style={styles.h}>{t('social.friends')} ({friends.length})</T>
       {friends.length === 0 ? <T variant="footnote" color="text3">{t('social.noFriends')}</T> : friends.map((r) => (
         <View key={r.friendshipId}>
-          <Row p={r} right={
+          <Row p={r} onPress={() => setOpen(open === r.id ? null : r.id)} right={
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <Button title={`🎁 ${t('social.sendChips')}`} size="sm" kind={sendTo === r.id ? 'primary' : 'secondary'} onPress={() => setSendTo(sendTo === r.id ? null : r.id)} />
               <PressableScale onPress={() => void remove(r.friendshipId)} feedback="select" accessibilityLabel={t('social.remove')}><T color="text3">✕</T></PressableScale>
             </View>
           } />
+          {open === r.id ? <PlayerCard userId={r.id} /> : null}
           {sendTo === r.id ? <SendChips to={r} onDone={() => setSendTo(null)} /> : null}
         </View>
       ))}
@@ -134,15 +137,22 @@ function SendChips({ to, onDone }: { to: MiniProfile; onDone: () => void }) {
   );
 }
 
-function Row({ p, right }: { p: MiniProfile; right: React.ReactNode }) {
+function Row({ p, right, onPress }: { p: MiniProfile; right: React.ReactNode; onPress?: () => void }) {
   const { c } = useTheme();
-  return (
-    <View style={[styles.row, { backgroundColor: c.surface1 }]}>
+  const who = (
+    <>
       <Avatar id={p.avatar} size={38} />
       <View style={{ flex: 1 }}>
         <T weight="displaySemi" numberOfLines={1}>{p.display_name || p.username}</T>
-        <T variant="caption" color="text3">@{p.username}{p.level ? ` · Nv ${p.level}` : ''}</T>
+        <T variant="caption" color="text3">@{p.username}{p.level ? ` · Nv ${p.level}` : ''}{onPress ? ' · ▾' : ''}</T>
       </View>
+    </>
+  );
+  return (
+    <View style={[styles.row, { backgroundColor: c.surface1 }]}>
+      {onPress ? (
+        <PressableScale onPress={onPress} feedback="select" scaleTo={0.98} accessibilityLabel={p.username} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 }}>{who}</PressableScale>
+      ) : who}
       {right}
     </View>
   );

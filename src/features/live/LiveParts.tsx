@@ -9,6 +9,7 @@ import { useT } from '@/i18n';
 import { useSession } from '@/state/session';
 import { useDesktop } from '@/design/layout';
 import { mmss, type LiveBetRow, type LivePhase } from './useLive';
+import { LimitGate } from '@/features/wellbeing/LimitGate';
 
 /** Dark full-screen frame for live games: back, title, balance and the round clock. */
 export function LiveFrame({ title, phase, closesAt, endsAt, now, children, footer, hideClock, wide }: { title: string; phase: LivePhase; closesAt: number; endsAt: number; now: number; children: React.ReactNode; footer?: React.ReactNode; /** The game draws its own clock. */ hideClock?: boolean; /** Computers: use the whole width (the roulette table). */ wide?: boolean }) {
@@ -38,6 +39,7 @@ export function LiveFrame({ title, phase, closesAt, endsAt, now, children, foote
       </View>}
       <View style={{ flex: 1 }}>{children}</View>
       {footer ? <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 12) + 4 }]}>{footer}</View> : null}
+      <LimitGate />
     </View>
   );
 }

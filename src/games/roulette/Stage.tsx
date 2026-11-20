@@ -160,7 +160,7 @@ const Turret = React.memo(function Turret({ s }: { s: number }) {
  */
 export function RouletteStage({ w, h, spin, prev, active, compact, now: nowFn }: { w: number; h: number; spin: SpinInfo | null; prev: number | null; active: boolean; compact?: boolean; /** The clock `spin.at` is measured on (live tables use server time). */ now?: () => number }) {
   const { t } = useT();
-  const { reduceMotion } = useTheme();
+  const { reduceMotion, reduceEffects } = useTheme();
   const S = Math.max(160, Math.min(w * (compact ? 0.98 : 0.86), h * (compact ? 1.32 : 1.18), 920));
   const R = S / 2;
   const clock = useSharedValue(0);
@@ -265,6 +265,7 @@ export function RouletteStage({ w, h, spin, prev, active, compact, now: nowFn }:
   const fireKey = fireShown.map((f) => `${f.n}:${f.m}`).join(',');
 
   const run = active && !reduceMotion;
+  const fx = run && !reduceEffects; // flames and embers are the first thing the battery saver turns off
   const hit = shown ? shown.fire.find((f) => f.n === shown.number) : undefined;
   const cy = h * (compact ? 0.47 : 0.5);
   return (
@@ -274,8 +275,8 @@ export function RouletteStage({ w, h, spin, prev, active, compact, now: nowFn }:
       <View pointerEvents="none" style={[styles.glow, { width: S * 1.5, height: S * 1.5, borderRadius: S * 0.75, left: w / 2 - S * 0.75, top: cy - S * 0.75 }]} />
       <LinearGradient pointerEvents="none" colors={['rgba(255,214,140,0.22)', 'rgba(255,214,140,0)']} style={[styles.beam, { left: w * 0.18, height: h, transform: [{ rotate: '-14deg' }] }]} />
       <LinearGradient pointerEvents="none" colors={['rgba(255,214,140,0.18)', 'rgba(255,214,140,0)']} style={[styles.beam, { left: w * 0.7, height: h, transform: [{ rotate: '14deg' }] }]} />
-      <Flames w={w} run={run} />
-      {Array.from({ length: compact ? 10 : 16 }, (_, i) => <Ember key={i} i={i} w={w} h={h} run={run} />)}
+      <Flames w={w} run={fx} />
+      {fx ? Array.from({ length: compact ? 10 : 16 }, (_, i) => <Ember key={i} i={i} w={w} h={h} run={fx} />) : null}
       {/* the wheel, the table and the ball, under one camera */}
       <Animated.View pointerEvents="none" style={[styles.abs, { left: w / 2 - R, top: cy - R, width: S, height: S }, cam]}>
         <Animated.View style={[StyleSheet.absoluteFill, tableSt]}>

@@ -1,5 +1,6 @@
 import { HttpError } from './http.ts';
 import { isUnlocked, unlockPrice, TRIAL_ROUNDS, UNLOCKABLES, type UnlockId } from './engine/meta/unlocks.ts';
+import { tournamentDay, tournamentGame } from './engine/meta/tournament.ts';
 
 // deno-lint-ignore no-explicit-any
 type DB = any;
@@ -48,7 +49,8 @@ export async function trialsUsed(db: DB, userId: string): Promise<Record<string,
  * Throws `locked` when a NEW round is about to start and the trial is used up.
  */
 export async function gameAccess(db: DB, userId: string, id: UnlockId, startsRound: boolean): Promise<{ owned: true } | { owned: false; used: number }> {
-  if (isUnlocked([], id) || (await isAdmin(db, userId))) return { owned: true };
+  // the game of today's tournament is open to everybody until the day ends
+  if (isUnlocked([], id) || id === `game:${tournamentGame(tournamentDay(Date.now()))}` || (await isAdmin(db, userId))) return { owned: true };
   const { data } = await db.from('unlocks').select('item').eq('user_id', userId).eq('item', id).maybeSingle();
   if (data) return { owned: true };
   const { data: t } = await db.from('unlock_trials').select('used').eq('user_id', userId).eq('item', id).maybeSingle();

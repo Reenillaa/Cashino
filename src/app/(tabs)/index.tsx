@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useContentWidth, useDesktop } from '@/design/layout';
 import { useIsFocused, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { TournamentCard } from '@/features/tournament/Tournament';
 import { AnimatedNumber, Aurora, Avatar, useMyAvatar, useMyFrame, Button, ChipLogo, GameGlyph, GameLogo, Icon, Marquee, PressableScale, ProgressBar, Screen, Section, T, formatCoins } from '@/design/components';
 import { useTheme } from '@/design/theme';
 import { SCREEN_PAD, brand, onPastel, radius } from '@/design/tokens';
@@ -181,6 +182,9 @@ export default function Home() {
           </View>
         </PressableScale>
       )}
+
+      {/* Today's tournament: one game, the whole day, the biggest winner takes the prize */}
+      <TournamentCard />
 
       {/* The live tables */}
       <Section title={`🔴 ${t('live.title')}`}>

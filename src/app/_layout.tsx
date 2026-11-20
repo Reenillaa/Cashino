@@ -24,6 +24,7 @@ import { syncMusic } from '@/services/audio';
 import { useAuthListener } from '@/features/auth/useAuthListener';
 import { useAdminAndGifts } from '@/features/admin/useAdmin';
 import { useBreakReminder } from '@/features/wellbeing/useBreakReminder';
+import { useBatterySaver } from '@/state/saver';
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
@@ -36,6 +37,7 @@ export default function RootLayout() {
   useAuthListener();
   useAdminAndGifts();
   useBreakReminder();
+  useBatterySaver();
   useEffect(() => setLanguage(language), [language]);
   useEffect(() => syncMusic(), [music, musicVolume]);
   useEffect(() => {

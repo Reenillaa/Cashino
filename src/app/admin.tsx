@@ -8,6 +8,7 @@ import { useTheme } from '@/design/theme';
 import { SCREEN_PAD } from '@/design/tokens';
 import { useT } from '@/i18n';
 import { callFn } from '@/services/supabase';
+import { AdminStats } from '@/features/admin/AdminStats';
 import { useSession } from '@/state/session';
 import { useProgress } from '@/state/progress';
 import { useAdmin } from '@/features/admin/useAdmin';
@@ -74,7 +75,12 @@ export default function AdminPanel() {
   const input = [styles.input, { backgroundColor: c.surface2, color: c.text }];
   return (
     <Screen title={`👑 ${t('admin.title')}`} subtitle={t('admin.subtitle')} back tabBar={false}>
+      <View style={{ paddingHorizontal: SCREEN_PAD, gap: 10, marginBottom: 22 }}>
+        <T weight="display" style={{ fontSize: 17 }}>📊 {t('adminStats.title')}</T>
+        <AdminStats />
+      </View>
       <View style={{ paddingHorizontal: SCREEN_PAD, gap: 12 }}>
+        <T weight="display" style={{ fontSize: 17 }}>🎁 {t('adminStats.gifts')}</T>
         <TextInput value={q} onChangeText={setQ} placeholder={t('admin.search')} placeholderTextColor={c.text3} autoCapitalize="none" accessibilityLabel={t('admin.search')} style={input} />
         {sel ? (
           <Animated.View entering={FadeInDown} style={styles.card}>

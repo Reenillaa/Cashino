@@ -108,7 +108,7 @@ export function BigWin({ mult, amount, onDone, kind = 'coin' }: { mult: number; 
       return;
     }
     sfx('bigwin');
-    haptic.success();
+    haptic.win(mult);
     const a = setTimeout(() => setShown(amount), 60);
     const b = setTimeout(onDone, reduceMotion ? 1400 : 3400);
     return () => {

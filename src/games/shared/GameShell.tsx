@@ -19,6 +19,8 @@ import type { Room } from '@/engine/meta/rooms.ts';
 import { useLearning } from '@/state/learning';
 import { RoomPicker } from './RoomPicker';
 import { TrialNote } from '@/features/unlocks/LockedGate';
+import { TournamentBadge } from '@/features/tournament/Tournament';
+import { LimitGate } from '@/features/wellbeing/LimitGate';
 import type { UnlockId } from '@/engine/meta/unlocks.ts';
 import { TutorialCoach, useTutorialAutostart } from '@/features/tutorial/TutorialCoach';
 import { useTutorialRuntime } from '@/features/tutorial/tutorial';
@@ -120,7 +122,12 @@ export function GameShell({
     </PressableScale>
   ) : null;
   const historyEl = history ? <View style={{ marginTop: 10 }}>{history}</View> : null;
-  const trialEl = <TrialNote id={`game:${game}` as UnlockId} />;
+  const trialEl = (
+    <>
+      <TournamentBadge game={game} />
+      <TrialNote id={`game:${game}` as UnlockId} />
+    </>
+  );
   return (
     <AccentContext.Provider value={vivid}>
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -206,6 +213,7 @@ export function GameShell({
       {/* Branded curtain on entry, then the guided tutorial overlay (coach marks) */}
       <GameIntro game={game} name={t(`games.names.${game}`)} />
       <TutorialCoach game={game} />
+      <LimitGate />
       <Sheet visible={sheet === 'rules'} onClose={() => setSheet(null)} title={t('tutorial.help')}>
         {!locked && (
           <PressableScale onPress={startGuide} scaleTo={0.98} accessibilityLabel={t('tutorial.guided')} style={[styles.guide, { backgroundColor: c.surface2 }]}>

@@ -16,6 +16,9 @@ import { callFn, OnlineError } from '@/services/supabase';
 import { takeTrialRound, useUnlocks } from '@/state/unlocks';
 import type { UnlockId } from '@/engine/meta/unlocks.ts';
 import { useRoom } from './rooms';
+import { dayOf, useWellbeing } from '@/state/wellbeing';
+import { useSettings } from '@/state/settings';
+import i18n from '@/i18n';
 import { useHiddenPayout, useReveal } from './reveal';
 
 /** Games whose screens reveal their own results (poker settles hand by hand on the table). */
@@ -214,7 +217,19 @@ function afterRound(
   fair?: { hash: string; clientSeed: string; nonce: number },
 ): number {
   const p = useProgress.getState();
-  if (!practice) useHotTable.getState().record(game, s.bet, s.payout);
+  if (!practice) {
+    useHotTable.getState().record(game, s.bet, s.payout);
+    // responsible play: today's totals, and your own loss warning (once a day)
+    const w = useWellbeing.getState();
+    w.addRound(s.bet, s.payout);
+    const alert = useSettings.getState().dailyLossAlert;
+    const today = dayOf(Date.now());
+    const d = useWellbeing.getState().days[today];
+    if (alert > 0 && d && d.bet - d.payout >= alert && w.lossAlertDay !== today) {
+      w.markLossAlert(today);
+      useProgress.getState().pushToast({ kind: 'info', title: i18n.t('limits.lossTitle', { amount: (d.bet - d.payout).toLocaleString('es-ES') }), body: i18n.t('limits.lossBody') });
+    }
+  }
   const { xp } = p.recordRound({ game, ts: Date.now(), bet: s.bet, payout: s.payout, practice, detail: s.detail, fair }, { multiStep: s.multiStep });
   if (!practice) {
     const l = useLearning.getState();

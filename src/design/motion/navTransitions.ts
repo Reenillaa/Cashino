@@ -1,6 +1,7 @@
 import { Animated, Easing, Platform } from 'react-native';
 import type { StackCardInterpolatedStyle, StackCardInterpolationProps, StackNavigationOptions } from 'expo-router/js-stack';
 import type { BottomTabNavigationOptions } from 'expo-router/js-tabs';
+import { recentOrigin } from './origin';
 
 /**
  * Screen-to-screen motion. Everything here runs on the JavaScript stack and tabs, so it looks the same on
@@ -45,9 +46,28 @@ export function forPush({ current, next, inverted, layouts: { screen } }: StackC
   };
 }
 
-/** Games and live tables: the room opens up around you. */
-export function forGame({ current, next }: StackCardInterpolationProps): StackCardInterpolatedStyle {
+/** Games and live tables: the room opens out of the card you tapped (or from the middle). */
+export function forGame({ current, next, layouts: { screen } }: StackCardInterpolationProps): StackCardInterpolatedStyle {
   const p = current.progress;
+  const o = recentOrigin();
+  if (o && screen.width > 0) {
+    // start as the tile: its centre and size, then grow to the whole screen
+    const s0 = Math.min(0.9, Math.max(0.12, Math.max(o.w / screen.width, o.h / screen.height)));
+    const dx = o.x + o.w / 2 - screen.width / 2, dy = o.y + o.h / 2 - screen.height / 2;
+    return {
+      cardStyle: {
+        opacity: clampLinear(p, [0, 1], [0, 0.25]),
+        borderRadius: clampLinear(p, [44, 0], [0.4, 1]),
+        overflow: 'hidden',
+        transform: [
+          { translateX: clampLinear(p, [dx, 0]) },
+          { translateY: clampLinear(p, [dy, 0]) },
+          { scale: add(clampLinear(p, [s0, 1]), next ? clampLinear(next.progress, [0, 0.06]) : 0) },
+        ],
+      },
+      overlayStyle: { opacity: clampLinear(p, [0, 0.8]) },
+    };
+  }
   return {
     cardStyle: {
       opacity: clampLinear(p, [0, 1], [0, 0.45]),

@@ -1,5 +1,7 @@
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import React, { useEffect, useState } from 'react';
+import { TournamentBoard } from '@/features/tournament/Tournament';
+import { HighlightsTicker } from '@/features/ranking/Highlights';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Avatar, Chip, GameGlyph, GameLogo, Glass, ListGroup, ListRow, PressableScale, ProgressBar, Screen, Section, Segmented, Sheet, Surface, T } from '@/design/components';
@@ -28,14 +30,14 @@ const HOW: [string, { es: string; en: string }][] = [
 ];
 
 interface Entry { user_id: string; username: string; avatar: string; value: number; rank: number }
-type Scope = 'week' | 'global' | 'game' | 'friends';
+type Scope = 'tour' | 'week' | 'global' | 'game' | 'friends';
 
 export default function Ranking() {
   const { t, lang } = useT();
   const { c } = useTheme();
   const router = useRouter();
   const userId = useSession((s) => s.userId);
-  const [scope, setScope] = useState<Scope>('week');
+  const [scope, setScope] = useState<Scope>('tour');
   const [game, setGame] = useState<GameId>('poker');
   const [entries, setEntries] = useState<Entry[]>([]);
   const [how, setHow] = useState(false);
@@ -93,8 +95,9 @@ export default function Ranking() {
   const metricLabel = scope !== 'game' ? t('ranking.points') : game === 'poker' ? t('ranking.rating') : game === 'blackjack' ? t('ranking.skill') : t('ranking.mastery');
   return (
     <Screen title={t('ranking.title')} subtitle={`${t('home.season', { n: season.number })} · ${new Date(season.end).toLocaleDateString()}`} right={<Chip label={t('ranking.how')} icon="info" onPress={() => setHow(true)} />}>
-      <View style={{ paddingHorizontal: SCREEN_PAD }}>
-        <Segmented value={scope} onChange={setScope} options={[{ value: 'week', label: t('ranking.weekly') }, { value: 'global', label: t('ranking.seasonShort') }, { value: 'game', label: t('ranking.perGame') }, { value: 'friends', label: t('ranking.friends') }]} />
+      <HighlightsTicker />
+      <View style={{ paddingHorizontal: SCREEN_PAD, marginTop: 12 }}>
+        <Segmented value={scope} onChange={setScope} options={[{ value: 'tour', label: t('tour.short') }, { value: 'week', label: t('ranking.weekly') }, { value: 'global', label: t('ranking.seasonShort') }, { value: 'game', label: t('ranking.perGame') }, { value: 'friends', label: t('ranking.friends') }]} />
       </View>
       {scope === 'game' && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingHorizontal: SCREEN_PAD, paddingTop: 12 }}>
@@ -105,8 +108,9 @@ export default function Ranking() {
           ))}
         </ScrollView>
       )}
+      {scope === 'tour' ? <View style={{ marginTop: 2 }}><TournamentBoard /></View> : null}
       {scope === 'week' ? <View style={{ marginTop: 16 }}><WeeklyBoard /></View> : null}
-      {scope !== 'week' ? (<>
+      {scope !== 'week' && scope !== 'tour' ? (<>
       {/* "You" card floats (glass) like the user's row in Offsuit's leaderboard, but in titanium. */}
       <Glass radius={radius.lg} style={{ marginHorizontal: SCREEN_PAD, marginTop: 16, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
         <T variant="display" tabular style={{ minWidth: 56 }}>{me ? `#${me.rank}` : '—'}</T>

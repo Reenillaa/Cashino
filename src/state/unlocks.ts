@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import { tournamentDay, tournamentGame } from '@/engine/meta/tournament.ts';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { persistStorage, STORAGE_PREFIX } from '@/services/storage';
@@ -103,9 +105,17 @@ export function useOwnedUnlocks(): string[] {
   const admin = useAdmin((s) => s.admin);
   const account = useUnlocks((s) => s.account);
   const owned = useUnlocks((s) => s.owned);
+  const free = todaysFreeGame();
+  const base = signedIn && account ? account.owned : owned;
+  // the game of today's tournament is open to everybody for the day
+  const withTournament = useMemo(() => (base.includes(free) ? base : [...base, free]), [base, free]);
   // developer accounts always have everything, even items newer than the server's list
   if (signedIn && admin) return UNLOCKABLES;
-  return signedIn && account ? account.owned : owned;
+  return withTournament;
+}
+/** `game:<id>` of today's tournament (open to everybody until the UTC day ends). */
+export function todaysFreeGame(): string {
+  return `game:${tournamentGame(tournamentDay(Date.now()))}`;
 }
 export function useIsUnlocked(id: UnlockId): boolean {
   return isUnlocked(useOwnedUnlocks(), id);
@@ -139,7 +149,8 @@ export function currentOwnedUnlocks(): readonly string[] {
   const signedIn = !!useSession.getState().userId;
   if (signedIn && useAdmin.getState().admin) return UNLOCKABLES;
   const st = useUnlocks.getState();
-  return signedIn && st.account ? st.account.owned : st.owned;
+  const base = signedIn && st.account ? st.account.owned : st.owned;
+  return [...base, todaysFreeGame()];
 }
 
 /**

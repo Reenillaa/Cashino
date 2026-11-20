@@ -4,6 +4,7 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from '
 import { motion } from '../tokens';
 import { haptic } from '@/services/haptics';
 import { sfx } from '@/services/audio';
+import { captureOrigin } from '../motion/origin';
 
 const APressable = Animated.createAnimatedComponent(Pressable);
 const EASE = Easing.bezier(...motion.ease);
@@ -26,6 +27,8 @@ export function PressableScale({ style, scaleTo = 0.985, feedback = 'light', sou
       {...rest}
       onPressIn={(e) => {
         s.set(withTiming(scaleTo, { duration: motion.press, easing: EASE }));
+        // remember what was pressed, so a game can open out of this very card
+        captureOrigin(e.currentTarget, e.nativeEvent?.pageX, e.nativeEvent?.pageY);
         onPressIn?.(e);
       }}
       onPressOut={(e) => {
