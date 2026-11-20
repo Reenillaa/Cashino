@@ -89,6 +89,10 @@ export function pageOptions(bg: string): StackNavigationOptions {
     headerShown: false,
     // the JS stack turns animations off on the web unless asked; our interpolators below replace the preset
     animation: 'default',
+    // 'float' keeps every card at the window's height on the web, so each page scrolls inside itself.
+    // (With the default the card grows with its content for the browser to scroll, but our rounded,
+    // clipped cards then cut the page off and nothing scrolls — e.g. the Academy.)
+    headerMode: 'float',
     cardStyle: { backgroundColor: bg },
     cardOverlayEnabled: true,
     cardStyleInterpolator: forPush,
