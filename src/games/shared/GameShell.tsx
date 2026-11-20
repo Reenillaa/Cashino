@@ -21,6 +21,7 @@ import { RoomPicker } from './RoomPicker';
 import { TrialNote } from '@/features/unlocks/LockedGate';
 import { TournamentBadge } from '@/features/tournament/Tournament';
 import { LimitGate } from '@/features/wellbeing/LimitGate';
+import { useGameMusic } from '@/features/play/useGameMusic';
 import type { UnlockId } from '@/engine/meta/unlocks.ts';
 import { TutorialCoach, useTutorialAutostart } from '@/features/tutorial/TutorialCoach';
 import { useTutorialRuntime } from '@/features/tutorial/tutorial';
@@ -70,6 +71,7 @@ export function GameShell({
   const vivid = gameVivid[game];
   const [sheet, setSheet] = useState<null | 'rules' | 'fair'>(null);
   const tutorialActive = useTutorialRuntime((s) => s.game === game);
+  useGameMusic(game);
   const baseRoom = useRoom(game);
   const hot = useHotTable((h) => h.day === utcDay(Date.now()) && !!h.hot[game]) && !baseRoom.practice;
   const room = hot ? hotRoom(baseRoom) : baseRoom;

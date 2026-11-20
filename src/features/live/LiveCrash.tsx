@@ -129,6 +129,7 @@ export default function LiveCrash() {
 
   return (
     <LiveFrame
+      game="crash"
       title={t('live.crash')}
       phase={framePhase}
       closesAt={live.closesAt}

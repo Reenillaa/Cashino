@@ -15,6 +15,7 @@ import { supabase, callFn, onlineConfigured } from '@/services/supabase';
 import { scheduleDailyReminder } from '@/services/notifications';
 import { changeTimeLimit, dayOf, useWellbeing } from '@/state/wellbeing';
 import { useSaver } from '@/state/saver';
+import { syncWebPush, webPushSupported } from '@/services/webPush';
 import { useNow } from '@/features/time/useNow';
 
 function confirm(title: string, body: string, onOk: () => void) {
@@ -47,6 +48,17 @@ export default function Settings() {
   };
   const setNotif = async (patch: Partial<typeof s.notifications>) => {
     const notifications = { ...s.notifications, ...patch };
+    if (webPushSupported()) {
+      // installed web app: real push notifications from the server
+      const r = await syncWebPush(notifications);
+      if (r === 'denied' || r === 'signin' || r === 'error') {
+        useProgress.getState().pushToast({ kind: 'info', title: t(`push.${r}`) });
+        if (r !== 'error') return;
+      }
+      s.set({ notifications });
+      if (r === 'ok') useProgress.getState().pushToast({ kind: 'info', title: t('push.ok') });
+      return;
+    }
     if (patch.daily) {
       const perm = await Notifications.requestPermissionsAsync().catch(() => ({ granted: false }));
       if (!perm.granted) notifications.daily = false;

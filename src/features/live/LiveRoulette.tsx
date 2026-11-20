@@ -182,7 +182,7 @@ export default function LiveRoulette() {
     </View>
   );
   return (
-    <LiveFrame title={t('live.roulette')} phase={live.phase} closesAt={live.closesAt} endsAt={live.endsAt} now={live.now} hideClock wide
+    <LiveFrame game="roulette" title={t('live.roulette')} phase={live.phase} closesAt={live.closesAt} endsAt={live.endsAt} now={live.now} hideClock wide
       footer={
         <>
           {board ? null : tools}

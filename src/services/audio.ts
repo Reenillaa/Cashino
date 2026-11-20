@@ -109,6 +109,7 @@ function webPlay(id: SoundId, volume: number) {
 export function sfx(id: SoundId, volume = 1) {
   const s = useSettings.getState();
   if (!s.sound) return;
+  if (id === 'bigwin' || id === 'levelup') duckMusic();
   const now = Date.now();
   const minGap = id === 'peg' || id === 'tick' ? 90 : id === 'chip' ? 50 : 0;
   if (minGap && now - (lastPlayed.get(id) ?? 0) < minGap) return;
@@ -135,22 +136,97 @@ export function preloadSounds(ids: SoundId[]) {
   ids.forEach((id) => player(id));
 }
 
-/** Starts/stops the ambient music according to settings. */
+/* ---------- music: one loop per kind of table, crossfaded; quieter under big moments ---------- */
+
+export type MusicScene = 'lobby' | 'lounge' | 'rumba' | 'tropical' | 'electro';
+const TRACKS: Record<MusicScene, number> = {
+  lobby: require('../../assets/sounds/ambient.wav'),
+  lounge: require('../../assets/music/lounge.m4a'),
+  rumba: require('../../assets/music/rumba.m4a'),
+  tropical: require('../../assets/music/tropical.m4a'),
+  electro: require('../../assets/music/electro.m4a'),
+};
+/** Each game's music: card tables swing, the wheel and the horses go flamenco, the sea games go tropical. */
+const SCENE_OF: Record<string, MusicScene> = {
+  blackjack: 'lounge', poker: 'lounge', videopoker: 'lounge', baccarat: 'lounge', dragontiger: 'lounge', hilo: 'lounge',
+  roulette: 'rumba', horses: 'rumba', wheel: 'rumba',
+  angler: 'tropical', fishing: 'tropical', pirate: 'tropical', penguin: 'tropical',
+};
+export const sceneForGame = (game: string): MusicScene => SCENE_OF[game] ?? 'electro';
+
+const players = new Map<MusicScene, AudioPlayer>();
+let scene: MusicScene = 'lobby';
+let duck = 1;
+const fades = new Map<MusicScene, ReturnType<typeof setInterval>>();
+/** Moves a track's volume to `to` over `ms` (expo-audio has no ramps, so a short timer does it). */
+function fadeTo(sc: MusicScene, to: number, ms = 700, then?: () => void) {
+  const p = players.get(sc);
+  if (!p) return;
+  clearInterval(fades.get(sc));
+  const from = p.volume, steps = Math.max(1, Math.round(ms / 50));
+  let k = 0;
+  fades.set(sc, setInterval(() => {
+    k++;
+    try { p.volume = from + ((to - from) * k) / steps; } catch { /* ignore */ }
+    if (k >= steps) {
+      clearInterval(fades.get(sc));
+      then?.();
+    }
+  }, 50));
+}
+function track(sc: MusicScene): AudioPlayer | null {
+  try {
+    let p = players.get(sc);
+    if (!p) {
+      p = createAudioPlayer(TRACKS[sc]);
+      p.loop = true;
+      p.volume = 0;
+      players.set(sc, p);
+    }
+    return p;
+  } catch {
+    return null;
+  }
+}
+
+/** Starts/stops the music according to settings, on the current scene. */
 export function syncMusic() {
   const s = useSettings.getState();
   try {
     if (s.music) {
       void init();
-      if (!music) {
-        music = createAudioPlayer(require('../../assets/sounds/ambient.wav'));
-        music.loop = true;
-      }
-      music.volume = s.musicVolume;
-      music.play();
-    } else if (music) {
-      music.pause();
+      const p = track(scene);
+      if (!p) return;
+      p.play();
+      fadeTo(scene, s.musicVolume * duck, 500);
+      music = p;
+    } else {
+      for (const [sc, p] of players) fadeTo(sc, 0, 300, () => p.pause());
     }
   } catch {
     // ignore
   }
+}
+
+/** Switch the music to a game's style (or back to the lobby): the old track fades out as the new one fades in. */
+export function setMusicScene(next: MusicScene) {
+  if (next === scene) return;
+  const prev = scene;
+  scene = next;
+  if (!useSettings.getState().music) return;
+  const old = players.get(prev);
+  if (old) fadeTo(prev, 0, 900, () => { try { old.pause(); } catch { /* ignore */ } });
+  syncMusic();
+}
+
+/** Big moments (a big win, a jackpot) duck the music for a few seconds so the effect is heard clearly. */
+export function duckMusic(ms = 2200) {
+  const s = useSettings.getState();
+  if (!s.music || !music) return;
+  duck = 0.35;
+  fadeTo(scene, s.musicVolume * duck, 200);
+  setTimeout(() => {
+    duck = 1;
+    fadeTo(scene, useSettings.getState().musicVolume, 900);
+  }, ms);
 }

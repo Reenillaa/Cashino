@@ -1,0 +1,18 @@
+name: Push notifications
+# Queues and sends what is due (tournament winners, today's gift reminder, chips from friends) even when nobody
+# has the app open. The call is public and idempotent: every notification has a unique key, so it never repeats.
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+permissions: {}
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask the push function to send what is due
+        run: |
+          curl -sS --fail-with-body -X POST "https://sdqezhwhkpybeciaonan.supabase.co/functions/v1/push" \
+            -H 'Content-Type: application/json' \
+            -H "apikey: sb_publishable_QyImPhthm2wU3lpAE0RIjQ_jhqb3MDz" \
+            -d '{"action":"tick"}'

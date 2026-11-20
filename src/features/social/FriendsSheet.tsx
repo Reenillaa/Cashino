@@ -3,6 +3,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Avatar, Button, PressableScale, Sheet, T, formatCoins } from '@/design/components';
 import { PlayerCard } from './PlayerCard';
+import { pokePush } from '@/services/webPush';
 import { useTheme } from '@/design/theme';
 import { useT } from '@/i18n';
 import { useSession } from '@/state/session';
@@ -116,6 +117,7 @@ function SendChips({ to, onDone }: { to: MiniProfile; onDone: () => void }) {
     }
     haptic.success();
     sfx('cashout');
+    pokePush(to.id); // your friend gets the notification now
     useSession.getState().setBalance(Number(data));
     useProgress.getState().pushToast({ kind: 'info', title: t('social.sent', { amount: formatCoins(value), name: to.display_name || to.username }) });
     onDone();

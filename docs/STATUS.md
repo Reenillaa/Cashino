@@ -102,6 +102,21 @@ Registro honesto frente a los 31 criterios de aceptación. ✅ hecho y verificad
 - En los juegos, la mesa va a la izquierda (escalada desde el diseño del móvil para que no se deforme) y los controles en un panel lateral a la derecha.
 - Móviles y tablets no cambian nada (comprobado con iPhone, iPad y Pixel emulados).
 
+## Cambios de la ronda 26 (torneo diario, tira de rachas, juego responsable, push, música)
+
+- **Arreglado el scroll del Academy** (y de cualquier página larga abierta encima de las pestañas en la web): la pila en JS dejaba crecer la tarjeta con su contenido y nuestras esquinas recortadas la cortaban. Ahora cada página mide lo que la ventana y hace scroll dentro (`headerMode: 'float'`).
+- **Torneo del día**: cada día UTC un juego es el del torneo (lo elige el motor compartido, nunca el mismo dos días seguidos; hoy, Cohete). Quien más fichas netas gane en él durante el día se lleva 5.000 (2º 2.500, 3º 1.000), pagados solos al acabar el día. Ese juego está abierto para todos ese día aunque no lo tengas desbloqueado. Tarjeta en el inicio, pestaña «Torneo» en el ranking (podio, lista, ganadores de ayer) y aviso dentro del juego. BD: `daily_board`, `settle_daily`, `daily_awards` (probado en una transacción deshecha: clasifica, paga 5.000 una sola vez y no antes de tiempo).
+- **Tira «En racha»** en el ranking: premios grandes (×20 o más) y cada 5 victorias seguidas de cualquier jugador público, con nombre y avatar, desplazándose sin parar. Los registra un trigger en la base de datos; los admins no salen.
+- **Tarjeta de amigo**: al tocar a un amigo se despliegan su nivel, juego favorito, mejor premio y multiplicador, mejor racha, logros y jugadas destacadas.
+- **Detalles**: el juego se abre creciendo desde la tarjeta que tocas; vibración distinta según el premio (pequeño, ×10, ×50) y vibración también en navegadores Android; **ahorro automático** que quita llamas, brillos y partículas con poca batería o en aparatos lentos.
+- **Juego responsable**: límite de tiempo diario (bajarlo vale al momento; subirlo o quitarlo, desde mañana; al llegar, la mesa se cierra hasta el día siguiente), aviso si hoy pierdes más de lo que elijas y **resumen semanal honesto** en el perfil («de cada 100 fichas apostadas te volvieron X»).
+- **Panel de estadísticas del admin**: jugadores, nuevos, activos hoy/7 días, rondas, fichas en carteras, jugadores por día, juegos más jugados con % devuelto y ventas de rascas.
+- **Admins fuera de las ligas de amigos** (cada uno se sigue viendo a sí mismo en las suyas).
+- **Notificaciones push** en la web instalada (iPhone 16.4+ desde la pantalla de inicio, Android, ordenador): ganadores del torneo, recordatorio del regalo diario (desde las 17:00 UTC, si no lo has recogido) y fichas recibidas de amigos. Función `push` + tablas `push_subscriptions` y `push_queue` + *service worker*; se envían cada 30 min con una acción programada de GitHub, y las de fichas al momento. Claves VAPID: la privada solo en los secretos de Supabase.
+- **Música por tipo de mesa** (sintetizada, original, `scripts/generate-music.mjs`): jazz de salón en las cartas, rumba flamenca en ruleta, rueda y caballos, tropical en los juegos de mar y electrónica suave en tragaperras y originales; cambia con fundido al entrar y salir, y baja sola durante los premios grandes.
+- **Tiendas**: `eas.json` listo para compilar versiones conectadas al servidor y guía `docs/11-STORES.md` (necesita tus cuentas de Expo, Apple Developer y Google Play).
+- Operaciones: probada una jugada real en lote en la ruleta en directo (5 apuestas, pago correcto) y borradas las cuentas de prueba `e2e…`.
+
 ## Cambios de la ronda 25 (admin fuera del ranking y transiciones entre pantallas)
 
 - **Las cuentas admin ya no salen en ningún ranking** (temporada, póker, maestría por juego, semanal de puntos y mayor ganador) ni pueden llevarse los premios semanales. Migración `20261124000000_rankings_hide_admins.sql`, aplicada y comprobada en la base de datos real (0 apariciones). Las ligas privadas entre amigos no cambian.

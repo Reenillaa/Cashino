@@ -65,6 +65,7 @@ export default function LiveHorses() {
 
   return (
     <LiveFrame
+      game="horses"
       title={t('live.horses')}
       phase={live.phase}
       closesAt={live.closesAt}

@@ -39,3 +39,6 @@ verify_jwt = false
 
 [functions.admin]
 verify_jwt = true
+[functions.push]
+# 'tick' is public and idempotent (each notification has a unique key); the rest checks the user's token itself
+verify_jwt = false

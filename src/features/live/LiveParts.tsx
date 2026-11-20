@@ -10,14 +10,16 @@ import { useSession } from '@/state/session';
 import { useDesktop } from '@/design/layout';
 import { mmss, type LiveBetRow, type LivePhase } from './useLive';
 import { LimitGate } from '@/features/wellbeing/LimitGate';
+import { useGameMusic } from '@/features/play/useGameMusic';
 
 /** Dark full-screen frame for live games: back, title, balance and the round clock. */
-export function LiveFrame({ title, phase, closesAt, endsAt, now, children, footer, hideClock, wide }: { title: string; phase: LivePhase; closesAt: number; endsAt: number; now: number; children: React.ReactNode; footer?: React.ReactNode; /** The game draws its own clock. */ hideClock?: boolean; /** Computers: use the whole width (the roulette table). */ wide?: boolean }) {
+export function LiveFrame({ title, phase, closesAt, endsAt, now, children, footer, hideClock, wide, game }: { title: string; /** For its music. */ game?: string; phase: LivePhase; closesAt: number; endsAt: number; now: number; children: React.ReactNode; footer?: React.ReactNode; /** The game draws its own clock. */ hideClock?: boolean; /** Computers: use the whole width (the roulette table). */ wide?: boolean }) {
   const { t } = useT();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const balance = useSession((s) => s.balance);
   const desktop = useDesktop();
+  useGameMusic(game ?? 'lobby');
   const urgent = phase === 'betting' && closesAt - now < 10_000;
   const label = phase === 'betting' ? `${t('live.open')} · ${mmss(closesAt - now)}` : phase === 'waiting' ? t('live.closed') : phase === 'show' ? t('live.running') : `${t('live.next')} ${mmss(endsAt - now)}`;
   return (
